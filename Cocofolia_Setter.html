@@ -19160,13 +19160,15 @@ var TabLog = (function(){
     var ctx = canvas.getContext('2d'); // 폭에 맞춘 줄바꿈 계산용(치수 설정 전에도 measureText는 동작)
 
     var innerW = panelW - pad*2;
+    // 이름이 패널 폭보다 길면 잘리지 않도록 캐치프레이즈처럼 여러 줄로 자동 줄바꿈한다
+    var nameLines = (panelOn && nameVal) ? wrapMixedText(ctx, nameVal, innerW, nameFontPx, '700') : [];
     var catchLines = (panelOn && catchVal) ? wrapMixedText(ctx, catchVal, innerW, catchFontPx, '500') : [];
     var imgH = (panelOn && heroImg) ? Math.min(innerW * (heroImg.height/heroImg.width), 900) : 0;
     var panelH = 0;
     if(panelOn){
       panelH = pad;
       if(heroImg) panelH += imgH + imgGap;
-      if(nameVal) panelH += nameFontPx + nameGap;
+      if(nameLines.length) panelH += nameLines.length * (nameFontPx+4) + nameGap;
       if(catchLines.length) panelH += catchLines.length * (catchFontPx+catchLineGap);
       panelH += pad;
     }
@@ -19183,9 +19185,12 @@ var TabLog = (function(){
         ctx.drawImage(heroImg, dx, cy, innerW, imgH);
         cy += imgH + imgGap;
       }
-      if(nameVal){
-        drawMixedTextCentered(ctx, nameVal, panelW/2, cy+nameFontPx-4, nameFontPx, '700', '#1e2430');
-        cy += nameFontPx + nameGap;
+      if(nameLines.length){
+        nameLines.forEach(function(line){
+          drawMixedTextCentered(ctx, line, panelW/2, cy+nameFontPx-4, nameFontPx, '700', '#1e2430');
+          cy += nameFontPx + 4;
+        });
+        cy += nameGap;
       }
       catchLines.forEach(function(line){
         drawMixedTextCentered(ctx, line, panelW/2, cy+catchFontPx, catchFontPx, '500', '#6b7280');
