@@ -406,8 +406,8 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
         <input type="file" id="cs-hero-file" accept=".png,.jpg,.jpeg,.webp" class="hidden">
       </div>
       <div style="flex:1 1 220px;display:flex;flex-direction:column;gap:8px;">
-        <div class="field"><label>캐릭터 이름</label><input type="text" id="cs-name" class="wide" placeholder="예: 와카나 료우 令"></div>
-        <div class="field"><label>캐치프레이즈</label><input type="text" id="cs-catch" class="wide" placeholder="예: 그림자 속에서 웃는 저격수"></div>
+        <div class="field"><label>캐릭터 이름</label><input type="text" id="cs-name" class="wide" placeholder="예: 이름"></div>
+        <div class="field"><label>캐치프레이즈</label><input type="text" id="cs-catch" class="wide" placeholder="예: 캐치프레이즈"></div>
       </div>
       <div class="field" style="flex:0 0 auto;"><label>패널 폭(px)</label><input type="number" id="cs-hero-width" value="220" min="120" max="500" style="width:90px;"></div>
     </div>
@@ -19052,6 +19052,22 @@ var TabLog = (function(){
     return lines;
   }
 
+  /* 입력칸이 비어있을 때 보여줄 예시 문구 — 로드할 때마다 무작위로 하나 골라 표시 */
+  var NAME_CATCH_EXAMPLES = [
+    {name:'설이', catch:'말보다 먼저 웃는 사람'},
+    {name:'하람', catch:'조용히 셈을 세는 버릇'},
+    {name:'유노', catch:'비 오는 날에만 나타난다'},
+    {name:'라온', catch:'모든 질문에 되묻는다'},
+    {name:'다온', catch:'뒤늦게 도착하는 진심'},
+    {name:'미르', catch:'농담 속에 숨긴 진심'},
+    {name:'가온', catch:'말수는 적고 손은 빠르다'}
+  ];
+  (function(){
+    var ex = NAME_CATCH_EXAMPLES[Math.floor(Math.random()*NAME_CATCH_EXAMPLES.length)];
+    $('#cs-name').placeholder = '예: ' + ex.name;
+    $('#cs-catch').placeholder = '예: ' + ex.catch;
+  })();
+
   setupDrop('cs-hero-drop', 'cs-hero-file', function(f){
     loadImageElement(f).then(function(img){
       heroImg = img;
@@ -19136,7 +19152,11 @@ var TabLog = (function(){
     var panelOn = !!(heroImg || nameVal || catchVal);
     var panelW = panelOn ? Math.max(120, parseInt($('#cs-hero-width').value,10)||220) : 0;
     var panelGap = panelOn ? 18 : 0;
-    var pad = 14, nameFontPx = 22, catchFontPx = 13;
+    // 패널 폭이 바뀌어도 내부 비율(여백/글자 크기)이 그대로 유지되도록 기준 폭 대비 스케일을 적용한다
+    var PANEL_BASE_W = 220;
+    var scale = panelW / PANEL_BASE_W;
+    var pad = 14*scale, nameFontPx = 22*scale, catchFontPx = 13*scale;
+    var imgGap = 14*scale, nameGap = 8*scale, catchLineGap = 7*scale;
 
     var canvas = $('#cs-canvas');
     var ctx = canvas.getContext('2d'); // 폭에 맞춘 줄바꿈 계산용(치수 설정 전에도 measureText는 동작)
@@ -19147,9 +19167,9 @@ var TabLog = (function(){
     var panelH = 0;
     if(panelOn){
       panelH = pad;
-      if(heroImg) panelH += imgH + 14;
-      if(nameVal) panelH += nameFontPx + 8;
-      if(catchLines.length) panelH += catchLines.length * (catchFontPx+7);
+      if(heroImg) panelH += imgH + imgGap;
+      if(nameVal) panelH += nameFontPx + nameGap;
+      if(catchLines.length) panelH += catchLines.length * (catchFontPx+catchLineGap);
       panelH += pad;
     }
 
@@ -19163,15 +19183,15 @@ var TabLog = (function(){
       if(heroImg){
         var dx = (panelW - innerW)/2;
         ctx.drawImage(heroImg, dx, cy, innerW, imgH);
-        cy += imgH + 14;
+        cy += imgH + imgGap;
       }
       if(nameVal){
-        drawMixedTextCentered(ctx, nameVal, panelW/2, cy+nameFontPx-4, nameFontPx, '700', '#1e2430');
-        cy += nameFontPx + 8;
+        drawMixedTextCentered(ctx, nameVal, panelW/2, cy+nameFontPx-4*scale, nameFontPx, '700', '#1e2430');
+        cy += nameFontPx + nameGap;
       }
       catchLines.forEach(function(line){
         drawMixedTextCentered(ctx, line, panelW/2, cy+catchFontPx, catchFontPx, '500', '#6b7280');
-        cy += catchFontPx + 7;
+        cy += catchFontPx + catchLineGap;
       });
       ctx.strokeStyle = '#e3e6eb';
       ctx.beginPath();
@@ -19188,8 +19208,7 @@ var TabLog = (function(){
       var sx = cropRect.x*it.img.width, sy = cropRect.y*it.img.height;
       var sw = cropRect.w*it.img.width, sh = cropRect.h*it.img.height;
       ctx.drawImage(it.img, sx, sy, sw, sh, x, y, thumb, thumb);
-      ctx.strokeStyle = '#e3e6eb'; ctx.strokeRect(x,y,thumb,thumb);
-      drawMixedTextCentered(ctx, it.label, x+thumb/2, y+thumb+16, 13, null, '#1e2430');
+      drawMixedTextCentered(ctx, it.label, x+thumb/2, y+thumb+16, 13, '600', '#1e2430');
     });
     $('#cs-download').classList.remove('hidden');
   });
