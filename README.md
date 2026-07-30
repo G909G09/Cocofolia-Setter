@@ -43,10 +43,9 @@ GIF ↔ APNG를 양방향으로 변환합니다. GIF를 올리면 APNG(무손실
 ## 폴더 구성
 
 ```
-TRP_통합툴.html          실제 도구 (이 파일 하나만 있으면 됩니다)
+Cocofolia_Setter.html          실제 도구 (이 파일 하나만 있으면 됩니다)
 Cocofolia_Log_V4/        5번 탭과 연동되는 한/글 템플릿 + 매크로 원본
 Cocofolia_Log_V4.zip     위 폴더의 압축본
-25.03.11 ... .png        컷인 예시 이미지
 ```
 
 ## 기술 메모
