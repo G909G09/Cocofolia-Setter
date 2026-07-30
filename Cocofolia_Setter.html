@@ -19040,6 +19040,11 @@ var TabLog = (function(){
       x += ctx.measureText(r.text).width;
     });
   }
+  function fitFontSize(ctx, text, maxWidth, basePx, weight, minPx){
+    var px = basePx;
+    while(px > minPx && measureMixedText(ctx, text, px, weight) > maxWidth) px -= 1;
+    return px;
+  }
   function wrapMixedText(ctx, text, maxWidth, px, weight){
     var lines = [], line = '';
     for(var i=0;i<text.length;i++){
@@ -19211,7 +19216,8 @@ var TabLog = (function(){
       var sx = cropRect.x*it.img.width, sy = cropRect.y*it.img.height;
       var sw = cropRect.w*it.img.width, sh = cropRect.h*it.img.height;
       ctx.drawImage(it.img, sx, sy, sw, sh, x, y, thumb, thumb);
-      drawMixedTextCentered(ctx, it.label, x+thumb/2, y+thumb+16, 13, '600', '#1e2430');
+      var labelPx = fitFontSize(ctx, it.label, thumb-4, 13, '600', 9); // 라벨이 썸네일 폭보다 길면 글자 크기를 줄여 옆 칸을 침범하지 않게 한다
+      drawMixedTextCentered(ctx, it.label, x+thumb/2, y+thumb+16, labelPx, '600', '#1e2430');
     });
     $('#cs-download').classList.remove('hidden');
   });
