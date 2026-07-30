@@ -12,6 +12,7 @@
   --danger:#e35b5b; --ok:#2ea36b; --chip:#eef0ff;
   --radius:10px; --mono:ui-monospace,Consolas,monospace;
   --sans:"Pretendard","Malgun Gothic","Apple SD Gothic Neo",system-ui,-apple-system,sans-serif;
+  --sans-jp:"Noto Sans JP","Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","MS PGothic",sans-serif;
 }
 *{box-sizing:border-box;}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5;}
@@ -396,7 +397,23 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <div class="card">
     <h2>표정 카탈로그 컨닝 페이퍼 메이커</h2>
     <p class="desc">같은 캐릭터의 표정별 스탠딩 이미지를 올리고, 첫 번째 이미지 위에서 원하는 영역(예: 얼굴)을 드래그로 지정하면 나머지 이미지에도 같은 위치가 적용됩니다.</p>
-    <div class="drop" id="cs-drop">같은 캐릭터의 표정 변형 이미지 여러 장을 끌어다 놓거나 클릭해서 선택
+
+    <h3 style="margin:0 0 8px;font-size:13px;color:var(--sub);font-weight:700;">좌측 캐릭터 패널 (선택 사항 — 비워두면 표시되지 않습니다)</h3>
+    <div class="row" style="align-items:flex-start;">
+      <div class="drop" id="cs-hero-drop" style="flex:0 0 130px;padding:10px;font-size:11px;min-height:60px;">
+        <span id="cs-hero-label">대표 이미지</span>
+        <img id="cs-hero-preview" class="hidden" style="max-width:100%;max-height:80px;display:block;margin:4px auto 0;border-radius:6px;">
+        <input type="file" id="cs-hero-file" accept=".png,.jpg,.jpeg,.webp" class="hidden">
+      </div>
+      <div style="flex:1 1 220px;display:flex;flex-direction:column;gap:8px;">
+        <div class="field"><label>캐릭터 이름</label><input type="text" id="cs-name" class="wide" placeholder="예: 와카나 료우 令"></div>
+        <div class="field"><label>캐치프레이즈</label><input type="text" id="cs-catch" class="wide" placeholder="예: 그림자 속에서 웃는 저격수"></div>
+      </div>
+      <div class="field" style="flex:0 0 auto;"><label>패널 폭(px)</label><input type="number" id="cs-hero-width" value="220" min="120" max="500" style="width:90px;"></div>
+    </div>
+    <p class="footnote" style="margin:2px 0 4px;">이름/캐치프레이즈에 한국어와 일본어(가나·한자)를 섞어 써도 자동으로 어울리는 서체(한국어: Pretendard / 일본어: Noto Sans JP 계열)로 각각 렌더링됩니다.</p>
+
+    <div class="drop" id="cs-drop" style="margin-top:8px;">같은 캐릭터의 표정 변형 이미지 여러 장을 끌어다 놓거나 클릭해서 선택
       <input type="file" id="cs-file" accept=".png,.jpg,.jpeg,.webp" multiple class="hidden">
     </div>
     <div class="info-box" id="cs-info">이미지를 올리면 첫 번째 이미지 위에 크롭 영역을 표시합니다. 드래그해서 위치를, 모서리를 드래그해서 크기를 조절하세요.</div>
@@ -18978,10 +18995,71 @@ var TabLog = (function(){
 ================================================================ */
 (function(){
   var items = [];
+  var heroImg = null;
   var cropRect = {x:0.25, y:0.05, w:0.5, h:0.4};
   var wrap = $('#cs-cropper-wrap');
   var cropImg = $('#cs-cropper-img');
   var cropBox = $('#cs-crop-box');
+
+  /* ── 한/일 혼용 텍스트 렌더링 (한국어: Pretendard, 일본어: Noto Sans JP 계열) ── */
+  var FONT_KR = getComputedStyle(document.documentElement).getPropertyValue('--sans').trim() || 'sans-serif';
+  var FONT_JP = getComputedStyle(document.documentElement).getPropertyValue('--sans-jp').trim() || 'sans-serif';
+  function isJPChar(ch){
+    var cp = ch.codePointAt(0);
+    return (cp>=0x3040 && cp<=0x30FF)   // 히라가나/가타카나
+        || (cp>=0x31F0 && cp<=0x31FF)   // 가타카나 확장
+        || (cp>=0xFF66 && cp<=0xFF9D)   // 반각 가타카나
+        || (cp>=0x4E00 && cp<=0x9FFF)   // CJK 통합 한자
+        || (cp>=0x3400 && cp<=0x4DBF);  // CJK 확장 A
+  }
+  function splitRuns(text){
+    var runs = [], cur = '', curJP = null;
+    for(var i=0;i<text.length;i++){
+      var ch = text[i];
+      var jp = isJPChar(ch);
+      if(curJP===null){ curJP = jp; cur = ch; }
+      else if(jp===curJP){ cur += ch; }
+      else { runs.push({text:cur, jp:curJP}); cur = ch; curJP = jp; }
+    }
+    if(cur) runs.push({text:cur, jp:curJP});
+    return runs;
+  }
+  function fontStr(px, weight, jp){ return (weight?weight+' ':'')+px+'px '+(jp?FONT_JP:FONT_KR); }
+  function measureMixedText(ctx, text, px, weight){
+    var total = 0;
+    splitRuns(text).forEach(function(r){ ctx.font = fontStr(px, weight, r.jp); total += ctx.measureText(r.text).width; });
+    return total;
+  }
+  function drawMixedTextCentered(ctx, text, cx, y, px, weight, color){
+    var runs = splitRuns(text);
+    var x = cx - measureMixedText(ctx, text, px, weight)/2;
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = color;
+    runs.forEach(function(r){
+      ctx.font = fontStr(px, weight, r.jp);
+      ctx.fillText(r.text, x, y);
+      x += ctx.measureText(r.text).width;
+    });
+  }
+  function wrapMixedText(ctx, text, maxWidth, px, weight){
+    var lines = [], line = '';
+    for(var i=0;i<text.length;i++){
+      var ch = text[i];
+      var test = line + ch;
+      if(line && measureMixedText(ctx, test, px, weight) > maxWidth){ lines.push(line); line = ch; }
+      else line = test;
+    }
+    if(line) lines.push(line);
+    return lines;
+  }
+
+  setupDrop('cs-hero-drop', 'cs-hero-file', function(f){
+    loadImageElement(f).then(function(img){
+      heroImg = img;
+      $('#cs-hero-label').textContent = '다시 선택하려면 클릭';
+      $('#cs-hero-preview').src = URL.createObjectURL(f);
+      $('#cs-hero-preview').classList.remove('hidden');
+    });
+  });
 
   function syncCropBoxDom(){
     var w = cropImg.clientWidth, h = cropImg.clientHeight;
@@ -19050,23 +19128,68 @@ var TabLog = (function(){
     var thumb = Math.max(40, parseInt($('#cs-thumb').value,10)||160);
     var labelH = 22;
     var rows = Math.ceil(items.length/cols);
+    var gridW = cols*thumb + (cols+1)*gap;
+    var gridH = rows*(thumb+labelH) + (rows+1)*gap;
+
+    var nameVal = $('#cs-name').value.trim();
+    var catchVal = $('#cs-catch').value.trim();
+    var panelOn = !!(heroImg || nameVal || catchVal);
+    var panelW = panelOn ? Math.max(120, parseInt($('#cs-hero-width').value,10)||220) : 0;
+    var panelGap = panelOn ? 18 : 0;
+    var pad = 14, nameFontPx = 22, catchFontPx = 13;
+
     var canvas = $('#cs-canvas');
-    canvas.width = cols*thumb + (cols+1)*gap;
-    canvas.height = rows*(thumb+labelH) + (rows+1)*gap;
-    var ctx = canvas.getContext('2d');
+    var ctx = canvas.getContext('2d'); // 폭에 맞춘 줄바꿈 계산용(치수 설정 전에도 measureText는 동작)
+
+    var innerW = panelW - pad*2;
+    var catchLines = (panelOn && catchVal) ? wrapMixedText(ctx, catchVal, innerW, catchFontPx, '500') : [];
+    var imgH = (panelOn && heroImg) ? Math.min(innerW * (heroImg.height/heroImg.width), 900) : 0;
+    var panelH = 0;
+    if(panelOn){
+      panelH = pad;
+      if(heroImg) panelH += imgH + 14;
+      if(nameVal) panelH += nameFontPx + 8;
+      if(catchLines.length) panelH += catchLines.length * (catchFontPx+7);
+      panelH += pad;
+    }
+
+    canvas.width = panelW + panelGap + gridW;
+    canvas.height = Math.max(gridH, panelH);
+    // 캔버스 크기를 바꾸면 컨텍스트 상태가 초기화되므로 이후 다시 그린다
     ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    if(panelOn){
+      var cy = pad;
+      if(heroImg){
+        var dx = (panelW - innerW)/2;
+        ctx.drawImage(heroImg, dx, cy, innerW, imgH);
+        cy += imgH + 14;
+      }
+      if(nameVal){
+        drawMixedTextCentered(ctx, nameVal, panelW/2, cy+nameFontPx-4, nameFontPx, '700', '#1e2430');
+        cy += nameFontPx + 8;
+      }
+      catchLines.forEach(function(line){
+        drawMixedTextCentered(ctx, line, panelW/2, cy+catchFontPx, catchFontPx, '500', '#6b7280');
+        cy += catchFontPx + 7;
+      });
+      ctx.strokeStyle = '#e3e6eb';
+      ctx.beginPath();
+      ctx.moveTo(panelW+panelGap/2, 0);
+      ctx.lineTo(panelW+panelGap/2, canvas.height);
+      ctx.stroke();
+    }
+
+    var gridX0 = panelW + panelGap;
     items.forEach(function(it, idx){
       var col = idx%cols, rowI = Math.floor(idx/cols);
-      var x = gap + col*(thumb+gap);
+      var x = gridX0 + gap + col*(thumb+gap);
       var y = gap + rowI*(thumb+labelH+gap);
       var sx = cropRect.x*it.img.width, sy = cropRect.y*it.img.height;
       var sw = cropRect.w*it.img.width, sh = cropRect.h*it.img.height;
       ctx.drawImage(it.img, sx, sy, sw, sh, x, y, thumb, thumb);
       ctx.strokeStyle = '#e3e6eb'; ctx.strokeRect(x,y,thumb,thumb);
-      ctx.fillStyle = '#1e2430';
-      ctx.font = '13px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(it.label, x+thumb/2, y+thumb+16);
+      drawMixedTextCentered(ctx, it.label, x+thumb/2, y+thumb+16, 13, null, '#1e2430');
     });
     $('#cs-download').classList.remove('hidden');
   });
