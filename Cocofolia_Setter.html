@@ -19040,6 +19040,11 @@ var TabLog = (function(){
       x += ctx.measureText(r.text).width;
     });
   }
+  function fitFontSize(ctx, text, maxWidth, basePx, weight, minPx){
+    var px = basePx;
+    while(px > minPx && measureMixedText(ctx, text, px, weight) > maxWidth) px -= 1;
+    return px;
+  }
   function wrapMixedText(ctx, text, maxWidth, px, weight){
     var lines = [], line = '';
     for(var i=0;i<text.length;i++){
@@ -19160,13 +19165,15 @@ var TabLog = (function(){
     var ctx = canvas.getContext('2d'); // 폭에 맞춘 줄바꿈 계산용(치수 설정 전에도 measureText는 동작)
 
     var innerW = panelW - pad*2;
+    // 이름이 패널 폭보다 길면 잘리지 않도록 캐치프레이즈처럼 여러 줄로 자동 줄바꿈한다
+    var nameLines = (panelOn && nameVal) ? wrapMixedText(ctx, nameVal, innerW, nameFontPx, '700') : [];
     var catchLines = (panelOn && catchVal) ? wrapMixedText(ctx, catchVal, innerW, catchFontPx, '500') : [];
     var imgH = (panelOn && heroImg) ? Math.min(innerW * (heroImg.height/heroImg.width), 900) : 0;
     var panelH = 0;
     if(panelOn){
       panelH = pad;
       if(heroImg) panelH += imgH + imgGap;
-      if(nameVal) panelH += nameFontPx + nameGap;
+      if(nameLines.length) panelH += nameLines.length * (nameFontPx+4) + nameGap;
       if(catchLines.length) panelH += catchLines.length * (catchFontPx+catchLineGap);
       panelH += pad;
     }
@@ -19183,9 +19190,12 @@ var TabLog = (function(){
         ctx.drawImage(heroImg, dx, cy, innerW, imgH);
         cy += imgH + imgGap;
       }
-      if(nameVal){
-        drawMixedTextCentered(ctx, nameVal, panelW/2, cy+nameFontPx-4, nameFontPx, '700', '#1e2430');
-        cy += nameFontPx + nameGap;
+      if(nameLines.length){
+        nameLines.forEach(function(line){
+          drawMixedTextCentered(ctx, line, panelW/2, cy+nameFontPx-4, nameFontPx, '700', '#1e2430');
+          cy += nameFontPx + 4;
+        });
+        cy += nameGap;
       }
       catchLines.forEach(function(line){
         drawMixedTextCentered(ctx, line, panelW/2, cy+catchFontPx, catchFontPx, '500', '#6b7280');
@@ -19206,7 +19216,8 @@ var TabLog = (function(){
       var sx = cropRect.x*it.img.width, sy = cropRect.y*it.img.height;
       var sw = cropRect.w*it.img.width, sh = cropRect.h*it.img.height;
       ctx.drawImage(it.img, sx, sy, sw, sh, x, y, thumb, thumb);
-      drawMixedTextCentered(ctx, it.label, x+thumb/2, y+thumb+16, 13, '600', '#1e2430');
+      var labelPx = fitFontSize(ctx, it.label, thumb-4, 13, '600', 9); // 라벨이 썸네일 폭보다 길면 글자 크기를 줄여 옆 칸을 침범하지 않게 한다
+      drawMixedTextCentered(ctx, it.label, x+thumb/2, y+thumb+16, labelPx, '600', '#1e2430');
     });
     $('#cs-download').classList.remove('hidden');
   });
