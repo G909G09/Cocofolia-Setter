@@ -19152,11 +19152,9 @@ var TabLog = (function(){
     var panelOn = !!(heroImg || nameVal || catchVal);
     var panelW = panelOn ? Math.max(120, parseInt($('#cs-hero-width').value,10)||220) : 0;
     var panelGap = panelOn ? 18 : 0;
-    // 패널 폭이 바뀌어도 내부 비율(여백/글자 크기)이 그대로 유지되도록 기준 폭 대비 스케일을 적용한다
-    var PANEL_BASE_W = 220;
-    var scale = panelW / PANEL_BASE_W;
-    var pad = 14*scale, nameFontPx = 22*scale, catchFontPx = 13*scale;
-    var imgGap = 14*scale, nameGap = 8*scale, catchLineGap = 7*scale;
+    // 이름/캐치프레이즈 글자 크기는 패널 폭과 무관하게 고정 — 이미지만 폭에 맞춰 커지고 작아진다
+    var pad = 14, nameFontPx = 22, catchFontPx = 13;
+    var imgGap = 14, nameGap = 8, catchLineGap = 7;
 
     var canvas = $('#cs-canvas');
     var ctx = canvas.getContext('2d'); // 폭에 맞춘 줄바꿈 계산용(치수 설정 전에도 measureText는 동작)
@@ -19186,7 +19184,7 @@ var TabLog = (function(){
         cy += imgH + imgGap;
       }
       if(nameVal){
-        drawMixedTextCentered(ctx, nameVal, panelW/2, cy+nameFontPx-4*scale, nameFontPx, '700', '#1e2430');
+        drawMixedTextCentered(ctx, nameVal, panelW/2, cy+nameFontPx-4, nameFontPx, '700', '#1e2430');
         cy += nameFontPx + nameGap;
       }
       catchLines.forEach(function(line){
