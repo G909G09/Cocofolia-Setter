@@ -18270,6 +18270,16 @@ var LogParser = (function(){
   return { parse: parse };
 })();
 
+// 발화자 이름 중 CoC의 진행자(키퍼) 지칭으로 흔히 쓰이는 표기가 있으면 그 사람을 GM으로 기본 선택한다.
+// 없으면 발화 빈도 1위(freq desc로 이미 정렬된 첫 항목)로 대체한다.
+var GM_NAME_ALIASES = ['키퍼','KP','GM','Keeper','게임마스터','마스터','진행자'];
+function guessGmName(namesSortedByFreqDesc){
+  for(var i=0;i<namesSortedByFreqDesc.length;i++){
+    if(GM_NAME_ALIASES.indexOf(namesSortedByFreqDesc[i]) >= 0) return namesSortedByFreqDesc[i];
+  }
+  return namesSortedByFreqDesc[0] || null;
+}
+
 /* ================================================================
    탭 4. 로그 백업 (심플)
 ================================================================ */
@@ -18290,6 +18300,8 @@ var TabLog = (function(){
       o.value = n; o.textContent = n + ' ('+freq[n]+')';
       gm.appendChild(o);
     });
+    var guessed = guessGmName(names);
+    if(guessed!=null) gm.value = guessed;
     gm.onchange = render;
   }
 
@@ -18462,7 +18474,8 @@ var TabLog = (function(){
       o.value = n; o.textContent = n + (freq[n]? ' ('+freq[n]+')':'');
       gm.appendChild(o);
     });
-    if(names.indexOf('Article No.9')>=0) gm.value = 'Article No.9';
+    var guessed = guessGmName(names);
+    if(guessed!=null) gm.value = guessed;
     gm.onchange = buildCharRows;
     buildCharRows();
   }
