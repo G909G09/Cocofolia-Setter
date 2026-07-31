@@ -251,7 +251,13 @@
       o.value = n; o.textContent = n + (freq[n] ? " ("+freq[n]+")" : "");
       gm.appendChild(o);
     });
-    if (names.indexOf("Article No.9") >= 0) gm.value = "Article No.9";
+    var GM_NAME_ALIASES = ["키퍼","KP","GM","Keeper","게임마스터","마스터","진행자"];
+    var guessed = null;
+    for (var gi=0; gi<GM_NAME_ALIASES.length; gi++){
+      if (names.indexOf(GM_NAME_ALIASES[gi]) >= 0){ guessed = GM_NAME_ALIASES[gi]; break; }
+    }
+    if (guessed == null) guessed = names[0] || null;
+    if (guessed != null) gm.value = guessed;
     gm.onchange = buildCharRows;
     buildCharRows();
   }
