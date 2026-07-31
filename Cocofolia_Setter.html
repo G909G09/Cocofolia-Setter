@@ -388,6 +388,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="row">
       <button class="btn" id="st-apply" disabled>전체 다시 렌더링</button>
       <button class="btn ghost" id="st-zip" disabled>ZIP으로 일괄 다운로드</button>
+      <button class="btn ghost" id="st-clear" disabled style="color:var(--danger);">전체 지우기</button>
     </div>
     <div id="st-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:14px;"></div>
   </div>
@@ -430,6 +431,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <div class="field"><label>썸네일 크기(px)</label><input type="number" id="cs-thumb" value="160" min="40" max="400"></div>
       <button class="btn" id="cs-build" disabled>컨닝 페이퍼 생성</button>
       <button class="btn ghost hidden" id="cs-download">이미지로 다운로드</button>
+      <button class="btn ghost" id="cs-clear" disabled style="color:var(--danger);">전체 지우기</button>
     </div>
     <div id="cs-labels" style="margin-top:6px;"></div>
     <canvas id="cs-canvas" class="preview" style="margin-top:14px;max-width:100%;"></canvas>
@@ -19037,6 +19039,7 @@ var TabLog = (function(){
     });
     $('#st-zip').disabled = items.length===0;
     $('#st-apply').disabled = items.length===0;
+    $('#st-clear').disabled = items.length===0;
   }
 
   setupMultiDrop('st-drop','st-file', function(files){
@@ -19050,6 +19053,11 @@ var TabLog = (function(){
   });
 
   $('#st-apply').addEventListener('click', renderAll);
+  $('#st-clear').addEventListener('click', function(){
+    if(!confirm('업로드한 이미지 '+items.length+'장을 모두 지울까요?')) return;
+    items = [];
+    renderAll();
+  });
   ['st-ratio-w','st-ratio-h','st-mode','st-anchor','st-bgcolor','st-outwidth'].forEach(function(id){
     $('#'+id).addEventListener('change', function(){
       if(id==='st-anchor'){
@@ -19217,6 +19225,7 @@ var TabLog = (function(){
       }
       buildLabelInputs();
       $('#cs-build').disabled = false;
+      $('#cs-clear').disabled = false;
       $('#cs-info').textContent = items.length+'장 로드됨. 순서는 드래그하거나 ◀▶ 버튼으로 바꿀 수 있습니다. 크롭 영역을 조절한 뒤 컨닝 페이퍼 생성을 누르세요.';
     });
   });
@@ -19232,6 +19241,7 @@ var TabLog = (function(){
     items.splice(idx,1);
     buildLabelInputs();
     $('#cs-build').disabled = items.length===0;
+    $('#cs-clear').disabled = items.length===0;
     if(items.length===0){
       wrap.classList.add('hidden');
       $('#cs-info').textContent = '이미지를 올리면 첫 번째 이미지 위에 크롭 영역을 표시합니다. 드래그해서 위치를, 모서리를 드래그해서 크기를 조절하세요.';
@@ -19239,6 +19249,20 @@ var TabLog = (function(){
       $('#cs-info').textContent = items.length+'장 로드됨. 순서는 드래그하거나 ◀▶ 버튼으로 바꿀 수 있습니다. 크롭 영역을 조절한 뒤 컨닝 페이퍼 생성을 누르세요.';
     }
   }
+
+  $('#cs-clear').addEventListener('click', function(){
+    if(!confirm('업로드한 표정 이미지 '+items.length+'장을 모두 지울까요?')) return;
+    items = [];
+    buildLabelInputs();
+    wrap.classList.add('hidden');
+    $('#cs-build').disabled = true;
+    $('#cs-clear').disabled = true;
+    $('#cs-download').classList.add('hidden');
+    $('#cs-info').textContent = '이미지를 올리면 첫 번째 이미지 위에 크롭 영역을 표시합니다. 드래그해서 위치를, 모서리를 드래그해서 크기를 조절하세요.';
+    var canvas = $('#cs-canvas');
+    canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
+    canvas.width = 0; canvas.height = 0;
+  });
 
   function buildLabelInputs(){
     var wrap2 = $('#cs-labels');
