@@ -313,7 +313,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
   <div class="card">
     <h2>용어 사전 편집</h2>
-    <p class="desc">기본 사전은 자주 쓰이는 CoC 관련 용어 위주입니다. 직접 추가/수정하고, JSON으로 내보내/불러올 수 있습니다.</p>
+    <p class="desc">기본 사전은 자주 쓰이는 CoC 관련 용어 위주입니다. 직접 추가/수정하고, JSON으로 내보내/불러올 수 있습니다. 수정한 내용은 이 브라우저에 자동 저장되어 다음에 열어도 유지됩니다.</p>
     <div class="row">
       <button class="btn ghost" id="gl-add-row">행 추가</button>
       <button class="btn ghost" id="gl-export-dict">사전 내보내기(JSON)</button>
@@ -349,7 +349,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 
   <div class="card">
     <h3 style="font-size:13px;color:var(--sub);margin:0 0 6px;">Damage Bonus / Build 참고표 (사용자 입력)</h3>
-    <p class="desc">정확한 구간·수치는 사용 중인 7판 룰북(수호자 룰북)을 참고해 직접 입력하세요. 입력해두면 STR+SIZ 합계로 즉시 조회할 수 있습니다.</p>
+    <p class="desc">정확한 구간·수치는 사용 중인 7판 룰북(수호자 룰북)을 참고해 직접 입력하세요. 입력해두면 STR+SIZ 합계로 즉시 조회할 수 있습니다. 입력한 표는 이 브라우저에 자동 저장되어 다음에 열어도 유지됩니다.</p>
     <table style="width:100%;border-collapse:collapse;font-size:13px;" id="ed-db-table">
       <thead><tr style="text-align:left;color:var(--sub);"><th style="padding:4px;">STR+SIZ 최소</th><th style="padding:4px;">STR+SIZ 최대</th><th style="padding:4px;">Damage Bonus</th><th style="padding:4px;">Build</th><th></th></tr></thead>
       <tbody id="ed-db-body"></tbody>
@@ -18731,7 +18731,22 @@ var TabLog = (function(){
     ['신화적 존재','신화 생물'],
     ['마법서','마도서']
   ];
-  var dict = DEFAULT_GLOSSARY.map(function(p){ return {jp:p[0], kr:p[1]}; });
+  // 직접 추가/수정한 사전은 브라우저에 저장해서 다음에 열 때도 유지된다 (이 브라우저/기기에서만).
+  var GLOSSARY_LS_KEY = 'cocofolia_setter_glossary_v1';
+  function loadSavedGlossary(){
+    try{
+      var raw = localStorage.getItem(GLOSSARY_LS_KEY);
+      if(!raw) return null;
+      var data = JSON.parse(raw);
+      if(!Array.isArray(data)) return null;
+      return data.map(function(d){ return {jp:d.jp||'', kr:d.kr||''}; });
+    }catch(e){ return null; }
+  }
+  function saveGlossary(){
+    try{ localStorage.setItem(GLOSSARY_LS_KEY, JSON.stringify(dict)); }catch(e){}
+  }
+
+  var dict = loadSavedGlossary() || DEFAULT_GLOSSARY.map(function(p){ return {jp:p[0], kr:p[1]}; });
 
   function renderDictTable(){
     var body = $('#gl-dict-body');
@@ -18749,12 +18764,14 @@ var TabLog = (function(){
     $all('input[data-f]', body).forEach(function(inp){
       inp.addEventListener('input', function(){
         dict[+inp.dataset.idx][inp.dataset.f] = inp.value;
+        saveGlossary();
       });
     });
     $all('.gl-del', body).forEach(function(btn){
       btn.addEventListener('click', function(){
         dict.splice(+btn.dataset.idx, 1);
         renderDictTable();
+        saveGlossary();
       });
     });
   }
@@ -18763,11 +18780,13 @@ var TabLog = (function(){
   $('#gl-add-row').addEventListener('click', function(){
     dict.push({jp:'', kr:''});
     renderDictTable();
+    saveGlossary();
   });
   $('#gl-reset-dict').addEventListener('click', function(){
     if(!confirm('사전을 기본값으로 초기화할까요? 직접 추가/수정한 내용은 사라집니다.')) return;
     dict = DEFAULT_GLOSSARY.map(function(p){ return {jp:p[0], kr:p[1]}; });
     renderDictTable();
+    saveGlossary();
   });
   $('#gl-export-dict').addEventListener('click', function(){
     downloadBlob(new Blob([JSON.stringify(dict, null, 2)],{type:'application/json'}), 'coc_glossary.json');
@@ -18781,6 +18800,7 @@ var TabLog = (function(){
         if(Array.isArray(data)){
           dict = data.map(function(d){ return {jp:d.jp||'', kr:d.kr||''}; });
           renderDictTable();
+          saveGlossary();
         }
       }catch(e){ alert('사전 파일을 읽을 수 없습니다: '+e.message); }
     });
@@ -18867,7 +18887,22 @@ var TabLog = (function(){
     $('#ed-text-matches').textContent = matches.length ? ('변환됨: '+matches.join(', ')) : '인식된 능력치 표기를 찾지 못했습니다 (라벨+숫자 형태만 인식).';
   });
 
-  var dbRows = [];
+  // 직접 채워둔 Damage Bonus/Build 표도 브라우저에 저장해서 다음에 열 때 유지된다 (이 브라우저/기기에서만).
+  var DBTABLE_LS_KEY = 'cocofolia_setter_dbtable_v1';
+  function loadSavedDbRows(){
+    try{
+      var raw = localStorage.getItem(DBTABLE_LS_KEY);
+      if(!raw) return null;
+      var data = JSON.parse(raw);
+      if(!Array.isArray(data)) return null;
+      return data.map(function(r){ return {min:r.min||'', max:r.max||'', db:r.db||'', build:r.build||''}; });
+    }catch(e){ return null; }
+  }
+  function saveDbRows(){
+    try{ localStorage.setItem(DBTABLE_LS_KEY, JSON.stringify(dbRows)); }catch(e){}
+  }
+
+  var dbRows = loadSavedDbRows() || [];
   function renderDbTable(){
     var body = $('#ed-db-body');
     body.innerHTML = '';
@@ -18887,16 +18922,18 @@ var TabLog = (function(){
     $all('input[data-f]', body).forEach(function(inp){
       inp.addEventListener('input', function(){
         dbRows[+inp.dataset.idx][inp.dataset.f] = inp.value;
+        saveDbRows();
       });
     });
     $all('.ed-db-del', body).forEach(function(btn){
-      btn.addEventListener('click', function(){ dbRows.splice(+btn.dataset.idx,1); renderDbTable(); });
+      btn.addEventListener('click', function(){ dbRows.splice(+btn.dataset.idx,1); renderDbTable(); saveDbRows(); });
     });
   }
   renderDbTable();
   $('#ed-db-add').addEventListener('click', function(){
     dbRows.push({min:'', max:'', db:'', build:''});
     renderDbTable();
+    saveDbRows();
   });
   $('#ed-db-lookup').addEventListener('input', function(){
     var v = parseFloat(this.value);
