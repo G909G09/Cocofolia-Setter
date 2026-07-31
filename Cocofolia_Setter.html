@@ -46,6 +46,14 @@ button.btn.ghost{background:transparent;border:1px solid var(--line);color:var(-
 .slider-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--sub);}
 .slider-row input[type=range]{width:140px;}
 .slider-row label.chk{display:flex;align-items:center;gap:6px;font-weight:600;color:var(--ink);width:130px;}
+.fx-slot{flex:1 1 200px;min-width:180px;max-width:240px;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--bg);display:flex;flex-direction:column;gap:8px;}
+.fx-slot select.fx-slot-select{width:100%;padding:7px 8px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink);font-size:12px;font-weight:600;}
+.fx-slot-preview-wrap{display:flex;align-items:center;justify-content:center;height:90px;background:var(--panel);border-radius:8px;border:1px solid var(--line);overflow:hidden;}
+.fx-slot-preview-wrap canvas{width:88px;height:88px;image-rendering:pixelated;}
+.fx-slot-preview-wrap span{font-size:11px;color:var(--sub);}
+.fx-slot-controls{display:flex;flex-direction:column;gap:6px;}
+.fx-slot-controls input[type=range]{width:100%;}
+.fx-slot-extra{display:flex;gap:6px;align-items:center;}
 canvas.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;background:
   repeating-conic-gradient(#8883 0% 25%, transparent 0% 50%) 50% / 16px 16px;}
 img.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;background:
@@ -177,7 +185,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <section id="tab-fx" class="tab-panel">
   <div class="card">
     <h2>정지 PNG + 효과 → APNG</h2>
-    <p class="desc">정지 이미지에 효과를 적용해 짧은 연출용 APNG를 만듭니다. 여러 효과를 동시에 켤 수 있습니다.</p>
+    <p class="desc">정지 이미지에 효과를 적용해 짧은 연출용 APNG를 만듭니다. 아래 슬롯에서 효과를 최대 4개까지 골라 동시에 켤 수 있습니다.</p>
     <div class="drop" id="fx-drop">PNG 파일을 끌어다 놓거나 클릭해서 선택
       <input type="file" id="fx-file" accept=".png" class="hidden">
     </div>
@@ -193,31 +201,8 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
         </select>
       </div>
     </div>
-    <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-zoom-enable"> 확대/축소</label><input type="range" id="fx-zoom-amount" min="0" max="100" value="20"></div>
-    <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-shake-enable"> 흔들림</label><input type="range" id="fx-shake-amount" min="0" max="100" value="30"></div>
-    <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-chroma-enable"> 색수차</label><input type="range" id="fx-chroma-amount" min="0" max="100" value="30"></div>
-    <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-glitch-enable"> 글리치</label><input type="range" id="fx-glitch-amount" min="0" max="100" value="30"></div>
-    <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-scan-enable"> 스캔라인</label><input type="range" id="fx-scan-amount" min="0" max="100" value="30"></div>
-    <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-rotate-enable"> 회전 지터</label><input type="range" id="fx-rotate-amount" min="0" max="100" value="20"></div>
-    <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-blur-enable"> 블러(포커스)</label><input type="range" id="fx-blur-amount" min="0" max="100" value="40">
-      <select id="fx-blur-mode" style="width:110px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font-size:12px;">
-        <option value="in">포커스인(흐림→선명)</option><option value="out">포커스아웃(선명→흐림)</option><option value="const">일정하게 흐림</option>
-      </select>
-    </div>
-    <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-tint-enable"> 색조 틴트</label><input type="range" id="fx-tint-amount" min="0" max="100" value="40">
-      <input type="color" id="fx-tint-color" value="#ff2d55" style="width:36px;height:26px;padding:0;border:1px solid var(--line);border-radius:6px;">
-    </div>
-    <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-vignette-enable"> 비네트(주변 어둡게)</label><input type="range" id="fx-vignette-amount" min="0" max="100" value="50"></div>
-    <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-noise-enable"> 노이즈(그레인)</label><input type="range" id="fx-noise-amount" min="0" max="100" value="30"></div>
-    <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-flash-enable"> 플래시(섬광)</label><input type="range" id="fx-flash-amount" min="0" max="100" value="60"></div>
-    <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-wave-enable"> 웨이브(파형 왜곡)</label><input type="range" id="fx-wave-amount" min="0" max="100" value="30"></div>
-    <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-pixelate-enable"> 픽셀레이트(모자이크)</label><input type="range" id="fx-pixelate-amount" min="0" max="100" value="30"></div>
-    <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-invert-enable"> 색상 반전 플래시</label><input type="range" id="fx-invert-amount" min="0" max="100" value="80"></div>
-    <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-hue-enable"> 색상 순환(레인보우)</label><input type="range" id="fx-hue-amount" min="0" max="100" value="40"></div>
-    <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-posterize-enable"> 포스터라이즈(색조 단순화)</label><input type="range" id="fx-posterize-amount" min="0" max="100" value="50"></div>
-    <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-border-enable"> 임팩트 테두리</label><input type="range" id="fx-border-amount" min="0" max="100" value="70">
-      <input type="color" id="fx-border-color" value="#ffe600" style="width:36px;height:26px;padding:0;border:1px solid var(--line);border-radius:6px;">
-    </div>
+    <p class="footnote" style="margin:2px 0 8px;">효과 슬롯 4개 중 원하는 만큼 골라서 켤 수 있습니다. 드롭다운에서 효과를 고르면 오른쪽에 미리 만들어둔 견본 이미지로 어떤 효과인지 바로 미리보기가 재생됩니다.</p>
+    <div id="fx-slots" style="display:flex;flex-wrap:wrap;gap:12px;"></div>
 
     <div class="row" style="margin-top:14px;">
       <button class="btn" id="fx-render" disabled>미리보기 렌더링</button>
@@ -17975,28 +17960,257 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     }
   });
 
+  /* ── 효과 슬롯 (드롭다운 4개, 각각 효과 하나 + 미리보기) ── */
+  var EFFECT_CATALOG = [
+    {key:'zoom',      label:'확대/축소',              def:20},
+    {key:'shake',     label:'흔들림',                 def:30},
+    {key:'chroma',    label:'색수차',                 def:30},
+    {key:'glitch',    label:'글리치',                 def:30},
+    {key:'scan',      label:'스캔라인',               def:30},
+    {key:'rotate',    label:'회전 지터',              def:20},
+    {key:'blur',      label:'블러(포커스)',           def:40, hasMode:true},
+    {key:'tint',      label:'색조 틴트',              def:40, hasColor:true, defColor:'#ff2d55'},
+    {key:'vignette',  label:'비네트(주변 어둡게)',     def:50},
+    {key:'noise',     label:'노이즈(그레인)',         def:30},
+    {key:'flash',     label:'플래시(섬광)',           def:60},
+    {key:'wave',      label:'웨이브(파형 왜곡)',      def:30},
+    {key:'pixelate',  label:'픽셀레이트(모자이크)',   def:30},
+    {key:'invert',    label:'색상 반전 플래시',       def:80},
+    {key:'hue',       label:'색상 순환(레인보우)',    def:40},
+    {key:'posterize', label:'포스터라이즈(색조 단순화)', def:50},
+    {key:'border',    label:'임팩트 테두리',          def:70, hasColor:true, defColor:'#ffe600'}
+  ];
+  var EFFECT_BY_KEY = {}; EFFECT_CATALOG.forEach(function(e){ EFFECT_BY_KEY[e.key] = e; });
+  var SLOT_COUNT = 4;
+  var slotPreviewTimers = [null,null,null,null];
+
+  function buildSlots(){
+    var wrap = $('#fx-slots');
+    for(var n=1; n<=SLOT_COUNT; n++){
+      var card = document.createElement('div');
+      card.className = 'fx-slot';
+      card.dataset.slot = n;
+
+      var sel = document.createElement('select');
+      sel.className = 'fx-slot-select';
+      sel.id = 'fx-slot-'+n;
+      var noneOpt = document.createElement('option');
+      noneOpt.value = ''; noneOpt.textContent = '슬롯 '+n+' — 없음';
+      sel.appendChild(noneOpt);
+      EFFECT_CATALOG.forEach(function(e){
+        var o = document.createElement('option');
+        o.value = e.key; o.textContent = e.label;
+        sel.appendChild(o);
+      });
+
+      var previewWrap = document.createElement('div');
+      previewWrap.className = 'fx-slot-preview-wrap';
+      previewWrap.id = 'fx-slot-'+n+'-preview-wrap';
+      var previewSpan = document.createElement('span');
+      previewSpan.textContent = '효과를 선택하세요';
+      previewWrap.appendChild(previewSpan);
+      var previewCanvasEl = document.createElement('canvas');
+      previewCanvasEl.id = 'fx-slot-'+n+'-preview';
+      previewCanvasEl.width = 96; previewCanvasEl.height = 96;
+      previewCanvasEl.classList.add('hidden');
+      previewWrap.appendChild(previewCanvasEl);
+
+      var controls = document.createElement('div');
+      controls.className = 'fx-slot-controls hidden';
+      controls.id = 'fx-slot-'+n+'-controls';
+      var amt = document.createElement('input');
+      amt.type = 'range'; amt.min = 0; amt.max = 100; amt.id = 'fx-slot-'+n+'-amount';
+      controls.appendChild(amt);
+      var extra = document.createElement('div');
+      extra.className = 'fx-slot-extra';
+      var modeSel = document.createElement('select');
+      modeSel.id = 'fx-slot-'+n+'-mode'; modeSel.className = 'hidden';
+      modeSel.innerHTML = '<option value="in">포커스인(흐림→선명)</option><option value="out">포커스아웃(선명→흐림)</option><option value="const">일정하게 흐림</option>';
+      var colorInp = document.createElement('input');
+      colorInp.type = 'color'; colorInp.id = 'fx-slot-'+n+'-color'; colorInp.className = 'hidden';
+      colorInp.style.cssText = 'width:36px;height:26px;padding:0;border:1px solid var(--line);border-radius:6px;';
+      extra.appendChild(modeSel); extra.appendChild(colorInp);
+      controls.appendChild(extra);
+
+      card.appendChild(sel); card.appendChild(previewWrap); card.appendChild(controls);
+      wrap.appendChild(card);
+
+      sel.addEventListener('change', function(){ onSlotEffectChange(+this.closest('.fx-slot').dataset.slot); });
+      amt.addEventListener('input', function(){ renderSlotPreview(+this.closest('.fx-slot').dataset.slot); });
+      modeSel.addEventListener('change', function(){ renderSlotPreview(+this.closest('.fx-slot').dataset.slot); });
+      colorInp.addEventListener('input', function(){ renderSlotPreview(+this.closest('.fx-slot').dataset.slot); });
+    }
+  }
+
+  function selectedKeys(exceptSlot){
+    var keys = [];
+    for(var n=1; n<=SLOT_COUNT; n++){
+      if(n===exceptSlot) continue;
+      var v = $('#fx-slot-'+n).value;
+      if(v) keys.push(v);
+    }
+    return keys;
+  }
+
+  function refreshSlotOptionAvailability(){
+    for(var n=1; n<=SLOT_COUNT; n++){
+      var sel = $('#fx-slot-'+n);
+      var others = selectedKeys(n);
+      Array.from(sel.options).forEach(function(o){
+        if(!o.value) return;
+        o.disabled = others.indexOf(o.value) >= 0;
+      });
+    }
+  }
+
+  function onSlotEffectChange(n){
+    var key = $('#fx-slot-'+n).value;
+    var controls = $('#fx-slot-'+n+'-controls');
+    var amt = $('#fx-slot-'+n+'-amount');
+    var modeSel = $('#fx-slot-'+n+'-mode');
+    var colorInp = $('#fx-slot-'+n+'-color');
+    if(!key){
+      controls.classList.add('hidden');
+      stopSlotPreview(n);
+      $('#fx-slot-'+n+'-preview').classList.add('hidden');
+      $('#fx-slot-'+n+'-preview-wrap').querySelector('span').classList.remove('hidden');
+      $('#fx-slot-'+n+'-preview-wrap').querySelector('span').textContent = '효과를 선택하세요';
+    } else {
+      var entry = EFFECT_BY_KEY[key];
+      controls.classList.remove('hidden');
+      amt.value = entry.def;
+      modeSel.classList.toggle('hidden', !entry.hasMode);
+      colorInp.classList.toggle('hidden', !entry.hasColor);
+      if(entry.hasColor) colorInp.value = entry.defColor;
+      renderSlotPreview(n);
+    }
+    refreshSlotOptionAvailability();
+  }
+
+  var DEMO_IMG = null;
+  function getDemoImage(){
+    if(DEMO_IMG) return DEMO_IMG;
+    var c = document.createElement('canvas');
+    c.width = 96; c.height = 96;
+    var cx = c.getContext('2d');
+    var grad = cx.createLinearGradient(0,0,96,96);
+    grad.addColorStop(0,'#5b6bf5'); grad.addColorStop(0.5,'#ff6b6b'); grad.addColorStop(1,'#ffd93d');
+    cx.fillStyle = grad; cx.fillRect(0,0,96,96);
+    cx.fillStyle = 'rgba(255,255,255,.9)';
+    cx.beginPath(); cx.arc(48,48,26,0,Math.PI*2); cx.fill();
+    cx.fillStyle = 'rgba(30,36,48,.85)';
+    cx.font = 'bold 22px sans-serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle';
+    cx.fillText('A', 48, 50);
+    for(var i=0;i<6;i++){
+      cx.fillStyle = 'rgba(255,255,255,'+(0.15+i*0.05)+')';
+      cx.fillRect(i*16, 0, 8, 96);
+    }
+    DEMO_IMG = c;
+    return DEMO_IMG;
+  }
+
+  function renderSingleEffectFrames(img, w, h, key, amt, mode, color, frameCount){
+    var canvas = document.createElement('canvas');
+    canvas.width=w; canvas.height=h;
+    var ctx = canvas.getContext('2d');
+    var frames = [];
+    for(var i=0;i<frameCount;i++){
+      var t = frameCount>1 ? i/(frameCount-1) : 1;
+      ctx.clearRect(0,0,w,h);
+      ctx.save();
+      var dx=0, dy=0;
+      var filterParts = [];
+      if(key==='zoom'){
+        var scale = 1 + (amt/100)*0.5*Math.sin(t*Math.PI);
+        ctx.translate(w/2,h/2); ctx.scale(scale,scale); ctx.translate(-w/2,-h/2);
+      }
+      if(key==='rotate'){
+        var ang = (Math.random()*2-1)*(amt/100)*0.1;
+        ctx.translate(w/2,h/2); ctx.rotate(ang); ctx.translate(-w/2,-h/2);
+      }
+      if(key==='shake'){
+        var a = amt/8; dx=(Math.random()*2-1)*a; dy=(Math.random()*2-1)*a;
+      }
+      if(key==='blur'){
+        var blurPx;
+        if(mode==='in') blurPx = (amt/100)*10*(1-t);
+        else if(mode==='out') blurPx = (amt/100)*10*t;
+        else blurPx = (amt/100)*10;
+        if(blurPx>0.05) filterParts.push('blur('+blurPx.toFixed(2)+'px)');
+      }
+      if(key==='hue'){
+        filterParts.push('hue-rotate('+(t*360*(amt/100)).toFixed(1)+'deg)');
+      }
+      if(filterParts.length) ctx.filter = filterParts.join(' ');
+      ctx.drawImage(img, dx, dy, w, h);
+      ctx.restore();
+      if(key==='border') applyBorderFlash(ctx, w, h, t, amt, color);
+      var frameData = ctx.getImageData(0,0,w,h);
+      if(key==='chroma') frameData = applyChromatic(frameData, amt);
+      if(key==='glitch') frameData = applyGlitch(frameData, amt, i);
+      if(key==='wave') frameData = applyWave(frameData, i, amt);
+      if(key==='pixelate') frameData = applyPixelate(frameData, amt);
+      if(key==='scan') frameData = applyScanline(frameData, i, amt);
+      if(key==='noise') frameData = applyNoise(frameData, amt, i);
+      if(key==='tint') frameData = applyTint(frameData, amt, color);
+      if(key==='posterize') frameData = applyPosterize(frameData, amt);
+      if(key==='vignette') frameData = applyVignette(frameData, amt);
+      if(key==='flash') frameData = applyFlash(frameData, t, amt);
+      if(key==='invert') frameData = applyInvertFlash(frameData, t, amt);
+      frames.push(frameData);
+    }
+    return frames;
+  }
+
+  function stopSlotPreview(n){
+    if(slotPreviewTimers[n-1]){ clearInterval(slotPreviewTimers[n-1]); slotPreviewTimers[n-1] = null; }
+  }
+
+  function renderSlotPreview(n){
+    var key = $('#fx-slot-'+n).value;
+    if(!key) return;
+    var entry = EFFECT_BY_KEY[key];
+    var amt = parseInt($('#fx-slot-'+n+'-amount').value, 10);
+    var mode = entry.hasMode ? $('#fx-slot-'+n+'-mode').value : null;
+    var color = entry.hasColor ? $('#fx-slot-'+n+'-color').value : null;
+    var img = getDemoImage();
+    var frames = renderSingleEffectFrames(img, 96, 96, key, amt, mode, color, 14);
+    var canvasEl = $('#fx-slot-'+n+'-preview');
+    canvasEl.classList.remove('hidden');
+    $('#fx-slot-'+n+'-preview-wrap').querySelector('span').classList.add('hidden');
+    var pctx = canvasEl.getContext('2d');
+    stopSlotPreview(n);
+    var idx = 0;
+    pctx.putImageData(frames[0], 0, 0);
+    slotPreviewTimers[n-1] = setInterval(function(){
+      idx = (idx+1) % frames.length;
+      pctx.putImageData(frames[idx], 0, 0);
+    }, 70);
+  }
+
+  buildSlots();
+
   function getOpts(){
+    var effectState = {};
+    for(var n=1; n<=SLOT_COUNT; n++){
+      var key = $('#fx-slot-'+n).value;
+      if(!key) continue;
+      var entry = EFFECT_BY_KEY[key];
+      var e = { on:true, amt: parseInt($('#fx-slot-'+n+'-amount').value, 10) };
+      if(entry.hasMode) e.mode = $('#fx-slot-'+n+'-mode').value;
+      if(entry.hasColor) e.color = $('#fx-slot-'+n+'-color').value;
+      effectState[key] = e;
+    }
+    function get(key){ return effectState[key] || {on:false, amt:0}; }
     return {
       duration: Math.max(0.1, parseFloat($('#fx-duration').value)||1),
       fps: clampInt(parseInt($('#fx-fps').value,10)||20, 5, 60),
       fadeMode: $('#fx-fade-mode').value,
-      zoom: {on:$('#fx-zoom-enable').checked, amt:parseInt($('#fx-zoom-amount').value,10)},
-      shake: {on:$('#fx-shake-enable').checked, amt:parseInt($('#fx-shake-amount').value,10)},
-      chroma: {on:$('#fx-chroma-enable').checked, amt:parseInt($('#fx-chroma-amount').value,10)},
-      glitch: {on:$('#fx-glitch-enable').checked, amt:parseInt($('#fx-glitch-amount').value,10)},
-      scan: {on:$('#fx-scan-enable').checked, amt:parseInt($('#fx-scan-amount').value,10)},
-      rotate: {on:$('#fx-rotate-enable').checked, amt:parseInt($('#fx-rotate-amount').value,10)},
-      blur: {on:$('#fx-blur-enable').checked, amt:parseInt($('#fx-blur-amount').value,10), mode:$('#fx-blur-mode').value},
-      tint: {on:$('#fx-tint-enable').checked, amt:parseInt($('#fx-tint-amount').value,10), color:$('#fx-tint-color').value},
-      vignette: {on:$('#fx-vignette-enable').checked, amt:parseInt($('#fx-vignette-amount').value,10)},
-      noise: {on:$('#fx-noise-enable').checked, amt:parseInt($('#fx-noise-amount').value,10)},
-      flash: {on:$('#fx-flash-enable').checked, amt:parseInt($('#fx-flash-amount').value,10)},
-      wave: {on:$('#fx-wave-enable').checked, amt:parseInt($('#fx-wave-amount').value,10)},
-      pixelate: {on:$('#fx-pixelate-enable').checked, amt:parseInt($('#fx-pixelate-amount').value,10)},
-      invert: {on:$('#fx-invert-enable').checked, amt:parseInt($('#fx-invert-amount').value,10)},
-      hue: {on:$('#fx-hue-enable').checked, amt:parseInt($('#fx-hue-amount').value,10)},
-      posterize: {on:$('#fx-posterize-enable').checked, amt:parseInt($('#fx-posterize-amount').value,10)},
-      border: {on:$('#fx-border-enable').checked, amt:parseInt($('#fx-border-amount').value,10), color:$('#fx-border-color').value}
+      zoom: get('zoom'), shake: get('shake'), chroma: get('chroma'), glitch: get('glitch'),
+      scan: get('scan'), rotate: get('rotate'), blur: get('blur'), tint: get('tint'),
+      vignette: get('vignette'), noise: get('noise'), flash: get('flash'), wave: get('wave'),
+      pixelate: get('pixelate'), invert: get('invert'), hue: get('hue'), posterize: get('posterize'),
+      border: get('border')
     };
   }
 
