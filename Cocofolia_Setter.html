@@ -211,6 +211,13 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-noise-enable"> 노이즈(그레인)</label><input type="range" id="fx-noise-amount" min="0" max="100" value="30"></div>
     <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-flash-enable"> 플래시(섬광)</label><input type="range" id="fx-flash-amount" min="0" max="100" value="60"></div>
     <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-wave-enable"> 웨이브(파형 왜곡)</label><input type="range" id="fx-wave-amount" min="0" max="100" value="30"></div>
+    <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-pixelate-enable"> 픽셀레이트(모자이크)</label><input type="range" id="fx-pixelate-amount" min="0" max="100" value="30"></div>
+    <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-invert-enable"> 색상 반전 플래시</label><input type="range" id="fx-invert-amount" min="0" max="100" value="80"></div>
+    <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-hue-enable"> 색상 순환(레인보우)</label><input type="range" id="fx-hue-amount" min="0" max="100" value="40"></div>
+    <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-posterize-enable"> 포스터라이즈(색조 단순화)</label><input type="range" id="fx-posterize-amount" min="0" max="100" value="50"></div>
+    <div class="slider-row"><label class="chk"><input type="checkbox" id="fx-border-enable"> 임팩트 테두리</label><input type="range" id="fx-border-amount" min="0" max="100" value="70">
+      <input type="color" id="fx-border-color" value="#ffe600" style="width:36px;height:26px;padding:0;border:1px solid var(--line);border-radius:6px;">
+    </div>
 
     <div class="row" style="margin-top:14px;">
       <button class="btn" id="fx-render" disabled>미리보기 렌더링</button>
@@ -17984,7 +17991,12 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
       vignette: {on:$('#fx-vignette-enable').checked, amt:parseInt($('#fx-vignette-amount').value,10)},
       noise: {on:$('#fx-noise-enable').checked, amt:parseInt($('#fx-noise-amount').value,10)},
       flash: {on:$('#fx-flash-enable').checked, amt:parseInt($('#fx-flash-amount').value,10)},
-      wave: {on:$('#fx-wave-enable').checked, amt:parseInt($('#fx-wave-amount').value,10)}
+      wave: {on:$('#fx-wave-enable').checked, amt:parseInt($('#fx-wave-amount').value,10)},
+      pixelate: {on:$('#fx-pixelate-enable').checked, amt:parseInt($('#fx-pixelate-amount').value,10)},
+      invert: {on:$('#fx-invert-enable').checked, amt:parseInt($('#fx-invert-amount').value,10)},
+      hue: {on:$('#fx-hue-enable').checked, amt:parseInt($('#fx-hue-amount').value,10)},
+      posterize: {on:$('#fx-posterize-enable').checked, amt:parseInt($('#fx-posterize-amount').value,10)},
+      border: {on:$('#fx-border-enable').checked, amt:parseInt($('#fx-border-amount').value,10), color:$('#fx-border-color').value}
     };
   }
 
@@ -18145,6 +18157,73 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     return data;
   }
 
+  function applyPixelate(data, amount){
+    if(!amount) return data;
+    var w=data.width, h=data.height, d=data.data;
+    var block = Math.max(1, Math.round((amount/100)*Math.min(w,h)*0.12));
+    if(block<=1) return data;
+    var src = new Uint8ClampedArray(d);
+    for(var by=0; by<h; by+=block){
+      var yEnd = Math.min(h, by+block);
+      for(var bx=0; bx<w; bx+=block){
+        var xEnd = Math.min(w, bx+block);
+        var si = (by*w+bx)*4;
+        var r=src[si], g=src[si+1], b=src[si+2], a=src[si+3];
+        for(var y=by;y<yEnd;y++){
+          var row=y*w;
+          for(var x=bx;x<xEnd;x++){
+            var di=(row+x)*4;
+            d[di]=r; d[di+1]=g; d[di+2]=b; d[di+3]=a;
+          }
+        }
+      }
+    }
+    return data;
+  }
+
+  function applyInvertFlash(data, t, amount){
+    if(!amount) return data;
+    var peak = 0.06, span = 0.14;
+    var dist = Math.abs(t-peak);
+    if(dist > span) return data;
+    var f = (1 - dist/span) * (amount/100);
+    var d = data.data;
+    for(var i=0;i<d.length;i+=4){
+      d[i]   = d[i]   + (255-2*d[i])*f;
+      d[i+1] = d[i+1] + (255-2*d[i+1])*f;
+      d[i+2] = d[i+2] + (255-2*d[i+2])*f;
+    }
+    return data;
+  }
+
+  function applyPosterize(data, amount){
+    if(!amount) return data;
+    var d = data.data;
+    var levels = Math.max(2, Math.round(16 - (amount/100)*13));
+    var step = 255/(levels-1);
+    for(var i=0;i<d.length;i+=4){
+      d[i]   = Math.round(Math.round(d[i]/step)*step);
+      d[i+1] = Math.round(Math.round(d[i+1]/step)*step);
+      d[i+2] = Math.round(Math.round(d[i+2]/step)*step);
+    }
+    return data;
+  }
+
+  function applyBorderFlash(ctx, w, h, t, amount, hexColor){
+    if(!amount) return;
+    var peak = 0.05, span = 0.25;
+    var dist = Math.abs(t-peak);
+    if(dist > span) return;
+    var envelope = 1 - dist/span;
+    var thickness = Math.max(2, Math.round((amount/100)*Math.min(w,h)*0.1));
+    ctx.save();
+    ctx.globalAlpha = envelope*(amount/100);
+    ctx.strokeStyle = hexColor||'#ffe600';
+    ctx.lineWidth = thickness*2; // strokeRect 중심선 기준이라 두 배로 그려야 안쪽에 두께가 보인다
+    ctx.strokeRect(0,0,w,h);
+    ctx.restore();
+  }
+
   function mulberry32(seed){
     var t = seed>>>0;
     return function(){
@@ -18181,24 +18260,34 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
         var amp = opts.shake.amt/8;
         dx = (Math.random()*2-1)*amp; dy = (Math.random()*2-1)*amp;
       }
+      var filterParts = [];
       if(opts.blur.on){
         var blurPx;
         if(opts.blur.mode==='in') blurPx = (opts.blur.amt/100)*10*(1-t);
         else if(opts.blur.mode==='out') blurPx = (opts.blur.amt/100)*10*t;
         else blurPx = (opts.blur.amt/100)*10;
-        if(blurPx>0.05) ctx.filter = 'blur('+blurPx.toFixed(2)+'px)';
+        if(blurPx>0.05) filterParts.push('blur('+blurPx.toFixed(2)+'px)');
       }
+      if(opts.hue.on){
+        var hueDeg = t*360*(opts.hue.amt/100);
+        filterParts.push('hue-rotate('+hueDeg.toFixed(1)+'deg)');
+      }
+      if(filterParts.length) ctx.filter = filterParts.join(' ');
       ctx.drawImage(img, dx, dy, w, h);
       ctx.restore();
+      if(opts.border.on) applyBorderFlash(ctx, w, h, t, opts.border.amt, opts.border.color);
       var frameData = ctx.getImageData(0,0,w,h);
       if(opts.chroma.on) frameData = applyChromatic(frameData, opts.chroma.amt);
       if(opts.glitch.on) frameData = applyGlitch(frameData, opts.glitch.amt, i);
       if(opts.wave.on) frameData = applyWave(frameData, i, opts.wave.amt);
+      if(opts.pixelate.on) frameData = applyPixelate(frameData, opts.pixelate.amt);
       if(opts.scan.on) frameData = applyScanline(frameData, i, opts.scan.amt);
       if(opts.noise.on) frameData = applyNoise(frameData, opts.noise.amt, i);
       if(opts.tint.on) frameData = applyTint(frameData, opts.tint.amt, opts.tint.color);
+      if(opts.posterize.on) frameData = applyPosterize(frameData, opts.posterize.amt);
       if(opts.vignette.on) frameData = applyVignette(frameData, opts.vignette.amt);
       if(opts.flash.on) frameData = applyFlash(frameData, t, opts.flash.amt);
+      if(opts.invert.on) frameData = applyInvertFlash(frameData, t, opts.invert.amt);
       if(opts.fadeMode!=='none') frameData = applyFade(frameData, t, opts.fadeMode);
       frames.push(frameData);
     }
