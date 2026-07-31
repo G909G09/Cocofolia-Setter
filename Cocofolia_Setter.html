@@ -385,6 +385,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <div class="field"><label>여백 색상</label><input type="text" id="st-bgcolor" value="transparent" style="width:110px;"></div>
       <div class="field"><label>출력 폭(px)</label><input type="number" id="st-outwidth" value="480" min="16" step="1"></div>
     </div>
+    <p class="footnote" style="margin-top:-6px;">위 설정은 이 브라우저에 자동 저장되어 다음에 열어도 유지됩니다.</p>
     <div class="row">
       <button class="btn" id="st-apply" disabled>전체 다시 렌더링</button>
       <button class="btn ghost" id="st-zip" disabled>ZIP으로 일괄 다운로드</button>
@@ -433,6 +434,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <button class="btn ghost hidden" id="cs-download">이미지로 다운로드</button>
       <button class="btn ghost" id="cs-clear" disabled style="color:var(--danger);">전체 지우기</button>
     </div>
+    <p class="footnote" style="margin-top:-6px;">열 개수·칸 간격·썸네일 크기·패널 폭은 이 브라우저에 자동 저장되어 다음에 열어도 유지됩니다.</p>
     <div id="cs-labels" style="margin-top:6px;"></div>
     <canvas id="cs-canvas" class="preview" style="margin-top:14px;max-width:100%;"></canvas>
   </div>
@@ -17562,6 +17564,39 @@ document.addEventListener('paste', function(e){
   e.preventDefault();
   dropPasteHandlers.get(target)(files);
 });
+
+/* ============ 자주 안 바뀌는 설정값을 브라우저에 기억해두기 ============
+   캠페인마다 거의 고정으로 쓰는 출력 비율/크기 같은 값을 매번 다시 입력하지 않도록,
+   지정한 입력칸의 값을 localStorage에 저장했다가 다음에 열 때 그대로 복원한다. */
+function persistFormField(id, storageKey){
+  var el = document.getElementById(id);
+  if(!el) return;
+  try{
+    var saved = localStorage.getItem(storageKey);
+    if(saved !== null){
+      if(el.type === 'checkbox') el.checked = (saved === '1');
+      else el.value = saved;
+    }
+  }catch(e){}
+  var evtName = (el.tagName === 'SELECT' || el.type === 'checkbox') ? 'change' : 'input';
+  el.addEventListener(evtName, function(){
+    try{ localStorage.setItem(storageKey, el.type === 'checkbox' ? (el.checked ? '1' : '0') : el.value); }
+    catch(e){}
+  });
+}
+
+// 8번 탭(스탠딩 일괄 재단)
+persistFormField('st-ratio-w', 'cocofolia_setter_st_ratio_w');
+persistFormField('st-ratio-h', 'cocofolia_setter_st_ratio_h');
+persistFormField('st-mode', 'cocofolia_setter_st_mode');
+persistFormField('st-anchor', 'cocofolia_setter_st_anchor');
+persistFormField('st-bgcolor', 'cocofolia_setter_st_bgcolor');
+persistFormField('st-outwidth', 'cocofolia_setter_st_outwidth');
+// 9번 탭(컨닝 페이퍼 메이커)
+persistFormField('cs-hero-width', 'cocofolia_setter_cs_hero_width');
+persistFormField('cs-cols', 'cocofolia_setter_cs_cols');
+persistFormField('cs-gap', 'cocofolia_setter_cs_gap');
+persistFormField('cs-thumb', 'cocofolia_setter_cs_thumb');
 
 /* ============ 탭 전환 ============ */
 $all('.tab-btn').forEach(function(btn){
