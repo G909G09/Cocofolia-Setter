@@ -18981,15 +18981,25 @@ var TabLog = (function(){
         renderItem(it);
         img.src = it.canvas.toDataURL('image/png');
       });
+      var btnRow = document.createElement('div');
+      btnRow.style.cssText = 'display:flex;gap:4px;margin-top:6px;';
       var dl = document.createElement('button');
-      dl.className = 'btn ghost'; dl.textContent = '다운로드'; dl.style.cssText='margin-top:6px;width:100%;padding:6px;font-size:12px;';
+      dl.className = 'btn ghost'; dl.textContent = '다운로드'; dl.style.cssText='flex:1;padding:6px;font-size:12px;';
       dl.addEventListener('click', function(){
         it.canvas.toBlob(function(blob){ downloadBlob(blob, baseName(it.file.name)+'_cut.png'); });
       });
-      box.appendChild(img); box.appendChild(name); box.appendChild(slider); box.appendChild(dl);
+      var rm = document.createElement('button');
+      rm.className = 'btn ghost'; rm.textContent = '제거'; rm.style.cssText='padding:6px 10px;font-size:12px;color:var(--danger);';
+      rm.addEventListener('click', function(){
+        var i = items.indexOf(it);
+        if(i>=0){ items.splice(i,1); renderAll(); }
+      });
+      btnRow.appendChild(dl); btnRow.appendChild(rm);
+      box.appendChild(img); box.appendChild(name); box.appendChild(slider); box.appendChild(btnRow);
       grid.appendChild(box);
     });
     $('#st-zip').disabled = items.length===0;
+    $('#st-apply').disabled = items.length===0;
   }
 
   setupMultiDrop('st-drop','st-file', function(files){
