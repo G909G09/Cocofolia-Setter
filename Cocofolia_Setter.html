@@ -19967,7 +19967,19 @@ var TabLog = (function(){
     cropBox.style.top = (cropRect.y*h)+'px';
     cropBox.style.width = (cropRect.w*w)+'px';
     cropBox.style.height = (cropRect.h*h)+'px';
+    refreshAllThumbs();
   }
+
+  // 순서 조정 카드의 썸네일도 원본 이미지 전체가 아니라, 위에서 지정한 크롭 영역(cropRect)이
+  // 실제로 잘라내는 부분을 그대로 보여준다 — 크롭 박스를 옮기거나 크기를 바꿀 때마다 갱신됨.
+  function drawItemThumb(it){
+    if(!it.thumbCanvas) return;
+    var c = it.thumbCanvas, ctx = c.getContext('2d');
+    var nw = it.img.naturalWidth||1, nh = it.img.naturalHeight||1;
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.drawImage(it.img, cropRect.x*nw, cropRect.y*nh, cropRect.w*nw, cropRect.h*nh, 0, 0, c.width, c.height);
+  }
+  function refreshAllThumbs(){ items.forEach(drawItemThumb); }
 
   // 표정 그리드의 썸네일은 항상 정사각형(thumb x thumb)으로 그려지므로, 크롭 영역도 원본 이미지
   // 픽셀 기준으로 항상 정사각형이어야 잘린 얼굴이 늘어나거나 눌리지 않는다. cropRect의 w/h는
@@ -20080,9 +20092,12 @@ var TabLog = (function(){
       f.dataset.idx = idx;
       f.style.cssText = 'display:inline-flex;flex-direction:column;align-items:center;gap:4px;margin:4px 8px 4px 0;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--panel);cursor:grab;vertical-align:top;';
 
-      it.img.style.cssText = 'width:56px;height:56px;object-fit:cover;border-radius:6px;display:block;pointer-events:none;';
-      it.img.draggable = false;
-      f.appendChild(it.img);
+      var thumbCanvas = document.createElement('canvas');
+      thumbCanvas.width = 56; thumbCanvas.height = 56;
+      thumbCanvas.style.cssText = 'width:56px;height:56px;border-radius:6px;display:block;pointer-events:none;background:repeating-conic-gradient(#8883 0% 25%, transparent 0% 50%) 50% / 8px 8px;';
+      it.thumbCanvas = thumbCanvas;
+      drawItemThumb(it);
+      f.appendChild(thumbCanvas);
 
       var lbl = document.createElement('label');
       lbl.style.cssText = 'font-size:11px;color:var(--sub);';
