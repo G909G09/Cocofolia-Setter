@@ -19828,6 +19828,23 @@ var TabLog = (function(){
     cropBox.style.height = (cropRect.h*h)+'px';
   }
 
+  // 표정 그리드의 썸네일은 항상 정사각형(thumb x thumb)으로 그려지므로, 크롭 영역도 원본 이미지
+  // 픽셀 기준으로 항상 정사각형이어야 잘린 얼굴이 늘어나거나 눌리지 않는다. cropRect의 w/h는
+  // 이미지 표시 비율(fraction)이라 이미지 자체가 정사각형이 아니면 w==h여도 실제 픽셀은
+  // 정사각형이 아니므로, 이미지의 실제 가로세로 비율을 반영해 h를 계산한다.
+  function cropImgNaturalWH(){
+    if(!items.length) return {w:1, h:1};
+    return {w: items[0].img.naturalWidth||1, h: items[0].img.naturalHeight||1};
+  }
+  function squareifyCropRect(){
+    var nat = cropImgNaturalWH();
+    var maxSidePx = Math.min((1-cropRect.x)*nat.w, (1-cropRect.y)*nat.h);
+    var minSidePx = 0.03*Math.min(nat.w, nat.h);
+    var sidePx = clamp01(cropRect.w*nat.w, minSidePx, maxSidePx);
+    cropRect.w = sidePx/nat.w;
+    cropRect.h = sidePx/nat.h;
+  }
+
   var dragMode = null, dragStart = null, rectStart = null;
   cropBox.addEventListener('mousedown', function(e){
     if(e.target.classList.contains('cs-handle')){ dragMode = 'resize'; }
@@ -19845,8 +19862,9 @@ var TabLog = (function(){
       cropRect.x = clamp01(rectStart.x+dx, 0, 1-cropRect.w);
       cropRect.y = clamp01(rectStart.y+dy, 0, 1-cropRect.h);
     } else {
+      // 정사각형 유지를 위해 가로 드래그(dx)만 크기 기준으로 쓰고, 세로 크기는 이미지 비율로 계산한다
       cropRect.w = clamp01(rectStart.w+dx, 0.03, 1-cropRect.x);
-      cropRect.h = clamp01(rectStart.h+dy, 0.03, 1-cropRect.y);
+      squareifyCropRect();
     }
     syncCropBoxDom();
   });
@@ -19861,7 +19879,7 @@ var TabLog = (function(){
       items = items.concat(loaded); // 기존 목록에 이어붙임 — 여러 번에 나눠 올려도 앞서 올린 이미지가 사라지지 않는다
       if(wasEmpty){
         cropImg.src = URL.createObjectURL(items[0].file);
-        cropImg.onload = function(){ wrap.classList.remove('hidden'); syncCropBoxDom(); };
+        cropImg.onload = function(){ squareifyCropRect(); wrap.classList.remove('hidden'); syncCropBoxDom(); };
       }
       buildLabelInputs();
       $('#cs-build').disabled = false;
