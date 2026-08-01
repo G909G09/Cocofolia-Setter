@@ -385,7 +385,13 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <div class="field"><label>세로 앵커</label>
         <select id="st-anchor"><option value="top">위쪽</option><option value="center" selected>중앙</option><option value="bottom">아래쪽</option></select>
       </div>
-      <div class="field"><label>여백 색상</label><input type="text" id="st-bgcolor" value="transparent" style="width:110px;"></div>
+      <div class="field"><label>여백 색상</label>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input type="color" id="st-bgcolor-picker" value="#ffffff" style="width:34px;height:32px;padding:2px;border:1px solid var(--line);border-radius:6px;cursor:pointer;background:var(--bg);">
+          <button type="button" class="btn ghost" id="st-bgcolor-transparent" style="padding:6px 10px;font-size:12px;">투명</button>
+          <input type="text" id="st-bgcolor" value="transparent" style="width:80px;font-size:11px;color:var(--sub);" title="CSS 색상값을 직접 입력할 수도 있습니다 (예: transparent, #ff0000, rgba(0,0,0,.5))">
+        </div>
+      </div>
       <div class="field"><label>출력 폭(px)</label><input type="number" id="st-outwidth" value="480" min="16" step="1"></div>
     </div>
     <p class="footnote" style="margin-top:-6px;">위 설정은 이 브라우저에 자동 저장되어 다음에 열어도 유지됩니다.</p>
@@ -442,6 +448,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       </div>
       <button class="btn" id="cs-build" disabled>컨닝 페이퍼 생성</button>
       <button class="btn ghost hidden" id="cs-download">이미지로 다운로드</button>
+      <button class="btn ghost" id="cs-minimize-waste" disabled>여백 최소화</button>
       <button class="btn ghost" id="cs-clear" disabled style="color:var(--danger);">전체 지우기</button>
     </div>
     <p class="footnote" style="margin-top:-6px;">위 설정은 브라우저에 자동 저장됩니다. 화질을 높이면 해상도와 파일 크기가 함께 커집니다.</p>
@@ -19559,6 +19566,32 @@ var TabLog = (function(){
 (function(){
   var items = [];
 
+  // 여백 색상: 색상 피커 + "투명" 버튼으로 고르되, #st-bgcolor(text) 값을 그대로 두어
+  // 기존 저장/렌더 로직(persistFormField, renderItem의 bg 읽기)은 그대로 재사용한다.
+  (function(){
+    var bgPicker = $('#st-bgcolor-picker');
+    var bgTransparentBtn = $('#st-bgcolor-transparent');
+    var bgTextInput = $('#st-bgcolor');
+    function syncBgTransparentBtn(){
+      var isTransparent = bgTextInput.value.trim().toLowerCase() === 'transparent';
+      bgTransparentBtn.style.background = isTransparent ? 'var(--accent)' : '';
+      bgTransparentBtn.style.color = isTransparent ? 'var(--accent-ink)' : '';
+      bgTransparentBtn.style.borderColor = isTransparent ? 'var(--accent)' : 'var(--line)';
+      if(!isTransparent && /^#[0-9a-fA-F]{6}$/.test(bgTextInput.value.trim())) bgPicker.value = bgTextInput.value.trim();
+    }
+    bgPicker.addEventListener('input', function(){
+      bgTextInput.value = bgPicker.value;
+      bgTextInput.dispatchEvent(new Event('change', {bubbles:true}));
+    });
+    bgTransparentBtn.addEventListener('click', function(){
+      bgTextInput.value = 'transparent';
+      bgTextInput.dispatchEvent(new Event('change', {bubbles:true}));
+    });
+    bgTextInput.addEventListener('input', syncBgTransparentBtn);
+    bgTextInput.addEventListener('change', syncBgTransparentBtn);
+    syncBgTransparentBtn(); // 저장된 값(localStorage) 복원 후 초기 상태 동기화
+  })();
+
   function computeCrop(img, targetW, targetH, offsetFrac){
     var targetRatio = targetW/targetH, imgRatio = img.width/img.height;
     var sx, sy, sw, sh;
@@ -19857,6 +19890,65 @@ var TabLog = (function(){
     return false;
   }
 
+  // "여백 최소화" 버튼: 언제든 눌러서 현재 이미지 개수·패널 유무 기준으로 전체 캔버스의 빈 공간
+  // (그리드 마지막 줄의 빈 칸 + 패널/그리드 높이 차이로 생기는 빈 영역)이 가장 작아지는 열 개수를 찾는다.
+  function minimizeLayoutWaste(){
+    if(items.length===0) return false;
+    var n = items.length;
+    var gap = Math.max(0, parseInt($('#cs-gap').value,10)||10);
+    var thumb = Math.max(40, parseInt($('#cs-thumb').value,10)||160);
+    var labelH = 22;
+    var nameVal = $('#cs-name').value.trim();
+    var catchVal = $('#cs-catch').value.trim();
+    var panelOn = !!(heroImg || nameVal || catchVal);
+    var panelW = panelOn ? Math.max(120, parseInt($('#cs-hero-width').value,10)||220) : 0;
+    var panelH = 0;
+    if(panelOn){
+      var pad = 14, imgGap = 14, nameFontPx = 22, catchFontPx = 13, nameGap = 8, catchLineGap = 7;
+      var innerW = panelW - pad*2;
+      var ctxTmp = $('#cs-canvas').getContext('2d');
+      var nameLines = nameVal ? wrapMixedText(ctxTmp, nameVal, innerW, nameFontPx, '700') : [];
+      var catchLines = catchVal ? wrapMixedText(ctxTmp, catchVal, innerW, catchFontPx, '500') : [];
+      var imgH = 0;
+      if(heroImg){ imgH = innerW * (heroImg.height/heroImg.width); if(imgH>900) imgH = 900; }
+      panelH = pad;
+      if(heroImg) panelH += imgH + imgGap;
+      if(nameLines.length) panelH += nameLines.length*(nameFontPx+4) + nameGap;
+      if(catchLines.length) panelH += catchLines.length*(catchFontPx+catchLineGap);
+      panelH += pad;
+    }
+
+    var panelGap = panelOn ? 18 : 0;
+    var colsInput = $('#cs-cols');
+    var maxCols = Math.min(n, parseInt(colsInput.max,10)||10);
+    var bestCols = 1, bestScore = Infinity;
+    for(var c=1; c<=maxCols; c++){
+      var rows = Math.ceil(n/c);
+      var gridW = c*thumb + (c+1)*gap;
+      var gridH = rows*(thumb+labelH) + (rows+1)*gap;
+      var emptyCells = rows*c - n; // 마지막 줄에서 이미지가 없는 빈 칸 수
+      var canvasW = panelW + panelGap + gridW;
+      var canvasH = Math.max(gridH, panelH);
+      var waste = emptyCells*thumb*(thumb+labelH) + (canvasH-gridH)*gridW + (panelOn ? (canvasH-panelH)*panelW : 0);
+      // 여백이 똑같이 0인 경우가 여럿 있을 수 있어(예: 1열 vs 전부 한 줄), 그중에서는
+      // 전체 캔버스가 너무 한쪽으로 길쭉해지지 않는 쪽을 아주 약하게 선호한다.
+      var score = waste + Math.abs(Math.log(canvasW/canvasH));
+      if(score < bestScore){ bestScore = score; bestCols = c; }
+    }
+    var changed = parseInt(colsInput.value,10) !== bestCols;
+    if(changed){
+      colsInput.value = bestCols;
+      colsInput.dispatchEvent(new Event('input', {bubbles:true}));
+    }
+    return changed;
+  }
+  $('#cs-minimize-waste').addEventListener('click', function(){
+    if(items.length===0) return;
+    var changed = minimizeLayoutWaste();
+    $('#cs-build').click();
+    $('#cs-info').textContent = changed ? '열 개수를 '+$('#cs-cols').value+'로 정돈해 빈 공간을 최소화했습니다.' : '이미 가장 여백이 적은 배치입니다.';
+  });
+
   setupDrop('cs-hero-drop', 'cs-hero-file', function(f){
     loadImageElement(f).then(function(img){
       heroImg = img;
@@ -19875,7 +19967,19 @@ var TabLog = (function(){
     cropBox.style.top = (cropRect.y*h)+'px';
     cropBox.style.width = (cropRect.w*w)+'px';
     cropBox.style.height = (cropRect.h*h)+'px';
+    refreshAllThumbs();
   }
+
+  // 순서 조정 카드의 썸네일도 원본 이미지 전체가 아니라, 위에서 지정한 크롭 영역(cropRect)이
+  // 실제로 잘라내는 부분을 그대로 보여준다 — 크롭 박스를 옮기거나 크기를 바꿀 때마다 갱신됨.
+  function drawItemThumb(it){
+    if(!it.thumbCanvas) return;
+    var c = it.thumbCanvas, ctx = c.getContext('2d');
+    var nw = it.img.naturalWidth||1, nh = it.img.naturalHeight||1;
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.drawImage(it.img, cropRect.x*nw, cropRect.y*nh, cropRect.w*nw, cropRect.h*nh, 0, 0, c.width, c.height);
+  }
+  function refreshAllThumbs(){ items.forEach(drawItemThumb); }
 
   // 표정 그리드의 썸네일은 항상 정사각형(thumb x thumb)으로 그려지므로, 크롭 영역도 원본 이미지
   // 픽셀 기준으로 항상 정사각형이어야 잘린 얼굴이 늘어나거나 눌리지 않는다. cropRect의 w/h는
@@ -19933,6 +20037,7 @@ var TabLog = (function(){
       buildLabelInputs();
       $('#cs-build').disabled = false;
       $('#cs-clear').disabled = false;
+      $('#cs-minimize-waste').disabled = false;
       if(autoSuggestCols()){
         $('#cs-info').textContent = items.length+'장 로드됨. 열 개수를 '+$('#cs-cols').value+'로 자동 추천했습니다(직접 변경 가능).';
       } else {
@@ -19953,6 +20058,7 @@ var TabLog = (function(){
     buildLabelInputs();
     $('#cs-build').disabled = items.length===0;
     $('#cs-clear').disabled = items.length===0;
+    $('#cs-minimize-waste').disabled = items.length===0;
     if(items.length===0){
       wrap.classList.add('hidden');
       $('#cs-info').textContent = '이미지를 올리면 크롭 영역이 표시됩니다. 드래그로 위치를, 모서리로 크기를 조절하세요.';
@@ -19968,6 +20074,7 @@ var TabLog = (function(){
     wrap.classList.add('hidden');
     $('#cs-build').disabled = true;
     $('#cs-clear').disabled = true;
+    $('#cs-minimize-waste').disabled = true;
     $('#cs-download').classList.add('hidden');
     $('#cs-info').textContent = '이미지를 올리면 크롭 영역이 표시됩니다. 드래그로 위치를, 모서리로 크기를 조절하세요.';
     var canvas = $('#cs-canvas');
@@ -19985,9 +20092,12 @@ var TabLog = (function(){
       f.dataset.idx = idx;
       f.style.cssText = 'display:inline-flex;flex-direction:column;align-items:center;gap:4px;margin:4px 8px 4px 0;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--panel);cursor:grab;vertical-align:top;';
 
-      it.img.style.cssText = 'width:56px;height:56px;object-fit:cover;border-radius:6px;display:block;pointer-events:none;';
-      it.img.draggable = false;
-      f.appendChild(it.img);
+      var thumbCanvas = document.createElement('canvas');
+      thumbCanvas.width = 56; thumbCanvas.height = 56;
+      thumbCanvas.style.cssText = 'width:56px;height:56px;border-radius:6px;display:block;pointer-events:none;background:repeating-conic-gradient(#8883 0% 25%, transparent 0% 50%) 50% / 8px 8px;';
+      it.thumbCanvas = thumbCanvas;
+      drawItemThumb(it);
+      f.appendChild(thumbCanvas);
 
       var lbl = document.createElement('label');
       lbl.style.cssText = 'font-size:11px;color:var(--sub);';
