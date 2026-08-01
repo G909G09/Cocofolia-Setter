@@ -385,7 +385,13 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <div class="field"><label>세로 앵커</label>
         <select id="st-anchor"><option value="top">위쪽</option><option value="center" selected>중앙</option><option value="bottom">아래쪽</option></select>
       </div>
-      <div class="field"><label>여백 색상</label><input type="text" id="st-bgcolor" value="transparent" style="width:110px;"></div>
+      <div class="field"><label>여백 색상</label>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input type="color" id="st-bgcolor-picker" value="#ffffff" style="width:34px;height:32px;padding:2px;border:1px solid var(--line);border-radius:6px;cursor:pointer;background:var(--bg);">
+          <button type="button" class="btn ghost" id="st-bgcolor-transparent" style="padding:6px 10px;font-size:12px;">투명</button>
+          <input type="text" id="st-bgcolor" value="transparent" style="width:80px;font-size:11px;color:var(--sub);" title="CSS 색상값을 직접 입력할 수도 있습니다 (예: transparent, #ff0000, rgba(0,0,0,.5))">
+        </div>
+      </div>
       <div class="field"><label>출력 폭(px)</label><input type="number" id="st-outwidth" value="480" min="16" step="1"></div>
     </div>
     <p class="footnote" style="margin-top:-6px;">위 설정은 이 브라우저에 자동 저장되어 다음에 열어도 유지됩니다.</p>
@@ -19558,6 +19564,32 @@ var TabLog = (function(){
 ================================================================ */
 (function(){
   var items = [];
+
+  // 여백 색상: 색상 피커 + "투명" 버튼으로 고르되, #st-bgcolor(text) 값을 그대로 두어
+  // 기존 저장/렌더 로직(persistFormField, renderItem의 bg 읽기)은 그대로 재사용한다.
+  (function(){
+    var bgPicker = $('#st-bgcolor-picker');
+    var bgTransparentBtn = $('#st-bgcolor-transparent');
+    var bgTextInput = $('#st-bgcolor');
+    function syncBgTransparentBtn(){
+      var isTransparent = bgTextInput.value.trim().toLowerCase() === 'transparent';
+      bgTransparentBtn.style.background = isTransparent ? 'var(--accent)' : '';
+      bgTransparentBtn.style.color = isTransparent ? 'var(--accent-ink)' : '';
+      bgTransparentBtn.style.borderColor = isTransparent ? 'var(--accent)' : 'var(--line)';
+      if(!isTransparent && /^#[0-9a-fA-F]{6}$/.test(bgTextInput.value.trim())) bgPicker.value = bgTextInput.value.trim();
+    }
+    bgPicker.addEventListener('input', function(){
+      bgTextInput.value = bgPicker.value;
+      bgTextInput.dispatchEvent(new Event('change', {bubbles:true}));
+    });
+    bgTransparentBtn.addEventListener('click', function(){
+      bgTextInput.value = 'transparent';
+      bgTextInput.dispatchEvent(new Event('change', {bubbles:true}));
+    });
+    bgTextInput.addEventListener('input', syncBgTransparentBtn);
+    bgTextInput.addEventListener('change', syncBgTransparentBtn);
+    syncBgTransparentBtn(); // 저장된 값(localStorage) 복원 후 초기 상태 동기화
+  })();
 
   function computeCrop(img, targetW, targetH, offsetFrac){
     var targetRatio = targetW/targetH, imgRatio = img.width/img.height;
