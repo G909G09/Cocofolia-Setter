@@ -418,6 +418,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       </div>
       <div class="field" style="flex:0 0 auto;"><label>패널 폭(px)</label><input type="number" id="cs-hero-width" value="220" min="120" max="500" style="width:90px;"></div>
     </div>
+    <p class="footnote" style="margin:2px 0 4px;">대표 이미지는 원본 비율이 찌그러지지 않고 항상 그대로 유지됩니다(세로로 아주 긴 이미지는 패널 폭보다 좁게 표시됩니다).</p>
     <p class="footnote" style="margin:2px 0 4px;">이름/캐치프레이즈에 한국어와 일본어(가나·한자)를 섞어 써도 자동으로 어울리는 서체(한국어: Pretendard / 일본어: Noto Sans JP 계열)로 각각 렌더링됩니다.</p>
 
     <div class="drop" id="cs-drop" style="margin-top:8px;">같은 캐릭터의 표정 변형 이미지 여러 장을 끌어다 놓거나 클릭해서 선택
@@ -434,11 +435,18 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <div class="field"><label>열 개수</label><input type="number" id="cs-cols" value="4" min="1" max="10"></div>
       <div class="field"><label>칸 간격(px)</label><input type="number" id="cs-gap" value="10" min="0" max="60"></div>
       <div class="field"><label>썸네일 크기(px)</label><input type="number" id="cs-thumb" value="160" min="40" max="400"></div>
+      <div class="field"><label>화질(해상도)</label>
+        <select id="cs-scale">
+          <option value="1">1x (기본)</option>
+          <option value="2">2x (고화질)</option>
+          <option value="3">3x (인쇄용)</option>
+        </select>
+      </div>
       <button class="btn" id="cs-build" disabled>컨닝 페이퍼 생성</button>
       <button class="btn ghost hidden" id="cs-download">이미지로 다운로드</button>
       <button class="btn ghost" id="cs-clear" disabled style="color:var(--danger);">전체 지우기</button>
     </div>
-    <p class="footnote" style="margin-top:-6px;">열 개수·칸 간격·썸네일 크기·패널 폭은 이 브라우저에 자동 저장되어 다음에 열어도 유지됩니다.</p>
+    <p class="footnote" style="margin-top:-6px;">열 개수·칸 간격·썸네일 크기·패널 폭·화질은 이 브라우저에 자동 저장되어 다음에 열어도 유지됩니다. 화질을 높이면 다운로드되는 이미지의 실제 해상도가 배수로 커집니다(파일 크기도 함께 커집니다).</p>
     <div id="cs-labels" style="margin-top:6px;"></div>
     <canvas id="cs-canvas" class="preview" style="margin-top:14px;max-width:100%;"></canvas>
   </div>
@@ -17618,6 +17626,7 @@ persistFormField('cs-hero-width', 'cocofolia_setter_cs_hero_width');
 persistFormField('cs-cols', 'cocofolia_setter_cs_cols');
 persistFormField('cs-gap', 'cocofolia_setter_cs_gap');
 persistFormField('cs-thumb', 'cocofolia_setter_cs_thumb');
+persistFormField('cs-scale', 'cocofolia_setter_cs_scale');
 
 /* ============ 탭 전환 ============ */
 $all('.tab-btn').forEach(function(btn){
@@ -19768,12 +19777,46 @@ var TabLog = (function(){
     $('#cs-catch').placeholder = '예: ' + ex.catch;
   })();
 
+  // 대표 이미지(스탠딩)와 표정 이미지가 둘 다 준비되면, 대표 이미지 비율로 정해지는 패널 높이에
+  // 표정 그리드 높이가 최대한 맞도록 열 개수를 자동으로 추천한다 — 한쪽만 길게 남아 여백이
+  // 뜨는 것을 줄여준다. 사용자가 이후 직접 열 개수를 바꾸는 것은 그대로 허용된다.
+  function autoSuggestCols(){
+    if(!heroImg || items.length===0) return;
+    var panelW = Math.max(120, parseInt($('#cs-hero-width').value,10)||220);
+    var gap = Math.max(0, parseInt($('#cs-gap').value,10)||10);
+    var thumb = Math.max(40, parseInt($('#cs-thumb').value,10)||160);
+    var labelH = 22, pad = 14, imgGap = 14;
+    var innerW = panelW - pad*2;
+    var imgH = Math.min(innerW * (heroImg.height/heroImg.width), 900);
+    var targetH = pad + imgH + imgGap + pad; // 이름/캐치프레이즈는 아직 없을 수 있어 대표 이미지 높이만 기준으로 삼음
+
+    var n = items.length;
+    var colsInput = $('#cs-cols');
+    var maxCols = Math.min(n, parseInt(colsInput.max,10)||10);
+    var bestCols = 1, bestDiff = Infinity;
+    for(var c=1; c<=maxCols; c++){
+      var rows = Math.ceil(n/c);
+      var gridH = rows*(thumb+labelH) + (rows+1)*gap;
+      var diff = Math.abs(gridH-targetH);
+      if(diff < bestDiff){ bestDiff = diff; bestCols = c; }
+    }
+    if(parseInt(colsInput.value,10) !== bestCols){
+      colsInput.value = bestCols;
+      colsInput.dispatchEvent(new Event('input', {bubbles:true}));
+      return true;
+    }
+    return false;
+  }
+
   setupDrop('cs-hero-drop', 'cs-hero-file', function(f){
     loadImageElement(f).then(function(img){
       heroImg = img;
       $('#cs-hero-label').textContent = '다시 선택하려면 클릭';
       $('#cs-hero-preview').src = URL.createObjectURL(f);
       $('#cs-hero-preview').classList.remove('hidden');
+      if(autoSuggestCols()){
+        $('#cs-info').textContent = '대표 이미지 비율에 맞춰 열 개수를 '+$('#cs-cols').value+'(으)로 자동 추천했습니다. 직접 바꿔도 됩니다.';
+      }
     });
   });
 
@@ -19823,7 +19866,11 @@ var TabLog = (function(){
       buildLabelInputs();
       $('#cs-build').disabled = false;
       $('#cs-clear').disabled = false;
-      $('#cs-info').textContent = items.length+'장 로드됨. 순서는 드래그하거나 ◀▶ 버튼으로 바꿀 수 있습니다. 크롭 영역을 조절한 뒤 컨닝 페이퍼 생성을 누르세요.';
+      if(autoSuggestCols()){
+        $('#cs-info').textContent = items.length+'장 로드됨. 대표 이미지 비율에 맞춰 열 개수를 '+$('#cs-cols').value+'(으)로 자동 추천했습니다(직접 조정 가능). 크롭 영역을 조절한 뒤 컨닝 페이퍼 생성을 누르세요.';
+      } else {
+        $('#cs-info').textContent = items.length+'장 로드됨. 순서는 드래그하거나 ◀▶ 버튼으로 바꿀 수 있습니다. 크롭 영역을 조절한 뒤 컨닝 페이퍼 생성을 누르세요.';
+      }
     });
   });
 
@@ -19946,7 +19993,14 @@ var TabLog = (function(){
     // 이름이 패널 폭보다 길면 잘리지 않도록 캐치프레이즈처럼 여러 줄로 자동 줄바꿈한다
     var nameLines = (panelOn && nameVal) ? wrapMixedText(ctx, nameVal, innerW, nameFontPx, '700') : [];
     var catchLines = (panelOn && catchVal) ? wrapMixedText(ctx, catchVal, innerW, catchFontPx, '500') : [];
-    var imgH = (panelOn && heroImg) ? Math.min(innerW * (heroImg.height/heroImg.width), 900) : 0;
+    // 대표 이미지는 항상 원본 비율 그대로 그린다 — 세로로 아주 긴 이미지라도 높이만 잘라 찌그러뜨리지 않고,
+    // 높이 상한(900)에 걸리면 폭도 같이 줄여서 비율을 유지한다(패널 폭보다 좁게, 가운데 정렬로 표시됨).
+    var imgH = 0, imgDrawW = innerW;
+    if(panelOn && heroImg){
+      imgH = innerW * (heroImg.height/heroImg.width);
+      var maxImgH = 900;
+      if(imgH > maxImgH){ imgDrawW = innerW * (maxImgH/imgH); imgH = maxImgH; }
+    }
     var panelH = 0;
     if(panelOn){
       panelH = pad;
@@ -19956,16 +20010,21 @@ var TabLog = (function(){
       panelH += pad;
     }
 
-    canvas.width = panelW + panelGap + gridW;
-    canvas.height = Math.max(gridH, panelH);
-    // 캔버스 크기를 바꾸면 컨텍스트 상태가 초기화되므로 이후 다시 그린다
-    ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    var scale = Math.max(1, parseInt($('#cs-scale').value,10)||1);
+    var designW = panelW + panelGap + gridW;
+    var designH = Math.max(gridH, panelH);
+    canvas.width = designW*scale;
+    canvas.height = designH*scale;
+    // 캔버스 크기를 바꾸면 컨텍스트 상태가 초기화되므로 이후 다시 그린다.
+    // 화질 배율은 컨텍스트 자체를 확대해서 적용 — 이후 그리기 좌표는 전부 원래 크기(1x) 기준 그대로 쓰면 된다.
+    ctx.scale(scale, scale);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,designW,designH);
 
     if(panelOn){
       var cy = pad;
       if(heroImg){
-        var dx = (panelW - innerW)/2;
-        ctx.drawImage(heroImg, dx, cy, innerW, imgH);
+        var dx = (panelW - imgDrawW)/2;
+        ctx.drawImage(heroImg, dx, cy, imgDrawW, imgH);
         cy += imgH + imgGap;
       }
       if(nameLines.length){
@@ -19982,7 +20041,7 @@ var TabLog = (function(){
       ctx.strokeStyle = '#e3e6eb';
       ctx.beginPath();
       ctx.moveTo(panelW+panelGap/2, 0);
-      ctx.lineTo(panelW+panelGap/2, canvas.height);
+      ctx.lineTo(panelW+panelGap/2, designH);
       ctx.stroke();
     }
 
@@ -19991,8 +20050,8 @@ var TabLog = (function(){
       var col = idx%cols, rowI = Math.floor(idx/cols);
       var x = gridX0 + gap + col*(thumb+gap);
       var y = gap + rowI*(thumb+labelH+gap);
-      var sx = cropRect.x*it.img.width, sy = cropRect.y*it.img.height;
-      var sw = cropRect.w*it.img.width, sh = cropRect.h*it.img.height;
+      var sx = cropRect.x*it.img.naturalWidth, sy = cropRect.y*it.img.naturalHeight;
+      var sw = cropRect.w*it.img.naturalWidth, sh = cropRect.h*it.img.naturalHeight;
       ctx.drawImage(it.img, sx, sy, sw, sh, x, y, thumb, thumb);
       var labelPx = fitFontSize(ctx, it.label, thumb-4, 13, '600', 9); // 라벨이 썸네일 폭보다 길면 글자 크기를 줄여 옆 칸을 침범하지 않게 한다
       drawMixedTextCentered(ctx, it.label, x+thumb/2, y+thumb+16, labelPx, '600', '#1e2430');
