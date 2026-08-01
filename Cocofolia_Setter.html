@@ -19991,8 +19991,8 @@ var TabLog = (function(){
       var col = idx%cols, rowI = Math.floor(idx/cols);
       var x = gridX0 + gap + col*(thumb+gap);
       var y = gap + rowI*(thumb+labelH+gap);
-      var sx = cropRect.x*it.img.width, sy = cropRect.y*it.img.height;
-      var sw = cropRect.w*it.img.width, sh = cropRect.h*it.img.height;
+      var sx = cropRect.x*it.img.naturalWidth, sy = cropRect.y*it.img.naturalHeight;
+      var sw = cropRect.w*it.img.naturalWidth, sh = cropRect.h*it.img.naturalHeight;
       ctx.drawImage(it.img, sx, sy, sw, sh, x, y, thumb, thumb);
       var labelPx = fitFontSize(ctx, it.label, thumb-4, 13, '600', 9); // 라벨이 썸네일 폭보다 길면 글자 크기를 줄여 옆 칸을 침범하지 않게 한다
       drawMixedTextCentered(ctx, it.label, x+thumb/2, y+thumb+16, labelPx, '600', '#1e2430');
