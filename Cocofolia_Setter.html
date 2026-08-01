@@ -124,8 +124,8 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <section id="tab-mp3" class="tab-panel active">
   <div class="card">
     <h2>다이스 컷인용 무음 MP3 생성</h2>
-    <p class="desc">컷인 png/gif/apng을 올리면 1회 재생 길이를 자동 감지해서, 정확히 같은 길이의 무음 mp3를 만들어줍니다. 코코포리아에서 이미지와 짝을 지어 재생 시간을 맞출 때 사용하세요.</p>
-    <div class="drop" id="mp3-drop">파일을 끌어다 놓거나 클릭해서 선택 (png / gif / apng)
+    <p class="desc">컷인 이미지를 올리면 재생 길이를 감지해 같은 길이의 무음 mp3를 만듭니다. 이미지·사운드 재생 시간을 맞출 때 사용하세요.</p>
+    <div class="drop" id="mp3-drop">png / gif / apng 파일
       <input type="file" id="mp3-file" accept=".png,.gif" class="hidden">
     </div>
     <div class="info-box" id="mp3-info">파일을 선택하면 여기에 감지 결과가 표시됩니다.</div>
@@ -146,7 +146,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <div class="field"><label><input type="checkbox" id="mp3-manual-toggle"> 길이 직접 입력(초)</label><input type="number" id="mp3-manual-sec" value="1.0" min="0.05" step="0.05" disabled></div>
     </div>
     <div class="info-box" id="mp3-final">최종 길이: -</div>
-    <p class="footnote">※ mp3 인코딩 특성상(프레임 단위 저장) 실제 재생 길이가 요청한 길이보다 최대 0.1초가량 길어질 수 있습니다.</p>
+    <p class="footnote">※ mp3 인코딩 특성상 실제 길이가 요청보다 최대 0.1초 길어질 수 있습니다.</p>
     <div class="row">
       <button class="btn" id="mp3-generate" disabled>무음 MP3 생성</button>
       <div class="field"><label>파일명</label><input type="text" id="mp3-filename" class="wide" value="cutin_silence.mp3"></div>
@@ -162,8 +162,8 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <section id="tab-g2a" class="tab-panel">
   <div class="card">
     <h2>GIF ↔ APNG 변환기</h2>
-    <p class="desc">GIF를 올리면 APNG(무손실, .png)로, 애니메이션 PNG(APNG)를 올리면 GIF로, MP4를 올리면 APNG로 변환합니다. 파일 형식을 자동으로 인식합니다.</p>
-    <div class="drop" id="g2a-drop">GIF, APNG(PNG) 또는 MP4 파일을 끌어다 놓거나 클릭해서 선택
+    <p class="desc">GIF↔APNG 상호 변환, MP4→APNG 변환을 지원합니다. 파일 형식은 자동 인식됩니다.</p>
+    <div class="drop" id="g2a-drop">GIF · APNG(PNG) · MP4 파일
       <input type="file" id="g2a-file" accept=".gif,.png,.mp4" class="hidden">
     </div>
     <div class="row hidden" id="g2a-mp4-opts">
@@ -175,10 +175,10 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <div class="field"><label>허용 오차</label><input type="range" id="g2a-mp4-chroma-tol" min="0" max="100" value="35" style="width:110px;"></div>
     </div>
     <div class="row">
-      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);"><input type="checkbox" id="g2a-alpha" checked> APNG→GIF 변환 시 투명 배경 유지(크로마키 방식, 완전한 반투명은 지원 안 됨)</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);"><input type="checkbox" id="g2a-alpha" checked> APNG→GIF 변환 시 배경 투명 유지(크로마키, 반투명 불가)</label>
     </div>
     <div class="row">
-      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);"><input type="checkbox" id="g2a-autoresize" checked> 코코포리아 업로드 기준에 맞게 자동 리사이징(최대 1200px, 1MB 이하 목표 — 초과 시 압축되면서 애니메이션이 깨지는 걸 방지)</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);"><input type="checkbox" id="g2a-autoresize" checked> 코코포리아 기준 자동 리사이징(최대 1200px·1MB, 애니메이션 깨짐 방지)</label>
     </div>
     <div class="info-box" id="g2a-info">파일을 선택하면 정보가 표시됩니다.</div>
     <div class="row">
@@ -196,8 +196,8 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <section id="tab-fx" class="tab-panel">
   <div class="card">
     <h2>정지 PNG + 효과 → APNG</h2>
-    <p class="desc">정지 이미지에 효과를 적용해 짧은 연출용 APNG를 만듭니다. 아래 슬롯에서 효과를 최대 4개까지 골라 동시에 켤 수 있습니다.</p>
-    <div class="drop" id="fx-drop">PNG 파일을 끌어다 놓거나 클릭해서 선택
+    <p class="desc">정지 이미지에 효과를 적용해 짧은 APNG를 만듭니다. 효과 슬롯 4개 중 원하는 만큼 골라 동시에 켤 수 있고, 고르면 바로 미리보기가 재생됩니다.</p>
+    <div class="drop" id="fx-drop">PNG 파일
       <input type="file" id="fx-file" accept=".png" class="hidden">
     </div>
     <div class="row">
@@ -212,7 +212,6 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
         </select>
       </div>
     </div>
-    <p class="footnote" style="margin:2px 0 8px;">효과 슬롯 4개 중 원하는 만큼 골라서 켤 수 있습니다. 드롭다운에서 효과를 고르면 오른쪽에 미리 만들어둔 견본 이미지로 어떤 효과인지 바로 미리보기가 재생됩니다.</p>
     <div id="fx-slots" style="display:flex;flex-wrap:wrap;gap:12px;"></div>
 
     <div class="row" style="margin-top:14px;">
@@ -232,8 +231,8 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <section id="tab-log" class="tab-panel">
   <div class="card">
     <h2>html용 로그 백업</h2>
-    <p class="desc">코코포리아의 "로그 출력" 기능으로 받은 .html 파일(권장) 또는 확장 프로그램에서 만든 .json 파일을 올리면, 영화 대본집처럼 GM 서술과 플레이어 대사를 구분해서 정리해줍니다. 잡담(사담) 탭은 기본적으로 제외됩니다.</p>
-    <div class="drop no-print" id="log-drop">로그 파일(.html/.json)을 끌어다 놓거나 클릭해서 선택
+    <p class="desc">코코포리아 로그 출력 .html(권장) 또는 확장 프로그램 .json을 올리면 GM 서술과 대사를 구분해 정리합니다. 잡담 탭은 기본 제외됩니다.</p>
+    <div class="drop no-print" id="log-drop">로그 파일(.html/.json)
       <input type="file" id="log-file" accept=".html,.htm,.json" class="hidden">
     </div>
     <div class="row hidden no-print" id="log-controls">
@@ -253,11 +252,11 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <section id="tab-book" class="tab-panel">
   <div class="card">
     <h2>로그북용 로그 백업 (A5 국배판 · 한/글 매크로 연동)</h2>
-    <p class="desc">A5 국배판 로그북은 브라우저에서 직접 인쇄하지 않고, <b>한/글(HWP) 템플릿 + 매크로</b>가 실제 조판을 담당하는 방식입니다. 이 탭은 코코포리아 로그 HTML을 분석해서, 각 문단을 대사/주사위/서술 등으로 자동 분류하고 <code>@@스타일@@본문</code> 형태의 마커 텍스트로 변환해 줍니다. 이 텍스트를 준비된 한/글 템플릿 맨 아래에 붙여넣고 매크로를 실행하면 문단 모양(대사/주사위/서술 스타일)이 자동으로 입혀집니다.</p>
+    <p class="desc">로그 HTML을 분석해 <code>@@스타일@@본문</code> 마커 텍스트로 변환합니다. 준비된 <b>한/글 템플릿+매크로</b>에 붙여넣으면 실제 조판(대사/주사위/서술 스타일)이 자동으로 입혀집니다.</p>
     <div class="row">
       <button class="btn ghost" id="bk-macro-download">한/글 템플릿 + 매크로 다운로드(.zip)</button>
     </div>
-    <div class="drop" id="book-drop">로그 HTML 파일을 끌어다 놓거나 클릭해서 선택 <small style="display:block;color:var(--sub);margin-top:4px;">코코포리아 "로그 출력"으로 받은 제목[all/main].html</small>
+    <div class="drop" id="book-drop">로그 HTML 파일 <small style="display:block;color:var(--sub);margin-top:4px;">코코포리아 "로그 출력"으로 받은 제목[all/main].html</small>
       <input type="file" id="book-file" accept=".html,.htm,text/html" class="hidden">
     </div>
     <div class="info-box hidden" id="bk-loadinfo"></div>
@@ -296,7 +295,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <button class="btn" id="bk-dlBtn">TXT 다운로드</button>
       <button class="btn ghost" id="bk-cpBtn">클립보드에 복사</button>
     </div>
-    <p class="footnote">TXT 다운로드(또는 클립보드 복사) 후, 준비된 한/글 템플릿 문서 맨 아랫줄에 붙여넣고 매크로를 실행하세요.</p>
+    <p class="footnote">TXT 다운로드 후 한/글 템플릿 맨 아래에 붙여넣고 매크로를 실행하세요.</p>
   </div>
 </section>
 
@@ -304,7 +303,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <section id="tab-glossary" class="tab-panel">
   <div class="card">
     <h2>CoC 용어 변환기 (번역 아님)</h2>
-    <p class="desc">이 도구는 일본어 문장을 한국어로 번역하지 않습니다. 대신, 이미 (다른 곳에서) 번역했거나 원문 그대로인 텍스트에서 CoC 관련 일본어 용어를 찾아 국내 커뮤니티에서 흔히 쓰는 한국어 용어로 치환해줍니다. 아래 사전은 자유롭게 추가/수정/삭제할 수 있습니다.</p>
+    <p class="desc">문장을 번역하진 않고, 텍스트 속 CoC 관련 일본어 용어를 국내 커뮤니티 표준 용어로 치환합니다.</p>
     <div class="row">
       <div class="field" style="width:100%;"><label>원문</label><textarea id="gl-input" rows="10" style="width:100%;" placeholder="일본어 시나리오 텍스트 또는 초벌 번역 텍스트를 붙여넣으세요"></textarea></div>
     </div>
@@ -317,7 +316,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
   <div class="card">
     <h2>용어 사전 편집</h2>
-    <p class="desc">기본 사전은 자주 쓰이는 CoC 관련 용어 위주입니다. 직접 추가/수정하고, JSON으로 내보내/불러올 수 있습니다. 수정한 내용은 이 브라우저에 자동 저장되어 다음에 열어도 유지됩니다.</p>
+    <p class="desc">사전을 직접 추가/수정/삭제하거나 JSON으로 내보내기/불러오기 할 수 있습니다. 수정 내용은 브라우저에 자동 저장됩니다.</p>
     <div class="row">
       <button class="btn ghost" id="gl-add-row">행 추가</button>
       <button class="btn ghost" id="gl-export-dict">사전 내보내기(JSON)</button>
@@ -336,7 +335,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <section id="tab-edition" class="tab-panel">
   <div class="card">
     <h2>CoC 6판 → 7판 수치 변환기</h2>
-    <p class="desc">시나리오에 적힌 6판 능력치/기준치를 7판 스케일로 바꿔줍니다. 능력치 ×5 변환은 공식 자체가 단순 산술이라 자동 계산하지만, Damage Bonus/Build 표처럼 룰북에 실린 정확한 수치표는 임의로 넣지 않았습니다 — 아래 표에 사용 중인 룰북을 보고 직접 입력해두면 계산에 활용됩니다.</p>
+    <p class="desc">6판 능력치를 7판 스케일(×5)로 자동 변환합니다. Damage Bonus/Build 표는 룰북마다 수치가 달라 아래에 직접 입력해두면 계산에 활용됩니다.</p>
     <h3 style="font-size:13px;color:var(--sub);margin:14px 0 6px;">능력치 변환 (6판 값 입력 → 7판 값 자동 계산)</h3>
     <div class="row" id="ed-stat-row"></div>
     <div class="info-box" id="ed-stat-result">-</div>
@@ -344,7 +343,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 
   <div class="card">
     <h3 style="font-size:13px;color:var(--sub);margin:0 0 6px;">시나리오 텍스트 일괄 변환</h3>
-    <p class="desc">"STR 12", "근력12", "체력:10" 처럼 라벨+숫자 형태로 쓰인 6판 능력치 표기를 찾아 ×5 값으로 바꿔줍니다. 인식하지 못한 표기는 원문 그대로 남습니다.</p>
+    <p class="desc">"STR 12", "근력12" 같은 라벨+숫자 표기를 찾아 ×5 값으로 바꿉니다. 인식 못한 표기는 원문 그대로 둡니다.</p>
     <div class="field" style="width:100%;"><label>원문</label><textarea id="ed-text-input" rows="8" style="width:100%;" placeholder="시나리오 스탯 블록 텍스트를 붙여넣으세요"></textarea></div>
     <div class="row"><button class="btn" id="ed-text-run">일괄 변환</button></div>
     <div class="field" style="width:100%;"><label>변환 결과</label><textarea id="ed-text-output" rows="8" style="width:100%;" readonly></textarea></div>
@@ -353,7 +352,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 
   <div class="card">
     <h3 style="font-size:13px;color:var(--sub);margin:0 0 6px;">Damage Bonus / Build 참고표 (사용자 입력)</h3>
-    <p class="desc">정확한 구간·수치는 사용 중인 7판 룰북(수호자 룰북)을 참고해 직접 입력하세요. 입력해두면 STR+SIZ 합계로 즉시 조회할 수 있습니다. 입력한 표는 이 브라우저에 자동 저장되어 다음에 열어도 유지됩니다.</p>
+    <p class="desc">사용 중인 룰북을 보고 직접 입력하면 STR+SIZ 합계로 즉시 조회할 수 있습니다. 입력값은 브라우저에 자동 저장됩니다.</p>
     <table style="width:100%;border-collapse:collapse;font-size:13px;" id="ed-db-table">
       <thead><tr style="text-align:left;color:var(--sub);"><th style="padding:4px;">STR+SIZ 최소</th><th style="padding:4px;">STR+SIZ 최대</th><th style="padding:4px;">Damage Bonus</th><th style="padding:4px;">Build</th><th></th></tr></thead>
       <tbody id="ed-db-body"></tbody>
@@ -370,8 +369,8 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <section id="tab-standing" class="tab-panel">
   <div class="card">
     <h2>스탠딩 이미지 일괄 재단</h2>
-    <p class="desc">여러 스탠딩 이미지를 한 번에 같은 비율로 맞춥니다. 크롭(잘라내기)과 레터박스(여백 추가) 중 선택할 수 있고, 이미지별로 세로 위치를 미세조정할 수 있습니다.</p>
-    <div class="drop" id="st-drop">스탠딩 이미지 여러 장을 끌어다 놓거나 클릭해서 선택
+    <p class="desc">여러 스탠딩 이미지를 한 번에 같은 비율로 맞춥니다. 크롭 또는 레터박스 중 선택하고, 이미지별로 세로 위치를 미세조정할 수 있습니다.</p>
+    <div class="drop" id="st-drop">스탠딩 이미지 여러 장
       <input type="file" id="st-file" accept=".png,.jpg,.jpeg,.webp" multiple class="hidden">
     </div>
     <div class="row">
@@ -403,7 +402,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <section id="tab-cheatsheet" class="tab-panel">
   <div class="card">
     <h2>표정 카탈로그 컨닝 페이퍼 메이커</h2>
-    <p class="desc">같은 캐릭터의 표정별 스탠딩 이미지를 올리고, 첫 번째 이미지 위에서 원하는 영역(예: 얼굴)을 드래그로 지정하면 나머지 이미지에도 같은 위치가 적용됩니다.</p>
+    <p class="desc">표정별 스탠딩 이미지를 올리고 첫 이미지에서 영역(예: 얼굴)을 드래그로 지정하면 나머지에도 같은 위치가 적용됩니다.</p>
 
     <h3 style="margin:0 0 8px;font-size:13px;color:var(--sub);font-weight:700;">좌측 캐릭터 패널 (선택 사항 — 비워두면 표시되지 않습니다)</h3>
     <div class="row" style="align-items:flex-start;">
@@ -418,13 +417,12 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       </div>
       <div class="field" style="flex:0 0 auto;"><label>패널 폭(px)</label><input type="number" id="cs-hero-width" value="220" min="120" max="500" style="width:90px;"></div>
     </div>
-    <p class="footnote" style="margin:2px 0 4px;">대표 이미지는 원본 비율이 찌그러지지 않고 항상 그대로 유지됩니다(세로로 아주 긴 이미지는 패널 폭보다 좁게 표시됩니다).</p>
-    <p class="footnote" style="margin:2px 0 4px;">이름/캐치프레이즈에 한국어와 일본어(가나·한자)를 섞어 써도 자동으로 어울리는 서체(한국어: Pretendard / 일본어: Noto Sans JP 계열)로 각각 렌더링됩니다.</p>
+    <p class="footnote" style="margin:2px 0 4px;">대표 이미지 비율은 찌그러지지 않고 항상 유지됩니다. 한국어·일본어를 섞어 써도 각각 어울리는 서체로 렌더링됩니다.</p>
 
-    <div class="drop" id="cs-drop" style="margin-top:8px;">같은 캐릭터의 표정 변형 이미지 여러 장을 끌어다 놓거나 클릭해서 선택
+    <div class="drop" id="cs-drop" style="margin-top:8px;">같은 캐릭터의 표정 변형 이미지 여러 장
       <input type="file" id="cs-file" accept=".png,.jpg,.jpeg,.webp" multiple class="hidden">
     </div>
-    <div class="info-box" id="cs-info">이미지를 올리면 첫 번째 이미지 위에 크롭 영역을 표시합니다. 드래그해서 위치를, 모서리를 드래그해서 크기를 조절하세요.</div>
+    <div class="info-box" id="cs-info">이미지를 올리면 크롭 영역이 표시됩니다. 드래그로 위치를, 모서리로 크기를 조절하세요.</div>
     <div id="cs-cropper-wrap" class="hidden" style="position:relative;display:inline-block;max-width:100%;margin-top:10px;">
       <img id="cs-cropper-img" style="max-width:100%;display:block;">
       <div id="cs-crop-box" style="position:absolute;border:2px solid var(--accent);background:rgba(91,107,245,.15);cursor:move;">
@@ -446,7 +444,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <button class="btn ghost hidden" id="cs-download">이미지로 다운로드</button>
       <button class="btn ghost" id="cs-clear" disabled style="color:var(--danger);">전체 지우기</button>
     </div>
-    <p class="footnote" style="margin-top:-6px;">열 개수·칸 간격·썸네일 크기·패널 폭·화질은 이 브라우저에 자동 저장되어 다음에 열어도 유지됩니다. 화질을 높이면 다운로드되는 이미지의 실제 해상도가 배수로 커집니다(파일 크기도 함께 커집니다).</p>
+    <p class="footnote" style="margin-top:-6px;">위 설정은 브라우저에 자동 저장됩니다. 화질을 높이면 해상도와 파일 크기가 함께 커집니다.</p>
     <div id="cs-labels" style="margin-top:6px;"></div>
     <canvas id="cs-canvas" class="preview" style="margin-top:14px;max-width:100%;"></canvas>
   </div>
@@ -456,7 +454,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <section id="tab-suggest" class="tab-panel">
   <div class="card">
     <h2>건의함</h2>
-    <p class="desc">기능 건의나 버그 제보를 남기면 GitHub 이슈로 기록되고, 처리 상태를 여기서 바로 확인할 수 있습니다. 이 탭은 <b>인터넷 연결이 필요</b>하고, 건의를 새로 남기려면 GitHub 계정(무료)이 있어야 합니다 — 목록을 보는 건 계정 없이도 가능합니다.</p>
+    <p class="desc">기능 건의나 버그 제보를 남기면 GitHub 이슈로 기록되고 처리 상태를 여기서 확인할 수 있습니다. <b>인터넷 연결 필요</b>, 새 건의는 GitHub 계정이 있어야 합니다.</p>
     <div class="row">
       <button class="btn" id="sg-new">건의하기</button>
       <button class="btn ghost" id="sg-refresh">새로고침</button>
@@ -19705,6 +19703,57 @@ var TabLog = (function(){
   var cropImg = $('#cs-cropper-img');
   var cropBox = $('#cs-crop-box');
 
+  // 순서 바꾸기 드래그 중 정확히 어디에 놓일지 보여주는 삽입선.
+  // #cs-labels는 buildLabelInputs가 매번 innerHTML을 비우므로, 리스너는 컨테이너 자체에 한 번만
+  // 걸어두고(위임 방식) 삽입선 엘리먼트는 다시 그릴 때마다 재부착한다.
+  var labelsWrap = $('#cs-labels');
+  labelsWrap.style.position = 'relative';
+  var dragIndicator = document.createElement('div');
+  dragIndicator.style.cssText = 'position:absolute;width:3px;margin-left:-1.5px;border-radius:2px;background:var(--accent);display:none;pointer-events:none;z-index:5;';
+  var dragFromIdx = null;
+
+  function labelCardEls(){
+    return Array.prototype.filter.call(labelsWrap.children, function(el){ return el.dataset && el.dataset.idx !== undefined; });
+  }
+  labelsWrap.addEventListener('dragover', function(e){
+    if(dragFromIdx===null) return;
+    e.preventDefault();
+    var cards = labelCardEls();
+    if(!cards.length) return;
+    var wrapRect = labelsWrap.getBoundingClientRect();
+    var target = null, before = true, bestDist = Infinity;
+    for(var i=0;i<cards.length;i++){
+      var r = cards[i].getBoundingClientRect();
+      var inRow = e.clientY >= r.top && e.clientY <= r.bottom;
+      if(!inRow) continue;
+      if(e.clientX >= r.left && e.clientX <= r.right){ target = cards[i]; before = (e.clientX-r.left) < r.width/2; break; } // 커서가 카드 위에 있으면 그 카드 기준 좌/우 절반으로 판단
+      var dist = Math.min(Math.abs(e.clientX-r.left), Math.abs(e.clientX-r.right));
+      if(dist < bestDist){ bestDist = dist; target = cards[i]; before = e.clientX < r.left; } // 카드 사이 빈틈이면 가장 가까운 카드 기준으로 판단
+    }
+    if(!target){ target = cards[cards.length-1]; before = false; } // 카드 행 사이/바깥이면 마지막 카드 뒤로 취급
+    var idx = parseInt(target.dataset.idx, 10);
+    var tr = target.getBoundingClientRect();
+    dragIndicator.dataset.insertBefore = before ? idx : idx+1;
+    dragIndicator.style.left = ((before ? tr.left : tr.right) - wrapRect.left) + 'px';
+    dragIndicator.style.top = (tr.top - wrapRect.top) + 'px';
+    dragIndicator.style.height = tr.height + 'px';
+    dragIndicator.style.display = 'block';
+  });
+  labelsWrap.addEventListener('dragleave', function(e){
+    if(!labelsWrap.contains(e.relatedTarget)) dragIndicator.style.display = 'none';
+  });
+  labelsWrap.addEventListener('drop', function(e){
+    e.preventDefault();
+    dragIndicator.style.display = 'none';
+    if(dragFromIdx===null) return;
+    var insertBeforeIdx = parseInt(dragIndicator.dataset.insertBefore, 10);
+    if(!isNaN(insertBeforeIdx)){
+      var to = (dragFromIdx < insertBeforeIdx) ? insertBeforeIdx-1 : insertBeforeIdx;
+      moveItem(dragFromIdx, to);
+    }
+    dragFromIdx = null;
+  });
+
   /* ── 한/일 혼용 텍스트 렌더링 (한국어: Pretendard, 일본어: Noto Sans JP 계열) ── */
   var FONT_KR = getComputedStyle(document.documentElement).getPropertyValue('--sans').trim() || 'sans-serif';
   var FONT_JP = getComputedStyle(document.documentElement).getPropertyValue('--sans-jp').trim() || 'sans-serif';
@@ -19815,7 +19864,7 @@ var TabLog = (function(){
       $('#cs-hero-preview').src = URL.createObjectURL(f);
       $('#cs-hero-preview').classList.remove('hidden');
       if(autoSuggestCols()){
-        $('#cs-info').textContent = '대표 이미지 비율에 맞춰 열 개수를 '+$('#cs-cols').value+'(으)로 자동 추천했습니다. 직접 바꿔도 됩니다.';
+        $('#cs-info').textContent = '열 개수를 '+$('#cs-cols').value+'로 자동 추천했습니다(직접 변경 가능).';
       }
     });
   });
@@ -19826,6 +19875,23 @@ var TabLog = (function(){
     cropBox.style.top = (cropRect.y*h)+'px';
     cropBox.style.width = (cropRect.w*w)+'px';
     cropBox.style.height = (cropRect.h*h)+'px';
+  }
+
+  // 표정 그리드의 썸네일은 항상 정사각형(thumb x thumb)으로 그려지므로, 크롭 영역도 원본 이미지
+  // 픽셀 기준으로 항상 정사각형이어야 잘린 얼굴이 늘어나거나 눌리지 않는다. cropRect의 w/h는
+  // 이미지 표시 비율(fraction)이라 이미지 자체가 정사각형이 아니면 w==h여도 실제 픽셀은
+  // 정사각형이 아니므로, 이미지의 실제 가로세로 비율을 반영해 h를 계산한다.
+  function cropImgNaturalWH(){
+    if(!items.length) return {w:1, h:1};
+    return {w: items[0].img.naturalWidth||1, h: items[0].img.naturalHeight||1};
+  }
+  function squareifyCropRect(){
+    var nat = cropImgNaturalWH();
+    var maxSidePx = Math.min((1-cropRect.x)*nat.w, (1-cropRect.y)*nat.h);
+    var minSidePx = 0.03*Math.min(nat.w, nat.h);
+    var sidePx = clamp01(cropRect.w*nat.w, minSidePx, maxSidePx);
+    cropRect.w = sidePx/nat.w;
+    cropRect.h = sidePx/nat.h;
   }
 
   var dragMode = null, dragStart = null, rectStart = null;
@@ -19845,8 +19911,9 @@ var TabLog = (function(){
       cropRect.x = clamp01(rectStart.x+dx, 0, 1-cropRect.w);
       cropRect.y = clamp01(rectStart.y+dy, 0, 1-cropRect.h);
     } else {
+      // 정사각형 유지를 위해 가로 드래그(dx)만 크기 기준으로 쓰고, 세로 크기는 이미지 비율로 계산한다
       cropRect.w = clamp01(rectStart.w+dx, 0.03, 1-cropRect.x);
-      cropRect.h = clamp01(rectStart.h+dy, 0.03, 1-cropRect.y);
+      squareifyCropRect();
     }
     syncCropBoxDom();
   });
@@ -19861,15 +19928,15 @@ var TabLog = (function(){
       items = items.concat(loaded); // 기존 목록에 이어붙임 — 여러 번에 나눠 올려도 앞서 올린 이미지가 사라지지 않는다
       if(wasEmpty){
         cropImg.src = URL.createObjectURL(items[0].file);
-        cropImg.onload = function(){ wrap.classList.remove('hidden'); syncCropBoxDom(); };
+        cropImg.onload = function(){ squareifyCropRect(); wrap.classList.remove('hidden'); syncCropBoxDom(); };
       }
       buildLabelInputs();
       $('#cs-build').disabled = false;
       $('#cs-clear').disabled = false;
       if(autoSuggestCols()){
-        $('#cs-info').textContent = items.length+'장 로드됨. 대표 이미지 비율에 맞춰 열 개수를 '+$('#cs-cols').value+'(으)로 자동 추천했습니다(직접 조정 가능). 크롭 영역을 조절한 뒤 컨닝 페이퍼 생성을 누르세요.';
+        $('#cs-info').textContent = items.length+'장 로드됨. 열 개수를 '+$('#cs-cols').value+'로 자동 추천했습니다(직접 변경 가능).';
       } else {
-        $('#cs-info').textContent = items.length+'장 로드됨. 순서는 드래그하거나 ◀▶ 버튼으로 바꿀 수 있습니다. 크롭 영역을 조절한 뒤 컨닝 페이퍼 생성을 누르세요.';
+        $('#cs-info').textContent = items.length+'장 로드됨. 카드를 드래그해 순서를 바꿀 수 있습니다.';
       }
     });
   });
@@ -19888,9 +19955,9 @@ var TabLog = (function(){
     $('#cs-clear').disabled = items.length===0;
     if(items.length===0){
       wrap.classList.add('hidden');
-      $('#cs-info').textContent = '이미지를 올리면 첫 번째 이미지 위에 크롭 영역을 표시합니다. 드래그해서 위치를, 모서리를 드래그해서 크기를 조절하세요.';
+      $('#cs-info').textContent = '이미지를 올리면 크롭 영역이 표시됩니다. 드래그로 위치를, 모서리로 크기를 조절하세요.';
     } else {
-      $('#cs-info').textContent = items.length+'장 로드됨. 순서는 드래그하거나 ◀▶ 버튼으로 바꿀 수 있습니다. 크롭 영역을 조절한 뒤 컨닝 페이퍼 생성을 누르세요.';
+      $('#cs-info').textContent = items.length+'장 로드됨. 카드를 드래그해 순서를 바꿀 수 있습니다.';
     }
   }
 
@@ -19902,15 +19969,16 @@ var TabLog = (function(){
     $('#cs-build').disabled = true;
     $('#cs-clear').disabled = true;
     $('#cs-download').classList.add('hidden');
-    $('#cs-info').textContent = '이미지를 올리면 첫 번째 이미지 위에 크롭 영역을 표시합니다. 드래그해서 위치를, 모서리를 드래그해서 크기를 조절하세요.';
+    $('#cs-info').textContent = '이미지를 올리면 크롭 영역이 표시됩니다. 드래그로 위치를, 모서리로 크기를 조절하세요.';
     var canvas = $('#cs-canvas');
     canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
     canvas.width = 0; canvas.height = 0;
   });
 
   function buildLabelInputs(){
-    var wrap2 = $('#cs-labels');
+    var wrap2 = labelsWrap;
     wrap2.innerHTML = '';
+    wrap2.appendChild(dragIndicator);
     items.forEach(function(it, idx){
       var f = document.createElement('span');
       f.draggable = true;
@@ -19952,17 +20020,11 @@ var TabLog = (function(){
 
       f.addEventListener('dragstart', function(e){
         f.style.opacity = '0.4';
+        dragFromIdx = idx;
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/plain', String(idx));
       });
-      f.addEventListener('dragend', function(){ f.style.opacity = '1'; });
-      f.addEventListener('dragover', function(e){ e.preventDefault(); f.style.borderColor = 'var(--accent)'; });
-      f.addEventListener('dragleave', function(){ f.style.borderColor = 'var(--line)'; });
-      f.addEventListener('drop', function(e){
-        e.preventDefault(); f.style.borderColor = 'var(--line)';
-        var fromIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
-        moveItem(fromIdx, idx);
-      });
+      f.addEventListener('dragend', function(){ f.style.opacity = '1'; dragIndicator.style.display = 'none'; dragFromIdx = null; });
 
       wrap2.appendChild(f);
     });
