@@ -19777,12 +19777,46 @@ var TabLog = (function(){
     $('#cs-catch').placeholder = '예: ' + ex.catch;
   })();
 
+  // 대표 이미지(스탠딩)와 표정 이미지가 둘 다 준비되면, 대표 이미지 비율로 정해지는 패널 높이에
+  // 표정 그리드 높이가 최대한 맞도록 열 개수를 자동으로 추천한다 — 한쪽만 길게 남아 여백이
+  // 뜨는 것을 줄여준다. 사용자가 이후 직접 열 개수를 바꾸는 것은 그대로 허용된다.
+  function autoSuggestCols(){
+    if(!heroImg || items.length===0) return;
+    var panelW = Math.max(120, parseInt($('#cs-hero-width').value,10)||220);
+    var gap = Math.max(0, parseInt($('#cs-gap').value,10)||10);
+    var thumb = Math.max(40, parseInt($('#cs-thumb').value,10)||160);
+    var labelH = 22, pad = 14, imgGap = 14;
+    var innerW = panelW - pad*2;
+    var imgH = Math.min(innerW * (heroImg.height/heroImg.width), 900);
+    var targetH = pad + imgH + imgGap + pad; // 이름/캐치프레이즈는 아직 없을 수 있어 대표 이미지 높이만 기준으로 삼음
+
+    var n = items.length;
+    var colsInput = $('#cs-cols');
+    var maxCols = Math.min(n, parseInt(colsInput.max,10)||10);
+    var bestCols = 1, bestDiff = Infinity;
+    for(var c=1; c<=maxCols; c++){
+      var rows = Math.ceil(n/c);
+      var gridH = rows*(thumb+labelH) + (rows+1)*gap;
+      var diff = Math.abs(gridH-targetH);
+      if(diff < bestDiff){ bestDiff = diff; bestCols = c; }
+    }
+    if(parseInt(colsInput.value,10) !== bestCols){
+      colsInput.value = bestCols;
+      colsInput.dispatchEvent(new Event('input', {bubbles:true}));
+      return true;
+    }
+    return false;
+  }
+
   setupDrop('cs-hero-drop', 'cs-hero-file', function(f){
     loadImageElement(f).then(function(img){
       heroImg = img;
       $('#cs-hero-label').textContent = '다시 선택하려면 클릭';
       $('#cs-hero-preview').src = URL.createObjectURL(f);
       $('#cs-hero-preview').classList.remove('hidden');
+      if(autoSuggestCols()){
+        $('#cs-info').textContent = '대표 이미지 비율에 맞춰 열 개수를 '+$('#cs-cols').value+'(으)로 자동 추천했습니다. 직접 바꿔도 됩니다.';
+      }
     });
   });
 
@@ -19832,7 +19866,11 @@ var TabLog = (function(){
       buildLabelInputs();
       $('#cs-build').disabled = false;
       $('#cs-clear').disabled = false;
-      $('#cs-info').textContent = items.length+'장 로드됨. 순서는 드래그하거나 ◀▶ 버튼으로 바꿀 수 있습니다. 크롭 영역을 조절한 뒤 컨닝 페이퍼 생성을 누르세요.';
+      if(autoSuggestCols()){
+        $('#cs-info').textContent = items.length+'장 로드됨. 대표 이미지 비율에 맞춰 열 개수를 '+$('#cs-cols').value+'(으)로 자동 추천했습니다(직접 조정 가능). 크롭 영역을 조절한 뒤 컨닝 페이퍼 생성을 누르세요.';
+      } else {
+        $('#cs-info').textContent = items.length+'장 로드됨. 순서는 드래그하거나 ◀▶ 버튼으로 바꿀 수 있습니다. 크롭 영역을 조절한 뒤 컨닝 페이퍼 생성을 누르세요.';
+      }
     });
   });
 
