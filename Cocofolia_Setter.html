@@ -435,6 +435,10 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
         <div class="cs-handle" data-dir="se" style="position:absolute;right:-6px;bottom:-6px;width:12px;height:12px;background:var(--accent);border-radius:2px;cursor:nwse-resize;"></div>
       </div>
     </div>
+    <div class="row" style="margin-top:6px;">
+      <button class="btn ghost" id="cs-refresh-thumbs" type="button">아래 썸네일에 반영</button>
+      <span class="footnote" style="margin:0;">크롭 영역을 옮기는 동안은 아래 순서 조정 썸네일이 갱신되지 않습니다(끌 때 느려지는 것을 막기 위함) — 다 정한 뒤 이 버튼을 누르세요.</span>
+    </div>
     <div class="row">
       <div class="field"><label>열 개수</label><input type="number" id="cs-cols" value="4" min="1" max="10"></div>
       <div class="field"><label>칸 간격(px)</label><input type="number" id="cs-gap" value="10" min="0" max="60"></div>
@@ -19968,13 +19972,12 @@ var TabLog = (function(){
     cropBox.style.top = (cropRect.y*h)+'px';
     cropBox.style.width = (cropRect.w*w)+'px';
     cropBox.style.height = (cropRect.h*h)+'px';
-    scheduleThumbRefresh();
   }
 
-  // 순서 조정 카드의 썸네일도 원본 이미지 전체가 아니라, 위에서 지정한 크롭 영역(cropRect)이
-  // 실제로 잘라내는 부분을 그대로 보여준다 — 크롭 박스를 옮기거나 크기를 바꿀 때마다 갱신됨.
-  // 드래그 중에는 mousemove가 화면 갱신 빈도보다 훨씬 자주 발생해 매번 전체 썸네일을 다시
-  // 그리면 느려지므로, requestAnimationFrame으로 프레임당 한 번만 실제로 다시 그리도록 묶는다.
+  // 순서 조정 카드의 썸네일은 위에서 지정한 크롭 영역(cropRect)이 실제로 잘라내는 부분을 보여준다.
+  // 크롭 박스를 드래그하는 동안 매 mousemove마다 전체 썸네일을 다시 그리면(이미지가 많을 때 특히)
+  // 눈에 띄게 버벅여서, 드래그 중에는 갱신하지 않고 "아래 썸네일에 반영" 버튼을 눌렀을 때만
+  // 한 번에 다시 그린다.
   function drawItemThumb(it){
     if(!it.thumbCanvas) return;
     var c = it.thumbCanvas, ctx = c.getContext('2d');
@@ -19983,12 +19986,7 @@ var TabLog = (function(){
     ctx.drawImage(it.img, cropRect.x*nw, cropRect.y*nh, cropRect.w*nw, cropRect.h*nh, 0, 0, c.width, c.height);
   }
   function refreshAllThumbs(){ items.forEach(drawItemThumb); }
-  var thumbRefreshPending = false;
-  function scheduleThumbRefresh(){
-    if(thumbRefreshPending) return;
-    thumbRefreshPending = true;
-    requestAnimationFrame(function(){ thumbRefreshPending = false; refreshAllThumbs(); });
-  }
+  $('#cs-refresh-thumbs').addEventListener('click', refreshAllThumbs);
 
   // 표정 그리드의 썸네일은 항상 정사각형(thumb x thumb)으로 그려지므로, 크롭 영역도 원본 이미지
   // 픽셀 기준으로 항상 정사각형이어야 잘린 얼굴이 늘어나거나 눌리지 않는다. cropRect의 w/h는
