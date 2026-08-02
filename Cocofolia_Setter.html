@@ -18,10 +18,15 @@
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5;}
 header.app-head{padding:18px 24px;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:10;}
 header.app-head h1{margin:0 0 12px;font-size:18px;font-weight:700;}
+nav.cat-nav{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--line);}
+.cat-btn{border:none;background:transparent;color:var(--sub);padding:2px 0;font-size:14px;font-weight:800;cursor:pointer;border-bottom:2px solid transparent;}
+.cat-btn:hover{color:var(--ink);}
+.cat-btn.active{color:var(--ink);border-bottom-color:var(--accent);}
 nav.tabs{display:flex;gap:6px;flex-wrap:wrap;}
 .tab-btn{border:1px solid var(--line);background:var(--bg);color:var(--sub);padding:8px 14px;border-radius:999px;font-size:13px;cursor:pointer;font-weight:600;transition:.15s;}
 .tab-btn:hover{color:var(--ink);}
 .tab-btn.active{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+.tab-btn.cat-hidden{display:none;}
 main{max-width:980px;margin:0 auto;padding:24px;}
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
@@ -105,18 +110,25 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <body>
 <header class="app-head">
   <h1>코코포리아 세터</h1>
-  <nav class="tabs">
-    <button class="tab-btn active" data-target="tab-mp3">1. 컷인 커터</button>
-    <button class="tab-btn" data-target="tab-g2a">2. GIF APNG 변환기</button>
-    <button class="tab-btn" data-target="tab-fx">3. PNG 이펙터</button>
-    <button class="tab-btn" data-target="tab-log">4. html용 로그 백업</button>
-    <button class="tab-btn" data-target="tab-book">5. 로그북용 로그 백업</button>
-    <button class="tab-btn" data-target="tab-glossary">6. CoC 용어 변환기</button>
-    <button class="tab-btn" data-target="tab-edition">7. CoC 6판-7판 수치 변환기</button>
-    <button class="tab-btn" data-target="tab-standing">8. 스탠딩 일괄 재단</button>
-    <button class="tab-btn" data-target="tab-cheatsheet">9. 컨닝 페이퍼 메이커</button>
-    <button class="tab-btn" data-target="tab-charfile">10. 캐릭터 룸파일 생성기</button>
-    <button class="tab-btn" data-target="tab-suggest">11. 건의함</button>
+  <nav class="cat-nav" id="catNav">
+    <button class="cat-btn active" data-cat="image">이미지·애니메이션</button>
+    <button class="cat-btn" data-cat="log">로그 백업</button>
+    <button class="cat-btn" data-cat="coc">CoC 유틸리티</button>
+    <button class="cat-btn" data-cat="char">캐릭터·스탠딩</button>
+    <button class="cat-btn" data-cat="etc">기타</button>
+  </nav>
+  <nav class="tabs" id="subTabs">
+    <button class="tab-btn active" data-target="tab-mp3" data-cat="image">1. 컷인 커터</button>
+    <button class="tab-btn" data-target="tab-g2a" data-cat="image">2. GIF APNG 변환기</button>
+    <button class="tab-btn" data-target="tab-fx" data-cat="image">3. PNG 이펙터</button>
+    <button class="tab-btn" data-target="tab-log" data-cat="log">4. html용 로그 백업</button>
+    <button class="tab-btn" data-target="tab-book" data-cat="log">5. 로그북용 로그 백업</button>
+    <button class="tab-btn" data-target="tab-glossary" data-cat="coc">6. CoC 용어 변환기</button>
+    <button class="tab-btn" data-target="tab-edition" data-cat="coc">7. CoC 6판-7판 수치 변환기</button>
+    <button class="tab-btn" data-target="tab-standing" data-cat="char">8. 스탠딩 일괄 재단</button>
+    <button class="tab-btn" data-target="tab-cheatsheet" data-cat="char">9. 컨닝 페이퍼 메이커</button>
+    <button class="tab-btn" data-target="tab-charfile" data-cat="char">10. 캐릭터 룸파일 생성기</button>
+    <button class="tab-btn" data-target="tab-suggest" data-cat="etc">11. 건의함</button>
   </nav>
 </header>
 <main>
@@ -476,6 +488,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="drop" id="cf-drop">스탠딩(표정) 이미지 여러 장
       <input type="file" id="cf-file" accept=".png,.jpg,.jpeg,.webp,.gif" multiple class="hidden">
     </div>
+    <p class="footnote" style="margin:4px 0 0;">코코포리아 스탠딩 라벨은 <code>@표정이름</code> 형식입니다. 파일명이 이미 이 형식(예: <code>@웃음.png</code>)이면 그대로 쓰고, 아니면 자동으로 <code>@</code>를 붙입니다(예: <code>웃음.png</code> → <code>@웃음</code>). 업로드 후 라벨은 직접 수정할 수 있습니다.</p>
     <div class="info-box" id="cf-info">이미지를 올리면 파일명을 기준으로 라벨이 자동 지정됩니다(이미 @로 시작하지 않으면 자동으로 붙습니다). 라벨은 아래에서 직접 수정할 수 있고, 메인 아이콘으로 쓸 이미지도 고를 수 있습니다.</div>
     <div id="cf-labels" style="margin-top:6px;"></div>
 
@@ -17669,15 +17682,35 @@ persistFormField('cs-gap', 'cocofolia_setter_cs_gap');
 persistFormField('cs-thumb', 'cocofolia_setter_cs_thumb');
 persistFormField('cs-scale', 'cocofolia_setter_cs_scale');
 
-/* ============ 탭 전환 ============ */
+/* ============ 탭 전환 + 카테고리(마우스 오버 시 하위 메뉴 전환) ============ */
+var activeCatId = 'image'; // 현재 실제로 열려있는 탭이 속한 카테고리(마우스가 떠나면 이 상태로 되돌아감)
+
+function showCategoryTabs(catId){
+  $all('.tab-btn').forEach(function(b){ b.classList.toggle('cat-hidden', b.dataset.cat !== catId); });
+  $all('.cat-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.cat === catId); });
+}
+showCategoryTabs(activeCatId);
+
 $all('.tab-btn').forEach(function(btn){
   btn.addEventListener('click', function(){
     $all('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
     $all('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
     btn.classList.add('active');
     document.getElementById(btn.dataset.target).classList.add('active');
+    activeCatId = btn.dataset.cat;
+    showCategoryTabs(activeCatId);
   });
 });
+
+// 카테고리 버튼에 마우스를 올리면(또는 클릭하면— 터치 환경 대응) 해당 카테고리의 하위 탭이
+// 미리보기로 펼쳐지고, 이 영역(카테고리 줄 + 하위 탭 줄)을 완전히 벗어나면 실제 열려있는
+// 탭의 카테고리로 되돌아간다.
+$all('.cat-btn').forEach(function(btn){
+  btn.addEventListener('mouseenter', function(){ showCategoryTabs(btn.dataset.cat); });
+  btn.addEventListener('click', function(){ showCategoryTabs(btn.dataset.cat); });
+});
+var navWrap = $('#catNav').parentElement;
+navWrap.addEventListener('mouseleave', function(){ showCategoryTabs(activeCatId); });
 
 /* ============ GIF 디코드 코어 (gifuct-js) ============ */
 async function decodeGifFile(file){
