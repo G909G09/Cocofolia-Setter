@@ -414,7 +414,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="row" style="align-items:flex-start;">
       <div class="drop" id="cs-hero-drop" style="flex:0 0 130px;padding:10px;font-size:11px;min-height:60px;">
         <span id="cs-hero-label">대표 이미지</span>
-        <img id="cs-hero-preview" class="hidden" style="max-width:100%;max-height:80px;display:block;margin:4px auto 0;border-radius:6px;">
+        <img id="cs-hero-preview" class="hidden" alt="대표 이미지 미리보기" style="max-width:100%;max-height:80px;display:block;margin:4px auto 0;border-radius:6px;">
         <input type="file" id="cs-hero-file" accept=".png,.jpg,.jpeg,.webp" class="hidden">
       </div>
       <div style="flex:1 1 220px;display:flex;flex-direction:column;gap:8px;">
@@ -430,7 +430,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     </div>
     <div class="info-box" id="cs-info">이미지를 올리면 크롭 영역이 표시됩니다. 드래그로 위치를, 모서리로 크기를 조절하세요.</div>
     <div id="cs-cropper-wrap" class="hidden" style="position:relative;display:inline-block;max-width:100%;margin-top:10px;">
-      <img id="cs-cropper-img" style="max-width:100%;display:block;">
+      <img id="cs-cropper-img" alt="크롭 영역을 지정할 기준 이미지" style="max-width:100%;display:block;">
       <div id="cs-crop-box" style="position:absolute;border:2px solid var(--accent);background:rgba(91,107,245,.15);cursor:move;">
         <div class="cs-handle" data-dir="se" style="position:absolute;right:-6px;bottom:-6px;width:12px;height:12px;background:var(--accent);border-radius:2px;cursor:nwse-resize;"></div>
       </div>
@@ -17713,9 +17713,31 @@ function loadImageElement(file){
   return new Promise(function(resolve, reject){
     var url = URL.createObjectURL(file);
     var img = new Image();
+    // onerror가 넘겨주는 것은 Error가 아니라 이벤트 객체라 e.message가 없어서, 이걸 그대로 reject하면
+    // 호출하는 쪽에서 "이미지 로드 실패: undefined" 같은 의미 없는 메시지가 뜬다. 사람이 읽을 수 있는
+    // 메시지를 담은 Error로 감싸서 reject한다.
     img.onload = function(){ URL.revokeObjectURL(url); resolve(img); };
-    img.onerror = function(e){ URL.revokeObjectURL(url); reject(e); };
+    img.onerror = function(){
+      URL.revokeObjectURL(url);
+      reject(new Error('이미지 파일을 열 수 없습니다(손상되었거나 지원하지 않는 형식일 수 있습니다): '+file.name));
+    };
     img.src = url;
+  });
+}
+
+// 여러 파일을 한꺼번에 이미지로 불러올 때, 그중 일부가 손상되었거나 지원하지 않는 형식이어도
+// Promise.all처럼 전체가 실패 처리되지 않고 나머지 정상 파일은 그대로 불러와지도록 한다.
+// mapFn(file, img)로 각 항목을 원하는 형태로 가공할 수 있다.
+function loadImagesSettled(files, mapFn){
+  return Promise.all(files.map(function(f){
+    return loadImageElement(f)
+      .then(function(img){ return {ok:true, value: mapFn(f, img)}; })
+      .catch(function(e){ return {ok:false, name:f.name, error:e}; });
+  })).then(function(results){
+    return {
+      loaded: results.filter(function(r){ return r.ok; }).map(function(r){ return r.value; }),
+      failed: results.filter(function(r){ return !r.ok; }).map(function(r){ return r.name; })
+    };
   });
 }
 
@@ -19653,6 +19675,7 @@ var TabLog = (function(){
       img.src = it.canvas.toDataURL('image/png');
       img.className = 'preview';
       img.style.width = '100%';
+      img.alt = it.file.name+' 재단 결과 미리보기';
       var name = document.createElement('div');
       name.style.cssText = 'font-size:11px;color:var(--sub);margin-top:6px;word-break:break-all;';
       name.textContent = it.file.name;
@@ -19687,12 +19710,10 @@ var TabLog = (function(){
   }
 
   setupMultiDrop('st-drop','st-file', function(files){
-    Promise.all(files.map(function(f){
-      return loadImageElement(f).then(function(img){ return {file:f, img:img, offset:0}; });
-    })).then(function(loaded){
-      items = items.concat(loaded);
-      $('#st-apply').disabled = false;
+    loadImagesSettled(files, function(f, img){ return {file:f, img:img, offset:0}; }).then(function(res){
+      items = items.concat(res.loaded);
       renderAll();
+      if(res.failed.length) alert('다음 파일을 이미지로 불러오지 못해 제외했습니다:\n'+res.failed.join('\n'));
     });
   });
 
@@ -19966,6 +19987,8 @@ var TabLog = (function(){
       if(autoSuggestCols()){
         $('#cs-info').textContent = '열 개수를 '+$('#cs-cols').value+'로 자동 추천했습니다(직접 변경 가능).';
       }
+    }).catch(function(e){
+      $('#cs-info').textContent = '대표 이미지 로드 실패: '+e.message;
     });
   });
 
@@ -20034,25 +20057,43 @@ var TabLog = (function(){
   window.addEventListener('mouseup', function(){ dragMode = null; });
   function clamp01(v,min,max){ return v<min?min:(v>max?max:v); }
 
+  // 위쪽 크롭 박스 미리보기는 items[0](첫 번째 카드) 기준으로 그려진다. 그런데 카드를 드래그해
+  // 순서를 바꾸거나 맨 앞 이미지를 "삭제"로 지우면 items[0]이 다른 이미지로 바뀔 수 있는데,
+  // 예전에는 이 경우 미리보기 이미지(cropImg)를 갱신하지 않아서 화면에는 이미 지워졌거나
+  // 더 이상 첫 번째가 아닌 이미지가 계속 떠 있는 채로 크롭 영역만 조절하게 되는 문제가 있었다.
+  // items가 바뀔 때마다(buildLabelInputs에서) 항상 호출해 items[0]이 실제로 바뀐 경우에만
+  // 미리보기 이미지를 다시 로드한다.
+  var previewedItem = null, previewedUrl = null;
+  function updateCropPreviewImage(){
+    if(items.length===0){ previewedItem = null; return; }
+    if(items[0] === previewedItem) return;
+    previewedItem = items[0];
+    if(previewedUrl) URL.revokeObjectURL(previewedUrl);
+    previewedUrl = URL.createObjectURL(previewedItem.file);
+    cropImg.src = previewedUrl;
+    cropImg.onload = function(){ squareifyCropRect(); wrap.classList.remove('hidden'); syncCropBoxDom(); };
+  }
+
   setupMultiDrop('cs-drop','cs-file', function(files){
-    Promise.all(files.map(function(f){
-      return loadImageElement(f).then(function(img){ return {file:f, img:img, label:baseName(f.name)}; });
-    })).then(function(loaded){
-      var wasEmpty = items.length===0;
-      items = items.concat(loaded); // 기존 목록에 이어붙임 — 여러 번에 나눠 올려도 앞서 올린 이미지가 사라지지 않는다
-      if(wasEmpty){
-        cropImg.src = URL.createObjectURL(items[0].file);
-        cropImg.onload = function(){ squareifyCropRect(); wrap.classList.remove('hidden'); syncCropBoxDom(); };
+    loadImagesSettled(files, function(f, img){ return {file:f, img:img, label:baseName(f.name)}; }).then(function(res){
+      var loaded = res.loaded;
+      if(loaded.length){
+        items = items.concat(loaded); // 기존 목록에 이어붙임 — 여러 번에 나눠 올려도 앞서 올린 이미지가 사라지지 않는다
+        buildLabelInputs();
+        $('#cs-build').disabled = false;
+        $('#cs-clear').disabled = false;
+        $('#cs-minimize-waste').disabled = false;
       }
-      buildLabelInputs();
-      $('#cs-build').disabled = false;
-      $('#cs-clear').disabled = false;
-      $('#cs-minimize-waste').disabled = false;
-      if(autoSuggestCols()){
-        $('#cs-info').textContent = items.length+'장 로드됨. 열 개수를 '+$('#cs-cols').value+'로 자동 추천했습니다(직접 변경 가능).';
+      var msg;
+      if(!loaded.length){
+        msg = '올린 파일을 이미지로 불러오지 못했습니다.';
+      } else if(autoSuggestCols()){
+        msg = items.length+'장 로드됨. 열 개수를 '+$('#cs-cols').value+'로 자동 추천했습니다(직접 변경 가능).';
       } else {
-        $('#cs-info').textContent = items.length+'장 로드됨. 카드를 드래그해 순서를 바꿀 수 있습니다.';
+        msg = items.length+'장 로드됨. 카드를 드래그해 순서를 바꿀 수 있습니다.';
       }
+      if(res.failed.length) msg += ' (불러오지 못해 제외된 파일: '+res.failed.join(', ')+')';
+      $('#cs-info').textContent = msg;
     });
   });
 
@@ -20071,6 +20112,12 @@ var TabLog = (function(){
     $('#cs-minimize-waste').disabled = items.length===0;
     if(items.length===0){
       wrap.classList.add('hidden');
+      // "전체 지우기"와 마찬가지로 마지막 이미지를 삭제로 지운 경우에도 이전에 생성해둔
+      // 결과물(다운로드 버튼·캔버스)이 화면에 그대로 남아있으면 안 된다.
+      $('#cs-download').classList.add('hidden');
+      var canvas = $('#cs-canvas');
+      canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
+      canvas.width = 0; canvas.height = 0;
       $('#cs-info').textContent = '이미지를 올리면 크롭 영역이 표시됩니다. 드래그로 위치를, 모서리로 크기를 조절하세요.';
     } else {
       $('#cs-info').textContent = items.length+'장 로드됨. 카드를 드래그해 순서를 바꿀 수 있습니다.';
@@ -20093,6 +20140,7 @@ var TabLog = (function(){
   });
 
   function buildLabelInputs(){
+    updateCropPreviewImage(); // items[0]이 바뀌었으면 위쪽 크롭 미리보기 이미지도 함께 갱신
     var wrap2 = labelsWrap;
     wrap2.innerHTML = '';
     wrap2.appendChild(dragIndicator);
