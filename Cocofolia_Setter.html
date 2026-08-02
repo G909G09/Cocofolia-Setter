@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>코코포리아 세터</title>
+<title>코코세터</title>
 <style>
 :root{
   color-scheme: light;
@@ -109,7 +109,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 </head>
 <body>
 <header class="app-head">
-  <h1>코코포리아 세터</h1>
+  <h1>코코세터</h1>
   <nav class="cat-nav" id="catNav">
     <button class="cat-btn active" data-cat="image">이미지·애니메이션</button>
     <button class="cat-btn" data-cat="log">로그 백업</button>
@@ -413,6 +413,11 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <button class="btn ghost" id="st-zip" disabled>ZIP으로 일괄 다운로드</button>
       <button class="btn ghost" id="st-clear" disabled style="color:var(--danger);">전체 지우기</button>
     </div>
+    <div class="row" style="margin-top:-6px;">
+      <button class="btn ghost" id="st-send-cs" disabled>→ 9번 컨닝 페이퍼로 바로 보내기</button>
+      <button class="btn ghost" id="st-send-cf" disabled>→ 10번 캐릭터 룸파일로 바로 보내기</button>
+    </div>
+    <p class="footnote" style="margin-top:-6px;">재단된 이미지를 다운로드/재업로드하지 않고 그대로 다른 탭으로 넘겨서 이어서 작업할 수 있습니다.</p>
     <div id="st-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:14px;"></div>
   </div>
 </section>
@@ -481,19 +486,19 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <section id="tab-charfile" class="tab-panel">
   <div class="card">
     <h2>코코포리아 캐릭터 룸파일 생성기</h2>
-    <p class="desc">표정별 스탠딩 이미지와 스테이터스를 넣으면 코코포리아 "룸 데이터 가져오기"로 불러올 수 있는, 캐릭터 1명이 담긴 룸파일(zip)을 만들어줍니다. 코코포리아가 캐릭터 단독 내보내기/가져오기를 지원하지 않아 이런 방식을 씁니다 — 새 룸(또는 테스트용 룸)에 가져온 뒤 캐릭터를 원래 세션 룸으로 옮기세요.</p>
+    <p class="desc">스탠딩 이미지+스테이터스로 캐릭터 1명짜리 코코포리아 룸파일(zip)을 만듭니다. 캐릭터 단독 가져오기가 없어서, 새 룸에 가져온 뒤 캐릭터만 원래 룸으로 옮겨 쓰세요.</p>
 
     <div class="field" style="width:100%;"><label>캐릭터 이름</label><input type="text" id="cf-name" class="wide" placeholder="예: 야마미치 노미"></div>
 
     <div class="drop" id="cf-drop">스탠딩(표정) 이미지 여러 장
       <input type="file" id="cf-file" accept=".png,.jpg,.jpeg,.webp,.gif" multiple class="hidden">
     </div>
-    <p class="footnote" style="margin:4px 0 0;">코코포리아 스탠딩 라벨은 <code>@표정이름</code> 형식입니다. 파일명이 이미 이 형식(예: <code>@웃음.png</code>)이면 그대로 쓰고, 아니면 자동으로 <code>@</code>를 붙입니다(예: <code>웃음.png</code> → <code>@웃음</code>). 업로드 후 라벨은 직접 수정할 수 있습니다.</p>
-    <div class="info-box" id="cf-info">이미지를 올리면 파일명을 기준으로 라벨이 자동 지정됩니다(이미 @로 시작하지 않으면 자동으로 붙습니다). 라벨은 아래에서 직접 수정할 수 있고, 메인 아이콘으로 쓸 이미지도 고를 수 있습니다.</div>
+    <p class="footnote" style="margin:4px 0 0;">기본 라벨은 <b>@표정</b> 형식입니다(예: 웃음.png → <b>@웃음</b>). 이미 @로 시작하면 그대로 쓰고, 아니면 자동으로 붙으며 업로드 후 직접 수정할 수 있습니다.</p>
+    <div class="info-box" id="cf-info">이미지를 올리면 라벨과 개수가 여기 표시됩니다.</div>
     <div id="cf-labels" style="margin-top:6px;"></div>
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">스테이터스 (선택 사항)</h3>
-    <p class="footnote" style="margin:2px 0 6px;">코코포리아 캐릭터 내보내기 JSON(<code>{"kind":"character","data":{...}}</code>)을 붙여넣으면 이름·스탯·능력치·커맨드가 자동으로 채워집니다. 비워두면 스탠딩만 있는 캐릭터가 만들어집니다.</p>
+    <p class="footnote" style="margin:2px 0 6px;">코코포리아 캐릭터 JSON을 붙여넣으면 이름·스탯·능력치·커맨드가 채워집니다(비워두면 스탠딩만 있는 캐릭터).</p>
     <div class="field" style="width:100%;"><textarea id="cf-status-json" rows="6" style="width:100%;" placeholder='{"kind":"character","data":{"name":"...","status":[...],"params":[...],"commands":"..."}}'></textarea></div>
     <div class="row"><button class="btn ghost" type="button" id="cf-status-parse">스테이터스 JSON 불러오기</button></div>
     <div class="info-box" id="cf-status-info">스테이터스 JSON을 불러오면 확인 내용이 여기 표시됩니다.</div>
@@ -17683,13 +17688,11 @@ persistFormField('cs-thumb', 'cocofolia_setter_cs_thumb');
 persistFormField('cs-scale', 'cocofolia_setter_cs_scale');
 
 /* ============ 탭 전환 + 카테고리(마우스 오버 시 하위 메뉴 전환) ============ */
-var activeCatId = 'image'; // 현재 실제로 열려있는 탭이 속한 카테고리(마우스가 떠나면 이 상태로 되돌아감)
-
 function showCategoryTabs(catId){
   $all('.tab-btn').forEach(function(b){ b.classList.toggle('cat-hidden', b.dataset.cat !== catId); });
   $all('.cat-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.cat === catId); });
 }
-showCategoryTabs(activeCatId);
+showCategoryTabs('image');
 
 $all('.tab-btn').forEach(function(btn){
   btn.addEventListener('click', function(){
@@ -17697,20 +17700,17 @@ $all('.tab-btn').forEach(function(btn){
     $all('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
     btn.classList.add('active');
     document.getElementById(btn.dataset.target).classList.add('active');
-    activeCatId = btn.dataset.cat;
-    showCategoryTabs(activeCatId);
+    showCategoryTabs(btn.dataset.cat);
   });
 });
 
-// 카테고리 버튼에 마우스를 올리면(또는 클릭하면— 터치 환경 대응) 해당 카테고리의 하위 탭이
-// 미리보기로 펼쳐지고, 이 영역(카테고리 줄 + 하위 탭 줄)을 완전히 벗어나면 실제 열려있는
-// 탭의 카테고리로 되돌아간다.
+// 카테고리 버튼에 마우스를 올리면(또는 클릭하면 — 터치 환경 대응) 해당 카테고리의 하위 탭이
+// 펼쳐지고, 마우스가 다른 곳으로 떠나도 마지막으로 본 카테고리 그대로 유지된다(실제 열려있는
+// 탭의 카테고리로 자동으로 되돌아가지 않음).
 $all('.cat-btn').forEach(function(btn){
   btn.addEventListener('mouseenter', function(){ showCategoryTabs(btn.dataset.cat); });
   btn.addEventListener('click', function(){ showCategoryTabs(btn.dataset.cat); });
 });
-var navWrap = $('#catNav').parentElement;
-navWrap.addEventListener('mouseleave', function(){ showCategoryTabs(activeCatId); });
 
 /* ============ GIF 디코드 코어 (gifuct-js) ============ */
 async function decodeGifFile(file){
@@ -19746,6 +19746,8 @@ var TabLog = (function(){
     $('#st-zip').disabled = items.length===0;
     $('#st-apply').disabled = items.length===0;
     $('#st-clear').disabled = items.length===0;
+    $('#st-send-cs').disabled = items.length===0;
+    $('#st-send-cf').disabled = items.length===0;
   }
 
   setupMultiDrop('st-drop','st-file', function(files){
@@ -19792,6 +19794,33 @@ var TabLog = (function(){
       });
     });
   });
+
+  // 재단된 이미지를 다운로드→재업로드하지 않고 바로 9번/10번 탭으로 넘기는 통로.
+  // window.__ccSend는 각 탭이 자기 업로드 처리 함수를 등록해두는 전역 브릿지.
+  function itemsToFiles(){
+    // 다운로드용 파일명(_cut 접미사)과 달리, 다른 탭으로 넘길 때는 라벨 자동 생성에 그대로
+    // 쓰이므로 접미사 없이 원래 이름을 유지한다.
+    return Promise.all(items.map(function(it){
+      return new Promise(function(res){
+        it.canvas.toBlob(function(blob){
+          res(new File([blob], baseName(it.file.name)+'.png', {type:'image/png'}));
+        });
+      });
+    }));
+  }
+  function sendTo(loaderKey, targetTabId, btnId){
+    if(items.length===0) return;
+    var btn = $('#'+btnId);
+    btn.disabled = true;
+    itemsToFiles().then(function(files){
+      if(window.__ccSend && window.__ccSend[loaderKey]) window.__ccSend[loaderKey](files);
+      var tabBtn = document.querySelector('.tab-btn[data-target="'+targetTabId+'"]');
+      if(tabBtn) tabBtn.click();
+      btn.disabled = items.length===0;
+    });
+  }
+  $('#st-send-cs').addEventListener('click', function(){ sendTo('toCheatsheet', 'tab-cheatsheet', 'st-send-cs'); });
+  $('#st-send-cf').addEventListener('click', function(){ sendTo('toCharfile', 'tab-charfile', 'st-send-cf'); });
 })();
 
 /* ================================================================
@@ -20096,7 +20125,7 @@ var TabLog = (function(){
   window.addEventListener('mouseup', function(){ dragMode = null; });
   function clamp01(v,min,max){ return v<min?min:(v>max?max:v); }
 
-  setupMultiDrop('cs-drop','cs-file', function(files){
+  function loadCsFiles(files){
     Promise.all(files.map(function(f){
       return loadImageElement(f).then(function(img){ return {file:f, img:img, label:baseName(f.name)}; });
     })).then(function(loaded){
@@ -20116,6 +20145,9 @@ var TabLog = (function(){
         $('#cs-info').textContent = items.length+'장 로드됨. 카드를 드래그해 순서를 바꿀 수 있습니다.';
       }
     });
+  }
+  setupMultiDrop('cs-drop','cs-file', function(files){
+    loadCsFiles(files);
   });
 
   function moveItem(from, to){
@@ -20302,6 +20334,10 @@ var TabLog = (function(){
   $('#cs-download').addEventListener('click', function(){
     $('#cs-canvas').toBlob(function(blob){ downloadBlob(blob, 'expression_cheatsheet.png'); });
   });
+
+  // 다른 탭(8번 스탠딩 재단)에서 처리된 이미지를 다시 다운로드/업로드하지 않고 바로 받기 위한 통로.
+  window.__ccSend = window.__ccSend || {};
+  window.__ccSend.toCheatsheet = loadCsFiles;
 })();
 
 /* ================================================================
@@ -20366,7 +20402,7 @@ var TabLog = (function(){
     });
   }
 
-  setupMultiDrop('cf-drop','cf-file', function(files){
+  function loadCfFiles(files){
     Promise.all(files.map(function(f){
       return loadImageElement(f).then(function(img){
         var base = baseName(f.name);
@@ -20381,14 +20417,19 @@ var TabLog = (function(){
       syncCfButtons();
       $('#cf-info').textContent = cfItems.length+'장 로드됨. 라벨을 확인하고, 메인 아이콘으로 쓸 이미지를 골라주세요.';
     });
+  }
+  setupMultiDrop('cf-drop','cf-file', function(files){
+    loadCfFiles(files);
   });
+  window.__ccSend = window.__ccSend || {};
+  window.__ccSend.toCharfile = loadCfFiles;
 
   $('#cf-clear').addEventListener('click', function(){
     if(!confirm('업로드한 이미지 '+cfItems.length+'장을 모두 지울까요?')) return;
     cfItems = [];
     buildCfLabelInputs();
     syncCfButtons();
-    $('#cf-info').textContent = '이미지를 올리면 파일명을 기준으로 라벨이 자동 지정됩니다(이미 @로 시작하지 않으면 자동으로 붙습니다). 라벨은 아래에서 직접 수정할 수 있고, 메인 아이콘으로 쓸 이미지도 고를 수 있습니다.';
+    $('#cf-info').textContent = '이미지를 올리면 라벨과 개수가 여기 표시됩니다.';
     $('#cf-result-info').classList.add('hidden');
   });
 
