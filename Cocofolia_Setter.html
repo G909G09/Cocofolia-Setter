@@ -695,7 +695,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       </div>
       <div class="field" style="flex:1 1 220px;min-width:180px;">
         <label>미리보기</label>
-        <div id="cs-name-preview" style="border:1px solid var(--line);border-radius:8px;padding:8px 14px;background:var(--bg);min-height:56px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;">
+        <div id="cs-name-preview" style="border:1px solid var(--line);border-radius:8px;padding:8px 14px;background:var(--bg);min-height:56px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;overflow:hidden;">
           <div id="cs-name-preview-catch" style="font-size:12px;color:#6b7280;margin-bottom:2px;white-space:nowrap;"></div>
           <div id="cs-name-preview-name" style="font-size:24px;line-height:1.25;white-space:nowrap;"></div>
         </div>
@@ -20607,17 +20607,16 @@ var TabLog = (function(){
     $('#cs-catch').placeholder = '예: ' + ex.catch;
   })();
 
-  // 실제로 "생성" 버튼을 눌러 캔버스를 다시 그리지 않아도, 이름/캐치프레이즈·배치·글씨체·굵기·색을
+  // 실제로 "생성" 버튼을 눌러 캔버스를 다시 그리지 않아도, 이름/캐치프레이즈·글씨체·굵기·색을
   // 바꿀 때마다 바로 결과를 짐작할 수 있도록 DOM으로 간이 미리보기를 그려준다(실제 렌더링은
-  // 캔버스 쪽 코드가 따로 담당하며, 여기는 순수히 눈으로 확인하기 위한 것).
+  // 캔버스 쪽 코드가 따로 담당하며, 여기는 순수히 눈으로 확인하기 위한 것). 배치(좌/우/세로)는
+  // 미리보기에 반영하지 않고 항상 같은 모양으로 보여준다 — 서체·굵기·색만 확인하면 되기 때문.
   function updateNamePreview(){
     var nameVal = $('#cs-name').value.trim() || $('#cs-name').placeholder.replace('예: ', '');
     var catchVal = $('#cs-catch').value.trim() || $('#cs-catch').placeholder.replace('예: ', '');
-    var align = $('#cs-name-align').value || 'right';
     var font = $('#cs-name-font').value;
     var weight = $('#cs-name-weight').value || '800';
     var color = $('#cs-name-color').value || '#1e2430';
-    var wrap = $('#cs-name-preview');
     var nameEl = $('#cs-name-preview-name');
     var catchEl = $('#cs-name-preview-catch');
     nameEl.textContent = nameVal;
@@ -20625,30 +20624,10 @@ var TabLog = (function(){
     nameEl.style.fontFamily = font || 'var(--sans)';
     nameEl.style.fontWeight = weight;
     nameEl.style.color = color;
-    if(align === 'vertical'){
-      wrap.style.flexDirection = 'row';
-      wrap.style.alignItems = 'center';
-      wrap.style.justifyContent = 'center';
-      wrap.style.gap = '10px';
-      nameEl.style.writingMode = 'vertical-rl';
-      nameEl.style.textOrientation = 'upright';
-      nameEl.style.whiteSpace = 'normal';
-      catchEl.style.writingMode = 'horizontal-tb';
-      catchEl.style.textAlign = 'center';
-    } else {
-      wrap.style.flexDirection = 'column';
-      wrap.style.alignItems = align === 'left' ? 'flex-start' : 'flex-end';
-      wrap.style.justifyContent = 'center';
-      wrap.style.gap = '0';
-      nameEl.style.writingMode = 'horizontal-tb';
-      nameEl.style.textOrientation = 'mixed';
-      nameEl.style.whiteSpace = 'nowrap';
-      catchEl.style.writingMode = 'horizontal-tb';
-      catchEl.style.textAlign = align === 'left' ? 'left' : 'right';
-    }
   }
   ['cs-name','cs-catch'].forEach(function(id){ $('#'+id).addEventListener('input', updateNamePreview); });
-  ['cs-name-align','cs-name-font','cs-name-weight'].forEach(function(id){ $('#'+id).addEventListener('change', updateNamePreview); });
+  $('#cs-name-font').addEventListener('change', updateNamePreview);
+  $('#cs-name-weight').addEventListener('change', updateNamePreview);
   $('#cs-name-color').addEventListener('input', updateNamePreview);
   updateNamePreview();
 
