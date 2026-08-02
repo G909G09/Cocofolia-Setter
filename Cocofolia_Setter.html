@@ -125,6 +125,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <button class="tab-btn" data-target="tab-book" data-cat="log">5. 로그북용 로그 백업</button>
     <button class="tab-btn" data-target="tab-glossary" data-cat="coc">6. CoC 용어 변환기</button>
     <button class="tab-btn" data-target="tab-edition" data-cat="coc">7. CoC 6판-7판 수치 변환기</button>
+    <button class="tab-btn" data-target="tab-charsheet" data-cat="coc">12. CoC 캐릭터 시트 메이커</button>
     <button class="tab-btn" data-target="tab-standing" data-cat="char">8. 스탠딩 일괄 재단</button>
     <button class="tab-btn" data-target="tab-cheatsheet" data-cat="char">9. 컨닝 페이퍼 메이커</button>
     <button class="tab-btn" data-target="tab-charfile" data-cat="char">10. 캐릭터 룸파일 생성기</button>
@@ -375,6 +376,72 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <div class="field"><label>STR+SIZ 합계로 조회</label><input type="number" id="ed-db-lookup" value=""></div>
       <div class="info-box" id="ed-db-result" style="flex:1;">표를 입력한 뒤 조회하세요.</div>
     </div>
+  </div>
+</section>
+
+<!-- ===================== TAB 12 ===================== -->
+<section id="tab-charsheet" class="tab-panel">
+  <div class="card">
+    <h2>CoC 캐릭터 시트 메이커</h2>
+    <p class="desc">CoC 7판 캐릭터 시트 형식을 참고해, 특성치·파생 수치·기능치를 입력하면 자동으로 계산해주고 바로 코코포리아 캐릭터 JSON을 만들어줍니다.</p>
+
+    <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">기본 정보</h3>
+    <div class="row">
+      <div class="field"><label>이름</label><input type="text" id="chs-name" placeholder="탐사자 이름"></div>
+      <div class="field"><label>직업</label><input type="text" id="chs-job" placeholder="예: 사립탐정"></div>
+      <div class="field"><label>나이</label><input type="number" id="chs-age" min="0" style="width:70px;"></div>
+      <div class="field"><label>성별</label><input type="text" id="chs-gender" style="width:80px;"></div>
+      <div class="field"><label>거주지</label><input type="text" id="chs-residence"></div>
+      <div class="field"><label>출생지</label><input type="text" id="chs-birthplace"></div>
+    </div>
+
+    <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">특성치</h3>
+    <p class="footnote" style="margin:2px 0 6px;">각 특성치의 1/2·1/5 값이 자동으로 표시됩니다(어려운/극난 판정 참고용).</p>
+    <div id="chs-stat-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;"></div>
+
+    <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">파생 수치 (자동계산)</h3>
+    <div class="row" id="chs-derived-row"></div>
+    <p class="footnote" id="chs-db-note" style="margin:2px 0 0;"></p>
+
+    <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">기능점수 배분</h3>
+    <div class="row">
+      <div class="field"><label>직업 기능점수 공식</label>
+        <select id="chs-occ-formula">
+          <option value="manual">직접 입력</option>
+          <option value="STR">EDU×4 + 근력×2</option>
+          <option value="DEX">EDU×4 + 민첩×2</option>
+          <option value="POW">EDU×4 + 정신×2</option>
+          <option value="APP">EDU×4 + 외모×2</option>
+          <option value="INT">EDU×4 + 지능×2</option>
+        </select>
+      </div>
+      <div class="field"><label>직업 기능점수</label><input type="number" id="chs-occ-points" value="0" style="width:90px;"></div>
+      <div class="field"><label>관심 기능점수 (지능×2, 자동)</label><input type="number" id="chs-int-points" readonly disabled style="width:90px;"></div>
+    </div>
+    <div class="info-box" id="chs-points-info">기능치에 점수를 분배하면 남은 점수가 여기 표시됩니다.</div>
+
+    <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">기능치</h3>
+    <p class="footnote" style="margin:2px 0 6px;">기능명은 직접 수정할 수 있습니다. 괄호가 빈 기능(예술/공예, 과학 등)은 괄호 안에 세부 분야를 적어주세요. 총합 = 기본 + 분배(최대 99).</p>
+    <div class="row">
+      <button class="btn ghost" id="chs-skill-add" type="button">기능 행 추가</button>
+      <button class="btn ghost" id="chs-skill-reset" type="button">기본 기능 목록으로 초기화</button>
+    </div>
+    <div style="max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:8px;">
+      <table style="width:100%;border-collapse:collapse;font-size:12.5px;" id="chs-skill-table">
+        <thead style="position:sticky;top:0;background:var(--panel);"><tr style="text-align:left;color:var(--sub);">
+          <th style="padding:5px 6px;">기능명</th><th style="padding:5px 6px;width:70px;">기본</th><th style="padding:5px 6px;width:70px;">분배</th><th style="padding:5px 6px;width:70px;">총합</th><th style="width:50px;"></th>
+        </tr></thead>
+        <tbody id="chs-skill-body"></tbody>
+      </table>
+    </div>
+
+    <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">코코포리아 JSON</h3>
+    <div class="row">
+      <button class="btn" id="chs-generate">JSON 생성</button>
+      <button class="btn ghost" id="chs-copy-json">복사</button>
+      <button class="btn ghost" id="chs-send-charfile">→ 10번 캐릭터 룸파일로 보내기</button>
+    </div>
+    <div class="field" style="width:100%;margin-top:8px;"><textarea id="chs-json-output" rows="6" style="width:100%;" readonly placeholder="JSON 생성 버튼을 누르면 여기에 표시됩니다."></textarea></div>
   </div>
 </section>
 
@@ -19626,6 +19693,245 @@ var TabLog = (function(){
       return !isNaN(min) && !isNaN(max) && v>=min && v<=max;
     });
     result.textContent = found ? ('STR+SIZ='+v+' → Damage Bonus '+found.db+' · Build '+found.build) : '일치하는 구간이 표에 없습니다 (표를 먼저 입력하세요).';
+  });
+})();
+
+/* ================================================================
+   탭 12. CoC 캐릭터 시트 메이커
+================================================================ */
+(function(){
+  var STAT_DEFS = [
+    {key:'STR', label:'근력'}, {key:'CON', label:'건강'}, {key:'SIZ', label:'크기'}, {key:'DEX', label:'민첩'},
+    {key:'APP', label:'외모'}, {key:'EDU', label:'교육'}, {key:'INT', label:'지능'}, {key:'POW', label:'정신'}
+  ];
+  var stats = {};
+  var grid = $('#chs-stat-grid');
+  STAT_DEFS.forEach(function(s){
+    var div = document.createElement('div');
+    div.className = 'field';
+    div.innerHTML = '<label>'+s.label+'</label>'+
+      '<input type="number" min="0" max="99" value="50" data-stat="'+s.key+'" style="width:100%;">'+
+      '<span style="font-size:11px;color:var(--sub);" data-stat-half="'+s.key+'"></span>';
+    grid.appendChild(div);
+    stats[s.key] = div.querySelector('input');
+  });
+  function statVal(key){ return clampInt(parseInt(stats[key].value,10)||0, 0, 99); }
+
+  // 기본 기능 목록: [기능명, 기본값]. 언어(모국어)/회피는 특성치로부터 자동 계산되는 특수 항목이라 별도 관리.
+  var DEFAULT_SKILLS = [
+    ['회계',5], ['감정',5], ['고고학',1], ['인류학',1], ['동물조련',5], ['매혹',15],
+    ['오르기',20], ['컴퓨터 사용',5], ['크툴루 신화',0], ['변장',5],
+    ['자동차 운전',20], ['전기수리',10], ['전자기기',1],
+    ['사격(권총)',20], ['사격(라이플/샷건)',25], ['사격(기관단총)',15],
+    ['근접전(격투)',25], ['응급처치',30], ['역사',5], ['위협',15], ['도약',20],
+    ['법률',5], ['듣기',20], ['자물쇠 따기',1], ['의료',1], ['자연',10],
+    ['항법',10], ['오컬트',5], ['심리학',10], ['정신분석',1], ['손놀림',10],
+    ['승마',5], ['은밀행동',20], ['수영',20], ['투척',20], ['추적',10],
+    ['중장비 조작',1], ['기계수리',10], ['잠수',1], ['말재주',5], ['설득',10],
+    ['포격',1], ['자료조사',20], ['재력',0],
+    ['예술/공예()',5], ['과학()',1], ['생존술()',10], ['외국어()',1], ['조종()',1]
+  ];
+  var SPECIAL_SKILLS = [
+    {name:'언어(모국어)', formula:'edu'},
+    {name:'회피', formula:'dexhalf'}
+  ];
+
+  var skillRows = [];
+  function skillTotal(row){
+    var base = clampInt(parseInt(row.baseInput.value,10)||0, 0, 99);
+    var alloc = clampInt(parseInt(row.allocInput.value,10)||0, 0, 99);
+    return clampInt(base+alloc, 0, 99);
+  }
+  function refreshSkillTotals(){
+    skillRows.forEach(function(row){ row.totalCell.textContent = skillTotal(row); });
+    refreshPointsInfo();
+  }
+  function addSkillRow(name, base, formula){
+    var tr = document.createElement('tr');
+    tr.style.borderTop = '1px solid var(--line)';
+    tr.innerHTML =
+      '<td style="padding:4px 6px;"><input type="text" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;"></td>'+
+      '<td style="padding:4px 6px;"><input type="number" min="0" max="99" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;"></td>'+
+      '<td style="padding:4px 6px;"><input type="number" min="0" max="99" value="0" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;"></td>'+
+      '<td style="padding:4px 6px;text-align:center;font-weight:700;">0</td>'+
+      '<td style="padding:4px 6px;"><button type="button" class="btn ghost" style="padding:3px 7px;font-size:11px;color:var(--danger);">삭제</button></td>';
+    var nameInput = tr.children[0].querySelector('input');
+    var baseInput = tr.children[1].querySelector('input');
+    var allocInput = tr.children[2].querySelector('input');
+    var totalCell = tr.children[3];
+    nameInput.value = name;
+    baseInput.value = base;
+    if(formula){ baseInput.readOnly = true; baseInput.style.opacity = '.7'; }
+    var row = {nameInput:nameInput, baseInput:baseInput, allocInput:allocInput, totalCell:totalCell, formula:formula||null, tr:tr};
+    baseInput.addEventListener('input', refreshSkillTotals);
+    allocInput.addEventListener('input', refreshSkillTotals);
+    tr.querySelector('button').addEventListener('click', function(){
+      var i = skillRows.indexOf(row);
+      if(i>=0) skillRows.splice(i,1);
+      tr.remove();
+      refreshSkillTotals();
+    });
+    skillRows.push(row);
+    $('#chs-skill-body').appendChild(tr);
+    return row;
+  }
+  function updateSpecialSkillBases(){
+    skillRows.forEach(function(row){
+      if(row.formula==='edu') row.baseInput.value = statVal('EDU');
+      else if(row.formula==='dexhalf') row.baseInput.value = Math.floor(statVal('DEX')/2);
+    });
+  }
+  function resetSkills(){
+    skillRows = [];
+    $('#chs-skill-body').innerHTML = '';
+    SPECIAL_SKILLS.forEach(function(s){ addSkillRow(s.name, 0, s.formula); });
+    DEFAULT_SKILLS.forEach(function(s){ addSkillRow(s[0], s[1], null); });
+    updateSpecialSkillBases();
+    refreshSkillTotals();
+  }
+  $('#chs-skill-add').addEventListener('click', function(){ addSkillRow('', 0, null); });
+  $('#chs-skill-reset').addEventListener('click', function(){
+    if(!confirm('기능 목록을 기본값으로 되돌릴까요? 지금까지 입력한 분배 점수가 사라집니다.')) return;
+    resetSkills();
+  });
+
+  // ---- 파생 수치 ----
+  var derivedRow = $('#chs-derived-row');
+  var DERIVED_FIELDS = [
+    {key:'hp', label:'체력(HP)', ro:true}, {key:'mp', label:'마력(MP)', ro:true}, {key:'san', label:'이성(SAN)', ro:true},
+    {key:'luck', label:'행운', ro:false}, {key:'mov', label:'이동력', ro:true}, {key:'db', label:'피해보너스', ro:false}, {key:'build', label:'체구', ro:false}
+  ];
+  var derived = {};
+  DERIVED_FIELDS.forEach(function(d){
+    var div = document.createElement('div');
+    div.className = 'field';
+    div.innerHTML = '<label>'+d.label+'</label><input type="'+(d.key==='db'?'text':'number')+'" style="width:90px;" '+(d.ro?'readonly disabled':'')+'>';
+    derivedRow.appendChild(div);
+    derived[d.key] = div.querySelector('input');
+  });
+
+  var DBTABLE_LS_KEY = 'cocofolia_setter_dbtable_v1'; // 7번 탭(CoC 6판→7판 수치 변환기)이 쓰는 것과 동일한 저장 키를 재사용
+  function lookupDbBuild(strSizSum){
+    try{
+      var raw = localStorage.getItem(DBTABLE_LS_KEY);
+      if(!raw) return null;
+      var rows = JSON.parse(raw);
+      if(!Array.isArray(rows)) return null;
+      return rows.find(function(r){
+        var min = parseFloat(r.min), max = parseFloat(r.max);
+        return !isNaN(min) && !isNaN(max) && strSizSum>=min && strSizSum<=max;
+      }) || null;
+    }catch(e){ return null; }
+  }
+
+  function refreshPointsInfo(){
+    var occ = parseInt($('#chs-occ-points').value,10)||0;
+    var intp = parseInt($('#chs-int-points').value,10)||0;
+    var budget = occ+intp;
+    var allocated = skillRows.reduce(function(sum,r){ return sum + (parseInt(r.allocInput.value,10)||0); }, 0);
+    var remaining = budget - allocated;
+    var box = $('#chs-points-info');
+    box.textContent = '총 예산 '+budget+'점(직업 '+occ+' + 관심 '+intp+') 중 '+allocated+'점 분배함. 남은 점수: '+remaining+'점';
+    box.style.color = remaining<0 ? 'var(--danger)' : '';
+  }
+
+  function recomputeAll(){
+    updateSpecialSkillBases();
+    refreshSkillTotals();
+
+    STAT_DEFS.forEach(function(s){
+      var v = statVal(s.key);
+      grid.querySelector('[data-stat-half="'+s.key+'"]').textContent = '1/2: '+Math.floor(v/2)+'  1/5: '+Math.floor(v/5);
+    });
+
+    var CON=statVal('CON'), SIZ=statVal('SIZ'), POW=statVal('POW'), STR=statVal('STR'), DEX=statVal('DEX'), INT=statVal('INT'), EDU=statVal('EDU');
+    derived.hp.value = Math.floor((CON+SIZ)/10);
+    derived.mp.value = Math.floor(POW/10);
+    derived.san.value = Math.min(99, POW);
+    derived.mov.value = (STR<SIZ && DEX<SIZ) ? 7 : ((STR>=SIZ && DEX>=SIZ) ? 9 : 8);
+
+    var strSiz = STR+SIZ;
+    var found = lookupDbBuild(strSiz);
+    if(found){
+      derived.db.value = found.db;
+      derived.build.value = found.build;
+      $('#chs-db-note').textContent = 'STR+SIZ='+strSiz+' → 7번 탭에 저장된 Damage Bonus/Build 표에서 자동으로 찾았습니다.';
+    } else {
+      $('#chs-db-note').textContent = 'STR+SIZ='+strSiz+' — 7번 탭(CoC 6판→7판 수치 변환기)의 Damage Bonus/Build 표에 일치하는 구간이 없습니다. 7번 탭에서 표를 입력해두면 자동으로 채워지며, 그전까지는 직접 입력해주세요.';
+    }
+
+    var formula = $('#chs-occ-formula').value;
+    if(formula !== 'manual'){
+      $('#chs-occ-points').value = EDU*4 + statVal(formula)*2;
+      $('#chs-occ-points').readOnly = true; $('#chs-occ-points').style.opacity = '.7';
+    } else {
+      $('#chs-occ-points').readOnly = false; $('#chs-occ-points').style.opacity = '1';
+    }
+    $('#chs-int-points').value = INT*2;
+
+    refreshPointsInfo();
+  }
+  grid.addEventListener('input', recomputeAll);
+  $('#chs-occ-formula').addEventListener('change', recomputeAll);
+  $('#chs-occ-points').addEventListener('input', refreshPointsInfo);
+
+  resetSkills();
+  recomputeAll();
+
+  // ---- 코코포리아 JSON 생성 ----
+  function buildCommands(){
+    var lines = ['cc<={이성} 이성', 'cc<={행운} 행운'];
+    STAT_DEFS.forEach(function(s){ lines.push('cc<={'+s.label+'} '+s.label); });
+    skillRows.forEach(function(row){
+      var name = row.nameInput.value.trim();
+      if(!name) return;
+      lines.push('cc<='+skillTotal(row)+' '+name);
+    });
+    lines.push('1D3+{DB} 비무장 피해');
+    return lines.join('\n');
+  }
+  function buildCharacterJson(){
+    var name = $('#chs-name').value.trim() || '이름 없음';
+    var san = parseInt(derived.san.value,10)||0;
+    var hp = parseInt(derived.hp.value,10)||0;
+    var mp = parseInt(derived.mp.value,10)||0;
+    var luck = parseInt(derived.luck.value,10)||0;
+    var mov = parseInt(derived.mov.value,10)||0;
+    var db = derived.db.value || '0';
+
+    var status = [
+      {label:'체력', value:hp, max:hp},
+      {label:'마력', value:mp, max:mp},
+      {label:'이성', value:san, max:99},
+      {label:'행운', value:luck, max:luck}
+    ];
+    var params = [{label:'DB', value:String(db)}, {label:'이동력', value:String(mov)}];
+    STAT_DEFS.forEach(function(s){ params.push({label:s.label, value:String(statVal(s.key))}); });
+
+    return {kind:'character', data:{ name:name, status:status, params:params, commands:buildCommands() }};
+  }
+
+  $('#chs-generate').addEventListener('click', function(){
+    $('#chs-json-output').value = JSON.stringify(buildCharacterJson());
+  });
+  $('#chs-copy-json').addEventListener('click', function(){
+    var text = $('#chs-json-output').value;
+    if(!text){ alert('먼저 JSON을 생성해주세요.'); return; }
+    navigator.clipboard.writeText(text).then(function(){
+      var btn = $('#chs-copy-json'); var orig = btn.textContent;
+      btn.textContent = '복사됨!';
+      setTimeout(function(){ btn.textContent = orig; }, 1200);
+    }).catch(function(){ alert('클립보드 복사에 실패했습니다. 직접 선택해서 복사해주세요.'); });
+  });
+  $('#chs-send-charfile').addEventListener('click', function(){
+    var text = JSON.stringify(buildCharacterJson());
+    $('#chs-json-output').value = text;
+    var target = document.getElementById('cf-status-json');
+    if(target) target.value = text;
+    var parseBtn = document.getElementById('cf-status-parse');
+    if(parseBtn) parseBtn.click();
+    var tabBtn = document.querySelector('.tab-btn[data-target="tab-charfile"]');
+    if(tabBtn) tabBtn.click();
   });
 })();
 
