@@ -20389,6 +20389,32 @@ var TabLog = (function(){
     return lines;
   }
 
+  // 캐릭터 이름은 좌측 패널이 아니라 전체 폭을 가로지르는 하단 타이틀 바에 로고처럼 크고 굵게,
+  // 우측 정렬로 그린다(참고 이미지의 스탠딩 캐릭터 시트 하단 제목 레터링을 흉내낸 것).
+  var TITLE_BASE_PX = 40, TITLE_MIN_PX = 18, TITLE_PAD_X = 22, TITLE_PAD_Y = 16, TITLE_LETTER_SPACING = 2;
+  function computeTitleBar(ctx, nameVal, maxWidth){
+    if(!nameVal) return {px:0, h:0};
+    var avail = Math.max(10, maxWidth - TITLE_PAD_X*2);
+    var px = TITLE_BASE_PX;
+    while(px > TITLE_MIN_PX && (measureMixedText(ctx, nameVal, px, '800') + TITLE_LETTER_SPACING*Math.max(0,nameVal.length-1)) > avail) px -= 1;
+    return {px:px, h:px + TITLE_PAD_Y*2};
+  }
+  // 글자 사이 간격(letterSpacing)을 준 우측 정렬 텍스트 — 로고 스타일 제목 전용, 일반 라벨에는 쓰지 않는다
+  function drawMixedTextRightSpaced(ctx, text, rightX, y, px, weight, color, spacing){
+    var chars = [];
+    splitRuns(text).forEach(function(r){ for(var i=0;i<r.text.length;i++) chars.push({ch:r.text[i], jp:r.jp}); });
+    var total = 0;
+    chars.forEach(function(c, idx){ ctx.font = fontStr(px, weight, c.jp); total += ctx.measureText(c.ch).width + (idx<chars.length-1 ? spacing : 0); });
+    var x = rightX - total;
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = color;
+    chars.forEach(function(c, idx){
+      ctx.font = fontStr(px, weight, c.jp);
+      ctx.fillText(c.ch, x, y);
+      x += ctx.measureText(c.ch).width + spacing;
+    });
+    return total;
+  }
+
   /* 입력칸이 비어있을 때 보여줄 예시 문구 — 로드할 때마다 무작위로 하나 골라 표시 */
   var NAME_CATCH_EXAMPLES = [
     {name:'설이', catch:'말보다 먼저 웃는 사람'},
@@ -20446,20 +20472,18 @@ var TabLog = (function(){
     var labelH = 22;
     var nameVal = $('#cs-name').value.trim();
     var catchVal = $('#cs-catch').value.trim();
-    var panelOn = !!(heroImg || nameVal || catchVal);
+    var panelOn = !!(heroImg || catchVal);
     var panelW = panelOn ? Math.max(120, parseInt($('#cs-hero-width').value,10)||220) : 0;
+    var ctxTmp = $('#cs-canvas').getContext('2d');
     var panelH = 0;
     if(panelOn){
-      var pad = 14, imgGap = 14, nameFontPx = 22, catchFontPx = 13, nameGap = 8, catchLineGap = 7;
+      var pad = 14, imgGap = 14, catchFontPx = 13, catchLineGap = 7;
       var innerW = panelW - pad*2;
-      var ctxTmp = $('#cs-canvas').getContext('2d');
-      var nameLines = nameVal ? wrapMixedText(ctxTmp, nameVal, innerW, nameFontPx, '700') : [];
       var catchLines = catchVal ? wrapMixedText(ctxTmp, catchVal, innerW, catchFontPx, '500') : [];
       var imgH = 0;
       if(heroImg){ imgH = innerW * (heroImg.height/heroImg.width); if(imgH>900) imgH = 900; }
       panelH = pad;
       if(heroImg) panelH += imgH + imgGap;
-      if(nameLines.length) panelH += nameLines.length*(nameFontPx+4) + nameGap;
       if(catchLines.length) panelH += catchLines.length*(catchFontPx+catchLineGap);
       panelH += pad;
     }
@@ -20474,8 +20498,10 @@ var TabLog = (function(){
       var gridH = rows*(thumb+labelH) + (rows+1)*gap;
       var emptyCells = rows*c - n; // 마지막 줄에서 이미지가 없는 빈 칸 수
       var canvasW = panelW + panelGap + gridW;
-      var canvasH = Math.max(gridH, panelH);
-      var waste = emptyCells*thumb*(thumb+labelH) + (canvasH-gridH)*gridW + (panelOn ? (canvasH-panelH)*panelW : 0);
+      var contentH = Math.max(gridH, panelH);
+      var titleBar = computeTitleBar(ctxTmp, nameVal, canvasW);
+      var canvasH = contentH + titleBar.h;
+      var waste = emptyCells*thumb*(thumb+labelH) + (contentH-gridH)*gridW + (panelOn ? (contentH-panelH)*panelW : 0);
       // 여백이 똑같이 0인 경우가 여럿 있을 수 있어(예: 1열 vs 전부 한 줄), 그중에서는
       // 전체 캔버스가 너무 한쪽으로 길쭉해지지 않는 쪽을 아주 약하게 선호한다.
       var score = waste + Math.abs(Math.log(canvasW/canvasH));
@@ -20698,19 +20724,17 @@ var TabLog = (function(){
 
     var nameVal = $('#cs-name').value.trim();
     var catchVal = $('#cs-catch').value.trim();
-    var panelOn = !!(heroImg || nameVal || catchVal);
+    var panelOn = !!(heroImg || catchVal);
     var panelW = panelOn ? Math.max(120, parseInt($('#cs-hero-width').value,10)||220) : 0;
     var panelGap = panelOn ? 18 : 0;
-    // 이름/캐치프레이즈 글자 크기는 패널 폭과 무관하게 고정 — 이미지만 폭에 맞춰 커지고 작아진다
-    var pad = 14, nameFontPx = 22, catchFontPx = 13;
-    var imgGap = 14, nameGap = 8, catchLineGap = 7;
+    // 캐치프레이즈 글자 크기는 패널 폭과 무관하게 고정 — 이미지만 폭에 맞춰 커지고 작아진다
+    var pad = 14, catchFontPx = 13;
+    var imgGap = 14, catchLineGap = 7;
 
     var canvas = $('#cs-canvas');
     var ctx = canvas.getContext('2d'); // 폭에 맞춘 줄바꿈 계산용(치수 설정 전에도 measureText는 동작)
 
     var innerW = panelW - pad*2;
-    // 이름이 패널 폭보다 길면 잘리지 않도록 캐치프레이즈처럼 여러 줄로 자동 줄바꿈한다
-    var nameLines = (panelOn && nameVal) ? wrapMixedText(ctx, nameVal, innerW, nameFontPx, '700') : [];
     var catchLines = (panelOn && catchVal) ? wrapMixedText(ctx, catchVal, innerW, catchFontPx, '500') : [];
     // 대표 이미지는 항상 원본 비율 그대로 그린다 — 세로로 아주 긴 이미지라도 높이만 잘라 찌그러뜨리지 않고,
     // 높이 상한(900)에 걸리면 폭도 같이 줄여서 비율을 유지한다(패널 폭보다 좁게, 가운데 정렬로 표시됨).
@@ -20724,14 +20748,17 @@ var TabLog = (function(){
     if(panelOn){
       panelH = pad;
       if(heroImg) panelH += imgH + imgGap;
-      if(nameLines.length) panelH += nameLines.length * (nameFontPx+4) + nameGap;
       if(catchLines.length) panelH += catchLines.length * (catchFontPx+catchLineGap);
       panelH += pad;
     }
 
     var scale = Math.max(1, parseInt($('#cs-scale').value,10)||1);
     var designW = panelW + panelGap + gridW;
-    var designH = Math.max(gridH, panelH);
+    // 캐릭터 이름은 패널이 아니라 전체 폭을 가로지르는 하단 타이틀 바에 그린다 — 참고 이미지처럼
+    // 우측 하단에 빈 "미공개 스탠딩" 칸을 두지 않는 대신, 그만큼의 공간을 이름 쪽으로 밀어 우측 정렬로 채운다.
+    var titleBar = computeTitleBar(ctx, nameVal, designW);
+    var contentH = Math.max(gridH, panelH);
+    var designH = contentH + titleBar.h;
     canvas.width = designW*scale;
     canvas.height = designH*scale;
     // 캔버스 크기를 바꾸면 컨텍스트 상태가 초기화되므로 이후 다시 그린다.
@@ -20746,13 +20773,6 @@ var TabLog = (function(){
         ctx.drawImage(heroImg, dx, cy, imgDrawW, imgH);
         cy += imgH + imgGap;
       }
-      if(nameLines.length){
-        nameLines.forEach(function(line){
-          drawMixedTextCentered(ctx, line, panelW/2, cy+nameFontPx-4, nameFontPx, '700', '#1e2430');
-          cy += nameFontPx + 4;
-        });
-        cy += nameGap;
-      }
       catchLines.forEach(function(line){
         drawMixedTextCentered(ctx, line, panelW/2, cy+catchFontPx, catchFontPx, '500', '#6b7280');
         cy += catchFontPx + catchLineGap;
@@ -20760,7 +20780,7 @@ var TabLog = (function(){
       ctx.strokeStyle = '#e3e6eb';
       ctx.beginPath();
       ctx.moveTo(panelW+panelGap/2, 0);
-      ctx.lineTo(panelW+panelGap/2, designH);
+      ctx.lineTo(panelW+panelGap/2, contentH);
       ctx.stroke();
     }
 
@@ -20775,6 +20795,23 @@ var TabLog = (function(){
       var labelPx = fitFontSize(ctx, it.label, thumb-4, 13, '600', 9); // 라벨이 썸네일 폭보다 길면 글자 크기를 줄여 옆 칸을 침범하지 않게 한다
       drawMixedTextCentered(ctx, it.label, x+thumb/2, y+thumb+16, labelPx, '600', '#1e2430');
     });
+
+    // 하단 타이틀 바 — 이름을 로고처럼 크고 굵게, 우측 정렬로. 앞에 짧은 포인트 컬러 바를 붙여
+    // 참고 이미지의 "이름 로고 + 옆 명패" 구성을 단순화해 표현한다.
+    if(titleBar.h > 0){
+      ctx.strokeStyle = '#e3e6eb';
+      ctx.beginPath();
+      ctx.moveTo(0, contentH+0.5);
+      ctx.lineTo(designW, contentH+0.5);
+      ctx.stroke();
+      var barCY = contentH + titleBar.h/2;
+      var nameBaseline = barCY + titleBar.px*0.36;
+      var nameRightX = designW - TITLE_PAD_X;
+      var textW = drawMixedTextRightSpaced(ctx, nameVal, nameRightX, nameBaseline, titleBar.px, '800', '#1e2430', TITLE_LETTER_SPACING);
+      var markW = Math.max(4, Math.round(titleBar.px*0.12)), markGap = Math.max(8, Math.round(titleBar.px*0.28));
+      ctx.fillStyle = '#5b6bf5';
+      ctx.fillRect(nameRightX-textW-markGap-markW, barCY-titleBar.px*0.44, markW, titleBar.px*0.88);
+    }
     $('#cs-download').classList.remove('hidden');
   });
 
