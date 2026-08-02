@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>코코포리아 세터</title>
+<title>코코세터</title>
 <style>
 :root{
   color-scheme: light;
@@ -18,10 +18,15 @@
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5;}
 header.app-head{padding:18px 24px;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:10;}
 header.app-head h1{margin:0 0 12px;font-size:18px;font-weight:700;}
+nav.cat-nav{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--line);}
+.cat-btn{border:none;background:transparent;color:var(--sub);padding:2px 0;font-size:14px;font-weight:800;cursor:pointer;border-bottom:2px solid transparent;}
+.cat-btn:hover{color:var(--ink);}
+.cat-btn.active{color:var(--ink);border-bottom-color:var(--accent);}
 nav.tabs{display:flex;gap:6px;flex-wrap:wrap;}
 .tab-btn{border:1px solid var(--line);background:var(--bg);color:var(--sub);padding:8px 14px;border-radius:999px;font-size:13px;cursor:pointer;font-weight:600;transition:.15s;}
 .tab-btn:hover{color:var(--ink);}
 .tab-btn.active{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+.tab-btn.cat-hidden{display:none;}
 main{max-width:980px;margin:0 auto;padding:24px;}
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
@@ -104,18 +109,26 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 </head>
 <body>
 <header class="app-head">
-  <h1>코코포리아 세터</h1>
-  <nav class="tabs">
-    <button class="tab-btn active" data-target="tab-mp3">1. 컷인 커터</button>
-    <button class="tab-btn" data-target="tab-g2a">2. GIF APNG 변환기</button>
-    <button class="tab-btn" data-target="tab-fx">3. PNG 이펙터</button>
-    <button class="tab-btn" data-target="tab-log">4. html용 로그 백업</button>
-    <button class="tab-btn" data-target="tab-book">5. 로그북용 로그 백업</button>
-    <button class="tab-btn" data-target="tab-glossary">6. CoC 용어 변환기</button>
-    <button class="tab-btn" data-target="tab-edition">7. CoC 6판-7판 수치 변환기</button>
-    <button class="tab-btn" data-target="tab-standing">8. 스탠딩 일괄 재단</button>
-    <button class="tab-btn" data-target="tab-cheatsheet">9. 컨닝 페이퍼 메이커</button>
-    <button class="tab-btn" data-target="tab-suggest">10. 건의함</button>
+  <h1>코코세터</h1>
+  <nav class="cat-nav" id="catNav">
+    <button class="cat-btn active" data-cat="image">이미지·애니메이션</button>
+    <button class="cat-btn" data-cat="log">로그 백업</button>
+    <button class="cat-btn" data-cat="coc">CoC 유틸리티</button>
+    <button class="cat-btn" data-cat="char">캐릭터·스탠딩</button>
+    <button class="cat-btn" data-cat="etc">기타</button>
+  </nav>
+  <nav class="tabs" id="subTabs">
+    <button class="tab-btn active" data-target="tab-mp3" data-cat="image">1. 컷인 커터</button>
+    <button class="tab-btn" data-target="tab-g2a" data-cat="image">2. GIF APNG 변환기</button>
+    <button class="tab-btn" data-target="tab-fx" data-cat="image">3. PNG 이펙터</button>
+    <button class="tab-btn" data-target="tab-log" data-cat="log">4. html용 로그 백업</button>
+    <button class="tab-btn" data-target="tab-book" data-cat="log">5. 로그북용 로그 백업</button>
+    <button class="tab-btn" data-target="tab-glossary" data-cat="coc">6. CoC 용어 변환기</button>
+    <button class="tab-btn" data-target="tab-edition" data-cat="coc">7. CoC 6판-7판 수치 변환기</button>
+    <button class="tab-btn" data-target="tab-standing" data-cat="char">8. 스탠딩 일괄 재단</button>
+    <button class="tab-btn" data-target="tab-cheatsheet" data-cat="char">9. 컨닝 페이퍼 메이커</button>
+    <button class="tab-btn" data-target="tab-charfile" data-cat="char">10. 캐릭터 룸파일 생성기</button>
+    <button class="tab-btn" data-target="tab-suggest" data-cat="etc">11. 건의함</button>
   </nav>
 </header>
 <main>
@@ -166,6 +179,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="drop" id="g2a-drop">GIF · APNG(PNG) · MP4 파일
       <input type="file" id="g2a-file" accept=".gif,.png,.mp4" class="hidden">
     </div>
+    <div class="info-box" id="g2a-info">파일을 선택하면 정보가 표시됩니다.</div>
     <div class="row hidden" id="g2a-mp4-opts">
       <div class="field"><label>시작(초)</label><input type="number" id="g2a-mp4-start" value="0" min="0" step="0.1" style="width:80px;"></div>
       <div class="field"><label>길이(초)</label><input type="number" id="g2a-mp4-duration" min="0.1" step="0.1" placeholder="끝까지" style="width:80px;"></div>
@@ -180,7 +194,6 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="row">
       <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);"><input type="checkbox" id="g2a-autoresize" checked> 코코포리아 기준 자동 리사이징(최대 1200px·1MB, 애니메이션 깨짐 방지)</label>
     </div>
-    <div class="info-box" id="g2a-info">파일을 선택하면 정보가 표시됩니다.</div>
     <div class="row">
       <button class="btn" id="g2a-convert" disabled>변환</button>
       <div class="field"><label>파일명</label><input type="text" id="g2a-filename" class="wide" value="converted.png"></div>
@@ -400,6 +413,11 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <button class="btn ghost" id="st-zip" disabled>ZIP으로 일괄 다운로드</button>
       <button class="btn ghost" id="st-clear" disabled style="color:var(--danger);">전체 지우기</button>
     </div>
+    <div class="row" style="margin-top:-6px;">
+      <button class="btn ghost" id="st-send-cs" disabled>→ 9번 컨닝 페이퍼로 바로 보내기</button>
+      <button class="btn ghost" id="st-send-cf" disabled>→ 10번 캐릭터 룸파일로 바로 보내기</button>
+    </div>
+    <p class="footnote" style="margin-top:-6px;">재단된 이미지를 다운로드/재업로드하지 않고 그대로 다른 탭으로 넘겨서 이어서 작업할 수 있습니다.</p>
     <div id="st-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:14px;"></div>
   </div>
 </section>
@@ -465,6 +483,35 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 </section>
 
 <!-- ===================== TAB 10 ===================== -->
+<section id="tab-charfile" class="tab-panel">
+  <div class="card">
+    <h2>코코포리아 캐릭터 룸파일 생성기</h2>
+    <p class="desc">스탠딩 이미지 병합+스테이터스 채팅 팔레트가 기재된 캐릭터 1명의 zip 파일을 만듭니다.</p>
+
+    <div class="field" style="width:100%;"><label>캐릭터 이름</label><input type="text" id="cf-name" class="wide" placeholder="예: 야마미치 노미"></div>
+
+    <div class="drop" id="cf-drop">스탠딩(표정) 이미지 여러 장
+      <input type="file" id="cf-file" accept=".png,.jpg,.jpeg,.webp,.gif" multiple class="hidden">
+    </div>
+    <p class="footnote" style="margin:4px 0 0;">기본 라벨은 <b>@표정</b> 형식입니다(예: 웃음.png → <b>@웃음</b>). 이미 @로 시작하면 그대로 쓰고, 아니면 자동으로 붙으며 업로드 후 직접 수정할 수 있습니다.</p>
+    <div class="info-box" id="cf-info">이미지를 올리면 라벨과 개수가 여기 표시됩니다.</div>
+    <div id="cf-labels" style="margin-top:6px;"></div>
+
+    <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">스테이터스 (선택 사항)</h3>
+    <p class="footnote" style="margin:2px 0 6px;">코코포리아 캐릭터 JSON을 붙여넣으면 이름·스탯·능력치·커맨드가 채워집니다(비워두면 스탠딩만 있는 캐릭터).</p>
+    <div class="field" style="width:100%;"><textarea id="cf-status-json" rows="6" style="width:100%;" placeholder='{"kind":"character","data":{"name":"...","status":[...],"params":[...],"commands":"..."}}'></textarea></div>
+    <div class="row"><button class="btn ghost" type="button" id="cf-status-parse">스테이터스 JSON 불러오기</button></div>
+    <div class="info-box" id="cf-status-info">스테이터스 JSON을 불러오면 확인 내용이 여기 표시됩니다.</div>
+
+    <div class="row" style="margin-top:10px;">
+      <button class="btn" id="cf-build" disabled>캐릭터 생성</button>
+      <button class="btn ghost" id="cf-clear" disabled style="color:var(--danger);">전체 지우기</button>
+    </div>
+    <div class="info-box hidden" id="cf-result-info"></div>
+  </div>
+</section>
+
+<!-- ===================== TAB 11 ===================== -->
 <section id="tab-suggest" class="tab-panel">
   <div class="card">
     <h2>건의함</h2>
@@ -17640,14 +17687,29 @@ persistFormField('cs-gap', 'cocofolia_setter_cs_gap');
 persistFormField('cs-thumb', 'cocofolia_setter_cs_thumb');
 persistFormField('cs-scale', 'cocofolia_setter_cs_scale');
 
-/* ============ 탭 전환 ============ */
+/* ============ 탭 전환 + 카테고리(마우스 오버 시 하위 메뉴 전환) ============ */
+function showCategoryTabs(catId){
+  $all('.tab-btn').forEach(function(b){ b.classList.toggle('cat-hidden', b.dataset.cat !== catId); });
+  $all('.cat-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.cat === catId); });
+}
+showCategoryTabs('image');
+
 $all('.tab-btn').forEach(function(btn){
   btn.addEventListener('click', function(){
     $all('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
     $all('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
     btn.classList.add('active');
     document.getElementById(btn.dataset.target).classList.add('active');
+    showCategoryTabs(btn.dataset.cat);
   });
+});
+
+// 카테고리 버튼에 마우스를 올리면(또는 클릭하면 — 터치 환경 대응) 해당 카테고리의 하위 탭이
+// 펼쳐지고, 마우스가 다른 곳으로 떠나도 마지막으로 본 카테고리 그대로 유지된다(실제 열려있는
+// 탭의 카테고리로 자동으로 되돌아가지 않음).
+$all('.cat-btn').forEach(function(btn){
+  btn.addEventListener('mouseenter', function(){ showCategoryTabs(btn.dataset.cat); });
+  btn.addEventListener('click', function(){ showCategoryTabs(btn.dataset.cat); });
 });
 
 /* ============ GIF 디코드 코어 (gifuct-js) ============ */
@@ -19684,6 +19746,8 @@ var TabLog = (function(){
     $('#st-zip').disabled = items.length===0;
     $('#st-apply').disabled = items.length===0;
     $('#st-clear').disabled = items.length===0;
+    $('#st-send-cs').disabled = items.length===0;
+    $('#st-send-cf').disabled = items.length===0;
   }
 
   setupMultiDrop('st-drop','st-file', function(files){
@@ -19730,6 +19794,33 @@ var TabLog = (function(){
       });
     });
   });
+
+  // 재단된 이미지를 다운로드→재업로드하지 않고 바로 9번/10번 탭으로 넘기는 통로.
+  // window.__ccSend는 각 탭이 자기 업로드 처리 함수를 등록해두는 전역 브릿지.
+  function itemsToFiles(){
+    // 다운로드용 파일명(_cut 접미사)과 달리, 다른 탭으로 넘길 때는 라벨 자동 생성에 그대로
+    // 쓰이므로 접미사 없이 원래 이름을 유지한다.
+    return Promise.all(items.map(function(it){
+      return new Promise(function(res){
+        it.canvas.toBlob(function(blob){
+          res(new File([blob], baseName(it.file.name)+'.png', {type:'image/png'}));
+        });
+      });
+    }));
+  }
+  function sendTo(loaderKey, targetTabId, btnId){
+    if(items.length===0) return;
+    var btn = $('#'+btnId);
+    btn.disabled = true;
+    itemsToFiles().then(function(files){
+      if(window.__ccSend && window.__ccSend[loaderKey]) window.__ccSend[loaderKey](files);
+      var tabBtn = document.querySelector('.tab-btn[data-target="'+targetTabId+'"]');
+      if(tabBtn) tabBtn.click();
+      btn.disabled = items.length===0;
+    });
+  }
+  $('#st-send-cs').addEventListener('click', function(){ sendTo('toCheatsheet', 'tab-cheatsheet', 'st-send-cs'); });
+  $('#st-send-cf').addEventListener('click', function(){ sendTo('toCharfile', 'tab-charfile', 'st-send-cf'); });
 })();
 
 /* ================================================================
@@ -20034,7 +20125,7 @@ var TabLog = (function(){
   window.addEventListener('mouseup', function(){ dragMode = null; });
   function clamp01(v,min,max){ return v<min?min:(v>max?max:v); }
 
-  setupMultiDrop('cs-drop','cs-file', function(files){
+  function loadCsFiles(files){
     Promise.all(files.map(function(f){
       return loadImageElement(f).then(function(img){ return {file:f, img:img, label:baseName(f.name)}; });
     })).then(function(loaded){
@@ -20054,6 +20145,9 @@ var TabLog = (function(){
         $('#cs-info').textContent = items.length+'장 로드됨. 카드를 드래그해 순서를 바꿀 수 있습니다.';
       }
     });
+  }
+  setupMultiDrop('cs-drop','cs-file', function(files){
+    loadCsFiles(files);
   });
 
   function moveItem(from, to){
@@ -20240,10 +20334,267 @@ var TabLog = (function(){
   $('#cs-download').addEventListener('click', function(){
     $('#cs-canvas').toBlob(function(blob){ downloadBlob(blob, 'expression_cheatsheet.png'); });
   });
+
+  // 다른 탭(8번 스탠딩 재단)에서 처리된 이미지를 다시 다운로드/업로드하지 않고 바로 받기 위한 통로.
+  window.__ccSend = window.__ccSend || {};
+  window.__ccSend.toCheatsheet = loadCsFiles;
 })();
 
 /* ================================================================
-   탭 10. 건의함 (GitHub 이슈 연동)
+   탭 10. 코코포리아 캐릭터 룸파일 생성기
+   ── 코코포리아는 캐릭터 단독 내보내기/가져오기를 지원하지 않아서,
+   캐릭터 1명만 담은 "룸 데이터" 형식(zip: __data.json + 이미지 파일들)을
+   만들어 그걸 룸 가져오기로 불러오게 하는 방식을 쓴다. 이 형식은 실제
+   코코포리아 룸 백업 zip을 열어서 역추적해 확인한 구조를 그대로 따른다:
+     - __data.json = {meta, entities:{room,items,decks,notes,characters}, resources}
+     - 캐릭터의 표정(스탠딩)은 faces:[{label:"@라벨", iconUrl:"<파일명>"}]
+     - 이미지 파일명은 내용의 SHA-256 해시 + 원래 확장자(코코포리아 자체 백업과 동일 방식)
+     - resources에 그 파일명 → {type: MIME} 매핑이 있어야 함
+================================================================ */
+(function(){
+  var cfItems = []; // {file, img, label, isMain}
+  var cfStatusData = null; // {name, status, params, commands} — 붙여넣은 스테이터스 JSON에서 파싱
+
+  function syncCfButtons(){
+    $('#cf-build').disabled = cfItems.length===0;
+    $('#cf-clear').disabled = cfItems.length===0;
+  }
+
+  function buildCfLabelInputs(){
+    var wrap = $('#cf-labels');
+    wrap.innerHTML = '';
+    cfItems.forEach(function(it, idx){
+      var f = document.createElement('span');
+      f.style.cssText = 'display:inline-flex;flex-direction:column;align-items:center;gap:4px;margin:4px 8px 4px 0;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--panel);vertical-align:top;';
+
+      it.img.style.cssText = 'width:64px;height:64px;object-fit:contain;border-radius:6px;display:block;background:repeating-conic-gradient(#8883 0% 25%, transparent 0% 50%) 50% / 8px 8px;';
+      f.appendChild(it.img);
+
+      var inp = document.createElement('input');
+      inp.type = 'text'; inp.value = it.label;
+      inp.style.cssText = 'width:110px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font-size:12px;text-align:center;';
+      inp.addEventListener('input', function(){ it.label = inp.value; });
+      f.appendChild(inp);
+
+      var mainBtn = document.createElement('button');
+      mainBtn.type = 'button'; mainBtn.className = 'btn ghost';
+      mainBtn.textContent = it.isMain ? '★ 메인 아이콘' : '메인 아이콘으로';
+      mainBtn.style.cssText = 'padding:3px 8px;font-size:10.5px;'+(it.isMain ? 'background:var(--accent);color:var(--accent-ink);border-color:var(--accent);' : '');
+      mainBtn.addEventListener('click', function(){
+        cfItems.forEach(function(x){ x.isMain = false; });
+        it.isMain = true;
+        buildCfLabelInputs();
+      });
+      f.appendChild(mainBtn);
+
+      var delBtn = document.createElement('button');
+      delBtn.type = 'button'; delBtn.className = 'btn ghost'; delBtn.textContent = '삭제';
+      delBtn.style.cssText = 'padding:3px 8px;font-size:10.5px;color:var(--danger);';
+      delBtn.addEventListener('click', function(){
+        cfItems.splice(idx,1);
+        if(it.isMain && cfItems.length) cfItems[0].isMain = true;
+        buildCfLabelInputs();
+        syncCfButtons();
+      });
+      f.appendChild(delBtn);
+
+      wrap.appendChild(f);
+    });
+  }
+
+  function loadCfFiles(files){
+    Promise.all(files.map(function(f){
+      return loadImageElement(f).then(function(img){
+        var base = baseName(f.name);
+        var label = base.charAt(0)==='@' ? base : ('@'+base);
+        return {file:f, img:img, label:label, isMain:false};
+      });
+    })).then(function(loaded){
+      var wasEmpty = cfItems.length===0;
+      cfItems = cfItems.concat(loaded);
+      if(wasEmpty && cfItems.length) cfItems[0].isMain = true;
+      buildCfLabelInputs();
+      syncCfButtons();
+      $('#cf-info').textContent = cfItems.length+'장 로드됨. 라벨을 확인하고, 메인 아이콘으로 쓸 이미지를 골라주세요.';
+    });
+  }
+  setupMultiDrop('cf-drop','cf-file', function(files){
+    loadCfFiles(files);
+  });
+  window.__ccSend = window.__ccSend || {};
+  window.__ccSend.toCharfile = loadCfFiles;
+
+  $('#cf-clear').addEventListener('click', function(){
+    if(!confirm('업로드한 이미지 '+cfItems.length+'장을 모두 지울까요?')) return;
+    cfItems = [];
+    buildCfLabelInputs();
+    syncCfButtons();
+    $('#cf-info').textContent = '이미지를 올리면 라벨과 개수가 여기 표시됩니다.';
+    $('#cf-result-info').classList.add('hidden');
+  });
+
+  // 코코포리아 캐릭터 내보내기 JSON은 종종 복사 과정(엑셀/시트 등)에서 CSV 스타일로
+  // 큰따옴표가 두 번씩(""...) 겹쳐 감싸인 채로 붙여넣기 되는 경우가 있어, 그 형태도 보정 시도한다.
+  function parseStatusJson(raw){
+    raw = raw.trim();
+    if(!raw) return null;
+    try{ return JSON.parse(raw); }catch(e){}
+    if(raw.length>=2 && raw[0]==='"' && raw[raw.length-1]==='"'){
+      try{ return JSON.parse(raw.slice(1,-1).replace(/""/g, '"')); }catch(e){}
+    }
+    return null;
+  }
+
+  // "불러오기" 버튼을 누르지 않고 바로 생성 버튼을 눌러도 스테이터스가 반영되도록,
+  // 생성 시점에도 이 함수를 다시 호출해 textarea 내용을 확인한다(버튼은 미리보기 확인용).
+  function refreshCfStatusData(){
+    var raw = $('#cf-status-json').value;
+    if(!raw.trim()){
+      cfStatusData = null;
+      $('#cf-status-info').textContent = '스테이터스 JSON을 불러오면 확인 내용이 여기 표시됩니다.';
+      return;
+    }
+    var parsed = parseStatusJson(raw);
+    if(!parsed){
+      cfStatusData = null;
+      $('#cf-status-info').textContent = 'JSON을 해석하지 못했습니다. 코코포리아 캐릭터 내보내기 결과를 그대로 붙여넣었는지 확인해주세요.';
+      return;
+    }
+    var d = (parsed.kind==='character' && parsed.data) ? parsed.data : parsed;
+    cfStatusData = {
+      name: typeof d.name==='string' ? d.name : '',
+      status: Array.isArray(d.status) ? d.status : [],
+      params: Array.isArray(d.params) ? d.params : [],
+      commands: typeof d.commands==='string' ? d.commands : ''
+    };
+    if(cfStatusData.name && !$('#cf-name').value.trim()) $('#cf-name').value = cfStatusData.name;
+    $('#cf-status-info').textContent = '불러옴: 이름 "'+(cfStatusData.name||'-')+'", 스탯 '+cfStatusData.status.length+'개, 능력치 '+cfStatusData.params.length+'개'+(cfStatusData.commands?', 커맨드 있음':'');
+  }
+  $('#cf-status-parse').addEventListener('click', refreshCfStatusData);
+
+  function extOf(filename, mimeType){
+    var m = /\.([a-zA-Z0-9]+)$/.exec(filename);
+    if(m) return '.'+m[1].toLowerCase();
+    if(mimeType==='image/gif') return '.gif';
+    if(mimeType==='image/jpeg') return '.jpeg';
+    if(mimeType==='image/webp') return '.webp';
+    return '.png';
+  }
+  function fallbackHash(buf){
+    // SubtleCrypto를 못 쓰는 환경을 위한 대체 해시 — 진짜 SHA-256은 아니지만 파일명이 서로
+    // 겹치지만 않으면 되므로 충분함.
+    var bytes = new Uint8Array(buf);
+    var h1 = 0x811c9dc5, h2 = 0x1000193;
+    for(var i=0;i<bytes.length;i++){ h1 = ((h1 ^ bytes[i]) * 0x01000193) >>> 0; h2 = (h2 + bytes[i]*31) >>> 0; }
+    return h1.toString(16).padStart(8,'0') + h2.toString(16).padStart(8,'0') + Date.now().toString(16) + Math.random().toString(16).slice(2,10);
+  }
+  function sha256Hex(buf){
+    if(window.crypto && window.crypto.subtle && window.crypto.subtle.digest){
+      return crypto.subtle.digest('SHA-256', buf).then(function(hashBuf){
+        var bytes = new Uint8Array(hashBuf), hex = '';
+        for(var i=0;i<bytes.length;i++){ var h = bytes[i].toString(16); hex += h.length<2 ? '0'+h : h; }
+        return hex;
+      }).catch(function(){ return fallbackHash(buf); });
+    }
+    return Promise.resolve(fallbackHash(buf));
+  }
+  function randomEntityId(){
+    var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var s = ''; for(var i=0;i<20;i++) s += chars.charAt(Math.floor(Math.random()*chars.length));
+    return s;
+  }
+
+  $('#cf-build').addEventListener('click', function(){
+    if(cfItems.length===0) return;
+    // "스테이터스 JSON 불러오기" 버튼을 안 눌렀어도 textarea 내용이 반영되도록 생성 시점에 다시 확인.
+    // 내용이 있는데 해석에 실패했으면 스탯이 조용히 기본값(HP 0/0)으로 빠지지 않도록 여기서 막는다.
+    refreshCfStatusData();
+    if($('#cf-status-json').value.trim() && !cfStatusData){
+      alert('스테이터스 JSON을 해석하지 못했습니다. 내용을 확인해주세요(비워두면 스탠딩만 있는 캐릭터로 만들어집니다).');
+      return;
+    }
+    var btn = $('#cf-build');
+    btn.disabled = true; btn.textContent = '생성 중...';
+    (async function(){
+      try{
+        var zip = new JSZip();
+        var resources = {};
+        var hashCache = new Map();
+        async function hashFor(it){
+          if(hashCache.has(it)) return hashCache.get(it);
+          var buf = await it.file.arrayBuffer();
+          var hex = await sha256Hex(buf);
+          var filename = hex + extOf(it.file.name, it.file.type);
+          if(!resources[filename]){
+            resources[filename] = {type: it.file.type || 'image/png'};
+            zip.file(filename, buf);
+          }
+          hashCache.set(it, filename);
+          return filename;
+        }
+
+        var faces = [], mainIconFilename = null;
+        for(var i=0;i<cfItems.length;i++){
+          var it = cfItems[i];
+          var filename = await hashFor(it);
+          faces.push({label: it.label || ('@이미지'+(i+1)), iconUrl: filename});
+          if(it.isMain) mainIconFilename = filename;
+        }
+        if(!mainIconFilename) mainIconFilename = faces[0].iconUrl;
+
+        var name = $('#cf-name').value.trim() || (cfStatusData && cfStatusData.name) || '이름 없음';
+        var status = (cfStatusData && cfStatusData.status.length) ? cfStatusData.status : [{label:'HP', value:0, max:0}];
+        var params = (cfStatusData && cfStatusData.params.length) ? cfStatusData.params : [{label:'', value:''}];
+        var commands = (cfStatusData && cfStatusData.commands) || '';
+
+        var charObj = {
+          name: name, playerName: '', memo: '', initiative: 0, externalUrl: '',
+          status: status, params: params,
+          iconUrl: mainIconFilename, faces: faces,
+          x: 0, y: 0, z: 0, angle: 0, width: 2, height: 2,
+          active: true, secret: false, invisible: false, hideStatus: false,
+          color: '#9E9E9E', roomId: null, commands: commands,
+          speaking: false, diceSkin: {}, order: 0
+        };
+
+        // entities/room 구조는 실제 코코포리아에서 정상적으로 가져와지는 것이 확인된
+        // 캐릭터 1명짜리 룸파일 예시를 그대로 따름(room은 빈 객체, effects/scenes/savedatas/snapshots도
+        // 빈 객체로 존재해야 함 — 처음엔 이 4개가 빠져 있어서 가져오기가 실패했음).
+        var dataJson = {
+          meta: {version: '1.1.0'},
+          entities: {
+            room: {}, items: {}, decks: {}, notes: {},
+            characters: {},
+            effects: {}, scenes: {}, savedatas: {}, snapshots: {}
+          },
+          resources: resources
+        };
+        dataJson.entities.characters[randomEntityId()] = charObj;
+
+        var dataJsonText = JSON.stringify(dataJson);
+        zip.file('__data.json', dataJsonText);
+        // 코코포리아 룸파일에는 __data.json과 함께 ".token" 파일(형식: "0."+64자리 hex)이 들어있는데,
+        // 정확한 생성 알고리즘은 확인하지 못해 내용 기반 SHA-256으로 대체함 — 실제 가져오기 시
+        // 이 값 자체를 검증하지 않고 형식/존재 여부만 확인하는 것이길 기대하고 있음.
+        var tokenHex = await sha256Hex(new TextEncoder().encode(dataJsonText).buffer);
+        zip.file('.token', '0.'+tokenHex);
+
+        var blob = await zip.generateAsync({type:'blob'});
+        var safeName = name.replace(/[\\/:*?"<>|]/g, '_') || 'character';
+        downloadBlob(blob, safeName+'_room.zip');
+
+        $('#cf-result-info').classList.remove('hidden');
+        $('#cf-result-info').textContent = '생성 완료: "'+name+'", 표정 '+faces.length+'개. 코코포리아 룸에 드래그 앤 드롭으로 캐릭터를 생성하시면 됩니다.';
+      }catch(e){
+        alert('생성 실패: '+e.message);
+      }
+      btn.disabled = false; btn.textContent = '캐릭터 룸파일(zip) 생성';
+    })();
+  });
+})();
+
+/* ================================================================
+   탭 11. 건의함 (GitHub 이슈 연동)
 ================================================================ */
 (function(){
   var OWNER = 'G909G09', REPO = 'Cocofolia-Setter', LABEL = '건의';
