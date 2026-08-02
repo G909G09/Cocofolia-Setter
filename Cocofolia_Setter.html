@@ -81,6 +81,25 @@ img.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;backgr
 .chip{background:var(--chip);border-radius:999px;padding:4px 10px;font-size:12px;cursor:pointer;user-select:none;border:1px solid transparent;}
 .chip.off{opacity:.4;}
 .footnote{font-size:11px;color:var(--sub);margin-top:6px;}
+/* 12번 탭: CoC 캐릭터 시트 메이커 — 익숙한 종이 시트 느낌(검은 헤더 바 + 1/2·1/5 색상 셀)을 참고한 스타일 */
+.chs-box{border:1px solid #333;border-radius:6px;overflow:hidden;}
+.chs-box-head{background:#1e2430;color:#fff;font-weight:800;font-size:11.5px;text-align:center;padding:5px 6px;letter-spacing:.02em;}
+.chs-stat-cell{display:grid;grid-template-columns:52px 1fr 40px 40px;align-items:stretch;border-top:1px solid var(--line);}
+.chs-stat-cell:first-child{border-top:none;}
+.chs-stat-label{padding:4px 6px;font-size:12px;font-weight:700;background:var(--bg);display:flex;align-items:center;justify-content:center;text-align:center;}
+.chs-stat-input{width:100%;padding:4px;border:none;border-left:1px solid var(--line);text-align:center;background:var(--panel);color:var(--ink);font-size:13px;font-weight:700;}
+.chs-half-cell,.chs-fifth-cell{padding:4px;text-align:center;font-size:11px;border-left:1px solid var(--line);display:flex;align-items:center;justify-content:center;}
+.chs-half-cell{background:#dcedc8;color:#33691e;}
+.chs-fifth-cell{background:#e1d5f5;color:#4a148c;}
+.chs-derived-box .chs-box-body{display:flex;}
+.chs-derived-box .chs-box-body > div{flex:1;padding:6px;text-align:center;}
+.chs-derived-box .chs-box-body input{width:100%;border:none;background:transparent;color:var(--ink);text-align:center;font-size:15px;font-weight:800;}
+.chs-derived-box .chs-box-body label{display:block;font-size:10px;color:var(--sub);margin-bottom:2px;}
+#chs-skill-table td,#chs-skill-table th{border-left:1px solid var(--line);}
+#chs-skill-table td:first-child,#chs-skill-table th:first-child{border-left:none;}
+#chs-skill-table tbody tr:nth-child(even){background:var(--bg);}
+.chs-skill-half{background:#eef5e6;}
+.chs-skill-fifth{background:#f1eaf9;}
 details.raw summary{cursor:pointer;font-size:12px;color:var(--sub);}
 details.raw{margin-top:10px;}
 details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px;border-radius:8px;font-size:11px;}
@@ -396,12 +415,15 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     </div>
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">특성치</h3>
-    <p class="footnote" style="margin:2px 0 6px;">각 특성치의 1/2·1/5 값이 자동으로 표시됩니다(어려운/극난 판정 참고용).</p>
-    <div id="chs-stat-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;"></div>
+    <p class="footnote" style="margin:2px 0 6px;">초록 칸은 1/2, 보라 칸은 1/5 값입니다(어려운/극난 판정 참고용) — 특성치를 바꾸면 자동으로 갱신됩니다.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;">
+      <div class="chs-box"><div id="chs-stat-grid-1"></div></div>
+      <div class="chs-box"><div id="chs-stat-grid-2"></div></div>
+    </div>
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">파생 수치 (자동계산)</h3>
-    <div class="row" id="chs-derived-row"></div>
-    <p class="footnote" id="chs-db-note" style="margin:2px 0 0;"></p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,140px));gap:10px;" id="chs-derived-row"></div>
+    <p class="footnote" id="chs-db-note" style="margin:6px 0 0;"></p>
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">기능점수 배분</h3>
     <div class="row">
@@ -428,8 +450,8 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     </div>
     <div style="max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:8px;">
       <table style="width:100%;border-collapse:collapse;font-size:12.5px;" id="chs-skill-table">
-        <thead style="position:sticky;top:0;background:var(--panel);"><tr style="text-align:left;color:var(--sub);">
-          <th style="padding:5px 6px;">기능명</th><th style="padding:5px 6px;width:70px;">기본</th><th style="padding:5px 6px;width:70px;">분배</th><th style="padding:5px 6px;width:70px;">총합</th><th style="width:50px;"></th>
+        <thead style="position:sticky;top:0;background:var(--panel);"><tr style="text-align:center;color:var(--sub);">
+          <th style="padding:5px 6px;width:26px;">성장</th><th style="padding:5px 6px;text-align:left;">기능명</th><th style="padding:5px 6px;width:55px;">기본</th><th style="padding:5px 6px;width:55px;">분배</th><th style="padding:5px 6px;width:55px;">총합</th><th class="chs-skill-half" style="padding:5px 6px;width:50px;">1/2</th><th class="chs-skill-fifth" style="padding:5px 6px;width:50px;">1/5</th><th style="width:50px;"></th>
         </tr></thead>
         <tbody id="chs-skill-body"></tbody>
       </table>
@@ -19704,17 +19726,22 @@ var TabLog = (function(){
     {key:'STR', label:'근력'}, {key:'CON', label:'건강'}, {key:'SIZ', label:'크기'}, {key:'DEX', label:'민첩'},
     {key:'APP', label:'외모'}, {key:'EDU', label:'교육'}, {key:'INT', label:'지능'}, {key:'POW', label:'정신'}
   ];
-  var stats = {};
-  var grid = $('#chs-stat-grid');
-  STAT_DEFS.forEach(function(s){
+  var stats = {}, statHalfCells = {}, statFifthCells = {};
+  var statGrid1 = $('#chs-stat-grid-1'), statGrid2 = $('#chs-stat-grid-2');
+  STAT_DEFS.forEach(function(s, i){
     var div = document.createElement('div');
-    div.className = 'field';
-    div.innerHTML = '<label>'+s.label+'</label>'+
-      '<input type="number" min="0" max="99" value="50" data-stat="'+s.key+'" style="width:100%;">'+
-      '<span style="font-size:11px;color:var(--sub);" data-stat-half="'+s.key+'"></span>';
-    grid.appendChild(div);
+    div.className = 'chs-stat-cell';
+    div.innerHTML =
+      '<div class="chs-stat-label">'+s.label+'</div>'+
+      '<input type="number" min="0" max="99" value="50" class="chs-stat-input" data-stat="'+s.key+'">'+
+      '<div class="chs-half-cell"></div>'+
+      '<div class="chs-fifth-cell"></div>';
+    (i<4 ? statGrid1 : statGrid2).appendChild(div);
     stats[s.key] = div.querySelector('input');
+    statHalfCells[s.key] = div.querySelector('.chs-half-cell');
+    statFifthCells[s.key] = div.querySelector('.chs-fifth-cell');
   });
+  var grid = { addEventListener: function(evt, fn){ statGrid1.addEventListener(evt, fn); statGrid2.addEventListener(evt, fn); } };
   function statVal(key){ return clampInt(parseInt(stats[key].value,10)||0, 0, 99); }
 
   // 기본 기능 목록: [기능명, 기본값]. 언어(모국어)/회피는 특성치로부터 자동 계산되는 특수 항목이라 별도 관리.
@@ -19743,26 +19770,35 @@ var TabLog = (function(){
     return clampInt(base+alloc, 0, 99);
   }
   function refreshSkillTotals(){
-    skillRows.forEach(function(row){ row.totalCell.textContent = skillTotal(row); });
+    skillRows.forEach(function(row){
+      var total = skillTotal(row);
+      row.totalCell.textContent = total;
+      row.halfCell.textContent = Math.floor(total/2);
+      row.fifthCell.textContent = Math.floor(total/5);
+    });
     refreshPointsInfo();
   }
   function addSkillRow(name, base, formula){
     var tr = document.createElement('tr');
-    tr.style.borderTop = '1px solid var(--line)';
     tr.innerHTML =
+      '<td style="padding:4px 6px;text-align:center;"><input type="checkbox" title="성장 체크(플레이 중 판정 성공 시 표시 — 참고용, JSON에는 반영되지 않음)"></td>'+
       '<td style="padding:4px 6px;"><input type="text" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;"></td>'+
       '<td style="padding:4px 6px;"><input type="number" min="0" max="99" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;"></td>'+
       '<td style="padding:4px 6px;"><input type="number" min="0" max="99" value="0" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;"></td>'+
       '<td style="padding:4px 6px;text-align:center;font-weight:700;">0</td>'+
+      '<td class="chs-skill-half" style="padding:4px 6px;text-align:center;">0</td>'+
+      '<td class="chs-skill-fifth" style="padding:4px 6px;text-align:center;">0</td>'+
       '<td style="padding:4px 6px;"><button type="button" class="btn ghost" style="padding:3px 7px;font-size:11px;color:var(--danger);">삭제</button></td>';
-    var nameInput = tr.children[0].querySelector('input');
-    var baseInput = tr.children[1].querySelector('input');
-    var allocInput = tr.children[2].querySelector('input');
-    var totalCell = tr.children[3];
+    var nameInput = tr.children[1].querySelector('input');
+    var baseInput = tr.children[2].querySelector('input');
+    var allocInput = tr.children[3].querySelector('input');
+    var totalCell = tr.children[4];
+    var halfCell = tr.children[5];
+    var fifthCell = tr.children[6];
     nameInput.value = name;
     baseInput.value = base;
     if(formula){ baseInput.readOnly = true; baseInput.style.opacity = '.7'; }
-    var row = {nameInput:nameInput, baseInput:baseInput, allocInput:allocInput, totalCell:totalCell, formula:formula||null, tr:tr};
+    var row = {nameInput:nameInput, baseInput:baseInput, allocInput:allocInput, totalCell:totalCell, halfCell:halfCell, fifthCell:fifthCell, formula:formula||null, tr:tr};
     baseInput.addEventListener('input', refreshSkillTotals);
     allocInput.addEventListener('input', refreshSkillTotals);
     tr.querySelector('button').addEventListener('click', function(){
@@ -19804,8 +19840,9 @@ var TabLog = (function(){
   var derived = {};
   DERIVED_FIELDS.forEach(function(d){
     var div = document.createElement('div');
-    div.className = 'field';
-    div.innerHTML = '<label>'+d.label+'</label><input type="'+(d.key==='db'?'text':'number')+'" style="width:90px;" '+(d.ro?'readonly disabled':'')+'>';
+    div.className = 'chs-box chs-derived-box';
+    div.innerHTML = '<div class="chs-box-head">'+d.label+'</div>'+
+      '<div class="chs-box-body"><div><input type="'+(d.key==='db'?'text':'number')+'" '+(d.ro?'readonly disabled':'')+'></div></div>';
     derivedRow.appendChild(div);
     derived[d.key] = div.querySelector('input');
   });
@@ -19841,7 +19878,8 @@ var TabLog = (function(){
 
     STAT_DEFS.forEach(function(s){
       var v = statVal(s.key);
-      grid.querySelector('[data-stat-half="'+s.key+'"]').textContent = '1/2: '+Math.floor(v/2)+'  1/5: '+Math.floor(v/5);
+      statHalfCells[s.key].textContent = Math.floor(v/2);
+      statFifthCells[s.key].textContent = Math.floor(v/5);
     });
 
     var CON=statVal('CON'), SIZ=statVal('SIZ'), POW=statVal('POW'), STR=statVal('STR'), DEX=statVal('DEX'), INT=statVal('INT'), EDU=statVal('EDU');
