@@ -667,21 +667,12 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       </div>
       <div class="field" style="flex:0 0 auto;"><label>패널 폭(px)</label><input type="number" id="cs-hero-width" value="220" min="120" max="500" style="width:90px;"></div>
     </div>
-    <div class="row" style="margin-top:2px;">
-      <div class="field"><label>이름 배치</label>
-        <select id="cs-name-align">
-          <option value="right">우측 정렬(하단)</option>
-          <option value="left">좌측 정렬(하단)</option>
-          <option value="vertical">세로쓰기(대표 이미지 옆)</option>
-        </select>
-      </div>
+    <div class="row" style="margin-top:2px;align-items:flex-start;">
       <div class="field"><label>이름 글씨체</label>
         <select id="cs-name-font">
-          <option value="">프리텐다드</option>
-          <option value="&quot;Freesentation&quot;, sans-serif">프리젠테이션</option>
-          <option value="&quot;Paperlogy&quot;, sans-serif">페이퍼로지</option>
-          <option value="&quot;KoPub돋움체&quot;, &quot;KoPubWorld돋움체&quot;, sans-serif">Kopub돋움</option>
-          <option value="&quot;KoPub바탕체&quot;, &quot;KoPubWorld바탕체&quot;, serif">Kopub바탕</option>
+          <option value="" style="font-family:'Pretendard';">프리텐다드</option>
+          <option value="&quot;Freesentation&quot;, sans-serif" style="font-family:'Freesentation';">프리젠테이션</option>
+          <option value="&quot;Paperlogy&quot;, sans-serif" style="font-family:'Paperlogy';">페이퍼로지</option>
         </select>
       </div>
       <div class="field"><label>이름 굵기</label>
@@ -695,8 +686,22 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
         </select>
       </div>
       <div class="field"><label>이름 색</label><input type="color" id="cs-name-color" value="#1e2430" style="width:56px;padding:2px;height:34px;"></div>
+      <div class="field"><label>이름 배치</label>
+        <select id="cs-name-align">
+          <option value="right">우측 정렬(하단)</option>
+          <option value="left">좌측 정렬(하단)</option>
+          <option value="vertical">세로쓰기(대표 이미지 옆)</option>
+        </select>
+      </div>
+      <div class="field" style="flex:1 1 220px;min-width:180px;">
+        <label>미리보기</label>
+        <div id="cs-name-preview" style="border:1px solid var(--line);border-radius:8px;padding:8px 14px;background:var(--bg);min-height:56px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;">
+          <div id="cs-name-preview-catch" style="font-size:12px;color:#6b7280;margin-bottom:2px;white-space:nowrap;"></div>
+          <div id="cs-name-preview-name" style="font-size:24px;line-height:1.25;white-space:nowrap;"></div>
+        </div>
+      </div>
     </div>
-    <p class="footnote" style="margin:2px 0 4px;">대표 이미지 비율은 찌그러지지 않고 항상 유지됩니다. 한국어·일본어를 섞어 써도 각각 어울리는 서체로 렌더링됩니다(일본어는 항상 별도 서체). 세로쓰기는 대표 이미지가 있을 때만 적용되며, 없으면 우측 정렬로 대신 표시됩니다. 이름 글씨체 중 프리텐다드·프리젠테이션·페이퍼로지는 파일 안에 내장돼 있어 시스템 설치 여부와 무관하게 항상 정확히 표시되고, Kopub돋움·Kopub바탕은 해당 폰트가 시스템에 설치돼 있어야 적용됩니다.</p>
+    <p class="footnote" style="margin:2px 0 4px;">대표 이미지 비율은 찌그러지지 않고 항상 유지됩니다. 한국어·일본어를 섞어 써도 각각 어울리는 서체로 렌더링됩니다(일본어는 항상 별도 서체). 세로쓰기는 대표 이미지가 있을 때만 적용되며, 없으면 우측 정렬로 대신 표시됩니다. 이름 글씨체 3종은 모두 파일 안에 내장돼 있어 시스템 설치 여부와 무관하게 항상 정확히 표시됩니다.</p>
 
     <div class="drop" id="cs-drop" style="margin-top:8px;">같은 캐릭터의 표정 변형 이미지 여러 장
       <input type="file" id="cs-file" accept=".png,.jpg,.jpeg,.webp" multiple class="hidden">
@@ -20601,6 +20606,51 @@ var TabLog = (function(){
     $('#cs-name').placeholder = '예: ' + ex.name;
     $('#cs-catch').placeholder = '예: ' + ex.catch;
   })();
+
+  // 실제로 "생성" 버튼을 눌러 캔버스를 다시 그리지 않아도, 이름/캐치프레이즈·배치·글씨체·굵기·색을
+  // 바꿀 때마다 바로 결과를 짐작할 수 있도록 DOM으로 간이 미리보기를 그려준다(실제 렌더링은
+  // 캔버스 쪽 코드가 따로 담당하며, 여기는 순수히 눈으로 확인하기 위한 것).
+  function updateNamePreview(){
+    var nameVal = $('#cs-name').value.trim() || $('#cs-name').placeholder.replace('예: ', '');
+    var catchVal = $('#cs-catch').value.trim() || $('#cs-catch').placeholder.replace('예: ', '');
+    var align = $('#cs-name-align').value || 'right';
+    var font = $('#cs-name-font').value;
+    var weight = $('#cs-name-weight').value || '800';
+    var color = $('#cs-name-color').value || '#1e2430';
+    var wrap = $('#cs-name-preview');
+    var nameEl = $('#cs-name-preview-name');
+    var catchEl = $('#cs-name-preview-catch');
+    nameEl.textContent = nameVal;
+    catchEl.textContent = catchVal;
+    nameEl.style.fontFamily = font || 'var(--sans)';
+    nameEl.style.fontWeight = weight;
+    nameEl.style.color = color;
+    if(align === 'vertical'){
+      wrap.style.flexDirection = 'row';
+      wrap.style.alignItems = 'center';
+      wrap.style.justifyContent = 'center';
+      wrap.style.gap = '10px';
+      nameEl.style.writingMode = 'vertical-rl';
+      nameEl.style.textOrientation = 'upright';
+      nameEl.style.whiteSpace = 'normal';
+      catchEl.style.writingMode = 'horizontal-tb';
+      catchEl.style.textAlign = 'center';
+    } else {
+      wrap.style.flexDirection = 'column';
+      wrap.style.alignItems = align === 'left' ? 'flex-start' : 'flex-end';
+      wrap.style.justifyContent = 'center';
+      wrap.style.gap = '0';
+      nameEl.style.writingMode = 'horizontal-tb';
+      nameEl.style.textOrientation = 'mixed';
+      nameEl.style.whiteSpace = 'nowrap';
+      catchEl.style.writingMode = 'horizontal-tb';
+      catchEl.style.textAlign = align === 'left' ? 'left' : 'right';
+    }
+  }
+  ['cs-name','cs-catch'].forEach(function(id){ $('#'+id).addEventListener('input', updateNamePreview); });
+  ['cs-name-align','cs-name-font','cs-name-weight'].forEach(function(id){ $('#'+id).addEventListener('change', updateNamePreview); });
+  $('#cs-name-color').addEventListener('input', updateNamePreview);
+  updateNamePreview();
 
   // 대표 이미지(스탠딩)와 표정 이미지가 둘 다 준비되면, 대표 이미지 비율로 정해지는 패널 높이에
   // 표정 그리드 높이가 최대한 맞도록 열 개수를 자동으로 추천한다 — 한쪽만 길게 남아 여백이
