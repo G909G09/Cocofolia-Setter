@@ -12,7 +12,6 @@
   --danger:#e35b5b; --ok:#2ea36b; --chip:#eef0ff;
   --radius:10px; --mono:ui-monospace,Consolas,monospace;
   --sans:"Pretendard","Malgun Gothic","Apple SD Gothic Neo",system-ui,-apple-system,sans-serif;
-  --sans-jp:"Noto Sans JP","Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","MS PGothic",sans-serif;
 }
 *{box-sizing:border-box;}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5;}
@@ -20333,44 +20332,18 @@ var TabLog = (function(){
     dragFromIdx = null;
   });
 
-  /* ── 한/일 혼용 텍스트 렌더링 (한국어: Pretendard, 일본어: Noto Sans JP 계열) ── */
+  /* ── 텍스트 렌더링(전부 프리텐다드로 통일) ── */
   var FONT_KR = getComputedStyle(document.documentElement).getPropertyValue('--sans').trim() || 'sans-serif';
-  var FONT_JP = getComputedStyle(document.documentElement).getPropertyValue('--sans-jp').trim() || 'sans-serif';
-  function isJPChar(ch){
-    var cp = ch.codePointAt(0);
-    return (cp>=0x3040 && cp<=0x30FF)   // 히라가나/가타카나
-        || (cp>=0x31F0 && cp<=0x31FF)   // 가타카나 확장
-        || (cp>=0xFF66 && cp<=0xFF9D)   // 반각 가타카나
-        || (cp>=0x4E00 && cp<=0x9FFF)   // CJK 통합 한자
-        || (cp>=0x3400 && cp<=0x4DBF);  // CJK 확장 A
-  }
-  function splitRuns(text){
-    var runs = [], cur = '', curJP = null;
-    for(var i=0;i<text.length;i++){
-      var ch = text[i];
-      var jp = isJPChar(ch);
-      if(curJP===null){ curJP = jp; cur = ch; }
-      else if(jp===curJP){ cur += ch; }
-      else { runs.push({text:cur, jp:curJP}); cur = ch; curJP = jp; }
-    }
-    if(cur) runs.push({text:cur, jp:curJP});
-    return runs;
-  }
-  function fontStr(px, weight, jp){ return (weight?weight+' ':'')+px+'px '+(jp?FONT_JP:FONT_KR); }
+  function fontStr(px, weight){ return (weight?weight+' ':'')+px+'px '+FONT_KR; }
   function measureMixedText(ctx, text, px, weight){
-    var total = 0;
-    splitRuns(text).forEach(function(r){ ctx.font = fontStr(px, weight, r.jp); total += ctx.measureText(r.text).width; });
-    return total;
+    ctx.font = fontStr(px, weight);
+    return ctx.measureText(text).width;
   }
   function drawMixedTextCentered(ctx, text, cx, y, px, weight, color){
-    var runs = splitRuns(text);
-    var x = cx - measureMixedText(ctx, text, px, weight)/2;
+    ctx.font = fontStr(px, weight);
+    var x = cx - ctx.measureText(text).width/2;
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = color;
-    runs.forEach(function(r){
-      ctx.font = fontStr(px, weight, r.jp);
-      ctx.fillText(r.text, x, y);
-      x += ctx.measureText(r.text).width;
-    });
+    ctx.fillText(text, x, y);
   }
   function fitFontSize(ctx, text, maxWidth, basePx, weight, minPx){
     var px = basePx;
@@ -20401,16 +20374,15 @@ var TabLog = (function(){
   }
   // 글자 사이 간격(letterSpacing)을 준 우측 정렬 텍스트 — 로고 스타일 제목 전용, 일반 라벨에는 쓰지 않는다
   function drawMixedTextRightSpaced(ctx, text, rightX, y, px, weight, color, spacing){
-    var chars = [];
-    splitRuns(text).forEach(function(r){ for(var i=0;i<r.text.length;i++) chars.push({ch:r.text[i], jp:r.jp}); });
+    ctx.font = fontStr(px, weight);
+    var chars = text.split('');
     var total = 0;
-    chars.forEach(function(c, idx){ ctx.font = fontStr(px, weight, c.jp); total += ctx.measureText(c.ch).width + (idx<chars.length-1 ? spacing : 0); });
+    chars.forEach(function(ch, idx){ total += ctx.measureText(ch).width + (idx<chars.length-1 ? spacing : 0); });
     var x = rightX - total;
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = color;
-    chars.forEach(function(c, idx){
-      ctx.font = fontStr(px, weight, c.jp);
-      ctx.fillText(c.ch, x, y);
-      x += ctx.measureText(c.ch).width + spacing;
+    chars.forEach(function(ch){
+      ctx.fillText(ch, x, y);
+      x += ctx.measureText(ch).width + spacing;
     });
     return total;
   }
