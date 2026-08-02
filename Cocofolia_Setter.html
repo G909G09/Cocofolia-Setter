@@ -651,6 +651,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     </div>
     <div class="info-box" id="sg-status">불러오는 중...</div>
     <div id="sg-list" style="margin-top:10px;display:flex;flex-direction:column;gap:8px;"></div>
+    <div id="sg-more-note" style="margin-top:8px;font-size:12px;color:var(--sub);"></div>
   </div>
 </section>
 
@@ -19748,7 +19749,7 @@ var TabLog = (function(){
     var matches = [];
     STATS.forEach(function(s){
       var aliases = s.aliases.slice().sort(function(a,b){ return b.length-a.length; }).map(esc).join('|');
-      var re = new RegExp('('+aliases+')(\\s*[:=]?\\s*)(\\d{1,2})(?!\\d)', 'g');
+      var re = new RegExp('(?<![A-Za-z0-9가-힣])('+aliases+')(\\s*[:=]?\\s*)(\\d{1,2})(?!\\d)', 'g');
       text = text.replace(re, function(m, label, sep, num){
         var n = parseInt(num, 10);
         if(n < 1 || n > 21) return m;
@@ -20849,6 +20850,17 @@ var TabLog = (function(){
     });
   }
 
+  function uniqueCfLabel(label, usedLabels){
+    var candidate = label;
+    var n = 2;
+    while(usedLabels.indexOf(candidate) !== -1){
+      candidate = label + '_' + n;
+      n++;
+    }
+    usedLabels.push(candidate);
+    return candidate;
+  }
+
   function loadCfFiles(files){
     Promise.all(files.map(function(f){
       return loadImageElement(f).then(function(img){
@@ -20857,6 +20869,10 @@ var TabLog = (function(){
         return {file:f, img:img, label:label, isMain:false};
       });
     })).then(function(loaded){
+      // 같은 파일명(라벨)이 여러 장 올라오면 코코포리아 쪽에서 표정을 구분할 수 없으므로,
+      // 기존에 배정된 라벨과 겹치지 않도록 숫자 접미사를 붙여 중복을 없앤다.
+      var usedLabels = cfItems.map(function(it){ return it.label; });
+      loaded.forEach(function(it){ it.label = uniqueCfLabel(it.label, usedLabels); });
       var wasEmpty = cfItems.length===0;
       cfItems = cfItems.concat(loaded);
       if(wasEmpty && cfItems.length) cfItems[0].isMain = true;
@@ -20922,10 +20938,13 @@ var TabLog = (function(){
   function extOf(filename, mimeType){
     var m = /\.([a-zA-Z0-9]+)$/.exec(filename);
     if(m) return '.'+m[1].toLowerCase();
+    if(mimeType==='image/png') return '.png';
     if(mimeType==='image/gif') return '.gif';
     if(mimeType==='image/jpeg') return '.jpeg';
     if(mimeType==='image/webp') return '.webp';
-    return '.png';
+    // 파일명에 확장자가 전혀 없고 MIME 타입도 알 수 없는 경우에만 중립 확장자로 대체한다
+    // (원래 형식을 모르는 채 .png로 단정해 확장자를 잘못 붙이는 것을 방지).
+    return '.bin';
   }
   function fallbackHash(buf){
     // SubtleCrypto를 못 쓰는 환경을 위한 대체 해시 — 진짜 SHA-256은 아니지만 파일명이 서로
@@ -21046,6 +21065,7 @@ var TabLog = (function(){
 (function(){
   var OWNER = 'G909G09', REPO = 'Cocofolia-Setter', LABEL = '건의';
   var loaded = false;
+  var PER_PAGE = 100;
 
   $('#sg-new').addEventListener('click', function(){
     var body = '어떤 기능/개선을 건의하고 싶으신가요?\n\n(내용을 적어주세요. 스크린샷이 있으면 이 창에 끌어다 놓으면 자동으로 첨부됩니다.)';
@@ -21101,8 +21121,9 @@ var TabLog = (function(){
   function load(){
     $('#sg-status').textContent = '불러오는 중...';
     $('#sg-list').innerHTML = '';
+    $('#sg-more-note').innerHTML = '';
     var url = 'https://api.github.com/repos/'+OWNER+'/'+REPO+'/issues'
-      + '?labels=' + encodeURIComponent(LABEL) + '&state=all&per_page=100&sort=created&direction=desc';
+      + '?labels=' + encodeURIComponent(LABEL) + '&state=all&per_page=' + PER_PAGE + '&sort=created&direction=desc';
     fetch(url).then(function(res){
       if(!res.ok){
         if(res.status === 403) throw new Error('GitHub API 요청 한도를 초과했습니다. 잠시 후 다시 시도해주세요.');
@@ -21110,6 +21131,16 @@ var TabLog = (function(){
       }
       return res.json();
     }).then(function(issues){
+      // per_page 요청 개수와 정확히 같으면 더 있을 수 있다는 뜻이므로(페이지네이션 미구현) 안내 링크를 표시.
+      if(issues.length === PER_PAGE){
+        var note = $('#sg-more-note');
+        note.innerHTML = '';
+        var link = document.createElement('a');
+        link.href = 'https://github.com/'+OWNER+'/'+REPO+'/issues?q=' + encodeURIComponent('is:issue label:'+LABEL);
+        link.target = '_blank'; link.rel = 'noopener';
+        link.textContent = PER_PAGE+'개까지만 표시됩니다. 전체 목록은 GitHub에서 확인하세요';
+        note.appendChild(link);
+      }
       render(issues.filter(function(i){ return !i.pull_request; })); // PR은 이슈 목록에 섞여 나오므로 제외
     }).catch(function(err){
       $('#sg-status').textContent = '불러오기 실패: '+err.message+' (인터넷 연결을 확인해주세요)';
