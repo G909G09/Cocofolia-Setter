@@ -20584,7 +20584,7 @@ var TabLog = (function(){
         downloadBlob(blob, safeName+'_room.zip');
 
         $('#cf-result-info').classList.remove('hidden');
-        $('#cf-result-info').textContent = '생성 완료: "'+name+'", 표정 '+faces.length+'개. 코코포리아 룸에서 "데이터 가져오기"로 이 zip을 불러온 뒤 캐릭터를 옮기세요.';
+        $('#cf-result-info').textContent = '생성 완료: "'+name+'", 표정 '+faces.length+'개. 코코포리아 룸에 드래그 앤 드롭으로 캐릭터를 생성하시면 됩니다.';
       }catch(e){
         alert('생성 실패: '+e.message);
       }
