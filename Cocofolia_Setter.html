@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="코코포리아(CCFOLIA) TRPG 세션용 컷인 제작·로그 백업·CoC 유틸리티·캐릭터 스탠딩 도구를 한 파일로 제공하는 오프라인 도구입니다.">
 <title>코코세터</title>
 <style>
 :root{
@@ -240,32 +241,32 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <header class="app-head">
   <h1 id="homeLogo" style="cursor:pointer;" title="홈으로">코코세터</h1>
   <nav class="cat-nav" id="catNav">
-    <button class="home-btn active" id="homeBtn">홈</button>
+    <button class="home-btn active" id="homeBtn" role="tab" aria-selected="true" aria-controls="tab-home">홈</button>
     <button class="cat-btn" data-cat="image">이미지·애니메이션</button>
     <button class="cat-btn" data-cat="log">로그 백업</button>
     <button class="cat-btn" data-cat="coc">CoC 유틸리티</button>
     <button class="cat-btn" data-cat="char">캐릭터·스탠딩</button>
     <button class="cat-btn" data-cat="etc">기타</button>
   </nav>
-  <nav class="tabs" id="subTabs">
-    <button class="tab-btn" data-target="tab-mp3" data-cat="image">1. 컷인 커터</button>
-    <button class="tab-btn" data-target="tab-g2a" data-cat="image">2. GIF APNG 변환기</button>
-    <button class="tab-btn" data-target="tab-fx" data-cat="image">3. PNG 이펙터</button>
-    <button class="tab-btn" data-target="tab-log" data-cat="log">4. html용 로그 백업</button>
-    <button class="tab-btn" data-target="tab-book" data-cat="log">5. 로그북용 로그 백업</button>
-    <button class="tab-btn" data-target="tab-glossary" data-cat="coc">6. CoC 용어 변환기</button>
-    <button class="tab-btn" data-target="tab-edition" data-cat="coc">7. CoC 6판-7판 수치 변환기</button>
-    <button class="tab-btn" data-target="tab-charsheet" data-cat="coc">12. CoC 캐릭터 시트 메이커</button>
-    <button class="tab-btn" data-target="tab-standing" data-cat="char">8. 스탠딩 일괄 재단</button>
-    <button class="tab-btn" data-target="tab-cheatsheet" data-cat="char">9. 컨닝 페이퍼 메이커</button>
-    <button class="tab-btn" data-target="tab-charfile" data-cat="char">10. 캐릭터 룸파일 생성기</button>
-    <button class="tab-btn" data-target="tab-suggest" data-cat="etc">11. 건의함</button>
+  <nav class="tabs" id="subTabs" role="tablist">
+    <button class="tab-btn" data-target="tab-mp3" data-cat="image" id="tabbtn-mp3" role="tab" aria-selected="false" aria-controls="tab-mp3">1. 컷인 커터</button>
+    <button class="tab-btn" data-target="tab-g2a" data-cat="image" id="tabbtn-g2a" role="tab" aria-selected="false" aria-controls="tab-g2a">2. GIF APNG 변환기</button>
+    <button class="tab-btn" data-target="tab-fx" data-cat="image" id="tabbtn-fx" role="tab" aria-selected="false" aria-controls="tab-fx">3. PNG 이펙터</button>
+    <button class="tab-btn" data-target="tab-log" data-cat="log" id="tabbtn-log" role="tab" aria-selected="false" aria-controls="tab-log">4. html용 로그 백업</button>
+    <button class="tab-btn" data-target="tab-book" data-cat="log" id="tabbtn-book" role="tab" aria-selected="false" aria-controls="tab-book">5. 로그북용 로그 백업</button>
+    <button class="tab-btn" data-target="tab-glossary" data-cat="coc" id="tabbtn-glossary" role="tab" aria-selected="false" aria-controls="tab-glossary">6. CoC 용어 변환기</button>
+    <button class="tab-btn" data-target="tab-edition" data-cat="coc" id="tabbtn-edition" role="tab" aria-selected="false" aria-controls="tab-edition">7. CoC 6판-7판 수치 변환기</button>
+    <button class="tab-btn" data-target="tab-charsheet" data-cat="coc" id="tabbtn-charsheet" role="tab" aria-selected="false" aria-controls="tab-charsheet">12. CoC 캐릭터 시트 메이커</button>
+    <button class="tab-btn" data-target="tab-standing" data-cat="char" id="tabbtn-standing" role="tab" aria-selected="false" aria-controls="tab-standing">8. 스탠딩 일괄 재단</button>
+    <button class="tab-btn" data-target="tab-cheatsheet" data-cat="char" id="tabbtn-cheatsheet" role="tab" aria-selected="false" aria-controls="tab-cheatsheet">9. 컨닝 페이퍼 메이커</button>
+    <button class="tab-btn" data-target="tab-charfile" data-cat="char" id="tabbtn-charfile" role="tab" aria-selected="false" aria-controls="tab-charfile">10. 캐릭터 룸파일 생성기</button>
+    <button class="tab-btn" data-target="tab-suggest" data-cat="etc" id="tabbtn-suggest" role="tab" aria-selected="false" aria-controls="tab-suggest">11. 건의함</button>
   </nav>
 </header>
 <main>
 
 <!-- ===================== 홈 ===================== -->
-<section id="tab-home" class="tab-panel active">
+<section id="tab-home" class="tab-panel active" role="tabpanel" aria-labelledby="homeBtn">
   <div class="card">
     <h2>이거 뭐 하는 툴이냐</h2>
     <p class="desc">코코포리아 ORPG 세션 준비에 필요한 컷인 제작·로그 백업·캐릭터 관리 도구를 한 파일에 모은 오프라인 툴킷입니다. 개인적으로 모아놓고 빠르게 작업하기 위해 별 관계 없는 기능들도 많이 더해놨습니다.</p>
@@ -291,7 +292,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 </section>
 
 <!-- ===================== TAB 1 ===================== -->
-<section id="tab-mp3" class="tab-panel">
+<section id="tab-mp3" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-mp3">
   <div class="card">
     <h2>다이스 컷인용 무음 MP3 생성</h2>
     <p class="desc">컷인 이미지를 올리면 재생 길이를 감지해 같은 길이의 무음 mp3를 만듭니다. 이미지·사운드 재생 시간을 맞출 때 사용하세요.</p>
@@ -329,7 +330,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 </section>
 
 <!-- ===================== TAB 2 ===================== -->
-<section id="tab-g2a" class="tab-panel">
+<section id="tab-g2a" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-g2a">
   <div class="card">
     <h2>GIF ↔ APNG 변환기</h2>
     <p class="desc">GIF↔APNG 상호 변환, MP4→APNG 변환을 지원합니다. 파일 형식은 자동 인식됩니다.</p>
@@ -363,7 +364,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 </section>
 
 <!-- ===================== TAB 3 ===================== -->
-<section id="tab-fx" class="tab-panel">
+<section id="tab-fx" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-fx">
   <div class="card">
     <h2>정지 PNG + 효과 → APNG</h2>
     <p class="desc">정지 이미지에 효과를 적용해 짧은 APNG를 만듭니다. 효과 슬롯 4개 중 원하는 만큼 골라 동시에 켤 수 있고, 고르면 바로 미리보기가 재생됩니다.</p>
@@ -398,7 +399,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 </section>
 
 <!-- ===================== TAB 4 ===================== -->
-<section id="tab-log" class="tab-panel">
+<section id="tab-log" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-log">
   <div class="card">
     <h2>html용 로그 백업</h2>
     <p class="desc">코코포리아 로그 출력 .html(권장) 또는 확장 프로그램 .json을 올리면 GM 서술과 대사를 구분해 정리합니다. 잡담 탭은 기본 제외됩니다.</p>
@@ -419,7 +420,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 </section>
 
 <!-- ===================== TAB 5 ===================== -->
-<section id="tab-book" class="tab-panel">
+<section id="tab-book" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-book">
   <div class="card">
     <h2>로그북용 로그 백업 (A5 국배판 · 한/글 매크로 연동)</h2>
     <p class="desc">로그 HTML을 분석해 <code>@@스타일@@본문</code> 마커 텍스트로 변환합니다. 준비된 <b>한/글 템플릿+매크로</b>에 붙여넣으면 실제 조판(대사/주사위/서술 스타일)이 자동으로 입혀집니다.</p>
@@ -452,7 +453,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <div class="card hidden" id="bk-outPanel">
     <h2>결과</h2>
     <div class="info-box" id="bk-stats" style="white-space:normal;"></div>
-    <div class="footnote" id="bk-warns" style="color:var(--danger);"></div>
+    <div class="footnote" id="bk-warns" style="color:var(--danger);" aria-live="polite"></div>
     <div class="footnote" id="bk-okmsg" style="color:var(--ok);"></div>
     <div class="chips" style="margin:10px 0;">
       <span class="chip bk-sv-Story">Story</span><span class="chip bk-sv-Storydice">Storydice</span>
@@ -470,7 +471,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 </section>
 
 <!-- ===================== TAB 6 ===================== -->
-<section id="tab-glossary" class="tab-panel">
+<section id="tab-glossary" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-glossary">
   <div class="card">
     <h2>CoC 용어 변환기 (번역 아님)</h2>
     <p class="desc">문장을 번역하진 않고, 텍스트 속 CoC 관련 일본어 용어를 국내 커뮤니티 표준 용어로 치환합니다.</p>
@@ -502,7 +503,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 </section>
 
 <!-- ===================== TAB 7 ===================== -->
-<section id="tab-edition" class="tab-panel">
+<section id="tab-edition" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-edition">
   <div class="card">
     <h2>CoC 6판 → 7판 수치 변환기</h2>
     <p class="desc">6판 능력치를 7판 스케일(×5)로 자동 변환합니다. Damage Bonus/Build 표는 룰북마다 수치가 달라 아래에 직접 입력해두면 계산에 활용됩니다.</p>
@@ -536,7 +537,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 </section>
 
 <!-- ===================== TAB 12 ===================== -->
-<section id="tab-charsheet" class="tab-panel">
+<section id="tab-charsheet" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-charsheet">
   <div class="card">
     <h2>CoC 캐릭터 시트 메이커</h2>
     <p class="desc">특성치·기능치를 입력하면 자동 계산 후 코코포리아 캐릭터 JSON까지 바로 만들어줍니다.</p>
@@ -605,7 +606,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 </section>
 
 <!-- ===================== TAB 8 ===================== -->
-<section id="tab-standing" class="tab-panel">
+<section id="tab-standing" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-standing">
   <div class="card">
     <h2>스탠딩 이미지 일괄 재단</h2>
     <p class="desc">여러 스탠딩 이미지를 한 번에 같은 비율로 맞춥니다. 크롭 또는 레터박스 중 선택하고, 이미지별로 세로 위치를 미세조정할 수 있습니다.</p>
@@ -649,7 +650,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 </section>
 
 <!-- ===================== TAB 9 ===================== -->
-<section id="tab-cheatsheet" class="tab-panel">
+<section id="tab-cheatsheet" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-cheatsheet">
   <div class="card">
     <h2>표정 카탈로그 컨닝 페이퍼 메이커</h2>
     <p class="desc">표정별 스탠딩 이미지를 올리고 첫 이미지에서 영역(예: 얼굴)을 드래그로 지정하면 나머지에도 같은 위치가 적용됩니다.</p>
@@ -658,7 +659,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="row" style="align-items:flex-start;">
       <div class="drop" id="cs-hero-drop" style="flex:0 0 130px;padding:10px;font-size:11px;min-height:60px;">
         <span id="cs-hero-label">대표 이미지</span>
-        <img id="cs-hero-preview" class="hidden" style="max-width:100%;max-height:80px;display:block;margin:4px auto 0;border-radius:6px;">
+        <img id="cs-hero-preview" class="hidden" alt="대표 이미지 미리보기" style="max-width:100%;max-height:80px;display:block;margin:4px auto 0;border-radius:6px;">
         <input type="file" id="cs-hero-file" accept=".png,.jpg,.jpeg,.webp" class="hidden">
       </div>
       <div style="flex:1 1 220px;display:flex;flex-direction:column;gap:8px;">
@@ -708,7 +709,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     </div>
     <div class="info-box" id="cs-info">이미지를 올리면 크롭 영역이 표시됩니다. 드래그로 위치를, 모서리로 크기를 조절하세요.</div>
     <div id="cs-cropper-wrap" class="hidden" style="position:relative;display:inline-block;max-width:100%;margin-top:10px;">
-      <img id="cs-cropper-img" style="max-width:100%;display:block;">
+      <img id="cs-cropper-img" alt="크롭 영역을 지정할 기준 이미지" style="max-width:100%;display:block;">
       <div id="cs-crop-box" style="position:absolute;border:2px solid var(--accent);background:rgba(91,107,245,.15);cursor:move;">
         <div class="cs-handle" data-dir="se" style="position:absolute;right:-6px;bottom:-6px;width:12px;height:12px;background:var(--accent);border-radius:2px;cursor:nwse-resize;"></div>
       </div>
@@ -743,7 +744,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 </section>
 
 <!-- ===================== TAB 10 ===================== -->
-<section id="tab-charfile" class="tab-panel">
+<section id="tab-charfile" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-charfile">
   <div class="card">
     <h2>코코포리아 캐릭터 룸파일 생성기</h2>
     <p class="desc">스탠딩 이미지 병합+스테이터스 채팅 팔레트가 기재된 캐릭터 1명의 zip 파일을 만듭니다.</p>
@@ -761,18 +762,18 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <p class="footnote" style="margin:2px 0 6px;">코코포리아 캐릭터 JSON을 붙여넣으면 이름·스탯·능력치·커맨드가 채워집니다(비워두면 스탠딩만 있는 캐릭터).</p>
     <div class="field" style="width:100%;"><textarea id="cf-status-json" rows="6" style="width:100%;" placeholder='{"kind":"character","data":{"name":"...","status":[...],"params":[...],"commands":"..."}}'></textarea></div>
     <div class="row"><button class="btn ghost" type="button" id="cf-status-parse">스테이터스 JSON 불러오기</button></div>
-    <div class="info-box" id="cf-status-info">스테이터스 JSON을 불러오면 확인 내용이 여기 표시됩니다.</div>
+    <div class="info-box" id="cf-status-info" aria-live="polite">스테이터스 JSON을 불러오면 확인 내용이 여기 표시됩니다.</div>
 
     <div class="row" style="margin-top:10px;">
       <button class="btn" id="cf-build" disabled>캐릭터 생성</button>
       <button class="btn ghost" id="cf-clear" disabled style="color:var(--danger);">전체 지우기</button>
     </div>
-    <div class="info-box hidden" id="cf-result-info"></div>
+    <div class="info-box hidden" id="cf-result-info" aria-live="polite"></div>
   </div>
 </section>
 
 <!-- ===================== TAB 11 ===================== -->
-<section id="tab-suggest" class="tab-panel">
+<section id="tab-suggest" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-suggest">
   <div class="card">
     <h2>건의함</h2>
     <p class="desc">기능 건의나 버그 제보를 남기면 GitHub 이슈로 기록되고 처리 상태를 여기서 확인할 수 있습니다. <b>인터넷 연결 필요</b>, 새 건의는 GitHub 계정이 있어야 합니다.</p>
@@ -783,8 +784,9 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="row" style="gap:14px;font-size:12px;color:var(--sub);margin:4px 0 2px;">
       <span>📥 접수됨</span><span>🔧 수정중</span><span>✅ 반영됨</span><span>⛔ 반영 안 됨</span>
     </div>
-    <div class="info-box" id="sg-status">불러오는 중...</div>
+    <div class="info-box" id="sg-status" aria-live="polite">불러오는 중...</div>
     <div id="sg-list" style="margin-top:10px;display:flex;flex-direction:column;gap:8px;"></div>
+    <div id="sg-more-note" style="margin-top:8px;font-size:12px;color:var(--sub);"></div>
   </div>
 </section>
 
@@ -17843,6 +17845,7 @@ function $all(sel, root){ return Array.from((root||document).querySelectorAll(se
 function clampInt(v,min,max){ return v<min?min:(v>max?max:v); }
 function baseName(name){ var i = name.lastIndexOf('.'); return i>=0? name.slice(0,i): name; }
 function fmtSec(ms){ return (ms/1000).toFixed(2)+'초'; }
+function escHtml(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
 function downloadBlob(blob, filename){
   var url = URL.createObjectURL(blob);
@@ -17850,6 +17853,25 @@ function downloadBlob(blob, filename){
   a.href = url; a.download = filename || 'download';
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(function(){ URL.revokeObjectURL(url); }, 15000);
+}
+
+// img/audio/video 태그의 src에 object URL을 넣을 때 쓰는 헬퍼. 같은 엘리먼트에 새 object URL을
+// 반복해서 넣는 경우(변환을 여러 번 다시 누르는 등) 이전 URL을 revoke하지 않으면 브라우저가 그
+// blob을 계속 메모리에 들고 있게 되므로, 마지막으로 부여한 URL을 기억해뒀다가 새로 넣기 전에 해제한다.
+function setBlobUrl(el, blobOrFile){
+  if(el._objUrl){ try{ URL.revokeObjectURL(el._objUrl); }catch(e){} }
+  var url = URL.createObjectURL(blobOrFile);
+  el._objUrl = url;
+  el.src = url;
+  return url;
+}
+
+function makeDropKeyboardAccessible(drop, input){
+  drop.setAttribute('tabindex', '0');
+  drop.setAttribute('role', 'button');
+  drop.addEventListener('keydown', function(e){
+    if(e.key==='Enter' || e.key===' '){ e.preventDefault(); input.click(); }
+  });
 }
 
 function setupDrop(dropId, inputId, onFile){
@@ -17867,6 +17889,7 @@ function setupDrop(dropId, inputId, onFile){
     input.value = '';
   });
   registerDropPaste(drop, function(files){ onFile(files[0]); });
+  makeDropKeyboardAccessible(drop, input);
 }
 
 function setupMultiDrop(dropId, inputId, onFiles){
@@ -17884,6 +17907,7 @@ function setupMultiDrop(dropId, inputId, onFiles){
     input.value = '';
   });
   registerDropPaste(drop, onFiles);
+  makeDropKeyboardAccessible(drop, input);
 }
 
 /* ============ 클립보드 붙여넣기(Ctrl+V) 지원 ============
@@ -17958,26 +17982,44 @@ function showCategoryTabs(catId){
 }
 showCategoryTabs(null); // 처음엔 홈이 열려있어 어느 카테고리도 선택되지 않은 상태로 시작
 
+// 마지막으로 보고 있던 탭을 기억해뒀다가 다음에 열 때 그 탭을 바로 보여준다(첫 방문이거나
+// 저장된 탭이 더 이상 없으면 기본값인 홈 화면을 그대로 보여준다).
+var LAST_TAB_LS_KEY = 'cocofolia_setter_last_tab';
+
 function goHome(){
-  $all('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  $all('.tab-btn').forEach(function(b){ b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
   $all('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
   $('#homeBtn').classList.add('active');
+  $('#homeBtn').setAttribute('aria-selected', 'true');
   document.getElementById('tab-home').classList.add('active');
   showCategoryTabs(null);
+  try{ localStorage.setItem(LAST_TAB_LS_KEY, 'home'); }catch(e){}
 }
 $('#homeBtn').addEventListener('click', goHome);
 $('#homeLogo').addEventListener('click', goHome);
 
 $all('.tab-btn').forEach(function(btn){
   btn.addEventListener('click', function(){
-    $all('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    $all('.tab-btn').forEach(function(b){ b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
     $all('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
     $('#homeBtn').classList.remove('active');
+    $('#homeBtn').setAttribute('aria-selected', 'false');
     btn.classList.add('active');
+    btn.setAttribute('aria-selected', 'true');
     document.getElementById(btn.dataset.target).classList.add('active');
     showCategoryTabs(btn.dataset.cat);
+    try{ localStorage.setItem(LAST_TAB_LS_KEY, btn.dataset.target); }catch(e){}
   });
 });
+
+// 페이지를 열었을 때, 저장된 마지막 탭이 있으면(그리고 홈이 아니면) 그 탭을 바로 펼친다.
+(function(){
+  var last;
+  try{ last = localStorage.getItem(LAST_TAB_LS_KEY); }catch(e){ last = null; }
+  if(!last || last === 'home') return;
+  var btn = document.querySelector('.tab-btn[data-target="'+last+'"]');
+  if(btn) btn.click();
+})();
 
 // 카테고리 버튼에 마우스를 올리면(또는 클릭하면 — 터치 환경 대응) 해당 카테고리의 하위 탭이
 // 펼쳐지고, 마우스가 다른 곳으로 떠나도 마지막으로 본 카테고리 그대로 유지된다(실제 열려있는
@@ -18105,9 +18147,33 @@ function loadImageElement(file){
   return new Promise(function(resolve, reject){
     var url = URL.createObjectURL(file);
     var img = new Image();
+    // img.onerror는 Error가 아니라 Event 객체를 넘겨줘서 e.message가 없기 때문에, 그대로
+    // reject하면 호출부에서 "실패: undefined" 같은 의미 없는 메시지가 뜬다. 사람이 읽을 수
+    // 있는 메시지를 담은 Error로 감싸서 어느 탭에서든 원인을 알 수 있게 한다.
     img.onload = function(){ URL.revokeObjectURL(url); resolve(img); };
-    img.onerror = function(e){ URL.revokeObjectURL(url); reject(e); };
+    img.onerror = function(){
+      URL.revokeObjectURL(url);
+      reject(new Error('"'+(file&&file.name||'파일')+'"을(를) 이미지로 열 수 없습니다 (지원하지 않는 형식이거나 손상된 파일).'));
+    };
     img.src = url;
+  });
+}
+
+// 여러 이미지를 한꺼번에 업로드하는 탭(8/9/10번)에서 공용으로 쓰는 헬퍼. Promise.all은 하나만
+// 실패해도 전체가 그대로 reject되어 나머지 정상 파일까지 조용히 무시되므로(콘솔에만 에러가
+// 남고 화면은 아무 반응 없음), 파일별로 성공/실패를 따로 모아서 성공한 것만 쓰고 실패 목록은
+// 호출부가 안내할 수 있게 한다.
+function loadImagesTolerant(files, mapFn){
+  return Promise.all(files.map(function(f){
+    return loadImageElement(f).then(function(img){
+      return {ok:true, item: mapFn ? mapFn(f, img) : {file:f, img:img}};
+    }).catch(function(err){
+      return {ok:false, name:f.name, err:err};
+    });
+  })).then(function(results){
+    var loaded = results.filter(function(r){ return r.ok; }).map(function(r){ return r.item; });
+    var failed = results.filter(function(r){ return !r.ok; }).map(function(r){ return r.name; });
+    return {loaded:loaded, failed:failed};
   });
 }
 
@@ -18261,7 +18327,7 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
         var blob = generateSilentMp3(state.finalMs/1000, 44100, kbps);
         state.blob = blob;
         var audio = $('#mp3-audio');
-        audio.src = URL.createObjectURL(blob);
+        setBlobUrl(audio, blob);
         $('#mp3-result-row').classList.remove('hidden');
       }catch(e){
         alert('MP3 생성 실패: '+e.message);
@@ -18504,6 +18570,7 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     $('#g2a-result-row').classList.add('hidden');
     $('#g2a-mp4-opts').classList.add('hidden');
     convertBtn.disabled = true;
+    if(state.mp4Video && state.mp4Video._objUrl){ try{ URL.revokeObjectURL(state.mp4Video._objUrl); }catch(e){} }
     state.decoded = null; state.blob = null; state.mp4File = null; state.mp4Video = null;
     var isGif = /\.gif$/i.test(file.name);
     var isPng = /\.png$/i.test(file.name);
@@ -18520,7 +18587,7 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
       } else if(isMp4){
         var video = document.createElement('video');
         video.muted = true; video.playsInline = true; video.preload = 'auto';
-        video.src = URL.createObjectURL(file);
+        setBlobUrl(video, file);
         await new Promise(function(res, rej){
           video.onloadedmetadata = res;
           video.onerror = function(){ rej(new Error('영상을 불러오지 못했습니다. mp4(H.264) 파일인지 확인해주세요.')); };
@@ -18530,6 +18597,9 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
         $('#g2a-mp4-opts').classList.remove('hidden');
         $('#g2a-mp4-duration').placeholder = fmtSec(video.duration*1000)+' (끝까지)';
         info.textContent = 'MP4: '+video.videoWidth+'x'+video.videoHeight+', 길이 '+fmtSec(video.duration*1000)+'. 구간/FPS를 확인하고 변환을 누르세요.';
+        if(file.size > 200*1024*1024){
+          info.textContent += ' (참고: 파일이 '+(file.size/1024/1024).toFixed(0)+'MB로 커서 프레임 추출에 시간이 걸릴 수 있습니다.)';
+        }
         $('#g2a-filename').value = baseName(file.name)+'.png';
       } else {
         var d = await decodePngLike(file);
@@ -18556,7 +18626,7 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
         if(state.direction==='gif2apng'){
           var target = $('#g2a-autoresize').checked ? await fitApngToLimit(state.decoded, COCOFOLIA_TARGET_BYTES, function(msg){ info.textContent = msg; }) : {blob:encodeApng(state.decoded.frames, state.decoded.delays, 0), resized:false};
           state.blob = target.blob;
-          $('#g2a-preview').src = URL.createObjectURL(target.blob);
+          setBlobUrl($('#g2a-preview'), target.blob);
           info.textContent = 'GIF → APNG 완료: '+(target.w||state.decoded.width)+'x'+(target.h||state.decoded.height)+', 프레임 '+(target.frameCount||state.decoded.frames.length)+'개 (APNG 크기: '+(target.blob.size/1024).toFixed(1)+'KB'+(target.resized?', 코코포리아 기준에 맞춰 자동 축소됨':'')+(target.blob.size>COCOFOLIA_TARGET_BYTES?' — 1MB를 넘어 코코포리아에서 압축될 수 있습니다':'')+')';
         } else if(state.direction==='mp42apng'){
           var opts = {
@@ -18569,13 +18639,13 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
           var decoded = await extractMp4Frames(state.mp4Video, opts);
           var target2 = $('#g2a-autoresize').checked ? await fitApngToLimit(decoded, COCOFOLIA_TARGET_BYTES, function(msg){ info.textContent = msg; }) : {blob:encodeApng(decoded.frames, decoded.delays, 0), w:decoded.width, h:decoded.height, resized:false};
           state.blob = target2.blob;
-          $('#g2a-preview').src = URL.createObjectURL(target2.blob);
+          setBlobUrl($('#g2a-preview'), target2.blob);
           info.textContent = 'MP4 → APNG 완료: '+(target2.w||decoded.width)+'x'+(target2.h||decoded.height)+', 프레임 '+(target2.frameCount||decoded.frames.length)+'개 (APNG 크기: '+(target2.blob.size/1024).toFixed(1)+'KB'+(target2.resized?', 코코포리아 기준에 맞춰 자동 축소됨':'')+(target2.blob.size>COCOFOLIA_TARGET_BYTES?' — 1MB를 넘어 코코포리아에서 압축될 수 있습니다':'')+')';
         } else {
           var preserveAlpha = $('#g2a-alpha').checked;
           var gblob = await encodeGif(state.decoded.frames, state.decoded.delays, state.decoded.width, state.decoded.height, preserveAlpha);
           state.blob = gblob;
-          $('#g2a-preview').src = URL.createObjectURL(gblob);
+          setBlobUrl($('#g2a-preview'), gblob);
           info.textContent += ' 완료 (GIF 크기: '+(gblob.size/1024).toFixed(1)+'KB)';
         }
         $('#g2a-result-row').classList.remove('hidden');
@@ -19396,6 +19466,12 @@ var TabLog = (function(){
     try{
       var text = await file.text();
       var messages = LogParser.parse(text, isJson);
+      if(messages.length===0){
+        alert('인식된 대사/서술이 없습니다. 코코포리아 "로그 출력" 기능으로 받은 .html 파일(또는 확장 프로그램의 .json)이 맞는지 확인해주세요.');
+        $('#log-rawwrap').classList.add('hidden');
+        $('#log-controls').classList.add('hidden');
+        return;
+      }
       state.messages = messages;
       $('#log-rawpreview').textContent = JSON.stringify(messages.slice(0,20), null, 2);
       $('#log-rawwrap').classList.remove('hidden');
@@ -19418,7 +19494,7 @@ var TabLog = (function(){
     downloadBlob(new Blob([html],{type:'text/html'}), 'log_clean.html');
   });
 
-  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  var esc = escHtml;
 
   function buildStandaloneLogHtml(messages, gmName){
     var rows = messages.map(function(m){
@@ -19475,11 +19551,28 @@ var TabLog = (function(){
   setupDrop('book-drop','book-file', function(file){
     var r = new FileReader();
     r.onload = function(){
-      parseHtml(String(r.result));
+      try{
+        parseHtml(String(r.result));
+      }catch(e){
+        $('#bk-loadinfo').classList.remove('hidden');
+        $('#bk-loadinfo').textContent = '분석 실패: '+e.message+' (코코포리아 "로그 출력" 기능으로 받은 html 파일이 맞는지 확인해주세요.)';
+        $('#bk-cfgPanel').classList.add('hidden');
+        return;
+      }
       $('#bk-loadinfo').classList.remove('hidden');
+      if(rowsData.length===0){
+        $('#bk-loadinfo').textContent = '불러옴: '+file.name+' — 인식된 문단이 없습니다. 코코포리아 "로그 출력" 기능으로 받은 html 파일이 맞는지 확인해주세요.';
+        $('#bk-cfgPanel').classList.add('hidden');
+        return;
+      }
       $('#bk-loadinfo').textContent = '불러옴: '+file.name+' ('+rowsData.length+'개 문단 인식)';
       $('#bk-cfgPanel').classList.remove('hidden');
       $('#bk-outPanel').classList.add('hidden');
+    };
+    r.onerror = function(){
+      $('#bk-loadinfo').classList.remove('hidden');
+      $('#bk-loadinfo').textContent = '파일을 읽지 못했습니다: '+file.name;
+      $('#bk-cfgPanel').classList.add('hidden');
     };
     r.readAsText(file, 'utf-8');
   });
@@ -19638,7 +19731,7 @@ var TabLog = (function(){
     render(out, {other:nOther, dash:nDash, empty:nEmpty, incl:includeOther});
   }
 
-  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  var esc = escHtml;
 
   function render(out, del){
     var counts = {};
@@ -19813,6 +19906,8 @@ var TabLog = (function(){
           dict = data.map(function(d){ return {jp:d.jp||'', kr:d.kr||''}; });
           renderDictTable();
           saveGlossary();
+        } else {
+          alert('사전 파일 형식이 올바르지 않습니다 (jp/kr 항목이 담긴 배열이어야 합니다).');
         }
       }catch(e){ alert('사전 파일을 읽을 수 없습니다: '+e.message); }
     });
@@ -19886,7 +19981,7 @@ var TabLog = (function(){
     var matches = [];
     STATS.forEach(function(s){
       var aliases = s.aliases.slice().sort(function(a,b){ return b.length-a.length; }).map(esc).join('|');
-      var re = new RegExp('('+aliases+')(\\s*[:=]?\\s*)(\\d{1,2})(?!\\d)', 'g');
+      var re = new RegExp('(?<![A-Za-z0-9가-힣])('+aliases+')(\\s*[:=]?\\s*)(\\d{1,2})(?!\\d)', 'g');
       text = text.replace(re, function(m, label, sep, num){
         var n = parseInt(num, 10);
         if(n < 1 || n > 21) return m;
@@ -20298,6 +20393,7 @@ var TabLog = (function(){
       box.style.cssText = 'background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px;';
       var img = document.createElement('img');
       img.src = it.canvas.toDataURL('image/png');
+      img.alt = it.file.name+' 재단 결과 미리보기';
       img.className = 'preview';
       img.style.width = '100%';
       var name = document.createElement('div');
@@ -20336,12 +20432,10 @@ var TabLog = (function(){
   }
 
   setupMultiDrop('st-drop','st-file', function(files){
-    Promise.all(files.map(function(f){
-      return loadImageElement(f).then(function(img){ return {file:f, img:img, offset:0}; });
-    })).then(function(loaded){
-      items = items.concat(loaded);
-      $('#st-apply').disabled = false;
-      renderAll();
+    loadImagesTolerant(files, function(f, img){ return {file:f, img:img, offset:0}; }).then(function(res){
+      items = items.concat(res.loaded);
+      if(res.loaded.length){ $('#st-apply').disabled = false; renderAll(); }
+      if(res.failed.length) alert('다음 파일을 이미지로 열지 못해 건너뛰었습니다:\n'+res.failed.join('\n'));
     });
   });
 
@@ -20364,6 +20458,9 @@ var TabLog = (function(){
 
   $('#st-zip').addEventListener('click', function(){
     if(!window.JSZip){ alert('JSZip 라이브러리를 불러오지 못했습니다.'); return; }
+    var zipBtn = $('#st-zip');
+    var zipBtnOldText = zipBtn.textContent;
+    zipBtn.disabled = true;
     var zip = new JSZip();
     var pending = items.map(function(it){
       return new Promise(function(res){
@@ -20374,8 +20471,14 @@ var TabLog = (function(){
       });
     });
     Promise.all(pending).then(function(){
-      zip.generateAsync({type:'blob'}).then(function(blob){
+      zip.generateAsync({type:'blob'}, function(meta){
+        zipBtn.textContent = '압축 중... '+Math.round(meta.percent)+'%';
+      }).then(function(blob){
         downloadBlob(blob, 'standing_cut_batch.zip');
+        zipBtn.disabled = false; zipBtn.textContent = zipBtnOldText;
+      }).catch(function(e){
+        alert('ZIP 생성 실패: '+e.message);
+        zipBtn.disabled = false; zipBtn.textContent = zipBtnOldText;
       });
     });
   });
@@ -20723,11 +20826,13 @@ var TabLog = (function(){
     loadImageElement(f).then(function(img){
       heroImg = img;
       $('#cs-hero-label').textContent = '다시 선택하려면 클릭';
-      $('#cs-hero-preview').src = URL.createObjectURL(f);
+      setBlobUrl($('#cs-hero-preview'), f);
       $('#cs-hero-preview').classList.remove('hidden');
       if(autoSuggestCols()){
         $('#cs-info').textContent = '열 개수를 '+$('#cs-cols').value+'로 자동 추천했습니다(직접 변경 가능).';
       }
+    }).catch(function(e){
+      $('#cs-info').textContent = '대표 이미지를 불러오지 못했습니다: '+e.message;
     });
   });
 
@@ -20796,25 +20901,43 @@ var TabLog = (function(){
   window.addEventListener('mouseup', function(){ dragMode = null; });
   function clamp01(v,min,max){ return v<min?min:(v>max?max:v); }
 
+  // 위쪽 크롭 박스 미리보기는 items[0](첫 번째 카드) 기준으로 그려진다. 카드를 드래그해 순서를
+  // 바꾸거나 맨 앞 이미지를 "삭제"로 지우면 items[0]이 다른 이미지로 바뀔 수 있는데, 예전에는
+  // 이 경우 미리보기 이미지(cropImg)를 갱신하지 않아서 이미 지워졌거나 더 이상 첫 번째가 아닌
+  // 이미지가 화면에 계속 떠 있는 채로 크롭 영역만 조절하게 되는 문제가 있었다. items가 바뀔 때마다
+  // (buildLabelInputs에서) 항상 호출해 items[0]이 실제로 바뀐 경우에만 미리보기를 다시 로드한다.
+  var previewedItem = null, previewedUrl = null;
+  function updateCropPreviewImage(){
+    if(items.length===0){
+      previewedItem = null;
+      if(previewedUrl){ URL.revokeObjectURL(previewedUrl); previewedUrl = null; }
+      return;
+    }
+    if(items[0] === previewedItem) return;
+    previewedItem = items[0];
+    if(previewedUrl) URL.revokeObjectURL(previewedUrl);
+    previewedUrl = URL.createObjectURL(previewedItem.file);
+    cropImg.src = previewedUrl;
+    cropImg.onload = function(){ squareifyCropRect(); wrap.classList.remove('hidden'); syncCropBoxDom(); refreshAllThumbs(); };
+  }
+
   function loadCsFiles(files){
-    Promise.all(files.map(function(f){
-      return loadImageElement(f).then(function(img){ return {file:f, img:img, label:baseName(f.name)}; });
-    })).then(function(loaded){
-      var wasEmpty = items.length===0;
-      items = items.concat(loaded); // 기존 목록에 이어붙임 — 여러 번에 나눠 올려도 앞서 올린 이미지가 사라지지 않는다
-      if(wasEmpty){
-        cropImg.src = URL.createObjectURL(items[0].file);
-        cropImg.onload = function(){ squareifyCropRect(); wrap.classList.remove('hidden'); syncCropBoxDom(); };
-      }
+    loadImagesTolerant(files, function(f, img){ return {file:f, img:img, label:baseName(f.name)}; }).then(function(res){
+      items = items.concat(res.loaded); // 기존 목록에 이어붙임 — 여러 번에 나눠 올려도 앞서 올린 이미지가 사라지지 않는다
       buildLabelInputs();
-      $('#cs-build').disabled = false;
-      $('#cs-clear').disabled = false;
-      $('#cs-minimize-waste').disabled = false;
-      if(autoSuggestCols()){
-        $('#cs-info').textContent = items.length+'장 로드됨. 열 개수를 '+$('#cs-cols').value+'로 자동 추천했습니다(직접 변경 가능).';
+      $('#cs-build').disabled = items.length===0;
+      $('#cs-clear').disabled = items.length===0;
+      $('#cs-minimize-waste').disabled = items.length===0;
+      var msg;
+      if(items.length===0){
+        msg = '불러온 이미지가 없습니다.';
+      } else if(autoSuggestCols()){
+        msg = items.length+'장 로드됨. 열 개수를 '+$('#cs-cols').value+'로 자동 추천했습니다(직접 변경 가능).';
       } else {
-        $('#cs-info').textContent = items.length+'장 로드됨. 카드를 드래그해 순서를 바꿀 수 있습니다.';
+        msg = items.length+'장 로드됨. 카드를 드래그해 순서를 바꿀 수 있습니다.';
       }
+      if(res.failed.length) msg += ' (실패 '+res.failed.length+'장: '+res.failed.join(', ')+')';
+      $('#cs-info').textContent = msg;
     });
   }
   setupMultiDrop('cs-drop','cs-file', function(files){
@@ -20836,6 +20959,12 @@ var TabLog = (function(){
     $('#cs-minimize-waste').disabled = items.length===0;
     if(items.length===0){
       wrap.classList.add('hidden');
+      // 마지막 이미지를 삭제로 지운 경우, "전체 지우기"와 마찬가지로 이전에 생성해둔
+      // 결과물(다운로드 버튼·캔버스)이 화면에 그대로 남아있으면 안 된다.
+      $('#cs-download').classList.add('hidden');
+      var canvas = $('#cs-canvas');
+      canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
+      canvas.width = 0; canvas.height = 0;
       $('#cs-info').textContent = '이미지를 올리면 크롭 영역이 표시됩니다. 드래그로 위치를, 모서리로 크기를 조절하세요.';
     } else {
       $('#cs-info').textContent = items.length+'장 로드됨. 카드를 드래그해 순서를 바꿀 수 있습니다.';
@@ -20858,6 +20987,7 @@ var TabLog = (function(){
   });
 
   function buildLabelInputs(){
+    updateCropPreviewImage(); // items[0]이 바뀌었으면(삭제/순서 변경) 위쪽 크롭 미리보기 이미지도 함께 갱신
     var wrap2 = labelsWrap;
     wrap2.innerHTML = '';
     wrap2.appendChild(dragIndicator);
@@ -21017,7 +21147,11 @@ var TabLog = (function(){
   });
 
   $('#cs-download').addEventListener('click', function(){
-    $('#cs-canvas').toBlob(function(blob){ downloadBlob(blob, 'expression_cheatsheet.png'); });
+    // 캐릭터 이름이 입력돼 있으면 파일명에 반영한다 — 여러 캐릭터의 컨닝 페이퍼를 만들 때
+    // 전부 같은 파일명으로 덮어써지는 것을 방지.
+    var nameVal = $('#cs-name').value.trim();
+    var safeName = nameVal.replace(/[\\/:*?"<>|]/g, '_');
+    $('#cs-canvas').toBlob(function(blob){ downloadBlob(blob, (safeName ? safeName+'_' : '')+'expression_cheatsheet.png'); });
   });
 
   // 다른 탭(8번 스탠딩 재단)에서 처리된 이미지를 다시 다운로드/업로드하지 않고 바로 받기 위한 통로.
@@ -21087,20 +21221,35 @@ var TabLog = (function(){
     });
   }
 
+  function uniqueCfLabel(label, usedLabels){
+    var candidate = label;
+    var n = 2;
+    while(usedLabels.indexOf(candidate) !== -1){
+      candidate = label + '_' + n;
+      n++;
+    }
+    usedLabels.push(candidate);
+    return candidate;
+  }
+
   function loadCfFiles(files){
-    Promise.all(files.map(function(f){
-      return loadImageElement(f).then(function(img){
-        var base = baseName(f.name);
-        var label = base.charAt(0)==='@' ? base : ('@'+base);
-        return {file:f, img:img, label:label, isMain:false};
-      });
-    })).then(function(loaded){
+    loadImagesTolerant(files, function(f, img){
+      var base = baseName(f.name);
+      var label = base.charAt(0)==='@' ? base : ('@'+base);
+      return {file:f, img:img, label:label, isMain:false};
+    }).then(function(res){
       var wasEmpty = cfItems.length===0;
-      cfItems = cfItems.concat(loaded);
+      // 같은 파일명(라벨)이 여러 장 올라오면 코코포리아 쪽에서 표정을 구분할 수 없으므로,
+      // 기존에 배정된 라벨과 겹치지 않도록 숫자 접미사를 붙여 중복을 없앤다.
+      var usedLabels = cfItems.map(function(it){ return it.label; });
+      res.loaded.forEach(function(it){ it.label = uniqueCfLabel(it.label, usedLabels); });
+      cfItems = cfItems.concat(res.loaded);
       if(wasEmpty && cfItems.length) cfItems[0].isMain = true;
       buildCfLabelInputs();
       syncCfButtons();
-      $('#cf-info').textContent = cfItems.length+'장 로드됨. 라벨을 확인하고, 메인 아이콘으로 쓸 이미지를 골라주세요.';
+      var msg = cfItems.length+'장 로드됨. 라벨을 확인하고, 메인 아이콘으로 쓸 이미지를 골라주세요.';
+      if(res.failed.length) msg += ' (실패 '+res.failed.length+'장: '+res.failed.join(', ')+')';
+      $('#cf-info').textContent = msg;
     });
   }
   setupMultiDrop('cf-drop','cf-file', function(files){
@@ -21160,10 +21309,13 @@ var TabLog = (function(){
   function extOf(filename, mimeType){
     var m = /\.([a-zA-Z0-9]+)$/.exec(filename);
     if(m) return '.'+m[1].toLowerCase();
+    if(mimeType==='image/png') return '.png';
     if(mimeType==='image/gif') return '.gif';
     if(mimeType==='image/jpeg') return '.jpeg';
     if(mimeType==='image/webp') return '.webp';
-    return '.png';
+    // 파일명에 확장자가 전혀 없고 MIME 타입도 알 수 없는 경우에만 중립 확장자로 대체한다
+    // (원래 형식을 모르는 채 .png로 단정해 확장자를 잘못 붙이는 것을 방지).
+    return '.bin';
   }
   function fallbackHash(buf){
     // SubtleCrypto를 못 쓰는 환경을 위한 대체 해시 — 진짜 SHA-256은 아니지만 파일명이 서로
@@ -21336,11 +21488,13 @@ var TabLog = (function(){
     });
   }
 
+  var SG_PER_PAGE = 100;
   function load(){
     $('#sg-status').textContent = '불러오는 중...';
     $('#sg-list').innerHTML = '';
+    $('#sg-more-note').innerHTML = '';
     var url = 'https://api.github.com/repos/'+OWNER+'/'+REPO+'/issues'
-      + '?labels=' + encodeURIComponent(LABEL) + '&state=all&per_page=100&sort=created&direction=desc';
+      + '?labels=' + encodeURIComponent(LABEL) + '&state=all&per_page=' + SG_PER_PAGE + '&sort=created&direction=desc';
     fetch(url).then(function(res){
       if(!res.ok){
         if(res.status === 403) throw new Error('GitHub API 요청 한도를 초과했습니다. 잠시 후 다시 시도해주세요.');
@@ -21348,6 +21502,14 @@ var TabLog = (function(){
       }
       return res.json();
     }).then(function(issues){
+      // per_page 요청 개수와 정확히 같으면 더 있을 수 있다는 뜻이므로(페이지네이션 미구현) 안내 링크를 표시.
+      if(issues.length === SG_PER_PAGE){
+        var link = document.createElement('a');
+        link.href = 'https://github.com/'+OWNER+'/'+REPO+'/issues?q=' + encodeURIComponent('is:issue label:'+LABEL);
+        link.target = '_blank'; link.rel = 'noopener';
+        link.textContent = SG_PER_PAGE+'개까지만 표시됩니다. 전체 목록은 GitHub에서 확인하세요';
+        $('#sg-more-note').appendChild(link);
+      }
       render(issues.filter(function(i){ return !i.pull_request; })); // PR은 이슈 목록에 섞여 나오므로 제외
     }).catch(function(err){
       $('#sg-status').textContent = '불러오기 실패: '+err.message+' (인터넷 연결을 확인해주세요)';
