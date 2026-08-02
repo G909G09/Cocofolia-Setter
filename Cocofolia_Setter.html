@@ -22,6 +22,16 @@ nav.cat-nav{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:10px;padding-bott
 .cat-btn{border:none;background:transparent;color:var(--sub);padding:2px 0;font-size:14px;font-weight:800;cursor:pointer;border-bottom:2px solid transparent;}
 .cat-btn:hover{color:var(--ink);}
 .cat-btn.active{color:var(--ink);border-bottom-color:var(--accent);}
+.home-btn{border:none;background:transparent;color:var(--sub);padding:2px 0;font-size:14px;font-weight:800;cursor:pointer;border-bottom:2px solid transparent;}
+.home-btn:hover{color:var(--ink);}
+.home-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+.home-feature-card{position:relative;border:1px solid var(--line);border-radius:10px;padding:14px 10px;background:var(--bg);min-height:64px;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;cursor:pointer;transition:.15s;}
+.home-feature-card:hover{border-color:var(--accent);}
+.home-feature-name{font-size:13px;font-weight:700;color:var(--ink);}
+.home-feature-overlay{position:absolute;inset:0;background:var(--accent);color:var(--accent-ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:10px;opacity:0;pointer-events:none;transition:.15s;}
+.home-feature-overlay p{margin:0;font-size:11.5px;line-height:1.4;}
+.home-feature-overlay button{background:#fff;color:var(--accent);padding:5px 10px;font-size:11px;border-radius:6px;font-weight:700;border:none;cursor:pointer;}
+.home-feature-card:hover .home-feature-overlay{opacity:1;pointer-events:auto;}
 nav.tabs{display:flex;gap:6px;flex-wrap:wrap;}
 .tab-btn{border:1px solid var(--line);background:var(--bg);color:var(--sub);padding:8px 14px;border-radius:999px;font-size:13px;cursor:pointer;font-weight:600;transition:.15s;}
 .tab-btn:hover{color:var(--ink);}
@@ -81,6 +91,25 @@ img.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;backgr
 .chip{background:var(--chip);border-radius:999px;padding:4px 10px;font-size:12px;cursor:pointer;user-select:none;border:1px solid transparent;}
 .chip.off{opacity:.4;}
 .footnote{font-size:11px;color:var(--sub);margin-top:6px;}
+/* 12번 탭: CoC 캐릭터 시트 메이커 — 익숙한 종이 시트 느낌(검은 헤더 바 + 1/2·1/5 색상 셀)을 참고한 스타일 */
+.chs-box{border:1px solid #333;border-radius:6px;overflow:hidden;}
+.chs-box-head{background:#1e2430;color:#fff;font-weight:800;font-size:11.5px;text-align:center;padding:5px 6px;letter-spacing:.02em;}
+.chs-stat-cell{display:grid;grid-template-columns:52px 1fr 40px 40px;align-items:stretch;border-top:1px solid var(--line);}
+.chs-stat-cell:first-child{border-top:none;}
+.chs-stat-label{padding:4px 6px;font-size:12px;font-weight:700;background:var(--bg);display:flex;align-items:center;justify-content:center;text-align:center;}
+.chs-stat-input{width:100%;padding:4px;border:none;border-left:1px solid var(--line);text-align:center;background:var(--panel);color:var(--ink);font-size:13px;font-weight:700;}
+.chs-half-cell,.chs-fifth-cell{padding:4px;text-align:center;font-size:11px;border-left:1px solid var(--line);display:flex;align-items:center;justify-content:center;}
+.chs-half-cell{background:#dcedc8;color:#33691e;}
+.chs-fifth-cell{background:#e1d5f5;color:#4a148c;}
+.chs-derived-box .chs-box-body{display:flex;}
+.chs-derived-box .chs-box-body > div{flex:1;padding:6px;text-align:center;}
+.chs-derived-box .chs-box-body input{width:100%;border:none;background:transparent;color:var(--ink);text-align:center;font-size:15px;font-weight:800;}
+.chs-derived-box .chs-box-body label{display:block;font-size:10px;color:var(--sub);margin-bottom:2px;}
+#chs-skill-table td,#chs-skill-table th{border-left:1px solid var(--line);}
+#chs-skill-table td:first-child,#chs-skill-table th:first-child{border-left:none;}
+#chs-skill-table tbody tr:nth-child(even){background:var(--bg);}
+.chs-skill-half{background:#eef5e6;}
+.chs-skill-fifth{background:#f1eaf9;}
 details.raw summary{cursor:pointer;font-size:12px;color:var(--sub);}
 details.raw{margin-top:10px;}
 details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px;border-radius:8px;font-size:11px;}
@@ -109,16 +138,17 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 </head>
 <body>
 <header class="app-head">
-  <h1>코코세터</h1>
+  <h1 id="homeLogo" style="cursor:pointer;" title="홈으로">코코세터</h1>
   <nav class="cat-nav" id="catNav">
-    <button class="cat-btn active" data-cat="image">이미지·애니메이션</button>
+    <button class="home-btn active" id="homeBtn">홈</button>
+    <button class="cat-btn" data-cat="image">이미지·애니메이션</button>
     <button class="cat-btn" data-cat="log">로그 백업</button>
     <button class="cat-btn" data-cat="coc">CoC 유틸리티</button>
     <button class="cat-btn" data-cat="char">캐릭터·스탠딩</button>
     <button class="cat-btn" data-cat="etc">기타</button>
   </nav>
   <nav class="tabs" id="subTabs">
-    <button class="tab-btn active" data-target="tab-mp3" data-cat="image">1. 컷인 커터</button>
+    <button class="tab-btn" data-target="tab-mp3" data-cat="image">1. 컷인 커터</button>
     <button class="tab-btn" data-target="tab-g2a" data-cat="image">2. GIF APNG 변환기</button>
     <button class="tab-btn" data-target="tab-fx" data-cat="image">3. PNG 이펙터</button>
     <button class="tab-btn" data-target="tab-log" data-cat="log">4. html용 로그 백업</button>
@@ -134,8 +164,34 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 </header>
 <main>
 
+<!-- ===================== 홈 ===================== -->
+<section id="tab-home" class="tab-panel active">
+  <div class="card">
+    <h2>코코세터</h2>
+    <p class="desc">코코포리아 TRPG 세션 준비에 필요한 컷인 제작·로그 백업·캐릭터 관리 도구를 한 파일에 모은 오프라인 툴킷입니다.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin:0 0 8px;font-size:14px;">업데이트 로그</h3>
+    <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><b>2026-08-02</b> — CoC 캐릭터 시트 메이커(12번) 추가: 특성치·기능치 자동계산 + 코코포리아 캐릭터 JSON 생성, 10번 탭으로 바로 전송</li>
+      <li><b>2026-08-02</b> — 캐릭터 룸파일 생성기(10번) 추가: 스탠딩 이미지+스테이터스로 캐릭터 1명짜리 코코포리아 룸파일(zip) 생성</li>
+      <li><b>2026-08-02</b> — 탭이 많아져 카테고리(마우스오버 서브메뉴)로 정리, 제목을 "코코세터"로 축약</li>
+      <li><b>2026-08-01</b> — 컨닝 페이퍼 메이커: 순서 조정 카드에 실제 크롭 미리보기, 여백 최소화 자동 배치, 화질(1x/2x/3x) 옵션 추가</li>
+      <li><b>2026-08-01</b> — 스탠딩 일괄 재단: 여백 색상 피커 추가</li>
+      <li><b>2026-07-31</b> — GIF/APNG 변환기에 MP4→APNG 변환(크로마키 투명화, 코코포리아 용량 자동 맞춤) 추가</li>
+      <li><b>2026-07-31</b> — PNG 이펙터: 효과 4개 슬롯 + 실시간 미리보기로 개편, 신규 효과 5종 추가</li>
+      <li><b>2026-07-31</b> — 건의함(GitHub 이슈 연동) 탭 추가</li>
+      <li><b>2026-07-31</b> — CoC 용어 변환기 사전 검증 및 우선순위 개선</li>
+      <li><b>2026-07-30 이전</b> — 컷인 커터, 로그 백업(html/로그북), 스탠딩 재단, 컨닝 페이퍼 등 기본 기능 구축</li>
+    </ul>
+  </div>
+
+  <div class="card" id="home-feature-cats"></div>
+</section>
+
 <!-- ===================== TAB 1 ===================== -->
-<section id="tab-mp3" class="tab-panel active">
+<section id="tab-mp3" class="tab-panel">
   <div class="card">
     <h2>다이스 컷인용 무음 MP3 생성</h2>
     <p class="desc">컷인 이미지를 올리면 재생 길이를 감지해 같은 길이의 무음 mp3를 만듭니다. 이미지·사운드 재생 시간을 맞출 때 사용하세요.</p>
@@ -383,7 +439,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <section id="tab-charsheet" class="tab-panel">
   <div class="card">
     <h2>CoC 캐릭터 시트 메이커</h2>
-    <p class="desc">CoC 7판 캐릭터 시트 형식을 참고해, 특성치·파생 수치·기능치를 입력하면 자동으로 계산해주고 바로 코코포리아 캐릭터 JSON을 만들어줍니다.</p>
+    <p class="desc">특성치·기능치를 입력하면 자동 계산 후 코코포리아 캐릭터 JSON까지 바로 만들어줍니다.</p>
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">기본 정보</h3>
     <div class="row">
@@ -396,12 +452,15 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     </div>
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">특성치</h3>
-    <p class="footnote" style="margin:2px 0 6px;">각 특성치의 1/2·1/5 값이 자동으로 표시됩니다(어려운/극난 판정 참고용).</p>
-    <div id="chs-stat-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;"></div>
+    <p class="footnote" style="margin:2px 0 6px;">초록 칸은 1/2, 보라 칸은 1/5 값입니다(어려운/극난 판정 참고용) — 특성치를 바꾸면 자동으로 갱신됩니다.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;">
+      <div class="chs-box"><div id="chs-stat-grid-1"></div></div>
+      <div class="chs-box"><div id="chs-stat-grid-2"></div></div>
+    </div>
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">파생 수치 (자동계산)</h3>
-    <div class="row" id="chs-derived-row"></div>
-    <p class="footnote" id="chs-db-note" style="margin:2px 0 0;"></p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,140px));gap:10px;" id="chs-derived-row"></div>
+    <p class="footnote" id="chs-db-note" style="margin:6px 0 0;"></p>
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">기능점수 배분</h3>
     <div class="row">
@@ -428,8 +487,8 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     </div>
     <div style="max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:8px;">
       <table style="width:100%;border-collapse:collapse;font-size:12.5px;" id="chs-skill-table">
-        <thead style="position:sticky;top:0;background:var(--panel);"><tr style="text-align:left;color:var(--sub);">
-          <th style="padding:5px 6px;">기능명</th><th style="padding:5px 6px;width:70px;">기본</th><th style="padding:5px 6px;width:70px;">분배</th><th style="padding:5px 6px;width:70px;">총합</th><th style="width:50px;"></th>
+        <thead style="position:sticky;top:0;background:var(--panel);"><tr style="text-align:center;color:var(--sub);">
+          <th style="padding:5px 6px;width:26px;">성장</th><th style="padding:5px 6px;text-align:left;">기능명</th><th style="padding:5px 6px;width:55px;">기본</th><th style="padding:5px 6px;width:55px;">분배</th><th style="padding:5px 6px;width:55px;">총합</th><th class="chs-skill-half" style="padding:5px 6px;width:50px;">1/2</th><th class="chs-skill-fifth" style="padding:5px 6px;width:50px;">1/5</th><th style="width:50px;"></th>
         </tr></thead>
         <tbody id="chs-skill-body"></tbody>
       </table>
@@ -17754,17 +17813,28 @@ persistFormField('cs-gap', 'cocofolia_setter_cs_gap');
 persistFormField('cs-thumb', 'cocofolia_setter_cs_thumb');
 persistFormField('cs-scale', 'cocofolia_setter_cs_scale');
 
-/* ============ 탭 전환 + 카테고리(마우스 오버 시 하위 메뉴 전환) ============ */
+/* ============ 탭 전환 + 카테고리(마우스 오버 시 하위 메뉴 전환) + 홈 ============ */
 function showCategoryTabs(catId){
   $all('.tab-btn').forEach(function(b){ b.classList.toggle('cat-hidden', b.dataset.cat !== catId); });
   $all('.cat-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.cat === catId); });
 }
-showCategoryTabs('image');
+showCategoryTabs(null); // 처음엔 홈이 열려있어 어느 카테고리도 선택되지 않은 상태로 시작
+
+function goHome(){
+  $all('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  $all('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+  $('#homeBtn').classList.add('active');
+  document.getElementById('tab-home').classList.add('active');
+  showCategoryTabs(null);
+}
+$('#homeBtn').addEventListener('click', goHome);
+$('#homeLogo').addEventListener('click', goHome);
 
 $all('.tab-btn').forEach(function(btn){
   btn.addEventListener('click', function(){
     $all('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
     $all('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+    $('#homeBtn').classList.remove('active');
     btn.classList.add('active');
     document.getElementById(btn.dataset.target).classList.add('active');
     showCategoryTabs(btn.dataset.cat);
@@ -17778,6 +17848,61 @@ $all('.cat-btn').forEach(function(btn){
   btn.addEventListener('mouseenter', function(){ showCategoryTabs(btn.dataset.cat); });
   btn.addEventListener('click', function(){ showCategoryTabs(btn.dataset.cat); });
 });
+
+// ---- 홈 화면: 카테고리별 기능 블록(마우스 오버 시 한줄 설명 + 바로가기) ----
+(function(){
+  var TAB_DESCRIPTIONS = {
+    'tab-mp3': '컷인 이미지 길이에 맞춰 무음 mp3를 만듭니다.',
+    'tab-g2a': 'GIF↔APNG 상호 변환, MP4→APNG 변환을 지원합니다.',
+    'tab-fx': '정지 이미지에 효과를 입혀 짧은 연출용 APNG를 만듭니다.',
+    'tab-log': '코코포리아 로그를 대본집처럼 정리합니다.',
+    'tab-book': '로그를 인쇄용 로그북 조판 마커 텍스트로 변환합니다.',
+    'tab-glossary': 'CoC 관련 일본어 용어를 국내 표준 용어로 치환합니다.',
+    'tab-edition': 'CoC 6판 능력치를 7판 스케일로 변환합니다.',
+    'tab-charsheet': '특성치·기능치를 자동계산하고 캐릭터 JSON을 만듭니다.',
+    'tab-standing': '여러 스탠딩 이미지를 같은 비율로 일괄 재단합니다.',
+    'tab-cheatsheet': '표정별 스탠딩으로 캐릭터 표정 카탈로그를 만듭니다.',
+    'tab-charfile': '스탠딩+스테이터스로 캐릭터 룸파일(zip)을 만듭니다.',
+    'tab-suggest': '기능 건의나 버그를 GitHub 이슈로 남깁니다.'
+  };
+  var CAT_LABELS = {image:'이미지·애니메이션', log:'로그 백업', coc:'CoC 유틸리티', char:'캐릭터·스탠딩', etc:'기타'};
+  var CAT_ORDER = ['image','log','coc','char','etc'];
+
+  var groups = {};
+  $all('.tab-btn').forEach(function(btn){
+    var cat = btn.dataset.cat;
+    if(!cat) return;
+    (groups[cat] = groups[cat] || []).push(btn);
+  });
+
+  var container = $('#home-feature-cats');
+  CAT_ORDER.forEach(function(catId){
+    var list = groups[catId];
+    if(!list || !list.length) return;
+    var section = document.createElement('div');
+    section.style.cssText = 'margin-bottom:18px;';
+    var h = document.createElement('h3');
+    h.style.cssText = 'margin:0 0 8px;font-size:13px;color:var(--sub);font-weight:700;';
+    h.textContent = CAT_LABELS[catId];
+    section.appendChild(h);
+    var grid = document.createElement('div');
+    grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;';
+    list.forEach(function(btn){
+      var targetId = btn.dataset.target;
+      var name = btn.textContent.replace(/^\d+\.\s*/, '');
+      var card = document.createElement('div');
+      card.className = 'home-feature-card';
+      card.innerHTML =
+        '<div class="home-feature-name">'+name+'</div>'+
+        '<div class="home-feature-overlay"><p>'+(TAB_DESCRIPTIONS[targetId]||'')+'</p><button type="button">바로가기 →</button></div>';
+      card.addEventListener('click', function(){ btn.click(); });
+      card.querySelector('button').addEventListener('click', function(e){ e.stopPropagation(); btn.click(); });
+      grid.appendChild(card);
+    });
+    section.appendChild(grid);
+    container.appendChild(section);
+  });
+})();
 
 /* ============ GIF 디코드 코어 (gifuct-js) ============ */
 async function decodeGifFile(file){
@@ -19704,17 +19829,22 @@ var TabLog = (function(){
     {key:'STR', label:'근력'}, {key:'CON', label:'건강'}, {key:'SIZ', label:'크기'}, {key:'DEX', label:'민첩'},
     {key:'APP', label:'외모'}, {key:'EDU', label:'교육'}, {key:'INT', label:'지능'}, {key:'POW', label:'정신'}
   ];
-  var stats = {};
-  var grid = $('#chs-stat-grid');
-  STAT_DEFS.forEach(function(s){
+  var stats = {}, statHalfCells = {}, statFifthCells = {};
+  var statGrid1 = $('#chs-stat-grid-1'), statGrid2 = $('#chs-stat-grid-2');
+  STAT_DEFS.forEach(function(s, i){
     var div = document.createElement('div');
-    div.className = 'field';
-    div.innerHTML = '<label>'+s.label+'</label>'+
-      '<input type="number" min="0" max="99" value="50" data-stat="'+s.key+'" style="width:100%;">'+
-      '<span style="font-size:11px;color:var(--sub);" data-stat-half="'+s.key+'"></span>';
-    grid.appendChild(div);
+    div.className = 'chs-stat-cell';
+    div.innerHTML =
+      '<div class="chs-stat-label">'+s.label+'</div>'+
+      '<input type="number" min="0" max="99" value="50" class="chs-stat-input" data-stat="'+s.key+'">'+
+      '<div class="chs-half-cell"></div>'+
+      '<div class="chs-fifth-cell"></div>';
+    (i<4 ? statGrid1 : statGrid2).appendChild(div);
     stats[s.key] = div.querySelector('input');
+    statHalfCells[s.key] = div.querySelector('.chs-half-cell');
+    statFifthCells[s.key] = div.querySelector('.chs-fifth-cell');
   });
+  var grid = { addEventListener: function(evt, fn){ statGrid1.addEventListener(evt, fn); statGrid2.addEventListener(evt, fn); } };
   function statVal(key){ return clampInt(parseInt(stats[key].value,10)||0, 0, 99); }
 
   // 기본 기능 목록: [기능명, 기본값]. 언어(모국어)/회피는 특성치로부터 자동 계산되는 특수 항목이라 별도 관리.
@@ -19743,26 +19873,35 @@ var TabLog = (function(){
     return clampInt(base+alloc, 0, 99);
   }
   function refreshSkillTotals(){
-    skillRows.forEach(function(row){ row.totalCell.textContent = skillTotal(row); });
+    skillRows.forEach(function(row){
+      var total = skillTotal(row);
+      row.totalCell.textContent = total;
+      row.halfCell.textContent = Math.floor(total/2);
+      row.fifthCell.textContent = Math.floor(total/5);
+    });
     refreshPointsInfo();
   }
   function addSkillRow(name, base, formula){
     var tr = document.createElement('tr');
-    tr.style.borderTop = '1px solid var(--line)';
     tr.innerHTML =
+      '<td style="padding:4px 6px;text-align:center;"><input type="checkbox" title="성장 체크(플레이 중 판정 성공 시 표시 — 참고용, JSON에는 반영되지 않음)"></td>'+
       '<td style="padding:4px 6px;"><input type="text" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;"></td>'+
       '<td style="padding:4px 6px;"><input type="number" min="0" max="99" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;"></td>'+
       '<td style="padding:4px 6px;"><input type="number" min="0" max="99" value="0" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;"></td>'+
       '<td style="padding:4px 6px;text-align:center;font-weight:700;">0</td>'+
+      '<td class="chs-skill-half" style="padding:4px 6px;text-align:center;">0</td>'+
+      '<td class="chs-skill-fifth" style="padding:4px 6px;text-align:center;">0</td>'+
       '<td style="padding:4px 6px;"><button type="button" class="btn ghost" style="padding:3px 7px;font-size:11px;color:var(--danger);">삭제</button></td>';
-    var nameInput = tr.children[0].querySelector('input');
-    var baseInput = tr.children[1].querySelector('input');
-    var allocInput = tr.children[2].querySelector('input');
-    var totalCell = tr.children[3];
+    var nameInput = tr.children[1].querySelector('input');
+    var baseInput = tr.children[2].querySelector('input');
+    var allocInput = tr.children[3].querySelector('input');
+    var totalCell = tr.children[4];
+    var halfCell = tr.children[5];
+    var fifthCell = tr.children[6];
     nameInput.value = name;
     baseInput.value = base;
     if(formula){ baseInput.readOnly = true; baseInput.style.opacity = '.7'; }
-    var row = {nameInput:nameInput, baseInput:baseInput, allocInput:allocInput, totalCell:totalCell, formula:formula||null, tr:tr};
+    var row = {nameInput:nameInput, baseInput:baseInput, allocInput:allocInput, totalCell:totalCell, halfCell:halfCell, fifthCell:fifthCell, formula:formula||null, tr:tr};
     baseInput.addEventListener('input', refreshSkillTotals);
     allocInput.addEventListener('input', refreshSkillTotals);
     tr.querySelector('button').addEventListener('click', function(){
@@ -19804,8 +19943,9 @@ var TabLog = (function(){
   var derived = {};
   DERIVED_FIELDS.forEach(function(d){
     var div = document.createElement('div');
-    div.className = 'field';
-    div.innerHTML = '<label>'+d.label+'</label><input type="'+(d.key==='db'?'text':'number')+'" style="width:90px;" '+(d.ro?'readonly disabled':'')+'>';
+    div.className = 'chs-box chs-derived-box';
+    div.innerHTML = '<div class="chs-box-head">'+d.label+'</div>'+
+      '<div class="chs-box-body"><div><input type="'+(d.key==='db'?'text':'number')+'" '+(d.ro?'readonly disabled':'')+'></div></div>';
     derivedRow.appendChild(div);
     derived[d.key] = div.querySelector('input');
   });
@@ -19841,7 +19981,8 @@ var TabLog = (function(){
 
     STAT_DEFS.forEach(function(s){
       var v = statVal(s.key);
-      grid.querySelector('[data-stat-half="'+s.key+'"]').textContent = '1/2: '+Math.floor(v/2)+'  1/5: '+Math.floor(v/5);
+      statHalfCells[s.key].textContent = Math.floor(v/2);
+      statFifthCells[s.key].textContent = Math.floor(v/5);
     });
 
     var CON=statVal('CON'), SIZ=statVal('SIZ'), POW=statVal('POW'), STR=statVal('STR'), DEX=statVal('DEX'), INT=statVal('INT'), EDU=statVal('EDU');
