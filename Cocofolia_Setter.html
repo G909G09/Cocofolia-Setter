@@ -575,7 +575,14 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
           <option value="vertical">세로쓰기(대표 이미지 옆)</option>
         </select>
       </div>
-      <div class="field"><label>이름 글씨체</label><input type="text" id="cs-name-font" placeholder="비워두면 프리텐다드" style="width:150px;"></div>
+      <div class="field"><label>이름 글씨체</label>
+        <select id="cs-name-font">
+          <option value="">프리텐다드</option>
+          <option value="&quot;프리젠테이션&quot;, sans-serif">프리젠테이션</option>
+          <option value="&quot;KoPub돋움체&quot;, &quot;KoPubWorld돋움체&quot;, sans-serif">Kopub돋움</option>
+          <option value="&quot;KoPub바탕체&quot;, &quot;KoPubWorld바탕체&quot;, serif">Kopub바탕</option>
+        </select>
+      </div>
       <div class="field"><label>이름 굵기</label>
         <select id="cs-name-weight">
           <option value="400">보통(400)</option>
