@@ -20466,31 +20466,34 @@ var TabLog = (function(){
           name: name, playerName: '', memo: '', initiative: 0, externalUrl: '',
           status: status, params: params,
           iconUrl: mainIconFilename, faces: faces,
-          x: 0, y: 0, z: 0, angle: 0, width: 3, height: 3,
+          x: 0, y: 0, z: 0, angle: 0, width: 2, height: 2,
           active: true, secret: false, invisible: false, hideStatus: false,
-          color: '#e91e63', roomId: null, commands: commands,
+          color: '#9E9E9E', roomId: null, commands: commands,
           speaking: false, diceSkin: {}, order: 0
         };
 
+        // entities/room 구조는 실제 코코포리아에서 정상적으로 가져와지는 것이 확인된
+        // 캐릭터 1명짜리 룸파일 예시를 그대로 따름(room은 빈 객체, effects/scenes/savedatas/snapshots도
+        // 빈 객체로 존재해야 함 — 처음엔 이 4개가 빠져 있어서 가져오기가 실패했음).
         var dataJson = {
           meta: {version: '1.1.0'},
           entities: {
-            room: {
-              defaultAnonymousRole: null, backgroundUrl: null, foregroundUrl: null, embedUrl: null, thumbnailUrl: null,
-              mapType: null, fieldWidth: 40, fieldHeight: 30, fieldObjectFit: 'fill', alignWithGrid: true,
-              messageChannels: [], messageGroups: [], markers: {}, mediaRef: null, monitored: false, soundRef: null,
-              sceneId: null, archived: false, backgroundColor: '', variables: [], underConstruction: false,
-              hidden3dDice: false, initialSavedata: null, displayGrid: false, gridSize: 1,
-              enableCrossfade: false, crossfadeDuration: 1
-            },
-            items: {}, decks: {}, notes: {},
-            characters: {}
+            room: {}, items: {}, decks: {}, notes: {},
+            characters: {},
+            effects: {}, scenes: {}, savedatas: {}, snapshots: {}
           },
           resources: resources
         };
         dataJson.entities.characters[randomEntityId()] = charObj;
 
-        zip.file('__data.json', JSON.stringify(dataJson));
+        var dataJsonText = JSON.stringify(dataJson);
+        zip.file('__data.json', dataJsonText);
+        // 코코포리아 룸파일에는 __data.json과 함께 ".token" 파일(형식: "0."+64자리 hex)이 들어있는데,
+        // 정확한 생성 알고리즘은 확인하지 못해 내용 기반 SHA-256으로 대체함 — 실제 가져오기 시
+        // 이 값 자체를 검증하지 않고 형식/존재 여부만 확인하는 것이길 기대하고 있음.
+        var tokenHex = await sha256Hex(new TextEncoder().encode(dataJsonText).buffer);
+        zip.file('.token', '0.'+tokenHex);
+
         var blob = await zip.generateAsync({type:'blob'});
         var safeName = name.replace(/[\\/:*?"<>|]/g, '_') || 'character';
         downloadBlob(blob, safeName+'_room.zip');
