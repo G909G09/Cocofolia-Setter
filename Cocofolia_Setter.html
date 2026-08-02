@@ -126,13 +126,17 @@ nav.cat-nav{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:10px;padding-bott
 .home-btn{border:none;background:transparent;color:var(--sub);padding:2px 0;font-size:14px;font-weight:800;cursor:pointer;border-bottom:2px solid transparent;}
 .home-btn:hover{color:var(--ink);}
 .home-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
-.home-feature-card{position:relative;border:1px solid var(--line);border-radius:10px;padding:14px 10px;background:var(--bg);min-height:64px;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;cursor:pointer;transition:.15s;}
-.home-feature-card:hover{border-color:var(--accent);}
+/* 카드는 평소엔 이름만 짧게 보여주다가, 마우스를 올리면(또는 포커스하면) 내용이 잘리지 않도록
+   카드 자체가 아래로 부드럽게 늘어나면서 아이콘·설명·바로가기 버튼을 펼쳐 보여준다(고정 높이로
+   내용을 억지로 욱여넣지 않는다). */
+.home-feature-card{border:1px solid var(--line);border-radius:10px;padding:14px 10px;background:var(--bg);min-height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;transition:border-color .15s;}
+.home-feature-card:hover,.home-feature-card:focus-visible{border-color:var(--accent);}
 .home-feature-name{font-size:13px;font-weight:700;color:var(--ink);}
-.home-feature-overlay{position:absolute;inset:0;background:var(--accent);color:var(--accent-ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:10px;opacity:0;pointer-events:none;transition:.15s;}
-.home-feature-overlay p{margin:0;font-size:11.5px;line-height:1.4;}
-.home-feature-overlay button{background:#fff;color:var(--accent);padding:5px 10px;font-size:11px;border-radius:6px;font-weight:700;border:none;cursor:pointer;}
-.home-feature-card:hover .home-feature-overlay{opacity:1;pointer-events:auto;}
+.home-feature-overlay{width:100%;max-height:0;opacity:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;gap:8px;transition:max-height .25s ease,opacity .2s ease,margin-top .25s ease;margin-top:0;}
+.home-feature-card:hover .home-feature-overlay,.home-feature-card:focus-visible .home-feature-overlay{max-height:220px;opacity:1;margin-top:10px;}
+.home-feature-thumb{width:44px;height:44px;border-radius:10px;background:var(--chip);display:flex;align-items:center;justify-content:center;font-size:22px;flex:0 0 auto;}
+.home-feature-overlay p{margin:0;font-size:11.5px;line-height:1.45;color:var(--sub);}
+.home-feature-overlay button{background:var(--accent);color:var(--accent-ink);padding:5px 12px;font-size:11px;border-radius:6px;font-weight:700;border:none;cursor:pointer;}
 nav.tabs{display:flex;gap:6px;flex-wrap:wrap;}
 .tab-btn{border:1px solid var(--line);background:var(--bg);color:var(--sub);padding:8px 14px;border-radius:999px;font-size:13px;cursor:pointer;font-weight:600;transition:.15s;}
 .tab-btn:hover{color:var(--ink);}
@@ -275,6 +279,9 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <div class="card">
     <h3 style="margin:0 0 8px;font-size:14px;">업데이트 로그</h3>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><b>2026-08-02</b> — 컨닝 페이퍼 메이커 대규모 개편: 이름·캐치프레이즈를 하단 타이틀 바로 옮기고 배치(좌/우 정렬·세로쓰기)·서체(프리텐다드/프리젠테이션/페이퍼로지)·굵기·색을 고를 수 있게 하고 실시간 미리보기 추가, 표정 라벨을 썸네일 위에 겹쳐 그려 여백 최소화</li>
+      <li><b>2026-08-02</b> — 프리텐다드·프리젠테이션·페이퍼로지 서체를 파일에 내장해 시스템 설치 여부와 무관하게 항상 정확히 표시</li>
+      <li><b>2026-08-02</b> — 여러 장 업로드 시 일부 파일이 손상돼도 나머지는 그대로 반영, 컨닝 페이퍼 크롭 미리보기 동기화 버그 수정, 키보드 접근성·마지막으로 보던 탭 기억 등 안정성 개선</li>
       <li><b>2026-08-02</b> — CoC 캐릭터 시트 메이커(12번) 추가: 특성치·기능치 자동계산 + 코코포리아 캐릭터 JSON 생성, 10번 탭으로 바로 전송</li>
       <li><b>2026-08-02</b> — 캐릭터 룸파일 생성기(10번) 추가: 스탠딩 이미지+스테이터스로 캐릭터 1명짜리 코코포리아 룸파일(zip) 생성</li>
       <li><b>2026-08-02</b> — 탭이 많아져 카테고리(마우스오버 서브메뉴)로 정리, 제목을 "코코세터"로 축약</li>
@@ -18045,6 +18052,15 @@ $all('.cat-btn').forEach(function(btn){
     'tab-charfile': '스탠딩+스테이터스로 캐릭터 룸파일(zip)을 만듭니다.',
     'tab-suggest': '기능 건의나 버그를 GitHub 이슈로 남깁니다.'
   };
+  // 실제 결과물 스크린샷 대신, 카드가 펼쳐질 때 어떤 종류의 기능인지 한눈에 짐작할 수 있도록
+  // 가벼운 대표 아이콘을 붙인다(용량이 큰 이미지 자산을 파일에 추가로 내장하지 않기 위함).
+  var TAB_ICONS = {
+    'tab-mp3': '🎵', 'tab-g2a': '🔁', 'tab-fx': '✨',
+    'tab-log': '📖', 'tab-book': '📕',
+    'tab-glossary': '🈯', 'tab-edition': '🎲', 'tab-charsheet': '🧾',
+    'tab-standing': '✂️', 'tab-cheatsheet': '🙂', 'tab-charfile': '📦',
+    'tab-suggest': '💡'
+  };
   var CAT_LABELS = {image:'이미지·애니메이션', log:'로그 백업', coc:'CoC 유틸리티', char:'캐릭터·스탠딩', etc:'기타'};
   var CAT_ORDER = ['image','log','coc','char','etc'];
 
@@ -18066,16 +18082,18 @@ $all('.cat-btn').forEach(function(btn){
     h.textContent = CAT_LABELS[catId];
     section.appendChild(h);
     var grid = document.createElement('div');
-    grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;';
+    grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;align-items:start;';
     list.forEach(function(btn){
       var targetId = btn.dataset.target;
       var name = btn.textContent.replace(/^\d+\.\s*/, '');
       var card = document.createElement('div');
       card.className = 'home-feature-card';
+      card.tabIndex = 0;
       card.innerHTML =
         '<div class="home-feature-name">'+name+'</div>'+
-        '<div class="home-feature-overlay"><p>'+(TAB_DESCRIPTIONS[targetId]||'')+'</p><button type="button">바로가기 →</button></div>';
+        '<div class="home-feature-overlay"><div class="home-feature-thumb" aria-hidden="true">'+(TAB_ICONS[targetId]||'▶')+'</div><p>'+(TAB_DESCRIPTIONS[targetId]||'')+'</p><button type="button">바로가기 →</button></div>';
       card.addEventListener('click', function(){ btn.click(); });
+      card.addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); btn.click(); } });
       card.querySelector('button').addEventListener('click', function(e){ e.stopPropagation(); btn.click(); });
       grid.appendChild(card);
     });
