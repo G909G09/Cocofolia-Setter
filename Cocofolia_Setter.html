@@ -7,13 +7,23 @@
 <title>코코세터</title>
 <style>
 :root{
-  color-scheme: light;
+  color-scheme: light dark;
   --bg:#f5f6f8; --panel:#ffffff; --ink:#1e2430; --sub:#6b7280;
   --line:#e3e6eb; --accent:#5b6bf5; --accent-ink:#ffffff;
   --danger:#e35b5b; --ok:#2ea36b; --chip:#eef0ff;
   --radius:10px; --mono:ui-monospace,Consolas,monospace;
   --sans:"Pretendard","Malgun Gothic","Apple SD Gothic Neo",system-ui,-apple-system,sans-serif;
   --sans-jp:"Noto Sans JP","Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","MS PGothic",sans-serif;
+}
+/* 시스템이 다크 모드일 때 자동으로 어두운 배색 적용(밝기만 다르고 나머지 스타일/레이아웃은 전부
+   재사용). 5번/12번 탭의 인쇄물·시트 근사색 배지들은 실물 문서 색을 그대로 보여줘야 의미가 있어
+   변수화하지 않고 원래 색을 유지한다(다크 모드에서도 종이 위 배지처럼 밝게 보이는 것이 의도됨). */
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#181a20; --panel:#20232b; --ink:#e7e9ee; --sub:#9a9fac;
+    --line:#333844; --accent:#7c88ff; --accent-ink:#0d0f14;
+    --danger:#ff7a7a; --ok:#57c98c; --chip:#2a2d5c;
+  }
 }
 /* Pretendard Variable(SIL Open Font License 1.1, Copyright (c) 2021 Kil Hyung-jin,
    https://github.com/orioncactus/pretendard) 오프라인 단일 파일 툴이라 시스템에
@@ -306,15 +316,15 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="drop" id="mp3-drop">png / gif / apng 파일
       <input type="file" id="mp3-file" accept=".png,.gif" class="hidden">
     </div>
-    <div class="info-box" id="mp3-info">파일을 선택하면 여기에 감지 결과가 표시됩니다.</div>
+    <div class="info-box" id="mp3-info" aria-live="polite">파일을 선택하면 여기에 감지 결과가 표시됩니다.</div>
     <div class="row hidden" id="mp3-preview-row">
       <canvas class="preview" id="mp3-preview-canvas"></canvas>
       <button class="btn ghost" id="mp3-preview-replay">미리보기 다시 재생 (1회)</button>
     </div>
     <div class="row">
-      <div class="field"><label>반복 횟수</label><input type="number" id="mp3-loopcount" value="1" min="1" step="1"></div>
-      <div class="field"><label>여백 추가(ms)</label><input type="number" id="mp3-padding" value="0" min="0" step="10"></div>
-      <div class="field"><label>비트레이트</label>
+      <div class="field"><label for="mp3-loopcount">반복 횟수</label><input type="number" id="mp3-loopcount" value="1" min="1" step="1"></div>
+      <div class="field"><label for="mp3-padding">여백 추가(ms)</label><input type="number" id="mp3-padding" value="0" min="0" step="10"></div>
+      <div class="field"><label for="mp3-bitrate">비트레이트</label>
         <select id="mp3-bitrate">
           <option value="96">96kbps</option>
           <option value="128" selected>128kbps</option>
@@ -323,11 +333,11 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       </div>
       <div class="field"><label><input type="checkbox" id="mp3-manual-toggle"> 길이 직접 입력(초)</label><input type="number" id="mp3-manual-sec" value="1.0" min="0.05" step="0.05" disabled></div>
     </div>
-    <div class="info-box" id="mp3-final">최종 길이: -</div>
+    <div class="info-box" id="mp3-final" aria-live="polite">최종 길이: -</div>
     <p class="footnote">※ mp3 인코딩 특성상 실제 길이가 요청보다 최대 0.1초 길어질 수 있습니다.</p>
     <div class="row">
       <button class="btn" id="mp3-generate" disabled>무음 MP3 생성</button>
-      <div class="field"><label>파일명</label><input type="text" id="mp3-filename" class="wide" value="cutin_silence.mp3"></div>
+      <div class="field"><label for="mp3-filename">파일명</label><input type="text" id="mp3-filename" class="wide" value="cutin_silence.mp3"></div>
     </div>
     <div class="row hidden" id="mp3-result-row">
       <audio id="mp3-audio" controls></audio>
@@ -344,14 +354,14 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="drop" id="g2a-drop">GIF · APNG(PNG) · MP4 파일
       <input type="file" id="g2a-file" accept=".gif,.png,.mp4" class="hidden">
     </div>
-    <div class="info-box" id="g2a-info">파일을 선택하면 정보가 표시됩니다.</div>
+    <div class="info-box" id="g2a-info" aria-live="polite">파일을 선택하면 정보가 표시됩니다.</div>
     <div class="row hidden" id="g2a-mp4-opts">
-      <div class="field"><label>시작(초)</label><input type="number" id="g2a-mp4-start" value="0" min="0" step="0.1" style="width:80px;"></div>
-      <div class="field"><label>길이(초)</label><input type="number" id="g2a-mp4-duration" min="0.1" step="0.1" placeholder="끝까지" style="width:80px;"></div>
-      <div class="field"><label>추출 FPS</label><input type="number" id="g2a-mp4-fps" value="15" min="4" max="30" step="1" style="width:70px;"></div>
+      <div class="field"><label for="g2a-mp4-start">시작(초)</label><input type="number" id="g2a-mp4-start" value="0" min="0" step="0.1" style="width:80px;"></div>
+      <div class="field"><label for="g2a-mp4-duration">길이(초)</label><input type="number" id="g2a-mp4-duration" min="0.1" step="0.1" placeholder="끝까지" style="width:80px;"></div>
+      <div class="field"><label for="g2a-mp4-fps">추출 FPS</label><input type="number" id="g2a-mp4-fps" value="15" min="4" max="30" step="1" style="width:70px;"></div>
       <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);"><input type="checkbox" id="g2a-mp4-chroma"> 배경을 크로마키로 투명화</label>
       <input type="color" id="g2a-mp4-chroma-color" value="#00ff00" style="width:36px;height:26px;padding:0;border:1px solid var(--line);border-radius:6px;">
-      <div class="field"><label>허용 오차</label><input type="range" id="g2a-mp4-chroma-tol" min="0" max="100" value="35" style="width:110px;"></div>
+      <div class="field"><label for="g2a-mp4-chroma-tol">허용 오차</label><input type="range" id="g2a-mp4-chroma-tol" min="0" max="100" value="35" style="width:110px;"></div>
     </div>
     <div class="row">
       <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);"><input type="checkbox" id="g2a-alpha" checked> APNG→GIF 변환 시 배경 투명 유지(크로마키, 반투명 불가)</label>
@@ -361,7 +371,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     </div>
     <div class="row">
       <button class="btn" id="g2a-convert" disabled>변환</button>
-      <div class="field"><label>파일명</label><input type="text" id="g2a-filename" class="wide" value="converted.png"></div>
+      <div class="field"><label for="g2a-filename">파일명</label><input type="text" id="g2a-filename" class="wide" value="converted.png"></div>
     </div>
     <div class="row hidden" id="g2a-result-row">
       <img id="g2a-preview" class="preview" alt="변환 결과 미리보기">
@@ -379,9 +389,9 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <input type="file" id="fx-file" accept=".png" class="hidden">
     </div>
     <div class="row">
-      <div class="field"><label>길이(초)</label><input type="number" id="fx-duration" value="1.0" min="0.1" step="0.1"></div>
-      <div class="field"><label>FPS</label><input type="number" id="fx-fps" value="20" min="5" max="60" step="1"></div>
-      <div class="field"><label>페이드</label>
+      <div class="field"><label for="fx-duration">길이(초)</label><input type="number" id="fx-duration" value="1.0" min="0.1" step="0.1"></div>
+      <div class="field"><label for="fx-fps">FPS</label><input type="number" id="fx-fps" value="20" min="5" max="60" step="1"></div>
+      <div class="field"><label for="fx-fade-mode">페이드</label>
         <select id="fx-fade-mode">
           <option value="none">없음</option>
           <option value="in">페이드인</option>
@@ -397,9 +407,9 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <button class="btn ghost hidden" id="fx-preview-toggle">재생/정지</button>
     </div>
     <canvas class="preview hidden" id="fx-preview-canvas"></canvas>
-    <div class="info-box" id="fx-info">이미지를 선택하고 렌더링을 눌러주세요.</div>
+    <div class="info-box" id="fx-info" aria-live="polite">이미지를 선택하고 렌더링을 눌러주세요.</div>
     <div class="row hidden" id="fx-result-row">
-      <div class="field"><label>파일명</label><input type="text" id="fx-filename" class="wide" value="cutin_fx.png"></div>
+      <div class="field"><label for="fx-filename">파일명</label><input type="text" id="fx-filename" class="wide" value="cutin_fx.png"></div>
       <button class="btn ghost" id="fx-download">APNG 다운로드</button>
     </div>
   </div>
@@ -414,8 +424,8 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <input type="file" id="log-file" accept=".html,.htm,.json" class="hidden">
     </div>
     <div class="row hidden no-print" id="log-controls">
-      <div class="field"><label class="wide">GM(서술 담당)</label><select id="log-gm"></select></div>
-      <div class="field"><label class="wide">검색어</label><input type="text" id="log-search" class="wide" placeholder="대사 내용 검색"></div>
+      <div class="field"><label class="wide" for="log-gm">GM(서술 담당)</label><select id="log-gm"></select></div>
+      <div class="field"><label class="wide" for="log-search">검색어</label><input type="text" id="log-search" class="wide" placeholder="대사 내용 검색"></div>
       <div class="field"><label><input type="checkbox" id="log-exclude-other" checked> 잡담(사담) 탭 제외</label></div>
       <button class="btn ghost" id="log-print">인쇄 / PDF로 저장</button>
       <button class="btn ghost" id="log-export">정리된 로그 HTML로 저장</button>
@@ -437,13 +447,13 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="drop" id="book-drop">로그 HTML 파일 <small style="display:block;color:var(--sub);margin-top:4px;">코코포리아 "로그 출력"으로 받은 제목[all/main].html</small>
       <input type="file" id="book-file" accept=".html,.htm,text/html" class="hidden">
     </div>
-    <div class="info-box hidden" id="bk-loadinfo"></div>
+    <div class="info-box hidden" id="bk-loadinfo" aria-live="polite"></div>
   </div>
 
   <div class="card hidden" id="bk-cfgPanel">
     <h2>설정</h2>
     <div class="row">
-      <div class="field"><label>GM (서술·판정 담당)</label><select id="bk-gmSel"></select></div>
+      <div class="field"><label for="bk-gmSel">GM (서술·판정 담당)</label><select id="bk-gmSel"></select></div>
       <div class="field"><label><input type="checkbox" id="bk-includeOther"> 잡담 탭 포함</label>
         <span class="footnote" style="width:220px;">기본(해제): [other]/[잡담] 문단 삭제. 체크 시 잡담도 본문과 동일 규칙으로 변환.</span>
       </div>
@@ -459,7 +469,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 
   <div class="card hidden" id="bk-outPanel">
     <h2>결과</h2>
-    <div class="info-box" id="bk-stats" style="white-space:normal;"></div>
+    <div class="info-box" id="bk-stats" aria-live="polite" style="white-space:normal;"></div>
     <div class="footnote" id="bk-warns" style="color:var(--danger);" aria-live="polite"></div>
     <div class="footnote" id="bk-okmsg" style="color:var(--ok);"></div>
     <div class="chips" style="margin:10px 0;">
@@ -483,14 +493,14 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <h2>CoC 용어 변환기 (번역 아님)</h2>
     <p class="desc">문장을 번역하진 않고, 텍스트 속 CoC 관련 일본어 용어를 국내 커뮤니티 표준 용어로 치환합니다.</p>
     <div class="row">
-      <div class="field" style="width:100%;"><label>원문</label><textarea id="gl-input" rows="10" style="width:100%;" placeholder="일본어 시나리오 텍스트 또는 초벌 번역 텍스트를 붙여넣으세요"></textarea></div>
+      <div class="field" style="width:100%;"><label for="gl-input">원문</label><textarea id="gl-input" rows="10" style="width:100%;" placeholder="일본어 시나리오 텍스트 또는 초벌 번역 텍스트를 붙여넣으세요"></textarea></div>
     </div>
     <div class="row">
       <button class="btn" id="gl-run">용어 변환</button>
       <button class="btn ghost" id="gl-copy">결과 복사</button>
     </div>
-    <div class="field" style="width:100%;"><label>변환 결과</label><textarea id="gl-output" rows="10" style="width:100%;" readonly></textarea></div>
-    <div class="info-box" id="gl-matches">변환 버튼을 누르면 어떤 용어가 바뀌었는지 여기에 표시됩니다.</div>
+    <div class="field" style="width:100%;"><label for="gl-output">변환 결과</label><textarea id="gl-output" rows="10" style="width:100%;" readonly></textarea></div>
+    <div class="info-box" id="gl-matches" aria-live="polite">변환 버튼을 누르면 어떤 용어가 바뀌었는지 여기에 표시됩니다.</div>
   </div>
   <div class="card">
     <h2>용어 사전 편집</h2>
@@ -516,16 +526,16 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <p class="desc">6판 능력치를 7판 스케일(×5)로 자동 변환합니다. Damage Bonus/Build 표는 룰북마다 수치가 달라 아래에 직접 입력해두면 계산에 활용됩니다.</p>
     <h3 style="font-size:13px;color:var(--sub);margin:14px 0 6px;">능력치 변환 (6판 값 입력 → 7판 값 자동 계산)</h3>
     <div class="row" id="ed-stat-row"></div>
-    <div class="info-box" id="ed-stat-result">-</div>
+    <div class="info-box" id="ed-stat-result" aria-live="polite">-</div>
   </div>
 
   <div class="card">
     <h3 style="font-size:13px;color:var(--sub);margin:0 0 6px;">시나리오 텍스트 일괄 변환</h3>
     <p class="desc">"STR 12", "근력12" 같은 라벨+숫자 표기를 찾아 ×5 값으로 바꿉니다. 인식 못한 표기는 원문 그대로 둡니다.</p>
-    <div class="field" style="width:100%;"><label>원문</label><textarea id="ed-text-input" rows="8" style="width:100%;" placeholder="시나리오 스탯 블록 텍스트를 붙여넣으세요"></textarea></div>
+    <div class="field" style="width:100%;"><label for="ed-text-input">원문</label><textarea id="ed-text-input" rows="8" style="width:100%;" placeholder="시나리오 스탯 블록 텍스트를 붙여넣으세요"></textarea></div>
     <div class="row"><button class="btn" id="ed-text-run">일괄 변환</button></div>
-    <div class="field" style="width:100%;"><label>변환 결과</label><textarea id="ed-text-output" rows="8" style="width:100%;" readonly></textarea></div>
-    <div class="info-box" id="ed-text-matches">-</div>
+    <div class="field" style="width:100%;"><label for="ed-text-output">변환 결과</label><textarea id="ed-text-output" rows="8" style="width:100%;" readonly></textarea></div>
+    <div class="info-box" id="ed-text-matches" aria-live="polite">-</div>
   </div>
 
   <div class="card">
@@ -537,8 +547,8 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     </table>
     <div class="row"><button class="btn ghost" id="ed-db-add">행 추가</button></div>
     <div class="row">
-      <div class="field"><label>STR+SIZ 합계로 조회</label><input type="number" id="ed-db-lookup" value=""></div>
-      <div class="info-box" id="ed-db-result" style="flex:1;">표를 입력한 뒤 조회하세요.</div>
+      <div class="field"><label for="ed-db-lookup">STR+SIZ 합계로 조회</label><input type="number" id="ed-db-lookup" value=""></div>
+      <div class="info-box" id="ed-db-result" aria-live="polite" style="flex:1;">표를 입력한 뒤 조회하세요.</div>
     </div>
   </div>
 </section>
@@ -551,12 +561,12 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">기본 정보</h3>
     <div class="row">
-      <div class="field"><label>이름</label><input type="text" id="chs-name" placeholder="탐사자 이름"></div>
-      <div class="field"><label>직업</label><input type="text" id="chs-job" placeholder="예: 사립탐정"></div>
-      <div class="field"><label>나이</label><input type="number" id="chs-age" min="0" style="width:70px;"></div>
-      <div class="field"><label>성별</label><input type="text" id="chs-gender" style="width:80px;"></div>
-      <div class="field"><label>거주지</label><input type="text" id="chs-residence"></div>
-      <div class="field"><label>출생지</label><input type="text" id="chs-birthplace"></div>
+      <div class="field"><label for="chs-name">이름</label><input type="text" id="chs-name" placeholder="탐사자 이름"></div>
+      <div class="field"><label for="chs-job">직업</label><input type="text" id="chs-job" placeholder="예: 사립탐정"></div>
+      <div class="field"><label for="chs-age">나이</label><input type="number" id="chs-age" min="0" style="width:70px;"></div>
+      <div class="field"><label for="chs-gender">성별</label><input type="text" id="chs-gender" style="width:80px;"></div>
+      <div class="field"><label for="chs-residence">거주지</label><input type="text" id="chs-residence"></div>
+      <div class="field"><label for="chs-birthplace">출생지</label><input type="text" id="chs-birthplace"></div>
     </div>
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">특성치</h3>
@@ -572,7 +582,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">기능점수 배분</h3>
     <div class="row">
-      <div class="field"><label>직업 기능점수 공식</label>
+      <div class="field"><label for="chs-occ-formula">직업 기능점수 공식</label>
         <select id="chs-occ-formula">
           <option value="manual">직접 입력</option>
           <option value="STR">EDU×4 + 근력×2</option>
@@ -582,10 +592,10 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
           <option value="INT">EDU×4 + 지능×2</option>
         </select>
       </div>
-      <div class="field"><label>직업 기능점수</label><input type="number" id="chs-occ-points" value="0" style="width:90px;"></div>
-      <div class="field"><label>관심 기능점수 (지능×2, 자동)</label><input type="number" id="chs-int-points" readonly disabled style="width:90px;"></div>
+      <div class="field"><label for="chs-occ-points">직업 기능점수</label><input type="number" id="chs-occ-points" value="0" style="width:90px;"></div>
+      <div class="field"><label for="chs-int-points">관심 기능점수 (지능×2, 자동)</label><input type="number" id="chs-int-points" readonly disabled style="width:90px;"></div>
     </div>
-    <div class="info-box" id="chs-points-info">기능치에 점수를 분배하면 남은 점수가 여기 표시됩니다.</div>
+    <div class="info-box" id="chs-points-info" aria-live="polite">기능치에 점수를 분배하면 남은 점수가 여기 표시됩니다.</div>
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">기능치</h3>
     <p class="footnote" style="margin:2px 0 6px;">기능명은 직접 수정할 수 있습니다. 괄호가 빈 기능(예술/공예, 과학 등)은 괄호 안에 세부 분야를 적어주세요. 총합 = 기본 + 분배(최대 99).</p>
@@ -626,10 +636,10 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
           <input type="number" id="st-ratio-w" value="1" min="1" step="1" style="width:56px;"><span>:</span><input type="number" id="st-ratio-h" value="1" min="1" step="1" style="width:56px;">
         </div>
       </div>
-      <div class="field"><label>처리 방식</label>
+      <div class="field"><label for="st-mode">처리 방식</label>
         <select id="st-mode"><option value="crop">크롭(잘라내기)</option><option value="pad">레터박스(여백 추가)</option></select>
       </div>
-      <div class="field"><label>세로 앵커</label>
+      <div class="field"><label for="st-anchor">세로 앵커</label>
         <select id="st-anchor"><option value="top">위쪽</option><option value="center" selected>중앙</option><option value="bottom">아래쪽</option></select>
       </div>
       <div class="field"><label>여백 색상</label>
@@ -639,7 +649,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
           <input type="text" id="st-bgcolor" value="transparent" style="width:80px;font-size:11px;color:var(--sub);" title="CSS 색상값을 직접 입력할 수도 있습니다 (예: transparent, #ff0000, rgba(0,0,0,.5))">
         </div>
       </div>
-      <div class="field"><label>출력 폭(px)</label><input type="number" id="st-outwidth" value="480" min="16" step="1"></div>
+      <div class="field"><label for="st-outwidth">출력 폭(px)</label><input type="number" id="st-outwidth" value="480" min="16" step="1"></div>
     </div>
     <p class="footnote" style="margin-top:-6px;">위 설정은 이 브라우저에 자동 저장되어 다음에 열어도 유지됩니다.</p>
     <div class="row">
@@ -670,20 +680,20 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
         <input type="file" id="cs-hero-file" accept=".png,.jpg,.jpeg,.webp" class="hidden">
       </div>
       <div style="flex:1 1 220px;display:flex;flex-direction:column;gap:8px;">
-        <div class="field"><label>캐릭터 이름</label><input type="text" id="cs-name" class="wide" placeholder="예: 이름"></div>
-        <div class="field"><label>캐치프레이즈</label><input type="text" id="cs-catch" class="wide" placeholder="예: 캐치프레이즈"></div>
+        <div class="field"><label for="cs-name">캐릭터 이름</label><input type="text" id="cs-name" class="wide" placeholder="예: 이름"></div>
+        <div class="field"><label for="cs-catch">캐치프레이즈</label><input type="text" id="cs-catch" class="wide" placeholder="예: 캐치프레이즈"></div>
       </div>
-      <div class="field" style="flex:0 0 auto;"><label>패널 폭(px)</label><input type="number" id="cs-hero-width" value="220" min="120" max="500" style="width:90px;"></div>
+      <div class="field" style="flex:0 0 auto;"><label for="cs-hero-width">패널 폭(px)</label><input type="number" id="cs-hero-width" value="220" min="120" max="500" style="width:90px;"></div>
     </div>
     <div class="row" style="margin-top:2px;align-items:flex-start;">
-      <div class="field"><label>이름 글씨체</label>
+      <div class="field"><label for="cs-name-font">이름 글씨체</label>
         <select id="cs-name-font">
           <option value="" style="font-family:'Pretendard';">프리텐다드</option>
           <option value="&quot;Freesentation&quot;, sans-serif" style="font-family:'Freesentation';">프리젠테이션</option>
           <option value="&quot;Paperlogy&quot;, sans-serif" style="font-family:'Paperlogy';">페이퍼로지</option>
         </select>
       </div>
-      <div class="field"><label>이름 굵기</label>
+      <div class="field"><label for="cs-name-weight">이름 굵기</label>
         <select id="cs-name-weight">
           <option value="400">보통(400)</option>
           <option value="500">500</option>
@@ -693,8 +703,8 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
           <option value="900">가장 굵게(900)</option>
         </select>
       </div>
-      <div class="field"><label>이름 색</label><input type="color" id="cs-name-color" value="#1e2430" style="width:56px;padding:2px;height:34px;"></div>
-      <div class="field"><label>이름 배치</label>
+      <div class="field"><label for="cs-name-color">이름 색</label><input type="color" id="cs-name-color" value="#1e2430" style="width:56px;padding:2px;height:34px;"></div>
+      <div class="field"><label for="cs-name-align">이름 배치</label>
         <select id="cs-name-align">
           <option value="right">우측 정렬(하단)</option>
           <option value="left">좌측 정렬(하단)</option>
@@ -714,7 +724,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="drop" id="cs-drop" style="margin-top:8px;">같은 캐릭터의 표정 변형 이미지 여러 장
       <input type="file" id="cs-file" accept=".png,.jpg,.jpeg,.webp" multiple class="hidden">
     </div>
-    <div class="info-box" id="cs-info">이미지를 올리면 크롭 영역이 표시됩니다. 드래그로 위치를, 모서리로 크기를 조절하세요.</div>
+    <div class="info-box" id="cs-info" aria-live="polite">이미지를 올리면 크롭 영역이 표시됩니다. 드래그로 위치를, 모서리로 크기를 조절하세요.</div>
     <div id="cs-cropper-wrap" class="hidden" style="position:relative;display:inline-block;max-width:100%;margin-top:10px;">
       <img id="cs-cropper-img" alt="크롭 영역을 지정할 기준 이미지" style="max-width:100%;display:block;">
       <div id="cs-crop-box" style="position:absolute;border:2px solid var(--accent);background:rgba(91,107,245,.15);cursor:move;">
@@ -730,10 +740,10 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">그리드/출력 설정</h3>
     <div class="row">
-      <div class="field"><label>열 개수</label><input type="number" id="cs-cols" value="4" min="1" max="10"></div>
-      <div class="field"><label>칸 간격(px)</label><input type="number" id="cs-gap" value="10" min="0" max="60"></div>
-      <div class="field"><label>썸네일 크기(px)</label><input type="number" id="cs-thumb" value="160" min="40" max="400"></div>
-      <div class="field"><label>화질(해상도)</label>
+      <div class="field"><label for="cs-cols">열 개수</label><input type="number" id="cs-cols" value="4" min="1" max="10"></div>
+      <div class="field"><label for="cs-gap">칸 간격(px)</label><input type="number" id="cs-gap" value="10" min="0" max="60"></div>
+      <div class="field"><label for="cs-thumb">썸네일 크기(px)</label><input type="number" id="cs-thumb" value="160" min="40" max="400"></div>
+      <div class="field"><label for="cs-scale">화질(해상도)</label>
         <select id="cs-scale">
           <option value="1">1x (기본)</option>
           <option value="2">2x (고화질)</option>
@@ -756,13 +766,13 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <h2>코코포리아 캐릭터 룸파일 생성기</h2>
     <p class="desc">스탠딩 이미지 병합+스테이터스 채팅 팔레트가 기재된 캐릭터 1명의 zip 파일을 만듭니다.</p>
 
-    <div class="field" style="width:100%;"><label>캐릭터 이름</label><input type="text" id="cf-name" class="wide" placeholder="예: 야마미치 노미"></div>
+    <div class="field" style="width:100%;"><label for="cf-name">캐릭터 이름</label><input type="text" id="cf-name" class="wide" placeholder="예: 야마미치 노미"></div>
 
     <div class="drop" id="cf-drop">스탠딩(표정) 이미지 여러 장
       <input type="file" id="cf-file" accept=".png,.jpg,.jpeg,.webp,.gif" multiple class="hidden">
     </div>
     <p class="footnote" style="margin:4px 0 0;">기본 라벨은 <b>@표정</b> 형식입니다(예: 웃음.png → <b>@웃음</b>). 이미 @로 시작하면 그대로 쓰고, 아니면 자동으로 붙으며 업로드 후 직접 수정할 수 있습니다.</p>
-    <div class="info-box" id="cf-info">이미지를 올리면 라벨과 개수가 여기 표시됩니다.</div>
+    <div class="info-box" id="cf-info" aria-live="polite">이미지를 올리면 라벨과 개수가 여기 표시됩니다.</div>
     <div id="cf-labels" style="margin-top:6px;"></div>
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">스테이터스 (선택 사항)</h3>
