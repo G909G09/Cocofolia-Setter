@@ -306,7 +306,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="drop" id="mp3-drop">png / gif / apng 파일
       <input type="file" id="mp3-file" accept=".png,.gif" class="hidden">
     </div>
-    <div class="info-box" id="mp3-info">파일을 선택하면 여기에 감지 결과가 표시됩니다.</div>
+    <div class="info-box" id="mp3-info" aria-live="polite">파일을 선택하면 여기에 감지 결과가 표시됩니다.</div>
     <div class="row hidden" id="mp3-preview-row">
       <canvas class="preview" id="mp3-preview-canvas"></canvas>
       <button class="btn ghost" id="mp3-preview-replay">미리보기 다시 재생 (1회)</button>
@@ -344,7 +344,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="drop" id="g2a-drop">GIF · APNG(PNG) · MP4 파일
       <input type="file" id="g2a-file" accept=".gif,.png,.mp4" class="hidden">
     </div>
-    <div class="info-box" id="g2a-info">파일을 선택하면 정보가 표시됩니다.</div>
+    <div class="info-box" id="g2a-info" aria-live="polite">파일을 선택하면 정보가 표시됩니다.</div>
     <div class="row hidden" id="g2a-mp4-opts">
       <div class="field"><label>시작(초)</label><input type="number" id="g2a-mp4-start" value="0" min="0" step="0.1" style="width:80px;"></div>
       <div class="field"><label>길이(초)</label><input type="number" id="g2a-mp4-duration" min="0.1" step="0.1" placeholder="끝까지" style="width:80px;"></div>
@@ -397,7 +397,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <button class="btn ghost hidden" id="fx-preview-toggle">재생/정지</button>
     </div>
     <canvas class="preview hidden" id="fx-preview-canvas"></canvas>
-    <div class="info-box" id="fx-info">이미지를 선택하고 렌더링을 눌러주세요.</div>
+    <div class="info-box" id="fx-info" aria-live="polite">이미지를 선택하고 렌더링을 눌러주세요.</div>
     <div class="row hidden" id="fx-result-row">
       <div class="field"><label>파일명</label><input type="text" id="fx-filename" class="wide" value="cutin_fx.png"></div>
       <button class="btn ghost" id="fx-download">APNG 다운로드</button>
@@ -437,7 +437,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="drop" id="book-drop">로그 HTML 파일 <small style="display:block;color:var(--sub);margin-top:4px;">코코포리아 "로그 출력"으로 받은 제목[all/main].html</small>
       <input type="file" id="book-file" accept=".html,.htm,text/html" class="hidden">
     </div>
-    <div class="info-box hidden" id="bk-loadinfo"></div>
+    <div class="info-box hidden" id="bk-loadinfo" aria-live="polite"></div>
   </div>
 
   <div class="card hidden" id="bk-cfgPanel">
@@ -461,7 +461,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <h2>결과</h2>
     <div class="info-box" id="bk-stats" style="white-space:normal;"></div>
     <div class="footnote" id="bk-warns" style="color:var(--danger);" aria-live="polite"></div>
-    <div class="footnote" id="bk-okmsg" style="color:var(--ok);"></div>
+    <div class="footnote" id="bk-okmsg" aria-live="polite" style="color:var(--ok);"></div>
     <div class="chips" style="margin:10px 0;">
       <span class="chip bk-sv-Story">Story</span><span class="chip bk-sv-Storydice">Storydice</span>
       <span class="chip bk-sv-system">system</span><span class="chip bk-sv-dice">dice</span>
@@ -490,7 +490,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <button class="btn ghost" id="gl-copy">결과 복사</button>
     </div>
     <div class="field" style="width:100%;"><label>변환 결과</label><textarea id="gl-output" rows="10" style="width:100%;" readonly></textarea></div>
-    <div class="info-box" id="gl-matches">변환 버튼을 누르면 어떤 용어가 바뀌었는지 여기에 표시됩니다.</div>
+    <div class="info-box" id="gl-matches" aria-live="polite">변환 버튼을 누르면 어떤 용어가 바뀌었는지 여기에 표시됩니다.</div>
   </div>
   <div class="card">
     <h2>용어 사전 편집</h2>
@@ -516,7 +516,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <p class="desc">6판 능력치를 7판 스케일(×5)로 자동 변환합니다. Damage Bonus/Build 표는 룰북마다 수치가 달라 아래에 직접 입력해두면 계산에 활용됩니다.</p>
     <h3 style="font-size:13px;color:var(--sub);margin:14px 0 6px;">능력치 변환 (6판 값 입력 → 7판 값 자동 계산)</h3>
     <div class="row" id="ed-stat-row"></div>
-    <div class="info-box" id="ed-stat-result">-</div>
+    <div class="info-box" id="ed-stat-result" aria-live="polite">-</div>
   </div>
 
   <div class="card">
@@ -525,7 +525,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="field" style="width:100%;"><label>원문</label><textarea id="ed-text-input" rows="8" style="width:100%;" placeholder="시나리오 스탯 블록 텍스트를 붙여넣으세요"></textarea></div>
     <div class="row"><button class="btn" id="ed-text-run">일괄 변환</button></div>
     <div class="field" style="width:100%;"><label>변환 결과</label><textarea id="ed-text-output" rows="8" style="width:100%;" readonly></textarea></div>
-    <div class="info-box" id="ed-text-matches">-</div>
+    <div class="info-box" id="ed-text-matches" aria-live="polite">-</div>
   </div>
 
   <div class="card">
@@ -538,7 +538,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="row"><button class="btn ghost" id="ed-db-add">행 추가</button></div>
     <div class="row">
       <div class="field"><label>STR+SIZ 합계로 조회</label><input type="number" id="ed-db-lookup" value=""></div>
-      <div class="info-box" id="ed-db-result" style="flex:1;">표를 입력한 뒤 조회하세요.</div>
+      <div class="info-box" id="ed-db-result" aria-live="polite" style="flex:1;">표를 입력한 뒤 조회하세요.</div>
     </div>
   </div>
 </section>
@@ -568,7 +568,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">파생 수치 (자동계산)</h3>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,140px));gap:10px;" id="chs-derived-row"></div>
-    <p class="footnote" id="chs-db-note" style="margin:6px 0 0;"></p>
+    <p class="footnote" id="chs-db-note" aria-live="polite" style="margin:6px 0 0;"></p>
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">기능점수 배분</h3>
     <div class="row">
@@ -585,7 +585,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <div class="field"><label>직업 기능점수</label><input type="number" id="chs-occ-points" value="0" style="width:90px;"></div>
       <div class="field"><label>관심 기능점수 (지능×2, 자동)</label><input type="number" id="chs-int-points" readonly disabled style="width:90px;"></div>
     </div>
-    <div class="info-box" id="chs-points-info">기능치에 점수를 분배하면 남은 점수가 여기 표시됩니다.</div>
+    <div class="info-box" id="chs-points-info" aria-live="polite">기능치에 점수를 분배하면 남은 점수가 여기 표시됩니다.</div>
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">기능치</h3>
     <p class="footnote" style="margin:2px 0 6px;">기능명은 직접 수정할 수 있습니다. 괄호가 빈 기능(예술/공예, 과학 등)은 괄호 안에 세부 분야를 적어주세요. 총합 = 기본 + 분배(최대 99).</p>
@@ -714,7 +714,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="drop" id="cs-drop" style="margin-top:8px;">같은 캐릭터의 표정 변형 이미지 여러 장
       <input type="file" id="cs-file" accept=".png,.jpg,.jpeg,.webp" multiple class="hidden">
     </div>
-    <div class="info-box" id="cs-info">이미지를 올리면 크롭 영역이 표시됩니다. 드래그로 위치를, 모서리로 크기를 조절하세요.</div>
+    <div class="info-box" id="cs-info" aria-live="polite">이미지를 올리면 크롭 영역이 표시됩니다. 드래그로 위치를, 모서리로 크기를 조절하세요.</div>
     <div id="cs-cropper-wrap" class="hidden" style="position:relative;display:inline-block;max-width:100%;margin-top:10px;">
       <img id="cs-cropper-img" alt="크롭 영역을 지정할 기준 이미지" style="max-width:100%;display:block;">
       <div id="cs-crop-box" style="position:absolute;border:2px solid var(--accent);background:rgba(91,107,245,.15);cursor:move;">
@@ -762,7 +762,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <input type="file" id="cf-file" accept=".png,.jpg,.jpeg,.webp,.gif" multiple class="hidden">
     </div>
     <p class="footnote" style="margin:4px 0 0;">기본 라벨은 <b>@표정</b> 형식입니다(예: 웃음.png → <b>@웃음</b>). 이미 @로 시작하면 그대로 쓰고, 아니면 자동으로 붙으며 업로드 후 직접 수정할 수 있습니다.</p>
-    <div class="info-box" id="cf-info">이미지를 올리면 라벨과 개수가 여기 표시됩니다.</div>
+    <div class="info-box" id="cf-info" aria-live="polite">이미지를 올리면 라벨과 개수가 여기 표시됩니다.</div>
     <div id="cf-labels" style="margin-top:6px;"></div>
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">스테이터스 (선택 사항)</h3>
@@ -18584,6 +18584,54 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     return {blob:blob, w:w, h:h, frameCount:frames.length, resized:true};
   }
 
+  // APNG → GIF 방향도 다른 두 방향(GIF→APNG, MP4→APNG)과 동일하게 코코포리아 업로드 기준
+  // (1200px·1MB)에 맞춰 자동으로 줄여준다. GIF는 팔레트 크기를 별도로 조절하는 API가 없어
+  // (gif.js.optimized의 quality 옵션은 색상 수가 아니라 양자화 정밀도) 해상도 축소 →
+  // 프레임 솎아내기 순서로 fitApngToLimit과 같은 전략을 쓴다.
+  async function fitGifToLimit(decoded, targetBytes, preserveAlpha, onProgress){
+    var frames = decoded.frames, delays = decoded.delays, w = decoded.width, h = decoded.height;
+    if(onProgress) onProgress('용량 확인 중...');
+    var blob = await encodeGif(frames, delays, w, h, preserveAlpha);
+    if(blob.size <= targetBytes) return {blob:blob, w:w, h:h, frameCount:frames.length, resized:false};
+    await yieldToBrowser();
+
+    if(onProgress) onProgress('해상도를 줄이는 중...');
+    var scale = clampInt(Math.sqrt(targetBytes/blob.size)*0.92, 0.3, 0.95);
+    var nw = Math.max(96, Math.round(w*scale)), nh = Math.max(96, Math.round(h*scale));
+    if(nw<w || nh<h){
+      frames = resizeFrames(frames, w, h, nw, nh);
+      w = nw; h = nh;
+      blob = await encodeGif(frames, delays, w, h, preserveAlpha);
+      await yieldToBrowser();
+    }
+
+    if(blob.size > targetBytes && frames.length > 6){
+      if(onProgress) onProgress('프레임 수를 줄이는 중...');
+      var frameRatio = clampInt(targetBytes/blob.size, 0.34, 0.9);
+      var keepEvery = Math.max(2, Math.round(1/frameRatio));
+      var kept=[], keptDelays=[];
+      for(var i=0;i<frames.length;i+=keepEvery){
+        var merged = 0;
+        for(var j=i;j<Math.min(frames.length,i+keepEvery);j++) merged += (delays[j]||0);
+        kept.push(frames[i]); keptDelays.push(merged);
+      }
+      frames = kept; delays = keptDelays;
+      blob = await encodeGif(frames, delays, w, h, preserveAlpha);
+      await yieldToBrowser();
+    }
+
+    for(var extra=0; extra<2 && blob.size>targetBytes && w>96 && h>96; extra++){
+      if(onProgress) onProgress('마지막 보정 중...');
+      var nw2 = Math.max(96, Math.round(w*0.85)), nh2 = Math.max(96, Math.round(h*0.85));
+      frames = resizeFrames(frames, w, h, nw2, nh2);
+      w = nw2; h = nh2;
+      blob = await encodeGif(frames, delays, w, h, preserveAlpha);
+      await yieldToBrowser();
+    }
+
+    return {blob:blob, w:w, h:h, frameCount:frames.length, resized:true};
+  }
+
   setupDrop('g2a-drop','g2a-file', async function(file){
     $('#g2a-result-row').classList.add('hidden');
     $('#g2a-mp4-opts').classList.add('hidden');
@@ -18661,10 +18709,12 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
           info.textContent = 'MP4 → APNG 완료: '+(target2.w||decoded.width)+'x'+(target2.h||decoded.height)+', 프레임 '+(target2.frameCount||decoded.frames.length)+'개 (APNG 크기: '+(target2.blob.size/1024).toFixed(1)+'KB'+(target2.resized?', 코코포리아 기준에 맞춰 자동 축소됨':'')+(target2.blob.size>COCOFOLIA_TARGET_BYTES?' — 1MB를 넘어 코코포리아에서 압축될 수 있습니다':'')+')';
         } else {
           var preserveAlpha = $('#g2a-alpha').checked;
-          var gblob = await encodeGif(state.decoded.frames, state.decoded.delays, state.decoded.width, state.decoded.height, preserveAlpha);
-          state.blob = gblob;
-          setBlobUrl($('#g2a-preview'), gblob);
-          info.textContent += ' 완료 (GIF 크기: '+(gblob.size/1024).toFixed(1)+'KB)';
+          var target3 = $('#g2a-autoresize').checked
+            ? await fitGifToLimit(state.decoded, COCOFOLIA_TARGET_BYTES, preserveAlpha, function(msg){ info.textContent = msg; })
+            : {blob: await encodeGif(state.decoded.frames, state.decoded.delays, state.decoded.width, state.decoded.height, preserveAlpha), resized:false};
+          state.blob = target3.blob;
+          setBlobUrl($('#g2a-preview'), target3.blob);
+          info.textContent = 'APNG → GIF 완료: '+(target3.w||state.decoded.width)+'x'+(target3.h||state.decoded.height)+', 프레임 '+(target3.frameCount||state.decoded.frames.length)+'개 (GIF 크기: '+(target3.blob.size/1024).toFixed(1)+'KB'+(target3.resized?', 코코포리아 기준에 맞춰 자동 축소됨':'')+(target3.blob.size>COCOFOLIA_TARGET_BYTES?' — 1MB를 넘어 코코포리아에서 압축될 수 있습니다':'')+')';
         }
         $('#g2a-result-row').classList.remove('hidden');
       }catch(e){
@@ -19947,7 +19997,13 @@ var TabLog = (function(){
     $('#gl-matches').textContent = matched.length ? ('치환됨: '+matched.join(', ')) : '일치하는 용어를 찾지 못했습니다.';
   });
   $('#gl-copy').addEventListener('click', function(){
-    navigator.clipboard.writeText($('#gl-output').value);
+    var text = $('#gl-output').value;
+    if(!text){ alert('먼저 변환을 실행해주세요.'); return; }
+    navigator.clipboard.writeText(text).then(function(){
+      var btn = $('#gl-copy'); var orig = btn.textContent;
+      btn.textContent = '복사됨 ✓';
+      setTimeout(function(){ btn.textContent = orig; }, 1500);
+    }).catch(function(){ alert('클립보드 복사에 실패했습니다. 직접 선택해서 복사해주세요.'); });
   });
 })();
 
