@@ -20248,7 +20248,7 @@ var TabLog = (function(){
 
     var CON=statVal('CON'), SIZ=statVal('SIZ'), POW=statVal('POW'), STR=statVal('STR'), DEX=statVal('DEX'), INT=statVal('INT'), EDU=statVal('EDU');
     derived.hp.value = Math.floor((CON+SIZ)/10);
-    derived.mp.value = Math.floor(POW/10);
+    derived.mp.value = Math.floor(POW/5); // CoC 7판 규칙: 마력(MP) = POW의 1/5
     derived.san.value = Math.min(99, POW);
     derived.mov.value = (STR<SIZ && DEX<SIZ) ? 7 : ((STR>=SIZ && DEX>=SIZ) ? 9 : 8);
 
