@@ -722,7 +722,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="info-box" id="cs-info" aria-live="polite">이미지를 올리면 크롭 영역이 표시됩니다. 드래그로 위치를, 모서리로 크기를 조절하세요.</div>
     <div id="cs-cropper-wrap" class="hidden" style="position:relative;display:inline-block;max-width:100%;margin-top:10px;">
       <img id="cs-cropper-img" alt="크롭 영역을 지정할 기준 이미지" style="max-width:100%;display:block;">
-      <div id="cs-crop-box" style="position:absolute;border:2px solid var(--accent);background:rgba(91,107,245,.15);cursor:move;">
+      <div id="cs-crop-box" tabindex="0" role="group" aria-label="크롭 영역 — 방향키로 이동, Shift+방향키로 크기 조절" style="position:absolute;border:2px solid var(--accent);background:rgba(91,107,245,.15);cursor:move;">
         <div class="cs-handle" data-dir="se" style="position:absolute;right:-6px;bottom:-6px;width:12px;height:12px;background:var(--accent);border-radius:2px;cursor:nwse-resize;"></div>
       </div>
     </div>
@@ -18786,6 +18786,11 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
 
   setupDrop('fx-drop','fx-file', async function(file){
     if(!/\.png$/i.test(file.name)){ info.textContent = 'PNG 파일만 지원합니다.'; return; }
+    stopPreview();
+    state.frames = null; state.delays = null; state.blob = null;
+    $('#fx-result-row').classList.add('hidden');
+    previewCanvas.classList.add('hidden');
+    previewToggle.classList.add('hidden');
     try{
       state.img = await loadImageElement(file);
       info.textContent = '이미지 로드됨: '+state.img.width+'x'+state.img.height+'. 옵션을 조정하고 렌더링을 눌러주세요.';
@@ -21016,18 +21021,16 @@ var TabLog = (function(){
   }
 
   var dragMode = null, dragStart = null, rectStart = null;
-  cropBox.addEventListener('mousedown', function(e){
-    if(e.target.classList.contains('cs-handle')){ dragMode = 'resize'; }
-    else { dragMode = 'move'; }
-    dragStart = {x:e.clientX, y:e.clientY};
+  function cropDragStart(mode, x, y){
+    dragMode = mode;
+    dragStart = {x:x, y:y};
     rectStart = {x:cropRect.x, y:cropRect.y, w:cropRect.w, h:cropRect.h};
-    e.preventDefault();
-  });
-  window.addEventListener('mousemove', function(e){
+  }
+  function cropDragMove(x, y){
     if(!dragMode) return;
     var w = cropImg.clientWidth, h = cropImg.clientHeight;
     if(!w || !h) return;
-    var dx = (e.clientX-dragStart.x)/w, dy = (e.clientY-dragStart.y)/h;
+    var dx = (x-dragStart.x)/w, dy = (y-dragStart.y)/h;
     if(dragMode==='move'){
       cropRect.x = clamp01(rectStart.x+dx, 0, 1-cropRect.w);
       cropRect.y = clamp01(rectStart.y+dy, 0, 1-cropRect.h);
@@ -21037,8 +21040,39 @@ var TabLog = (function(){
       squareifyCropRect();
     }
     syncCropBoxDom();
+  }
+  cropBox.addEventListener('mousedown', function(e){
+    cropDragStart(e.target.classList.contains('cs-handle')?'resize':'move', e.clientX, e.clientY);
+    e.preventDefault();
   });
+  window.addEventListener('mousemove', function(e){ cropDragMove(e.clientX, e.clientY); });
   window.addEventListener('mouseup', function(){ dragMode = null; });
+  cropBox.addEventListener('touchstart', function(e){
+    var t = e.touches[0];
+    cropDragStart(e.target.classList.contains('cs-handle')?'resize':'move', t.clientX, t.clientY);
+    e.preventDefault();
+  }, {passive:false});
+  window.addEventListener('touchmove', function(e){
+    if(!dragMode) return;
+    cropDragMove(e.touches[0].clientX, e.touches[0].clientY);
+    e.preventDefault();
+  }, {passive:false});
+  window.addEventListener('touchend', function(){ dragMode = null; });
+  // 키보드 전용/스크린리더 사용자를 위한 방향키 조작: 방향키로 이동, Shift+방향키로 크기 조절(정사각형 유지)
+  cropBox.addEventListener('keydown', function(e){
+    var STEP = 0.02;
+    var dir = {ArrowLeft:[-1,0], ArrowRight:[1,0], ArrowUp:[0,-1], ArrowDown:[0,1]}[e.key];
+    if(!dir) return;
+    e.preventDefault();
+    if(e.shiftKey){
+      cropRect.w = clamp01(cropRect.w+dir[0]*STEP, 0.03, 1-cropRect.x);
+      squareifyCropRect();
+    } else {
+      cropRect.x = clamp01(cropRect.x+dir[0]*STEP, 0, 1-cropRect.w);
+      cropRect.y = clamp01(cropRect.y+dir[1]*STEP, 0, 1-cropRect.h);
+    }
+    syncCropBoxDom();
+  });
   function clamp01(v,min,max){ return v<min?min:(v>max?max:v); }
 
   // 위쪽 크롭 박스 미리보기는 items[0](첫 번째 카드) 기준으로 그려진다. 카드를 드래그해 순서를
@@ -21142,13 +21176,15 @@ var TabLog = (function(){
       var thumbCanvas = document.createElement('canvas');
       thumbCanvas.width = Math.round(THUMB_DISPLAY_PX*dpr); thumbCanvas.height = Math.round(THUMB_DISPLAY_PX*dpr);
       thumbCanvas.style.cssText = 'width:'+THUMB_DISPLAY_PX+'px;height:'+THUMB_DISPLAY_PX+'px;border-radius:8px;display:block;pointer-events:none;background:repeating-conic-gradient(#8883 0% 25%, transparent 0% 50%) 50% / 8px 8px;';
+      thumbCanvas.setAttribute('role','img');
+      thumbCanvas.setAttribute('aria-label', (it.label||'표정')+' 크롭 미리보기');
       it.thumbCanvas = thumbCanvas;
       drawItemThumb(it);
       f.appendChild(thumbCanvas);
 
       var inp = document.createElement('input');
       inp.type = 'text'; inp.value = it.label; inp.style.cssText = 'width:110px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font-size:12px;';
-      inp.addEventListener('input', function(){ it.label = inp.value; });
+      inp.addEventListener('input', function(){ it.label = inp.value; thumbCanvas.setAttribute('aria-label', (it.label||'표정')+' 크롭 미리보기'); });
       f.appendChild(inp);
 
       var row = document.createElement('div');
@@ -21329,19 +21365,20 @@ var TabLog = (function(){
       f.style.cssText = 'display:inline-flex;flex-direction:column;align-items:center;gap:4px;margin:4px 8px 4px 0;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--panel);vertical-align:top;';
 
       it.img.style.cssText = 'width:64px;height:64px;object-fit:contain;border-radius:6px;display:block;background:repeating-conic-gradient(#8883 0% 25%, transparent 0% 50%) 50% / 8px 8px;';
+      it.img.alt = (it.label||'표정')+' 이미지 미리보기';
       f.appendChild(it.img);
 
       var inp = document.createElement('input');
       inp.type = 'text'; inp.value = it.label;
       inp.style.cssText = 'width:110px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font-size:12px;text-align:center;';
-      inp.addEventListener('input', function(){ it.label = inp.value; });
+      inp.addEventListener('input', function(){ it.label = inp.value; it.img.alt = (it.label||'표정')+' 이미지 미리보기'; });
       // 이미지를 올릴 때는 파일명 앞에 '@'가 없으면 자동으로 붙여주지만(코코포리아 표정 라벨
       // 규칙), 사용자가 이 칸을 직접 편집해서 '@'를 지우면 그 상태로 룸파일에 그대로 들어가
       // 코코포리아에서 표정으로 인식되지 않는다. 입력 중에는 건드리지 않다가 포커스를 벗어날
       // 때만 다시 보정한다.
       inp.addEventListener('blur', function(){
         var v = inp.value.trim();
-        if(v && v.charAt(0)!=='@'){ v = '@'+v; inp.value = v; it.label = v; }
+        if(v && v.charAt(0)!=='@'){ v = '@'+v; inp.value = v; it.label = v; it.img.alt = v+' 이미지 미리보기'; }
       });
       f.appendChild(inp);
 
