@@ -6,6 +6,16 @@
 <meta name="description" content="코코포리아(CCFOLIA) TRPG 세션용 컷인 제작·로그 백업·CoC 유틸리티·캐릭터 스탠딩 도구를 한 파일로 제공하는 오프라인 도구입니다.">
 <title>코코세터</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%B2%3C/text%3E%3C/svg%3E">
+<script>
+/* <style>가 파싱되기 전에(=화면이 그려지기 전에) data-theme을 미리 지정해둬야
+   "잠깐 시스템 배색으로 그려졌다가 저장된 값으로 바뀌는" 깜빡임이 없다. */
+(function(){
+  try{
+    var t = localStorage.getItem('cocofolia_setter_theme_v1');
+    if(t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+  }catch(e){}
+})();
+</script>
 <style>
 :root{
   color-scheme: light dark;
@@ -25,6 +35,21 @@
     --line:#333844; --accent:#7c88ff; --accent-ink:#0d0f14;
     --danger:#ff7a7a; --ok:#57c98c; --chip:#2a2d5c;
   }
+}
+/* 설정 탭에서 라이트/다크를 직접 고르면 위 media query(시스템 설정)보다 이 값이 우선 적용된다
+   (속성 선택자라 :root보다 명시도가 높다). "시스템 설정 따르기"를 고르면 data-theme이 아예
+   없어서 위 media query만 적용된다. */
+:root[data-theme="light"]{
+  --bg:#f5f6f8; --panel:#ffffff; --ink:#1e2430; --sub:#6b7280;
+  --line:#e3e6eb; --accent:#5b6bf5; --accent-ink:#ffffff;
+  --danger:#e35b5b; --ok:#2ea36b; --chip:#eef0ff;
+  color-scheme: light;
+}
+:root[data-theme="dark"]{
+  --bg:#181a20; --panel:#20232b; --ink:#e7e9ee; --sub:#9a9fac;
+  --line:#333844; --accent:#7c88ff; --accent-ink:#0d0f14;
+  --danger:#ff7a7a; --ok:#57c98c; --chip:#2a2d5c;
+  color-scheme: dark;
 }
 /* Pretendard Variable(SIL Open Font License 1.1, Copyright (c) 2021 Kil Hyung-jin,
    https://github.com/orioncactus/pretendard) 오프라인 단일 파일 툴이라 시스템에
@@ -290,6 +315,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <button class="tab-btn" data-target="tab-cheatsheet" data-cat="char" id="tabbtn-cheatsheet" role="tab" aria-selected="false" aria-controls="tab-cheatsheet">10. 컨닝 페이퍼 메이커</button>
     <button class="tab-btn" data-target="tab-charfile" data-cat="char" id="tabbtn-charfile" role="tab" aria-selected="false" aria-controls="tab-charfile">11. 캐릭터 룸파일 생성기</button>
     <button class="tab-btn" data-target="tab-suggest" data-cat="etc" id="tabbtn-suggest" role="tab" aria-selected="false" aria-controls="tab-suggest">12. 건의함</button>
+    <button class="tab-btn" data-target="tab-settings" data-cat="etc" id="tabbtn-settings" role="tab" aria-selected="false" aria-controls="tab-settings">13. 설정</button>
   </nav>
 </header>
 <main>
@@ -299,13 +325,13 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <div class="card">
     <h2>이거 뭐 하는 툴이냐</h2>
     <p class="desc">코코포리아 ORPG 세션 준비에 필요한 컷인 제작·로그 백업·캐릭터 관리 도구를 한 파일에 모은 오프라인 툴킷입니다. 개인적으로 모아놓고 빠르게 작업하기 위해 별 관계 없는 기능들도 많이 더해놨습니다.</p>
-    <button class="btn" id="home-offline-download" type="button" style="margin-top:10px;">오프라인용 파일 다운로드 (zip)</button>
+    <button class="btn" id="home-offline-download" type="button" style="margin-top:10px;">오프라인용 파일(html) 다운로드</button>
   </div>
 
   <div class="card">
     <h3 style="margin:0 0 8px;font-size:14px;">업데이트 로그</h3>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
-      <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-03</b> — 탭 번호를 실제 표시 순서와 일치하도록 재정렬(8~12번), 홈 화면 카드 펼침 애니메이션을 grid 기반으로 바꿔 부드럽게 개선, 업데이트 로그에 카테고리 태그 추가, 오프라인용 파일(zip) 다운로드 버튼 추가</li>
+      <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-03</b> — 탭 번호를 실제 표시 순서와 일치하도록 재정렬(8~13번), 홈 화면 카드 펼침 애니메이션을 grid 기반으로 바꿔 부드럽게 개선, 업데이트 로그에 카테고리 태그 추가, 오프라인용 파일(html) 다운로드 버튼 추가, 설정 탭 신설(라이트/다크 배색 선택, 저장된 값 초기화)</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-08-02</b> — 컨닝 페이퍼 메이커 대규모 개편: 이름·캐치프레이즈를 하단 타이틀 바로 옮기고 배치(좌/우 정렬·세로쓰기)·서체(프리텐다드/프리젠테이션/페이퍼로지)·굵기·색을 고를 수 있게 하고 실시간 미리보기 추가, 표정 라벨을 썸네일 위에 겹쳐 그려 여백 최소화</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-08-02</b> — 프리텐다드·프리젠테이션·페이퍼로지 서체를 파일에 내장해 시스템 설치 여부와 무관하게 항상 정확히 표시</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-02</b> — 여러 장 업로드 시 일부 파일이 손상돼도 나머지는 그대로 반영, 컨닝 페이퍼 크롭 미리보기 동기화 버그 수정, 키보드 접근성·마지막으로 보던 탭 기억 등 안정성 개선</li>
@@ -808,7 +834,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 11 ===================== -->
+<!-- ===================== TAB 12 ===================== -->
 <section id="tab-suggest" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-suggest">
   <div class="card">
     <h2>건의함</h2>
@@ -823,6 +849,24 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="info-box" id="sg-status" aria-live="polite">불러오는 중...</div>
     <div id="sg-list" style="margin-top:10px;display:flex;flex-direction:column;gap:8px;"></div>
     <div id="sg-more-note" style="margin-top:8px;font-size:12px;color:var(--sub);"></div>
+  </div>
+</section>
+
+<!-- ===================== TAB 13 ===================== -->
+<section id="tab-settings" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-settings">
+  <div class="card">
+    <h2>설정</h2>
+    <p class="desc">화면 배색과, 이 브라우저에 저장해둔 값들을 여기서 관리합니다.</p>
+    <h3 style="margin:16px 0 8px;font-size:14px;">화면 배색</h3>
+    <div class="row" id="settings-theme-group" role="radiogroup" aria-label="화면 배색">
+      <label class="row" style="gap:4px;font-weight:normal;"><input type="radio" name="settings-theme" value="system"><span>시스템 설정 따르기</span></label>
+      <label class="row" style="gap:4px;font-weight:normal;"><input type="radio" name="settings-theme" value="light"><span>라이트</span></label>
+      <label class="row" style="gap:4px;font-weight:normal;"><input type="radio" name="settings-theme" value="dark"><span>다크</span></label>
+    </div>
+    <h3 style="margin:20px 0 8px;font-size:14px;">저장된 값 초기화</h3>
+    <p class="desc" style="margin-bottom:8px;">각 탭에서 기억해둔 입력값(비율·크기·서체 등)과 마지막으로 보던 탭, 이 배색 설정까지 이 브라우저에 저장된 모든 값을 지웁니다. 업로드한 이미지 등 작업 중인 내용에는 영향이 없습니다.</p>
+    <button class="btn ghost" id="settings-reset" style="color:var(--danger);">저장된 값 전체 초기화</button>
+    <div class="info-box hidden" id="settings-reset-info" aria-live="polite"></div>
   </div>
 </section>
 
@@ -17915,13 +17959,9 @@ function downloadBlob(blob, filename){
   dlBtn.addEventListener('click', function(){
     var origText = dlBtn.textContent;
     dlBtn.disabled = true;
-    dlBtn.textContent = '압축하는 중...';
+    dlBtn.textContent = '준비 중...';
     getPageHtml().then(function(html){
-      var zip = new JSZip();
-      zip.file('Cocofolia_Setter.html', html);
-      return zip.generateAsync({type:'blob', compression:'DEFLATE', compressionOptions:{level:6}});
-    }).then(function(blob){
-      downloadBlob(blob, 'Cocofolia_Setter.zip');
+      downloadBlob(new Blob([html], {type:'text/html'}), 'Cocofolia_Setter.html');
     }).catch(function(err){
       alert('다운로드 파일 생성에 실패했습니다: ' + (err && err.message ? err.message : err));
     }).then(function(){
@@ -18113,6 +18153,40 @@ $all('.tab-btn').forEach(function(btn){
   if(btn) btn.click();
 })();
 
+// 설정 탭: 화면 배색(라이트/다크/시스템 설정 따르기)과 저장된 값 전체 초기화.
+// data-theme 적용 자체는 <head>의 인라인 스크립트가 화면이 그려지기 전에 이미 해둔 상태라,
+// 여기서는 라디오 버튼 초기 선택 상태를 맞추고 변경 이벤트만 연결하면 된다.
+var THEME_LS_KEY = 'cocofolia_setter_theme_v1';
+(function(){
+  var radios = $all('input[name="settings-theme"]');
+  if(!radios.length) return;
+  var current;
+  try{ current = localStorage.getItem(THEME_LS_KEY); }catch(e){ current = null; }
+  if(current !== 'light' && current !== 'dark') current = 'system';
+  radios.forEach(function(r){ r.checked = (r.value === current); });
+  radios.forEach(function(r){
+    r.addEventListener('change', function(){
+      if(!r.checked) return;
+      if(r.value === 'system'){
+        document.documentElement.removeAttribute('data-theme');
+        try{ localStorage.removeItem(THEME_LS_KEY); }catch(e){}
+      }else{
+        document.documentElement.setAttribute('data-theme', r.value);
+        try{ localStorage.setItem(THEME_LS_KEY, r.value); }catch(e){}
+      }
+    });
+  });
+})();
+
+$('#settings-reset').addEventListener('click', function(){
+  if(!confirm('저장된 값을 전체 초기화할까요? 이 브라우저에 기억해둔 모든 값이 지워지고 페이지가 새로고침됩니다.')) return;
+  try{
+    Object.keys(localStorage).filter(function(k){ return k.indexOf('cocofolia_setter_') === 0; })
+      .forEach(function(k){ localStorage.removeItem(k); });
+  }catch(e){}
+  location.reload();
+});
+
 // role="tablist"에 있는 탭들 사이는 WAI-ARIA 탭 패턴대로 방향키(←/→, Home/End)로도 포커스를
 // 옮길 수 있게 한다 — 현재 카테고리에서 실제로 보이는(cat-hidden이 아닌) 탭만 대상으로 하고,
 // 포커스만 옮길 뿐 탭 전환(활성화)은 그대로 클릭/Enter/Space에 맡긴다(수동 활성화 모델).
@@ -18153,7 +18227,8 @@ $all('.cat-btn').forEach(function(btn){
     'tab-standing': '여러 스탠딩 이미지를 같은 비율로 일괄 재단합니다.',
     'tab-cheatsheet': '표정별 스탠딩으로 캐릭터 표정 카탈로그를 만듭니다.',
     'tab-charfile': '스탠딩+스테이터스로 캐릭터 룸파일(zip)을 만듭니다.',
-    'tab-suggest': '기능 건의나 버그를 GitHub 이슈로 남깁니다.'
+    'tab-suggest': '기능 건의나 버그를 GitHub 이슈로 남깁니다.',
+    'tab-settings': '화면 배색(라이트/다크)과 저장된 값을 관리합니다.'
   };
   // 실제 결과물 스크린샷 대신, 카드가 펼쳐질 때 어떤 종류의 기능인지 한눈에 짐작할 수 있도록
   // 가벼운 대표 아이콘을 붙인다(용량이 큰 이미지 자산을 파일에 추가로 내장하지 않기 위함).
@@ -18162,7 +18237,7 @@ $all('.cat-btn').forEach(function(btn){
     'tab-log': '📖', 'tab-book': '📕',
     'tab-glossary': '🈯', 'tab-edition': '🎲', 'tab-charsheet': '🧾',
     'tab-standing': '✂️', 'tab-cheatsheet': '🙂', 'tab-charfile': '📦',
-    'tab-suggest': '💡'
+    'tab-suggest': '💡', 'tab-settings': '⚙️'
   };
   var CAT_LABELS = {image:'이미지·애니메이션', log:'로그 백업', coc:'CoC 유틸리티', char:'캐릭터·스탠딩', etc:'기타'};
   var CAT_ORDER = ['image','log','coc','char','etc'];
