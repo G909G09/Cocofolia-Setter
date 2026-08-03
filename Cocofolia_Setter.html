@@ -17969,6 +17969,18 @@ function persistFormField(id, storageKey){
   });
 }
 
+/* ============ 업로드해둔 작업물이 저장/다운로드 전에 날아가지 않도록 경고 ============
+   8/9/10번 탭은 이미지를 여러 장 올려 놓고 순서·라벨 등을 다듬은 뒤에야 다운로드하는 구조라,
+   결과물을 받기 전에 실수로 탭을 닫거나 새로고침하면 그 작업이 전부 사라진다. 각 탭은 이미지
+   목록이 바뀔 때마다 markPendingWork(자기 탭 이름, 목록이 비어있지 않은지)를 호출해두고,
+   beforeunload에서 하나라도 남아있으면 브라우저 기본 확인창을 띄운다. */
+var pendingWork = {};
+function markPendingWork(tab, has){ pendingWork[tab] = !!has; }
+window.addEventListener('beforeunload', function(e){
+  var hasPending = Object.keys(pendingWork).some(function(k){ return pendingWork[k]; });
+  if(hasPending){ e.preventDefault(); e.returnValue = ''; }
+});
+
 // 2번 탭(GIF APNG 변환기) — 자주 바뀌지 않는 두 토글(자동 리사이징/알파 유지)만 기억해둔다.
 // 구간·FPS·크로마키 값처럼 파일마다 달라지는 값은 저장 대상에서 제외한다.
 persistFormField('g2a-autoresize', 'cocofolia_setter_g2a_autoresize');
@@ -20530,6 +20542,7 @@ var TabLog = (function(){
     $('#st-clear').disabled = items.length===0;
     $('#st-send-cs').disabled = items.length===0;
     $('#st-send-cf').disabled = items.length===0;
+    markPendingWork('standing', items.length>0);
   }
 
   setupMultiDrop('st-drop','st-file', function(files){
@@ -21093,6 +21106,7 @@ var TabLog = (function(){
   });
 
   function buildLabelInputs(){
+    markPendingWork('cheatsheet', items.length>0);
     updateCropPreviewImage(); // items[0]이 바뀌었으면(삭제/순서 변경) 위쪽 크롭 미리보기 이미지도 함께 갱신
     var wrap2 = labelsWrap;
     wrap2.innerHTML = '';
@@ -21283,6 +21297,7 @@ var TabLog = (function(){
   function syncCfButtons(){
     $('#cf-build').disabled = cfItems.length===0;
     $('#cf-clear').disabled = cfItems.length===0;
+    markPendingWork('roomfile', cfItems.length>0);
   }
 
   function buildCfLabelInputs(){
