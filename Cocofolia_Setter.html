@@ -17859,10 +17859,16 @@ function baseName(name){ var i = name.lastIndexOf('.'); return i>=0? name.slice(
 function fmtSec(ms){ return (ms/1000).toFixed(2)+'초'; }
 function escHtml(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
+// 파일명에 경로 구분자(/,\)가 섞여 있으면 일부 브라우저(예: Chrome)가 다운로드 폴더 안에
+// 그 이름으로 하위 폴더를 만들어버려 결과물을 찾기 어려워진다. 사용자가 직접 입력하는
+// 파일명 칸(mp3/g2a/fx 등)은 검증 없이 그대로 넘어오므로, 여기서 한 번에 걸러낸다.
+function sanitizeFilename(name){
+  return String(name||'').replace(/[\\/:*?"<>|]/g, '_').trim() || 'download';
+}
 function downloadBlob(blob, filename){
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
-  a.href = url; a.download = filename || 'download';
+  a.href = url; a.download = sanitizeFilename(filename);
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(function(){ URL.revokeObjectURL(url); }, 15000);
 }
@@ -18824,6 +18830,7 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
       var sel = document.createElement('select');
       sel.className = 'fx-slot-select';
       sel.id = 'fx-slot-'+n;
+      sel.setAttribute('aria-label', '슬롯 '+n+' 효과 선택');
       var noneOpt = document.createElement('option');
       noneOpt.value = ''; noneOpt.textContent = '슬롯 '+n+' — 없음';
       sel.appendChild(noneOpt);
@@ -18850,14 +18857,17 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
       controls.id = 'fx-slot-'+n+'-controls';
       var amt = document.createElement('input');
       amt.type = 'range'; amt.min = 0; amt.max = 100; amt.id = 'fx-slot-'+n+'-amount';
+      amt.setAttribute('aria-label', '슬롯 '+n+' 효과 강도');
       controls.appendChild(amt);
       var extra = document.createElement('div');
       extra.className = 'fx-slot-extra';
       var modeSel = document.createElement('select');
       modeSel.id = 'fx-slot-'+n+'-mode'; modeSel.className = 'hidden';
+      modeSel.setAttribute('aria-label', '슬롯 '+n+' 효과 모드');
       modeSel.innerHTML = '<option value="in">포커스인(흐림→선명)</option><option value="out">포커스아웃(선명→흐림)</option><option value="const">일정하게 흐림</option>';
       var colorInp = document.createElement('input');
       colorInp.type = 'color'; colorInp.id = 'fx-slot-'+n+'-color'; colorInp.className = 'hidden';
+      colorInp.setAttribute('aria-label', '슬롯 '+n+' 효과 색상');
       colorInp.style.cssText = 'width:36px;height:26px;padding:0;border:1px solid var(--line);border-radius:6px;';
       extra.appendChild(modeSel); extra.appendChild(colorInp);
       controls.appendChild(extra);
@@ -19559,10 +19569,20 @@ var TabLog = (function(){
     names.forEach(function(name){
       var chip = document.createElement('span');
       chip.className = 'chip'; chip.textContent = name;
-      chip.addEventListener('click', function(){
-        if(state.activeSpeakers.has(name)){ state.activeSpeakers.delete(name); chip.classList.add('off'); }
-        else { state.activeSpeakers.add(name); chip.classList.remove('off'); }
+      // 클릭만으로 켜고 끌 수 있던 화자 필터 칩은 마우스 없이는(Tab으로 포커스는 가능해도
+      // Enter/Space로 토글할 수 없어) 사실상 접근 불가능했다. 버튼 역할과 눌림 상태를 명시하고
+      // 키보드로도 토글할 수 있게 한다.
+      chip.tabIndex = 0;
+      chip.setAttribute('role', 'button');
+      chip.setAttribute('aria-pressed', 'true');
+      function toggle(){
+        if(state.activeSpeakers.has(name)){ state.activeSpeakers.delete(name); chip.classList.add('off'); chip.setAttribute('aria-pressed', 'false'); }
+        else { state.activeSpeakers.add(name); chip.classList.remove('off'); chip.setAttribute('aria-pressed', 'true'); }
         render();
+      }
+      chip.addEventListener('click', toggle);
+      chip.addEventListener('keydown', function(e){
+        if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggle(); }
       });
       wrap.appendChild(chip);
     });
@@ -20515,6 +20535,7 @@ var TabLog = (function(){
       var slider = document.createElement('input');
       slider.type = 'range'; slider.min = -100; slider.max = 100; slider.value = it.offset;
       slider.style.width = '100%';
+      slider.setAttribute('aria-label', it.file.name+' 세로 위치 미세조정');
       slider.addEventListener('input', function(){
         it.offset = parseInt(slider.value, 10);
         renderItem(it);
@@ -21314,6 +21335,14 @@ var TabLog = (function(){
       inp.type = 'text'; inp.value = it.label;
       inp.style.cssText = 'width:110px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font-size:12px;text-align:center;';
       inp.addEventListener('input', function(){ it.label = inp.value; });
+      // 이미지를 올릴 때는 파일명 앞에 '@'가 없으면 자동으로 붙여주지만(코코포리아 표정 라벨
+      // 규칙), 사용자가 이 칸을 직접 편집해서 '@'를 지우면 그 상태로 룸파일에 그대로 들어가
+      // 코코포리아에서 표정으로 인식되지 않는다. 입력 중에는 건드리지 않다가 포커스를 벗어날
+      // 때만 다시 보정한다.
+      inp.addEventListener('blur', function(){
+        var v = inp.value.trim();
+        if(v && v.charAt(0)!=='@'){ v = '@'+v; inp.value = v; it.label = v; }
+      });
       f.appendChild(inp);
 
       var mainBtn = document.createElement('button');
