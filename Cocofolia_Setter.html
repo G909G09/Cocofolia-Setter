@@ -331,6 +331,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <div class="card">
     <h3 style="margin:0 0 8px;font-size:14px;">업데이트 로그</h3>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-08-03</b> — 컨닝 페이퍼 메이커: 업로드한 표정 이미지를 파일 이름순(숫자 포함 시 자연스러운 순서)으로 한 번에 정렬하는 버튼 추가</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-03</b> — 탭 번호를 실제 표시 순서와 일치하도록 재정렬(8~13번), 홈 화면 카드 펼침 애니메이션을 grid 기반으로 바꿔 부드럽게 개선, 업데이트 로그에 카테고리 태그 추가, 오프라인용 파일(html) 다운로드 버튼 추가, 설정 탭 신설(라이트/다크 배색 선택, 저장된 값 초기화)</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-08-02</b> — 컨닝 페이퍼 메이커 대규모 개편: 이름·캐치프레이즈를 하단 타이틀 바로 옮기고 배치(좌/우 정렬·세로쓰기)·서체(프리텐다드/프리젠테이션/페이퍼로지)·굵기·색을 고를 수 있게 하고 실시간 미리보기 추가, 표정 라벨을 썸네일 위에 겹쳐 그려 여백 최소화</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-08-02</b> — 프리텐다드·프리젠테이션·페이퍼로지 서체를 파일에 내장해 시스템 설치 여부와 무관하게 항상 정확히 표시</li>
@@ -797,6 +798,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       </div>
       <button class="btn" id="cs-build" disabled>컨닝 페이퍼 생성</button>
       <button class="btn ghost hidden" id="cs-download">이미지로 다운로드</button>
+      <button class="btn ghost" id="cs-sort-name" disabled>파일 이름순 정렬</button>
       <button class="btn ghost" id="cs-minimize-waste" disabled>여백 최소화</button>
       <button class="btn ghost" id="cs-clear" disabled style="color:var(--danger);">전체 지우기</button>
     </div>
@@ -21235,6 +21237,7 @@ var TabLog = (function(){
       $('#cs-build').disabled = items.length===0;
       $('#cs-clear').disabled = items.length===0;
       $('#cs-minimize-waste').disabled = items.length===0;
+      $('#cs-sort-name').disabled = items.length<2;
       var msg;
       if(items.length===0){
         msg = '불러온 이미지가 없습니다.';
@@ -21264,6 +21267,7 @@ var TabLog = (function(){
     $('#cs-build').disabled = items.length===0;
     $('#cs-clear').disabled = items.length===0;
     $('#cs-minimize-waste').disabled = items.length===0;
+    $('#cs-sort-name').disabled = items.length<2;
     if(items.length===0){
       wrap.classList.add('hidden');
       // 마지막 이미지를 삭제로 지운 경우, "전체 지우기"와 마찬가지로 이전에 생성해둔
@@ -21286,11 +21290,23 @@ var TabLog = (function(){
     $('#cs-build').disabled = true;
     $('#cs-clear').disabled = true;
     $('#cs-minimize-waste').disabled = true;
+    $('#cs-sort-name').disabled = true;
     $('#cs-download').classList.add('hidden');
     $('#cs-info').textContent = '이미지를 올리면 크롭 영역이 표시됩니다. 드래그로 위치를, 모서리로 크기를 조절하세요.';
     var canvas = $('#cs-canvas');
     canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
     canvas.width = 0; canvas.height = 0;
+  });
+
+  // 업로드한 순서가 뒤죽박죽이어도 파일 이름 기준으로 한 번에 정렬할 수 있게 한다.
+  // 숫자가 포함된 파일명(예: 표정2.png, 표정10.png)이 사전순이 아니라 사람이 보기에
+  // 자연스러운 순서(2, 10 순)로 정렬되도록 numeric 옵션을 사용한다.
+  $('#cs-sort-name').addEventListener('click', function(){
+    items.sort(function(a, b){
+      return a.file.name.localeCompare(b.file.name, undefined, {numeric:true, sensitivity:'base'});
+    });
+    buildLabelInputs();
+    $('#cs-info').textContent = '파일 이름순으로 정렬했습니다.';
   });
 
   function buildLabelInputs(){
