@@ -249,19 +249,20 @@ img.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;backgr
 /* 8번 탭: CoC 캐릭터 시트 메이커 — 익숙한 종이 시트 느낌(검은 헤더 바 + 1/2·1/5 색상 셀)을 참고한 스타일 */
 .chs-box{border:1px solid #333;border-radius:6px;overflow:hidden;}
 .chs-box-head{background:#1e2430;color:#fff;font-weight:800;font-size:11.5px;text-align:center;padding:5px 6px;letter-spacing:.02em;}
-.chs-stat-cell{display:grid;grid-template-columns:52px 1fr 40px 40px;align-items:stretch;border-top:1px solid var(--line);}
-.chs-stat-cell:first-child{border-top:none;}
-.chs-stat-label{padding:4px 6px;font-size:12px;font-weight:700;background:var(--bg);display:flex;align-items:center;justify-content:center;text-align:center;}
-.chs-stat-input{width:100%;padding:4px;border:none;border-left:1px solid var(--line);text-align:center;background:var(--panel);color:var(--ink);font-size:13px;font-weight:700;}
-.chs-half-cell,.chs-fifth-cell{padding:4px;text-align:center;font-size:11px;border-left:1px solid var(--line);display:flex;align-items:center;justify-content:center;}
+.chs-box-body{display:flex;}
+.chs-box-body > div{flex:1;padding:6px;text-align:center;}
+.chs-box-body > div + div{border-left:1px solid var(--line);}
+.chs-box-body input{width:100%;border:none;background:transparent;color:var(--ink);text-align:center;font-size:15px;font-weight:800;}
+.chs-box-body label{display:block;font-size:10px;color:var(--sub);margin-bottom:2px;}
+.chs-box-body > div.has-roll{display:flex;align-items:center;gap:2px;}
+.chs-mini-roll{flex:0 0 auto;border:none;background:var(--chip);border-radius:6px;cursor:pointer;font-size:12px;padding:3px 6px;line-height:1;}
+/* 특성치 카드: 파생 수치 카드와 같은 chs-box 뼈대를 쓰되, 값 아래에 1/2·1/5 보조 값을
+   나란히 붙인다는 점만 다르다 — 두 구역이 "같은 종류의 정보"라는 걸 형태로 알 수 있게. */
+.chs-stat-box .chs-stat-input{font-size:20px;padding:2px 0 6px;}
+.chs-stat-subrow{display:flex;gap:4px;}
+.chs-half-cell,.chs-fifth-cell{flex:1;padding:3px 2px;text-align:center;font-size:11px;border-radius:4px;}
 .chs-half-cell{background:#dcedc8;color:#33691e;}
 .chs-fifth-cell{background:#e1d5f5;color:#4a148c;}
-.chs-derived-box .chs-box-body{display:flex;}
-.chs-derived-box .chs-box-body > div{flex:1;padding:6px;text-align:center;}
-.chs-derived-box .chs-box-body input{width:100%;border:none;background:transparent;color:var(--ink);text-align:center;font-size:15px;font-weight:800;}
-.chs-derived-box .chs-box-body label{display:block;font-size:10px;color:var(--sub);margin-bottom:2px;}
-.chs-derived-box .chs-box-body > div.has-roll{display:flex;align-items:center;gap:2px;}
-.chs-mini-roll{flex:0 0 auto;border:none;background:var(--chip);border-radius:6px;cursor:pointer;font-size:12px;padding:3px 6px;line-height:1;}
 /* 입력 칸이 "직접 입력해야 하는 곳"인지 "자동으로 채워지지만 고쳐도 되는 곳"인지 "자동으로만
    채워지고 손댈 수 없는 곳"인지 한눈에 구별되도록, 기본 입력 스타일 위에 얹는 두 가지 상태
    클래스. 두 클래스 모두 !important를 쓰는 이유는 기능치 표의 입력칸처럼 요소마다 배경색이
@@ -277,6 +278,10 @@ img.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;backgr
 #chs-skill-table td,#chs-skill-table th{border-left:1px solid var(--line);}
 #chs-skill-table td:first-child,#chs-skill-table th:first-child{border-left:none;}
 #chs-skill-table tbody tr:nth-child(even){background:var(--bg);}
+/* 기능이 49개나 되어 카테고리(전투/탐색/행동/교섭/지식)로 나눠 담았다 — 구역 제목 행은
+   짝수행 줄무늬(위)와 겹쳐도 항상 구분되도록 진한 배경을 쓰고, 테두리도 없앤다. */
+#chs-skill-table tbody tr.chs-skill-cat-row{background:var(--chip);}
+#chs-skill-table tr.chs-skill-cat-row td{padding:6px 8px;font-weight:800;font-size:11.5px;color:var(--ink);border-left:none;letter-spacing:.02em;}
 .chs-skill-half{background:#eef5e6;}
 .chs-skill-fifth{background:#f1eaf9;}
 details.raw summary{cursor:pointer;font-size:12px;color:var(--sub);}
@@ -345,6 +350,8 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <div class="card">
     <h3 style="margin:0 0 8px;font-size:14px;">업데이트 로그</h3>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-08-08</b> — CoC 캐릭터 시트 메이커: 특성치·파생 수치 카드가 화면 너비에 따라 애매하게 줄바꿈되던 것을 고쳐 항상 4×2, 3×2로 꽉 차게 표시(피해보너스·체구는 원래 한 쌍이라 카드 하나로 합침)</li>
+      <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-08-08</b> — CoC 캐릭터 시트 메이커: 특성치 칸을 파생 수치와 같은 카드 형태로 통일하고, 기능치 49종을 카테고리(전투/탐색/행동/교섭/지식)로 묶어 표시</li>
       <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-08-08</b> — CoC 캐릭터 시트 메이커: 어느 칸이 직접 입력·자동 계산(수정 가능)·자동 계산(수정 불가)인지 색과 범례로 구분해 표시</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-08</b> — 전체 앱 UX 훑어보기: CoC 6판→7판 수치 변환기의 Damage Bonus/Build 표에 CoC 7판 공식 수치를 기본으로 미리 채워 넣어 텅 빈 채로 열리지 않게 함, GIF APNG 변환기(MP4→APNG)의 크로마키 허용 오차 슬라이더에 현재 값이 숫자로 함께 보이도록 개선</li>
       <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-08-08</b> — CoC 캐릭터 시트 메이커 사용성 개선: 항목에 순서 번호(1~6) 표시, "특성치 무작위 굴리기"·행운 굴리기 버튼 추가, Damage Bonus/Build를 CoC 7판 공식 표로 자동 계산(더 이상 7번 탭에 표를 미리 채워두지 않아도 됨, 직접 고친 값은 유지됨), 직업 기능점수 안내 문구 보강</li>
@@ -643,13 +650,10 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <span class="footnote" style="margin:0;">근력·건강·민첩·외모·정신 = 3D6×5, 크기·지능 = (2D6+6)×5, 교육 = (3D6+3)×5 (CoC 7판 표준 방식). 처음이라 어떤 값이 적당한지 모르겠다면 이 버튼으로 굴려보세요.</span>
     </div>
     <p class="footnote" style="margin:2px 0 6px;">초록 칸은 1/2, 보라 칸은 1/5 값입니다(어려운/극난 판정 참고용) — 특성치를 바꾸면 자동으로 갱신됩니다.</p>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;">
-      <div class="chs-box"><div id="chs-stat-grid-1"></div></div>
-      <div class="chs-box"><div id="chs-stat-grid-2"></div></div>
-    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;" id="chs-stat-grid"></div>
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">3. 파생 수치 (자동계산)</h3>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,140px));gap:10px;" id="chs-derived-row"></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;" id="chs-derived-row"></div>
     <p class="footnote" id="chs-db-note" aria-live="polite" style="margin:6px 0 0;"></p>
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">4. 기능점수 배분</h3>
@@ -20399,44 +20403,58 @@ var TabLog = (function(){
     {key:'APP', label:'외모'}, {key:'EDU', label:'교육'}, {key:'INT', label:'지능'}, {key:'POW', label:'정신'}
   ];
   var stats = {}, statHalfCells = {}, statFifthCells = {};
-  var statGrid1 = $('#chs-stat-grid-1'), statGrid2 = $('#chs-stat-grid-2');
+  var statGrid = $('#chs-stat-grid');
   // "오프라인용 파일 다운로드" 대체 경로(현재 DOM 직렬화)로 받은 파일을 다시 열면 이 스크립트가
   // 또 실행되므로, 컨테이너가 비어있다는 가정이 깨져 특성치 칸이 두 벌씩 쌓인다. 실행 시작 시
   // 비워 멱등하게 만든다.
-  statGrid1.innerHTML = ''; statGrid2.innerHTML = '';
-  STAT_DEFS.forEach(function(s, i){
+  statGrid.innerHTML = '';
+  // 파생 수치(체력·마력 등) 칸과 같은 chs-box 카드 형태(검은 헤더 + 중앙 정렬 값)를 그대로 써서
+  // 두 구역이 한눈에 같은 종류의 정보라는 걸 알 수 있도록 통일했다. 1/2·1/5 값은 카드 아래
+  // 작은 두 칸으로 붙인다.
+  STAT_DEFS.forEach(function(s){
     var div = document.createElement('div');
-    div.className = 'chs-stat-cell';
+    div.className = 'chs-box chs-stat-box';
     div.innerHTML =
-      '<div class="chs-stat-label">'+s.label+'</div>'+
+      '<div class="chs-box-head">'+s.label+'</div>'+
+      '<div class="chs-box-body"><div>'+
       '<input type="number" min="0" max="99" value="50" class="chs-stat-input" data-stat="'+s.key+'">'+
-      '<div class="chs-half-cell"></div>'+
-      '<div class="chs-fifth-cell"></div>';
-    (i<4 ? statGrid1 : statGrid2).appendChild(div);
+      '<div class="chs-stat-subrow"><div class="chs-half-cell"></div><div class="chs-fifth-cell"></div></div>'+
+      '</div></div>';
+    statGrid.appendChild(div);
     stats[s.key] = div.querySelector('input');
     statHalfCells[s.key] = div.querySelector('.chs-half-cell');
     statFifthCells[s.key] = div.querySelector('.chs-fifth-cell');
   });
-  var grid = { addEventListener: function(evt, fn){ statGrid1.addEventListener(evt, fn); statGrid2.addEventListener(evt, fn); } };
+  var grid = { addEventListener: function(evt, fn){ statGrid.addEventListener(evt, fn); } };
   function statVal(key){ return clampInt(parseInt(stats[key].value,10)||0, 0, 99); }
 
   // 기본 기능 목록: [기능명, 기본값]. 언어(모국어)/회피는 특성치로부터 자동 계산되는 특수 항목이라 별도 관리.
-  var DEFAULT_SKILLS = [
-    ['회계',5], ['감정',5], ['고고학',1], ['인류학',1], ['동물조련',5], ['매혹',15],
-    ['오르기',20], ['컴퓨터 사용',5], ['크툴루 신화',0], ['변장',5],
-    ['자동차 운전',20], ['전기수리',10], ['전자기기',1],
-    ['사격(권총)',20], ['사격(라이플/샷건)',25], ['사격(기관단총)',15],
-    ['근접전(격투)',25], ['응급처치',30], ['역사',5], ['위협',15], ['도약',20],
-    ['법률',5], ['듣기',20], ['자물쇠 따기',1], ['의료',1], ['자연',10],
-    ['항법',10], ['오컬트',5], ['심리학',10], ['정신분석',1], ['손놀림',10],
-    ['승마',5], ['은밀행동',20], ['수영',20], ['투척',20], ['추적',10],
-    ['중장비 조작',1], ['기계수리',10], ['잠수',1], ['말재주',5], ['설득',10],
-    ['포격',1], ['자료조사',20], ['재력',0],
-    ['예술/공예()',5], ['과학()',1], ['생존술()',10], ['외국어()',1], ['조종()',1]
-  ];
-  var SPECIAL_SKILLS = [
-    {name:'언어(모국어)', formula:'edu'},
-    {name:'회피', formula:'dexhalf'}
+  // 기능이 49개나 되다 보니 알파벳(가나다)순 단일 목록으로는 원하는 기능을 찾기 번거로워
+  // 카테고리별로 묶었다. CoC 커뮤니티에서 흔히 쓰는 5분류(전투/탐색/행동/교섭/지식)를 따랐고,
+  // 특수 기능(언어·회피)도 각각 성격이 맞는 분류에 끼워 넣었다.
+  var SKILL_GROUPS = [
+    { cat:'전투', skills:[
+      ['사격(권총)',20], ['사격(라이플/샷건)',25], ['사격(기관단총)',15],
+      ['근접전(격투)',25], ['포격',1], ['투척',20]
+    ], special:[{name:'회피', formula:'dexhalf'}] },
+    { cat:'탐색', skills:[
+      ['감정',5], ['듣기',20], ['은밀행동',20], ['추적',10], ['자물쇠 따기',1],
+      ['손놀림',10], ['변장',5], ['응급처치',30], ['의료',1]
+    ] },
+    { cat:'행동', skills:[
+      ['오르기',20], ['도약',20], ['수영',20], ['잠수',1], ['승마',5],
+      ['자동차 운전',20], ['조종()',1], ['항법',10], ['전자기기',1],
+      ['전기수리',10], ['기계수리',10], ['중장비 조작',1], ['동물조련',5]
+    ] },
+    { cat:'교섭', skills:[
+      ['매혹',15], ['설득',10], ['위협',15], ['말재주',5], ['재력',0]
+    ] },
+    { cat:'지식', skills:[
+      ['회계',5], ['컴퓨터 사용',5], ['크툴루 신화',0], ['고고학',1], ['인류학',1],
+      ['역사',5], ['법률',5], ['자연',10], ['오컬트',5], ['심리학',10],
+      ['정신분석',1], ['자료조사',20], ['예술/공예()',5], ['과학()',1],
+      ['생존술()',10], ['외국어()',1]
+    ], special:[{name:'언어(모국어)', formula:'edu'}] }
   ];
 
   var skillRows = [];
@@ -20493,15 +20511,33 @@ var TabLog = (function(){
       else if(row.formula==='dexhalf') row.baseInput.value = Math.floor(statVal('DEX')/2);
     });
   }
+  function addCategoryHeaderRow(catName){
+    var tr = document.createElement('tr');
+    tr.className = 'chs-skill-cat-row';
+    tr.innerHTML = '<td colspan="8">'+catName+'</td>';
+    $('#chs-skill-body').appendChild(tr);
+    return tr;
+  }
+  // "기능 행 추가"로 만든 기능은 미리 정해둔 5개 분류 어디에도 속하지 않으므로, 표 맨 아래에
+  // "기타(직접 추가)" 구역을 새로 만들어 그 아래에 쌓는다(처음 추가할 때만 구역 제목을 만든다).
+  var etcCategoryRow = null;
+  function addCustomSkillRow(){
+    if(!etcCategoryRow) etcCategoryRow = addCategoryHeaderRow('기타(직접 추가)');
+    return addSkillRow('', 0, null);
+  }
   function resetSkills(){
     skillRows = [];
     $('#chs-skill-body').innerHTML = '';
-    SPECIAL_SKILLS.forEach(function(s){ addSkillRow(s.name, 0, s.formula); });
-    DEFAULT_SKILLS.forEach(function(s){ addSkillRow(s[0], s[1], null); });
+    etcCategoryRow = null;
+    SKILL_GROUPS.forEach(function(group){
+      addCategoryHeaderRow(group.cat);
+      (group.special||[]).forEach(function(s){ addSkillRow(s.name, 0, s.formula); });
+      group.skills.forEach(function(s){ addSkillRow(s[0], s[1], null); });
+    });
     updateSpecialSkillBases();
     refreshSkillTotals();
   }
-  $('#chs-skill-add').addEventListener('click', function(){ addSkillRow('', 0, null); });
+  $('#chs-skill-add').addEventListener('click', function(){ addCustomSkillRow(); });
   $('#chs-skill-reset').addEventListener('click', function(){
     if(!confirm('기능 목록을 기본값으로 되돌릴까요? 지금까지 입력한 분배 점수가 사라집니다.')) return;
     resetSkills();
@@ -20514,8 +20550,7 @@ var TabLog = (function(){
   // 버튼은 편의 기능일 뿐)이라 auto 표시를 하지 않는다.
   var DERIVED_FIELDS = [
     {key:'hp', label:'체력(HP)', ro:true}, {key:'mp', label:'마력(MP)', ro:true}, {key:'san', label:'이성(SAN)', ro:true},
-    {key:'luck', label:'행운', ro:false}, {key:'mov', label:'이동력', ro:true},
-    {key:'db', label:'피해보너스', ro:false, auto:true}, {key:'build', label:'체구', ro:false, auto:true}
+    {key:'luck', label:'행운', ro:false}, {key:'mov', label:'이동력', ro:true}
   ];
   var derived = {};
   // 위 두 칸(특성치 그리드)과 같은 이유로, 대체 다운로드 경로로 재실행될 때 두 벌씩 쌓이지 않도록 비운다.
@@ -20524,14 +20559,30 @@ var TabLog = (function(){
     var div = document.createElement('div');
     div.className = 'chs-box chs-derived-box';
     var rollBtn = d.key==='luck' ? '<button type="button" class="chs-mini-roll" id="chs-luck-roll" title="행운 굴리기(3D6×5)">🎲</button>' : '';
-    var stateClass = d.ro ? 'chs-field-locked' : (d.auto ? 'chs-field-auto' : '');
+    var stateClass = d.ro ? 'chs-field-locked' : '';
     div.innerHTML = '<div class="chs-box-head">'+d.label+'</div>'+
-      '<div class="chs-box-body"><div class="'+(rollBtn?'has-roll':'')+'"><input type="'+(d.key==='db'?'text':'number')+'" class="'+stateClass+'" '+(d.ro?'readonly disabled':'')+'>'+rollBtn+'</div></div>';
+      '<div class="chs-box-body"><div class="'+(rollBtn?'has-roll':'')+'"><input type="number" class="'+stateClass+'" '+(d.ro?'readonly disabled':'')+'>'+rollBtn+'</div></div>';
     derivedRow.appendChild(div);
     derived[d.key] = div.querySelector('input');
   });
   function roll(n, sides){ var sum=0; for(var i=0;i<n;i++) sum += 1+Math.floor(Math.random()*sides); return sum; }
   $('#chs-luck-roll').addEventListener('click', function(){ derived.luck.value = roll(3,6)*5; });
+
+  // 피해보너스·체구는 둘 다 STR+SIZ 합계 하나에서 함께 나오는 짝이라 카드 하나에 나란히
+  // 묶는다 — 7개를 낱개 카드로 늘어놓으면 4열 기준으로 4+3으로 애매하게 갈라지는데,
+  // 6개로 줄이면 3열×2줄로 꽉 채울 수 있다.
+  var dbBuildBox = document.createElement('div');
+  dbBuildBox.className = 'chs-box chs-derived-box';
+  dbBuildBox.innerHTML =
+    '<div class="chs-box-head">피해보너스 · 체구</div>'+
+    '<div class="chs-box-body">'+
+      '<div><label>DB</label><input type="text" class="chs-field-auto"></div>'+
+      '<div><label>체구</label><input type="number" class="chs-field-auto"></div>'+
+    '</div>';
+  derivedRow.appendChild(dbBuildBox);
+  var dbBuildInputs = dbBuildBox.querySelectorAll('input');
+  derived.db = dbBuildInputs[0];
+  derived.build = dbBuildInputs[1];
 
   var DBTABLE_LS_KEY = 'cocofolia_setter_dbtable_v1'; // 7번 탭(CoC 6판→7판 수치 변환기)이 쓰는 것과 동일한 저장 키를 재사용
   function lookupCustomDbBuild(strSizSum){
