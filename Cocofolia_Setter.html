@@ -18924,6 +18924,16 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
   var previewCanvas = $('#fx-preview-canvas');
   var previewToggle = $('#fx-preview-toggle');
 
+  // 2번 탭(GIF/APNG 변환기)은 코코포리아의 1MB 업로드 제한(초과 시 서버가 자동 압축하면서
+  // 애니메이션 정보가 통째로 사라져 정지 이미지가 됨)을 감지해 자동 리사이징 + 경고를 해주지만,
+  // 이 탭은 원본 해상도·프레임 수 그대로 인코딩만 하고 결과 용량을 전혀 알려주지 않았다. 노이즈
+  // 등 손상이 큰 효과를 켜면(무손실 PNG 압축 특성상) 기본 설정만으로도 수십 MB짜리 APNG가
+  // 조용히 "완료"로 표시되며 다운로드되는 것을 실제로 확인했다. 자동 리사이징까지는 이 탭의
+  // 렌더링 파이프라인(효과별 캔버스 프레임 생성)이 달라 그대로 옮기기 어려우므로, 최소한 2번
+  // 탭과 동일한 기준으로 다운로드 시점에 결과 용량을 안내해 사용자가 필요하면 길이/FPS/효과
+  // 강도를 낮춰 다시 렌더링하도록 안내한다.
+  var FX_COCOFOLIA_TARGET_BYTES = 0.95*1024*1024;
+
   setupDrop('fx-drop','fx-file', async function(file){
     if(!/\.png$/i.test(file.name)){ info.textContent = 'PNG 파일만 지원합니다.'; return; }
     stopPreview();
@@ -19545,6 +19555,8 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
         alert('APNG 인코딩 실패: '+e.message); return;
       }
     }
+    info.textContent = 'APNG 다운로드 완료 (크기: '+(state.blob.size/1024).toFixed(1)+'KB)'
+      + (state.blob.size>FX_COCOFOLIA_TARGET_BYTES ? ' — 1MB를 넘어 코코포리아에 올리면 서버가 자동 압축하면서 애니메이션이 깨질 수 있습니다. 길이/FPS를 줄이거나 효과 강도를 낮춰 다시 렌더링해보세요.' : '');
     downloadBlob(state.blob, $('#fx-filename').value.trim() || 'cutin_fx.png');
   });
 })();
