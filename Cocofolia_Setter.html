@@ -18015,12 +18015,46 @@ function clampInt(v,min,max){ return v<min?min:(v>max?max:v); }
 function baseName(name){ var i = name.lastIndexOf('.'); return i>=0? name.slice(0,i): name; }
 function fmtSec(ms){ return (ms/1000).toFixed(2)+'초'; }
 function escHtml(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+// 사용자가 입력한 문자열을 정규식 리터럴 안에 그대로 끼워 넣어야 할 때(용어 변환기 등)
+// 정규식 특수문자를 이스케이프해준다. 탭별로 각자 만들어 쓰던 것을 공통 유틸로 모았다.
+function escapeRegExp(s){ return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
 // 파일명에 경로 구분자(/,\)가 섞여 있으면 일부 브라우저(예: Chrome)가 다운로드 폴더 안에
 // 그 이름으로 하위 폴더를 만들어버려 결과물을 찾기 어려워진다. 사용자가 직접 입력하는
 // 파일명 칸(mp3/g2a/fx 등)은 검증 없이 그대로 넘어오므로, 여기서 한 번에 걸러낸다.
 function sanitizeFilename(name){
   return String(name||'').replace(/[\\/:*?"<>|]/g, '_').trim() || 'download';
+}
+
+/* ============ localStorage 저장 실패를 조용히 삼키지 않고 한 번은 알려주기 ============
+   사파리 프라이빗 모드 등 localStorage.setItem이 항상 예외를 던지는 환경에서는 사전
+   수정본·즐겨쓰는 설정값 같은 게 전혀 저장되지 않는데도 지금까지는 그냥 조용히 실패해서,
+   사용자는 "왜 다음에 열었을 때 안 남아있지"만 겪고 원인을 알 방법이 없었다. 매번 알림을
+   띄우면 시끄러우니 세션당 한 번만, 눈에 띄는 배너로 안내한다(다운로드 자체는 이 문제와
+   무관하게 항상 정상 동작한다는 점도 함께 알려준다). */
+var storageWarningShown = false;
+function safeLocalStorageSet(key, value){
+  try{
+    localStorage.setItem(key, value);
+    return true;
+  }catch(e){
+    if(!storageWarningShown){
+      storageWarningShown = true;
+      try{
+        var box = document.createElement('div');
+        box.setAttribute('role', 'alert');
+        box.setAttribute('aria-live', 'assertive');
+        box.textContent = '⚠ 이 브라우저에서는 설정/사전 값을 저장할 수 없어 다음에 열 때 유지되지 않습니다 (사파리 프라이빗 모드 등에서 흔함). 다운로드 기능 자체는 정상 동작합니다.';
+        box.style.cssText = 'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:99999;'
+          + 'max-width:min(92vw,540px);padding:10px 16px;border-radius:10px;'
+          + 'background:#3a2323;color:#ffd7d7;border:1px solid #a33;'
+          + 'box-shadow:0 4px 16px rgba(0,0,0,.35);font-size:13px;line-height:1.5;text-align:center;';
+        document.body.appendChild(box);
+        setTimeout(function(){ box.remove(); }, 8000);
+      }catch(e2){}
+    }
+    return false;
+  }
 }
 // ============ 결과물 보관함: 여러 탭에서 다운로드한 결과물을 브라우저에 모아두기 ============
 // 이미지·zip 같은 바이너리를 담아야 해서 문자열만 저장하는 localStorage 대신 IndexedDB를
@@ -18276,8 +18310,7 @@ function persistFormField(id, storageKey){
   }catch(e){}
   var evtName = (el.tagName === 'SELECT' || el.type === 'checkbox') ? 'change' : 'input';
   el.addEventListener(evtName, function(){
-    try{ localStorage.setItem(storageKey, el.type === 'checkbox' ? (el.checked ? '1' : '0') : el.value); }
-    catch(e){}
+    safeLocalStorageSet(storageKey, el.type === 'checkbox' ? (el.checked ? '1' : '0') : el.value);
   });
 }
 
@@ -18333,7 +18366,7 @@ function goHome(){
   $('#homeBtn').setAttribute('aria-selected', 'true');
   document.getElementById('tab-home').classList.add('active');
   showCategoryTabs(null);
-  try{ localStorage.setItem(LAST_TAB_LS_KEY, 'home'); }catch(e){}
+  safeLocalStorageSet(LAST_TAB_LS_KEY, 'home');
 }
 $('#homeBtn').addEventListener('click', goHome);
 $('#homeLogo').addEventListener('click', goHome);
@@ -18348,7 +18381,7 @@ $all('.tab-btn').forEach(function(btn){
     btn.setAttribute('aria-selected', 'true');
     document.getElementById(btn.dataset.target).classList.add('active');
     showCategoryTabs(btn.dataset.cat);
-    try{ localStorage.setItem(LAST_TAB_LS_KEY, btn.dataset.target); }catch(e){}
+    safeLocalStorageSet(LAST_TAB_LS_KEY, btn.dataset.target);
   });
 });
 
@@ -18380,7 +18413,7 @@ var THEME_LS_KEY = 'cocofolia_setter_theme_v1';
         try{ localStorage.removeItem(THEME_LS_KEY); }catch(e){}
       }else{
         document.documentElement.setAttribute('data-theme', r.value);
-        try{ localStorage.setItem(THEME_LS_KEY, r.value); }catch(e){}
+        safeLocalStorageSet(THEME_LS_KEY, r.value);
       }
     });
   });
@@ -20429,7 +20462,7 @@ var TabLog = (function(){
     }catch(e){ return null; }
   }
   function saveGlossary(){
-    try{ localStorage.setItem(GLOSSARY_LS_KEY, JSON.stringify(dict)); }catch(e){}
+    safeLocalStorageSet(GLOSSARY_LS_KEY, JSON.stringify(dict));
   }
 
   var dict = loadSavedGlossary() || DEFAULT_GLOSSARY.map(function(p){ return {jp:p[0], kr:p[1]}; });
@@ -20499,13 +20532,27 @@ var TabLog = (function(){
     var text = $('#gl-input').value;
     var terms = dict.filter(function(d){ return d.jp; }).slice().sort(function(a,b){ return b.jp.length-a.jp.length; });
     var matched = [];
-    terms.forEach(function(t){
-      if(text.indexOf(t.jp) >= 0){
-        var count = text.split(t.jp).length - 1;
-        text = text.split(t.jp).join(t.kr);
-        matched.push(t.jp+' → '+t.kr+' ('+count+'회)');
-      }
-    });
+    if(terms.length){
+      // 예전에는 항목마다 순서대로 text.split(jp).join(kr)을 반복했는데, 이렇게 하면 앞서
+      // 만들어진 치환 결과(kr)가 뒤 항목의 검색 대상(jp)과 우연히 겹칠 때 그 결과물이 다시
+      // 치환 대상이 되어버리는 연쇄 오치환 위험이 있다(사전이 커질수록 그 확률도 커진다).
+      // 원본 텍스트를 정규식 하나로 한 번만 스캔해 매치 위치를 전부 확정한 뒤 치환하면,
+      // 치환으로 새로 생긴 텍스트가 다시 검색 대상에 걸리는 일 자체가 없어진다.
+      var jpToKr = {};
+      var order = [];
+      terms.forEach(function(t){
+        if(!Object.prototype.hasOwnProperty.call(jpToKr, t.jp)){ jpToKr[t.jp] = t.kr; order.push(t.jp); }
+      });
+      var counts = {};
+      var pattern = new RegExp(order.map(escapeRegExp).join('|'), 'g');
+      text = text.replace(pattern, function(m){
+        counts[m] = (counts[m]||0) + 1;
+        return jpToKr[m];
+      });
+      order.forEach(function(jp){
+        if(counts[jp]) matched.push(jp+' → '+jpToKr[jp]+' ('+counts[jp]+'회)');
+      });
+    }
     $('#gl-output').value = text;
     $('#gl-matches').textContent = matched.length ? ('치환됨: '+matched.join(', ')) : '일치하는 용어를 찾지 못했습니다.';
   });
@@ -20597,7 +20644,7 @@ var TabLog = (function(){
     }catch(e){ return null; }
   }
   function saveDbRows(){
-    try{ localStorage.setItem(DBTABLE_LS_KEY, JSON.stringify(dbRows)); }catch(e){}
+    safeLocalStorageSet(DBTABLE_LS_KEY, JSON.stringify(dbRows));
   }
 
   // 처음 여는 사람은 표가 텅 비어있으면 뭘 입력해야 할지 막막해한다. CoC 7판 공식 규칙집
@@ -20859,7 +20906,7 @@ var TabLog = (function(){
   }
   $('#chs-skill-view').addEventListener('change', function(){
     skillView = this.value;
-    try{ localStorage.setItem(SKILL_VIEW_LS_KEY, skillView); }catch(e){}
+    safeLocalStorageSet(SKILL_VIEW_LS_KEY, skillView);
     renderSkillTable();
   });
   function addCustomSkillRow(){
@@ -20977,6 +21024,19 @@ var TabLog = (function(){
     box.style.color = remaining<0 ? 'var(--danger)' : '';
   }
 
+  // CoC 7판 공식 규칙(노화)에 따르면 나이가 40대에 접어들면 10년 단위로 이동력(MOV)이
+  // 1씩 줄어든다. "나이" 입력칸은 지금까지 시트에 표시만 되고 계산에는 전혀 반영되지
+  // 않았는데, 7판 룰에서 나이는 곧 파생 수치인 MOV에 영향을 주므로 여기서 반영한다
+  // (STR/CON/DEX 노화 감소분은 배분 방식을 플레이어가 직접 골라야 해서 자동화하지 않는다).
+  function movAgePenalty(age){
+    if(!age || age < 40) return 0;
+    if(age < 50) return 1;
+    if(age < 60) return 2;
+    if(age < 70) return 3;
+    if(age < 80) return 4;
+    return 5;
+  }
+
   function recomputeAll(){
     updateSpecialSkillBases();
     refreshSkillTotals();
@@ -20992,7 +21052,8 @@ var TabLog = (function(){
     derived.hp.value = Math.floor((CON+SIZ)/10);
     derived.mp.value = Math.floor(POW/5); // CoC 7판 규칙: 마력(MP) = POW의 1/5
     derived.san.value = Math.min(99, POW);
-    derived.mov.value = (STR<SIZ && DEX<SIZ) ? 7 : ((STR>=SIZ && DEX>=SIZ) ? 9 : 8);
+    var baseMov = (STR<SIZ && DEX<SIZ) ? 7 : ((STR>=SIZ && DEX>=SIZ) ? 9 : 8);
+    derived.mov.value = Math.max(1, baseMov - movAgePenalty(parseInt($('#chs-age').value,10)));
 
     var strSiz = STR+SIZ;
     var customFound = lookupCustomDbBuild(strSiz);
@@ -21018,6 +21079,9 @@ var TabLog = (function(){
   grid.addEventListener('input', recomputeAll);
   $('#chs-occ-formula').addEventListener('change', recomputeAll);
   $('#chs-occ-points').addEventListener('input', refreshPointsInfo);
+  // 나이는 특성치 그리드(#chs-stat-grid) 밖에 있는 "기본 정보" 칸이라 위 grid input
+  // 리스너로는 감지되지 않는다 — 나이가 MOV 계산에 반영되므로 따로 연결해준다.
+  $('#chs-age').addEventListener('input', recomputeAll);
 
   // 처음 만들어보는 사용자가 "특성치를 대체 몇으로 채워야 하나" 막막해하지 않도록, 버튼
   // 한 번으로 CoC 7판 규칙에 맞는 값을 8개 모두 굴려서 채워준다.
@@ -21076,6 +21140,14 @@ var TabLog = (function(){
     ];
     var params = [{label:'DB', value:String(db)}, {label:'이동력', value:String(mov)}];
     STAT_DEFS.forEach(function(s){ params.push({label:s.label, value:String(statVal(s.key))}); });
+    // 직업/나이/성별/거주지/출생지는 지금까지 입력만 받고 JSON에는 전혀 반영되지 않아서
+    // 애써 채워도 코코포리아 캐릭터 카드에는 나타나지 않았다. 값을 채운 항목만(빈 칸은
+    // 제외) 능력치 칸에 함께 실어 보낸다.
+    [['직업','chs-job'], ['나이','chs-age'], ['성별','chs-gender'], ['거주지','chs-residence'], ['출생지','chs-birthplace']]
+      .forEach(function(pair){
+        var v = $('#'+pair[1]).value.trim();
+        if(v) params.push({label:pair[0], value:v});
+      });
 
     return {kind:'character', data:{ name:name, status:status, params:params, commands:buildCommands() }};
   }
