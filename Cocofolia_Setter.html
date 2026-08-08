@@ -18261,6 +18261,11 @@ $all('.cat-btn').forEach(function(btn){
   });
 
   var container = $('#home-feature-cats');
+  // "오프라인용 파일 다운로드"(file:// 환경의 fetch 차단 대체 경로)는 현재 DOM을 그대로 직렬화하므로,
+  // 이미 이 스크립트가 카드를 채워넣은 뒤의 상태가 저장된다. 그 파일을 다시 열면 이 스크립트가 또
+  // 실행되면서 컨테이너가 비어있다고 가정하고 카드를 다시 append해 전부 두 벌씩 쌓이므로, 매번
+  // 실행 시작 시 비워 멱등하게 만든다.
+  container.innerHTML = '';
   CAT_ORDER.forEach(function(catId){
     var list = groups[catId];
     if(!list || !list.length) return;
@@ -18930,6 +18935,16 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
   var previewCanvas = $('#fx-preview-canvas');
   var previewToggle = $('#fx-preview-toggle');
 
+  // 2번 탭(GIF/APNG 변환기)은 코코포리아의 1MB 업로드 제한(초과 시 서버가 자동 압축하면서
+  // 애니메이션 정보가 통째로 사라져 정지 이미지가 됨)을 감지해 자동 리사이징 + 경고를 해주지만,
+  // 이 탭은 원본 해상도·프레임 수 그대로 인코딩만 하고 결과 용량을 전혀 알려주지 않았다. 노이즈
+  // 등 손상이 큰 효과를 켜면(무손실 PNG 압축 특성상) 기본 설정만으로도 수십 MB짜리 APNG가
+  // 조용히 "완료"로 표시되며 다운로드되는 것을 실제로 확인했다. 자동 리사이징까지는 이 탭의
+  // 렌더링 파이프라인(효과별 캔버스 프레임 생성)이 달라 그대로 옮기기 어려우므로, 최소한 2번
+  // 탭과 동일한 기준으로 다운로드 시점에 결과 용량을 안내해 사용자가 필요하면 길이/FPS/효과
+  // 강도를 낮춰 다시 렌더링하도록 안내한다.
+  var FX_COCOFOLIA_TARGET_BYTES = 0.95*1024*1024;
+
   setupDrop('fx-drop','fx-file', async function(file){
     if(!/\.png$/i.test(file.name)){ info.textContent = 'PNG 파일만 지원합니다.'; return; }
     stopPreview();
@@ -18973,6 +18988,9 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
 
   function buildSlots(){
     var wrap = $('#fx-slots');
+    // 홈 화면 카드/특성치 칸과 동일한 이유: "오프라인용 파일 다운로드" 대체 경로(현재 DOM 직렬화)로
+    // 받은 파일을 다시 열면 이 스크립트가 또 실행되므로, 비워두지 않으면 효과 슬롯 카드가 두 벌씩 쌓인다.
+    wrap.innerHTML = '';
     for(var n=1; n<=SLOT_COUNT; n++){
       var card = document.createElement('div');
       card.className = 'fx-slot';
@@ -19548,6 +19566,8 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
         alert('APNG 인코딩 실패: '+e.message); return;
       }
     }
+    info.textContent = 'APNG 다운로드 완료 (크기: '+(state.blob.size/1024).toFixed(1)+'KB)'
+      + (state.blob.size>FX_COCOFOLIA_TARGET_BYTES ? ' — 1MB를 넘어 코코포리아에 올리면 서버가 자동 압축하면서 애니메이션이 깨질 수 있습니다. 길이/FPS를 줄이거나 효과 강도를 낮춰 다시 렌더링해보세요.' : '');
     downloadBlob(state.blob, $('#fx-filename').value.trim() || 'cutin_fx.png');
   });
 })();
@@ -20233,6 +20253,10 @@ var TabLog = (function(){
   ];
 
   var row = $('#ed-stat-row');
+  // "오프라인용 파일 다운로드" 대체 경로(현재 DOM 직렬화)로 받은 파일을 다시 열면 이 스크립트가
+  // 또 실행되므로, 컨테이너가 비어있다는 가정이 깨져 입력칸이 두 벌씩 쌓인다. 실행 시작 시 비워
+  // 멱등하게 만든다(홈 화면 카드 컨테이너와 동일한 이유).
+  row.innerHTML = '';
   STATS.forEach(function(s){
     var div = document.createElement('div');
     div.className = 'field';
@@ -20357,6 +20381,10 @@ var TabLog = (function(){
   ];
   var stats = {}, statHalfCells = {}, statFifthCells = {};
   var statGrid1 = $('#chs-stat-grid-1'), statGrid2 = $('#chs-stat-grid-2');
+  // "오프라인용 파일 다운로드" 대체 경로(현재 DOM 직렬화)로 받은 파일을 다시 열면 이 스크립트가
+  // 또 실행되므로, 컨테이너가 비어있다는 가정이 깨져 특성치 칸이 두 벌씩 쌓인다. 실행 시작 시
+  // 비워 멱등하게 만든다.
+  statGrid1.innerHTML = ''; statGrid2.innerHTML = '';
   STAT_DEFS.forEach(function(s, i){
     var div = document.createElement('div');
     div.className = 'chs-stat-cell';
@@ -20467,6 +20495,8 @@ var TabLog = (function(){
     {key:'luck', label:'행운', ro:false}, {key:'mov', label:'이동력', ro:true}, {key:'db', label:'피해보너스', ro:false}, {key:'build', label:'체구', ro:false}
   ];
   var derived = {};
+  // 위 두 칸(특성치 그리드)과 같은 이유로, 대체 다운로드 경로로 재실행될 때 두 벌씩 쌓이지 않도록 비운다.
+  derivedRow.innerHTML = '';
   DERIVED_FIELDS.forEach(function(d){
     var div = document.createElement('div');
     div.className = 'chs-box chs-derived-box';
