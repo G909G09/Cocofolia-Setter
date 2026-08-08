@@ -251,6 +251,7 @@ img.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;backgr
 .chs-box-head{background:#1e2430;color:#fff;font-weight:800;font-size:11.5px;text-align:center;padding:5px 6px;letter-spacing:.02em;}
 .chs-box-body{display:flex;}
 .chs-box-body > div{flex:1;padding:6px;text-align:center;}
+.chs-box-body > div + div{border-left:1px solid var(--line);}
 .chs-box-body input{width:100%;border:none;background:transparent;color:var(--ink);text-align:center;font-size:15px;font-weight:800;}
 .chs-box-body label{display:block;font-size:10px;color:var(--sub);margin-bottom:2px;}
 .chs-box-body > div.has-roll{display:flex;align-items:center;gap:2px;}
@@ -349,6 +350,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <div class="card">
     <h3 style="margin:0 0 8px;font-size:14px;">업데이트 로그</h3>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-08-08</b> — CoC 캐릭터 시트 메이커: 특성치·파생 수치 카드가 화면 너비에 따라 애매하게 줄바꿈되던 것을 고쳐 항상 4×2, 3×2로 꽉 차게 표시(피해보너스·체구는 원래 한 쌍이라 카드 하나로 합침)</li>
       <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-08-08</b> — CoC 캐릭터 시트 메이커: 특성치 칸을 파생 수치와 같은 카드 형태로 통일하고, 기능치 49종을 카테고리(전투/탐색/행동/교섭/지식)로 묶어 표시</li>
       <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-08-08</b> — CoC 캐릭터 시트 메이커: 어느 칸이 직접 입력·자동 계산(수정 가능)·자동 계산(수정 불가)인지 색과 범례로 구분해 표시</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-08</b> — 전체 앱 UX 훑어보기: CoC 6판→7판 수치 변환기의 Damage Bonus/Build 표에 CoC 7판 공식 수치를 기본으로 미리 채워 넣어 텅 빈 채로 열리지 않게 함, GIF APNG 변환기(MP4→APNG)의 크로마키 허용 오차 슬라이더에 현재 값이 숫자로 함께 보이도록 개선</li>
@@ -648,10 +650,10 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <span class="footnote" style="margin:0;">근력·건강·민첩·외모·정신 = 3D6×5, 크기·지능 = (2D6+6)×5, 교육 = (3D6+3)×5 (CoC 7판 표준 방식). 처음이라 어떤 값이 적당한지 모르겠다면 이 버튼으로 굴려보세요.</span>
     </div>
     <p class="footnote" style="margin:2px 0 6px;">초록 칸은 1/2, 보라 칸은 1/5 값입니다(어려운/극난 판정 참고용) — 특성치를 바꾸면 자동으로 갱신됩니다.</p>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,140px));gap:10px;" id="chs-stat-grid"></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;" id="chs-stat-grid"></div>
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">3. 파생 수치 (자동계산)</h3>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,140px));gap:10px;" id="chs-derived-row"></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;" id="chs-derived-row"></div>
     <p class="footnote" id="chs-db-note" aria-live="polite" style="margin:6px 0 0;"></p>
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">4. 기능점수 배분</h3>
@@ -20548,8 +20550,7 @@ var TabLog = (function(){
   // 버튼은 편의 기능일 뿐)이라 auto 표시를 하지 않는다.
   var DERIVED_FIELDS = [
     {key:'hp', label:'체력(HP)', ro:true}, {key:'mp', label:'마력(MP)', ro:true}, {key:'san', label:'이성(SAN)', ro:true},
-    {key:'luck', label:'행운', ro:false}, {key:'mov', label:'이동력', ro:true},
-    {key:'db', label:'피해보너스', ro:false, auto:true}, {key:'build', label:'체구', ro:false, auto:true}
+    {key:'luck', label:'행운', ro:false}, {key:'mov', label:'이동력', ro:true}
   ];
   var derived = {};
   // 위 두 칸(특성치 그리드)과 같은 이유로, 대체 다운로드 경로로 재실행될 때 두 벌씩 쌓이지 않도록 비운다.
@@ -20558,14 +20559,30 @@ var TabLog = (function(){
     var div = document.createElement('div');
     div.className = 'chs-box chs-derived-box';
     var rollBtn = d.key==='luck' ? '<button type="button" class="chs-mini-roll" id="chs-luck-roll" title="행운 굴리기(3D6×5)">🎲</button>' : '';
-    var stateClass = d.ro ? 'chs-field-locked' : (d.auto ? 'chs-field-auto' : '');
+    var stateClass = d.ro ? 'chs-field-locked' : '';
     div.innerHTML = '<div class="chs-box-head">'+d.label+'</div>'+
-      '<div class="chs-box-body"><div class="'+(rollBtn?'has-roll':'')+'"><input type="'+(d.key==='db'?'text':'number')+'" class="'+stateClass+'" '+(d.ro?'readonly disabled':'')+'>'+rollBtn+'</div></div>';
+      '<div class="chs-box-body"><div class="'+(rollBtn?'has-roll':'')+'"><input type="number" class="'+stateClass+'" '+(d.ro?'readonly disabled':'')+'>'+rollBtn+'</div></div>';
     derivedRow.appendChild(div);
     derived[d.key] = div.querySelector('input');
   });
   function roll(n, sides){ var sum=0; for(var i=0;i<n;i++) sum += 1+Math.floor(Math.random()*sides); return sum; }
   $('#chs-luck-roll').addEventListener('click', function(){ derived.luck.value = roll(3,6)*5; });
+
+  // 피해보너스·체구는 둘 다 STR+SIZ 합계 하나에서 함께 나오는 짝이라 카드 하나에 나란히
+  // 묶는다 — 7개를 낱개 카드로 늘어놓으면 4열 기준으로 4+3으로 애매하게 갈라지는데,
+  // 6개로 줄이면 3열×2줄로 꽉 채울 수 있다.
+  var dbBuildBox = document.createElement('div');
+  dbBuildBox.className = 'chs-box chs-derived-box';
+  dbBuildBox.innerHTML =
+    '<div class="chs-box-head">피해보너스 · 체구</div>'+
+    '<div class="chs-box-body">'+
+      '<div><label>DB</label><input type="text" class="chs-field-auto"></div>'+
+      '<div><label>체구</label><input type="number" class="chs-field-auto"></div>'+
+    '</div>';
+  derivedRow.appendChild(dbBuildBox);
+  var dbBuildInputs = dbBuildBox.querySelectorAll('input');
+  derived.db = dbBuildInputs[0];
+  derived.build = dbBuildInputs[1];
 
   var DBTABLE_LS_KEY = 'cocofolia_setter_dbtable_v1'; // 7번 탭(CoC 6판→7판 수치 변환기)이 쓰는 것과 동일한 저장 키를 재사용
   function lookupCustomDbBuild(strSizSum){
