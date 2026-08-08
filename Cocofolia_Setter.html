@@ -333,6 +333,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <div class="card">
     <h3 style="margin:0 0 8px;font-size:14px;">업데이트 로그</h3>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-03</b> — 전체 앱 UX 훑어보기: CoC 6판→7판 수치 변환기의 Damage Bonus/Build 표에 CoC 7판 공식 수치를 기본으로 미리 채워 넣어 텅 빈 채로 열리지 않게 함, GIF APNG 변환기(MP4→APNG)의 크로마키 허용 오차 슬라이더에 현재 값이 숫자로 함께 보이도록 개선</li>
       <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-08-03</b> — CoC 캐릭터 시트 메이커 사용성 개선: 항목에 순서 번호(1~6) 표시, "특성치 무작위 굴리기"·행운 굴리기 버튼 추가, Damage Bonus/Build를 CoC 7판 공식 표로 자동 계산(더 이상 7번 탭에 표를 미리 채워두지 않아도 됨, 직접 고친 값은 유지됨), 직업 기능점수 안내 문구 보강</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-08-03</b> — 컨닝 페이퍼 메이커: 업로드한 표정 이미지를 파일 이름순(숫자 포함 시 자연스러운 순서)으로 한 번에 정렬하는 버튼 추가</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-03</b> — 탭 번호를 실제 표시 순서와 일치하도록 재정렬(8~13번), 홈 화면 카드 펼침 애니메이션을 grid 기반으로 바꿔 부드럽게 개선, 업데이트 로그에 카테고리 태그 추가, 오프라인용 파일(html) 다운로드 버튼 추가, 설정 탭 신설(라이트/다크 배색 선택, 저장된 값 초기화)</li>
@@ -408,7 +409,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <div class="field"><label for="g2a-mp4-fps">추출 FPS</label><input type="number" id="g2a-mp4-fps" value="15" min="4" max="30" step="1" style="width:70px;"></div>
       <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);"><input type="checkbox" id="g2a-mp4-chroma"> 배경을 크로마키로 투명화</label>
       <input type="color" id="g2a-mp4-chroma-color" value="#00ff00" style="width:36px;height:26px;padding:0;border:1px solid var(--line);border-radius:6px;">
-      <div class="field"><label for="g2a-mp4-chroma-tol">허용 오차</label><input type="range" id="g2a-mp4-chroma-tol" min="0" max="100" value="35" style="width:110px;"></div>
+      <div class="field"><label for="g2a-mp4-chroma-tol">허용 오차 (<output id="g2a-mp4-chroma-tol-val" for="g2a-mp4-chroma-tol">35</output>)</label><input type="range" id="g2a-mp4-chroma-tol" min="0" max="100" value="35" style="width:110px;"></div>
     </div>
     <div class="row">
       <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);"><input type="checkbox" id="g2a-alpha" checked> APNG→GIF 변환 시 배경 투명 유지(크로마키, 반투명 불가)</label>
@@ -587,8 +588,8 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 
   <div class="card">
-    <h3 style="font-size:13px;color:var(--sub);margin:0 0 6px;">Damage Bonus / Build 참고표 (사용자 입력)</h3>
-    <p class="desc">사용 중인 룰북을 보고 직접 입력하면 STR+SIZ 합계로 즉시 조회할 수 있습니다. 입력값은 브라우저에 자동 저장됩니다.</p>
+    <h3 style="font-size:13px;color:var(--sub);margin:0 0 6px;">Damage Bonus / Build 참고표</h3>
+    <p class="desc">CoC 7판 공식 표가 기본으로 채워져 있어 바로 조회할 수 있습니다. 다른 룰북을 쓴다면 값을 직접 고쳐 쓰세요 — 이 표는 CoC 캐릭터 시트 메이커(8번 탭)에서도 그대로 쓰입니다. 입력값은 브라우저에 자동 저장됩니다.</p>
     <table style="width:100%;border-collapse:collapse;font-size:13px;" id="ed-db-table">
       <thead><tr style="text-align:left;color:var(--sub);"><th style="padding:4px;">STR+SIZ 최소</th><th style="padding:4px;">STR+SIZ 최대</th><th style="padding:4px;">Damage Bonus</th><th style="padding:4px;">Build</th><th></th></tr></thead>
       <tbody id="ed-db-body"></tbody>
@@ -18820,6 +18821,8 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     return {blob:blob, w:w, h:h, frameCount:frames.length, resized:true};
   }
 
+  $('#g2a-mp4-chroma-tol').addEventListener('input', function(){ $('#g2a-mp4-chroma-tol-val').textContent = this.value; });
+
   setupDrop('g2a-drop','g2a-file', async function(file){
     $('#g2a-result-row').classList.add('hidden');
     $('#g2a-mp4-opts').classList.add('hidden');
@@ -20290,7 +20293,16 @@ var TabLog = (function(){
     try{ localStorage.setItem(DBTABLE_LS_KEY, JSON.stringify(dbRows)); }catch(e){}
   }
 
-  var dbRows = loadSavedDbRows() || [];
+  // 처음 여는 사람은 표가 텅 비어있으면 뭘 입력해야 할지 막막해한다. CoC 7판 공식 규칙집
+  // 기준값을 기본으로 미리 채워두고, 다른 룰북을 쓴다면 행을 고치거나 지우면 된다.
+  var DEFAULT_DB_ROWS = [
+    {min:'2', max:'64', db:'-2', build:'-2'}, {min:'65', max:'84', db:'-1', build:'-1'},
+    {min:'85', max:'124', db:'0', build:'0'}, {min:'125', max:'164', db:'+1D4', build:'1'},
+    {min:'165', max:'204', db:'+1D6', build:'2'}, {min:'205', max:'284', db:'+2D6', build:'3'},
+    {min:'285', max:'364', db:'+3D6', build:'4'}, {min:'365', max:'444', db:'+4D6', build:'5'},
+    {min:'445', max:'524', db:'+5D6', build:'6'}
+  ];
+  var dbRows = loadSavedDbRows() || DEFAULT_DB_ROWS.map(function(r){ return {min:r.min, max:r.max, db:r.db, build:r.build}; });
   function renderDbTable(){
     var body = $('#ed-db-body');
     body.innerHTML = '';
