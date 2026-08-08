@@ -18139,6 +18139,16 @@ function insertQuickSaveButton(afterBtn, onClick){
   return btn;
 }
 
+// canvas.toBlob()은 캔버스가 너무 크거나(고배율 컨닝 페이퍼 등) 오염된 경우 콜백에 null을
+// 넘길 수 있다. 그대로 downloadBlob에 넘기면 URL.createObjectURL(null)이 예외를 던지며
+// 아무 안내 없이 멈추므로, 실패 시 사용자에게 알리고 콜백을 건너뛴다.
+function canvasToBlob(canvas, cb){
+  canvas.toBlob(function(blob){
+    if(!blob){ alert('이미지 생성에 실패했습니다. 해상도나 배율을 낮추고 다시 시도해주세요.'); return; }
+    cb(blob);
+  });
+}
+
 // 오프라인용 파일 다운로드: fetch로 원본 소스를 그대로 받아오는 게 가장 정확하지만,
 // 이 파일을 서버 없이 file://로 직접 열어둔 상태라면 브라우저가 fetch(자기 자신)를 막는다.
 // 그럴 땐 현재 DOM을 직렬화해 대체 소스로 쓴다(상호작용으로 바뀐 값은 반영되지 않지만
@@ -20739,8 +20749,20 @@ var TabLog = (function(){
     var alloc = clampInt(parseInt(row.allocInput.value,10)||0, 0, 99);
     return clampInt(base+alloc, 0, 99);
   }
+  // 500이나 음수처럼 범위를 벗어난 값을 입력해도 칸에는 그대로 남고 계산에만 클램프된 값이
+  // 쓰이면, 화면에 보이는 숫자와 실제 계산 결과가 말없이 어긋난다. 실제로 범위를 벗어난
+  // 경우에만(빈 칸이나 입력 중인 값은 건드리지 않고) 칸 자체를 클램프된 값으로 되돌린다.
+  function clampFieldIfOutOfRange(input){
+    var raw = parseInt(input.value, 10);
+    if(!isNaN(raw)){
+      var clamped = clampInt(raw, 0, 99);
+      if(clamped !== raw) input.value = clamped;
+    }
+  }
   function refreshSkillTotals(){
     skillRows.forEach(function(row){
+      clampFieldIfOutOfRange(row.baseInput);
+      clampFieldIfOutOfRange(row.allocInput);
       var total = skillTotal(row);
       row.totalCell.textContent = total;
       row.halfCell.textContent = Math.floor(total/2);
@@ -20960,6 +20982,7 @@ var TabLog = (function(){
     refreshSkillTotals();
 
     STAT_DEFS.forEach(function(s){
+      clampFieldIfOutOfRange(stats[s.key]);
       var v = statVal(s.key);
       statHalfCells[s.key].textContent = Math.floor(v/2);
       statFifthCells[s.key].textContent = Math.floor(v/5);
@@ -21197,7 +21220,7 @@ var TabLog = (function(){
       var dl = document.createElement('button');
       dl.className = 'btn ghost'; dl.textContent = '다운로드'; dl.style.cssText='flex:1;padding:6px;font-size:12px;';
       dl.addEventListener('click', function(){
-        it.canvas.toBlob(function(blob){ downloadBlob(blob, baseName(it.file.name)+'_cut.png'); });
+        canvasToBlob(it.canvas, function(blob){ downloadBlob(blob, baseName(it.file.name)+'_cut.png'); });
       });
       var rm = document.createElement('button');
       rm.className = 'btn ghost'; rm.textContent = '제거'; rm.style.cssText='padding:6px 10px;font-size:12px;color:var(--danger);';
@@ -21255,7 +21278,7 @@ var TabLog = (function(){
     var zip = new JSZip();
     var pending = items.map(function(it){
       return new Promise(function(res){
-        it.canvas.toBlob(function(blob){
+        canvasToBlob(it.canvas, function(blob){
           zip.file(baseName(it.file.name)+'_cut.png', blob);
           res();
         });
@@ -21296,7 +21319,7 @@ var TabLog = (function(){
     // 쓰이므로 접미사 없이 원래 이름을 유지한다.
     return Promise.all(items.map(function(it){
       return new Promise(function(res){
-        it.canvas.toBlob(function(blob){
+        canvasToBlob(it.canvas, function(blob){
           res(new File([blob], baseName(it.file.name)+'.png', {type:'image/png'}));
         });
       });
@@ -21867,11 +21890,13 @@ var TabLog = (function(){
       row.style.cssText = 'display:flex;gap:3px;';
       var leftBtn = document.createElement('button');
       leftBtn.type = 'button'; leftBtn.className = 'btn ghost'; leftBtn.textContent = '◀';
+      leftBtn.title = '왼쪽으로 이동'; leftBtn.setAttribute('aria-label', '왼쪽으로 이동');
       leftBtn.style.cssText = 'padding:2px 7px;font-size:11px;';
       leftBtn.disabled = idx===0;
       leftBtn.addEventListener('click', function(){ moveItem(idx, idx-1); });
       var rightBtn = document.createElement('button');
       rightBtn.type = 'button'; rightBtn.className = 'btn ghost'; rightBtn.textContent = '▶';
+      rightBtn.title = '오른쪽으로 이동'; rightBtn.setAttribute('aria-label', '오른쪽으로 이동');
       rightBtn.style.cssText = 'padding:2px 7px;font-size:11px;';
       rightBtn.disabled = idx===items.length-1;
       rightBtn.addEventListener('click', function(){ moveItem(idx, idx+1); });
@@ -22008,13 +22033,13 @@ var TabLog = (function(){
   $('#cs-download').addEventListener('click', function(){
     // 캐릭터 이름이 입력돼 있으면 파일명에 반영한다 — 여러 캐릭터의 컨닝 페이퍼를 만들 때
     // 전부 같은 파일명으로 덮어써지는 것을 방지.
-    $('#cs-canvas').toBlob(function(blob){ downloadBlob(blob, csResultFilename()); });
+    canvasToBlob($('#cs-canvas'), function(blob){ downloadBlob(blob, csResultFilename()); });
   });
   var csSaveBtn = insertQuickSaveButton($('#cs-download'), function(){
     var canvas = $('#cs-canvas');
     if(!canvas.width || !canvas.height){ alert('먼저 컨닝 페이퍼를 생성해주세요.'); return false; }
-    return new Promise(function(resolve){
-      canvas.toBlob(function(blob){
+    return new Promise(function(resolve, reject){
+      canvasToBlob(canvas, function(blob){
         saveResultToHistory(currentTabLabel(), csResultFilename(), blob);
         resolve(true);
       });
