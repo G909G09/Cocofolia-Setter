@@ -332,6 +332,20 @@ img.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;backgr
 .log-row.system .log-text{font-size:12px;letter-spacing:.05em;color:var(--sub);white-space:pre-wrap;}
 .log-row.system .log-name{display:none;}
 .log-icon,.log-bubble{display:contents;}
+/* 4번 탭 "다크 고딕" 테마: 코코포리아 인기 팬툴("코백")의 다크 UI에서 모티브를 얻은 대체
+   스타일 — 세리프체·색상 없는 기본 테마와 달리 어두운 배경·고딕 계열 폰트·화자 아바타를 쓴다.
+   .theme-cocoback가 붙었을 때만 적용되도록 스코프를 좁혀 기본 테마에는 영향이 없다. */
+.log-list.theme-cocoback{background:#212121;color:#eee;font-family:'Pretendard','Noto Sans KR','Malgun Gothic',sans-serif;border-color:#000;}
+.log-list.theme-cocoback .log-row.gm{margin:10px 0;padding:11px 15px;background:#2c2c2c;border-radius:6px;}
+.log-list.theme-cocoback .log-row.gm .log-text{color:#e8e8e8;font-size:14px;line-height:1.8;}
+.log-list.theme-cocoback .log-row.pl{position:relative;margin:14px 0 14px 56px;padding:8px 12px;background:#333;border-radius:6px;}
+.log-list.theme-cocoback .log-row.pl .log-avatar{position:absolute;left:-52px;top:8px;width:40px;height:40px;border-radius:8px;background-size:cover;background-position:top center;background-color:rgba(255,255,255,.12);}
+.log-list.theme-cocoback .log-row.pl .log-name{font-weight:700;font-size:13px;letter-spacing:0;text-transform:none;color:#999;margin-bottom:4px;}
+.log-list.theme-cocoback .log-row.pl .log-text{font-size:14px;line-height:1.7;color:#f0f0f0;}
+.log-list.theme-cocoback .log-row.system{color:#ccc;}
+.log-list.theme-cocoback .log-row.system .log-name{display:inline-block;background:#999;color:#fff;border-radius:20px;padding:2px 12px;margin-bottom:6px;font-size:12px;}
+.log-list.theme-cocoback .log-row.system .log-text{color:#ddd;}
+.log-list.theme-cocoback .dice-pill{background:#111;border:1px solid rgba(255,255,255,.3);border-radius:5px;padding:4px 14px;display:inline-block;font-size:12.5px;color:#eee;margin:4px 0;}
 .log-tabchip{position:absolute;top:0;right:0;font-size:9px;color:var(--sub);background:var(--chip);border-radius:4px;padding:1px 6px;}
 .chips{display:flex;gap:6px;flex-wrap:wrap;}
 .chip{background:var(--chip);border-radius:999px;padding:4px 10px;font-size:12px;cursor:pointer;user-select:none;border:1px solid transparent;}
@@ -497,6 +511,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-08-09</b> — html용 로그 백업: "화자 지정 색상 반영" 옵션 추가(원본 로그에 화자별로 지정된 색이 있으면 이름에 그대로 반영, 기본은 꺼짐), 테마 선택 추가("대본집 스타일" 기존 테마 + 다크 배경·고딕체·화자 두상·주사위 결과 강조를 갖춘 "다크 고딕 스타일" 신규 테마) — 화면 미리보기·인쇄·저장 파일 모두 선택한 테마·색상 설정을 그대로 반영</li>
       <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-08-09</b> — CoC 캐릭터 시트 메이커: 넘패드 입력 수정(숫자 전용 텍스트 칸으로 전환) 이후 특성치 카드의 입력 칸과 1/2·1/5 값이 카드 밖으로 삐져나오던 문제 수정(좁은 화면에서 특히 두드러짐)</li>
       <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-08-09</b> — CoC 캐릭터 시트 메이커: 기능치 목록에 이름으로 필터링하는 검색 칸 추가(카테고리별/가나다순/전체 목록 어느 보기 방식에서도 적용), "무기" 항목 추가(무기명·피해·사거리·공격횟수·내구도·비고를 자유롭게 적는 표 — 피해 칸에 굴림식을 적으면 무기명과 함께 코코포리아 JSON의 굴림 명령어 목록에도 자동으로 실림)</li>
       <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-08-09</b> — CoC 캐릭터 시트 메이커: 일부 환경(풀배열 키보드의 오른쪽 숫자패드 등)에서 특성치·나이·기능점수·행운 등 숫자 입력 칸에 숫자패드 입력이 먹지 않던 문제 수정 — 숫자만 입력되는 텍스트 칸으로 바꾸고 범위를 벗어나거나 숫자가 아닌 값은 그대로 걸러내도록 함(계산 로직과 값 범위 제한은 이전과 동일)</li>
@@ -691,7 +706,16 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="row hidden no-print" id="log-controls">
       <div class="field"><label class="wide" for="log-gm">GM(서술 담당)</label><select id="log-gm"></select></div>
       <div class="field"><label class="wide" for="log-search">검색어</label><input type="text" id="log-search" class="wide" placeholder="대사 내용 검색"></div>
+      <div class="field"><label class="wide" for="log-theme">테마</label>
+        <select id="log-theme">
+          <option value="script">대본집 스타일 (기본)</option>
+          <option value="cocoback">다크 고딕 스타일</option>
+        </select>
+      </div>
       <div class="field"><label><input type="checkbox" id="log-exclude-other" checked> 잡담(사담) 탭 제외</label></div>
+      <div class="field"><label><input type="checkbox" id="log-reflect-color"> 화자 지정 색상 반영</label>
+        <span class="footnote" style="width:200px;">원본 로그에 화자별로 지정된 색상이 있으면 이름에 그대로 반영합니다(없으면 테마 기본 색을 씁니다).</span>
+      </div>
       <button class="btn ghost" id="log-print">인쇄 / PDF로 저장</button>
       <button class="btn ghost" id="log-export">정리된 로그 HTML로 저장</button>
     </div>
@@ -20676,6 +20700,37 @@ var TabLog = (function(){
   var state = { messages:[], activeSpeakers:null };
   makeRevealable($('#log-controls'));
 
+  // 테마 선택은 캐릭터 데이터가 아니라 화면 취향이므로, 기능치 목록 보기 방식(skillView)과 같은
+  // 방식으로 마지막 선택을 기억해뒀다가 다음에 이 탭을 열 때도 그대로 적용한다.
+  var LOG_THEME_LS_KEY = 'cocofolia_setter_log_theme_v1';
+  (function(){
+    try{
+      var saved = localStorage.getItem(LOG_THEME_LS_KEY);
+      if(saved==='script' || saved==='cocoback') $('#log-theme').value = saved;
+    }catch(e){}
+  })();
+  $('#log-theme').addEventListener('change', function(){
+    safeLocalStorageSet(LOG_THEME_LS_KEY, this.value);
+    render();
+  });
+  $('#log-reflect-color').addEventListener('change', render);
+
+  // <option>.style.color에 대입해보고 파싱 성공 여부를 확인하는 방식(탭9 스탠딩 재단의
+  // isValidCssColor와 동일한 기법) — 업로드된 로그 파일 안의 색상 문자열은 사용자가 직접 쓴
+  // 게 아니라 다른 도구가 생성한 값이라 형식이 깨져 있을 수 있어, 그대로 style에 꽂기 전에
+  // 걸러낸다.
+  function isValidLogColor(str){
+    if(!str) return false;
+    var opt = document.createElement('option');
+    opt.style.color = '';
+    opt.style.color = str;
+    return opt.style.color !== '';
+  }
+  // 코코포리아가 주사위 굴림 결과 텍스트에 쓰는 전각 화살표(＞)는 일반 대사에는 거의 등장하지
+  // 않는 문자라, 이 문자가 있는지만으로도 "이 줄은 주사위 굴림 결과다"를 꽤 정확히 판별할 수
+  // 있다(정교한 다이스 문법 파싱 없이 가벼운 휴리스틱으로 처리).
+  function looksLikeDiceLine(text){ return text.indexOf('＞') !== -1; }
+
   function populateGm(){
     var freq = {};
     state.messages.forEach(function(m){
@@ -20698,6 +20753,9 @@ var TabLog = (function(){
   function render(){
     var container = $('#log-list');
     container.innerHTML = '';
+    var theme = $('#log-theme').value;
+    var reflectColor = $('#log-reflect-color').checked;
+    container.className = 'log-list' + (theme==='cocoback' ? ' theme-cocoback' : '');
     var q = $('#log-search').value.trim().toLowerCase();
     var excludeOther = $('#log-exclude-other').checked;
     var gmName = $('#log-gm').value;
@@ -20714,13 +20772,29 @@ var TabLog = (function(){
       var isSystem = m.tab==='info';
       var isGm = !isSystem && m.name===gmName;
       row.className = 'log-row ' + (isSystem?'system':(isGm?'gm':'pl'));
+      // 다크 고딕 테마에서만 화자 두상(아바타)을 보여준다 — 기본 대본집 테마는 원래부터
+      // 이미지 없이 텍스트만으로 구성된 스타일이라 그대로 유지한다.
+      if(theme==='cocoback' && !isSystem && !isGm && m.icon){
+        var avatarEl = document.createElement('div');
+        avatarEl.className = 'log-avatar';
+        avatarEl.style.backgroundImage = 'url("'+m.icon+'")';
+        row.appendChild(avatarEl);
+      }
       if(!isSystem && !isGm){
         var nameEl = document.createElement('div');
         nameEl.className = 'log-name'; nameEl.textContent = m.name;
+        if(reflectColor && isValidLogColor(m.color)) nameEl.style.color = m.color;
         row.appendChild(nameEl);
       }
       var textEl = document.createElement('div');
-      textEl.className = 'log-text'; textEl.textContent = m.text;
+      textEl.className = 'log-text';
+      if(theme==='cocoback' && looksLikeDiceLine(m.text)){
+        var pill = document.createElement('span');
+        pill.className = 'dice-pill'; pill.textContent = m.text;
+        textEl.appendChild(pill);
+      } else {
+        textEl.textContent = m.text;
+      }
       row.appendChild(textEl);
       container.appendChild(row);
     });
@@ -20818,7 +20892,7 @@ var TabLog = (function(){
       if(q && m.text.toLowerCase().indexOf(q)===-1) return false;
       return true;
     });
-    var html = buildStandaloneLogHtml(msgs, $('#log-gm').value);
+    var html = buildStandaloneLogHtml(msgs, $('#log-gm').value, $('#log-theme').value, $('#log-reflect-color').checked);
     return new Blob([html],{type:'text/html'});
   }
   $('#log-export').addEventListener('click', function(){
@@ -20831,14 +20905,34 @@ var TabLog = (function(){
 
   var esc = escHtml;
 
-  function buildStandaloneLogHtml(messages, gmName){
+  function buildStandaloneLogHtml(messages, gmName, theme, reflectColor){
+    var cocoback = theme==='cocoback';
     var rows = messages.map(function(m){
       var isSystem = m.tab==='info';
       var isGm = !isSystem && m.name===gmName;
       var cls = isSystem?'system':(isGm?'gm':'pl');
-      var nameHtml = (!isSystem && !isGm) ? '<div class="name">'+esc(m.name)+'</div>' : '';
-      return '<div class="row '+cls+'">'+nameHtml+'<div class="text">'+esc(m.text).replace(/\n/g,'<br>')+'</div></div>';
+      var avatarHtml = (cocoback && !isSystem && !isGm && m.icon) ? '<div class="avatar" style="background-image:url(&quot;'+esc(m.icon)+'&quot;)"></div>' : '';
+      var colorAttr = (reflectColor && isValidLogColor(m.color)) ? ' style="color:'+esc(m.color)+'"' : '';
+      var nameHtml = (!isSystem && !isGm) ? '<div class="name"'+colorAttr+'>'+esc(m.name)+'</div>' : '';
+      var textInner = esc(m.text).replace(/\n/g,'<br>');
+      if(cocoback && looksLikeDiceLine(m.text)) textInner = '<span class="dice-pill">'+textInner+'</span>';
+      return '<div class="row '+cls+'">'+avatarHtml+nameHtml+'<div class="text">'+textInner+'</div></div>';
     }).join('\n');
+    if(cocoback){
+      return '<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>세션 로그</title><style>'+
+        'body{font-family:"Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;max-width:720px;margin:24px auto;padding:24px 28px;background:#212121;color:#eee;}'+
+        '.row{position:relative;}'+
+        '.row.gm{margin:10px 0;padding:11px 15px;background:#2c2c2c;border-radius:6px;}'+
+        '.row.gm .text{color:#e8e8e8;font-size:14px;line-height:1.8;white-space:pre-wrap;word-break:break-word;}'+
+        '.row.pl{margin:14px 0 14px 56px;padding:8px 12px;background:#333;border-radius:6px;}'+
+        '.row.pl .avatar{position:absolute;left:-52px;top:8px;width:40px;height:40px;border-radius:8px;background-size:cover;background-position:top center;background-color:rgba(255,255,255,.12);}'+
+        '.row.pl .name{font-weight:700;font-size:13px;color:#999;margin-bottom:4px;}'+
+        '.row.pl .text{font-size:14px;line-height:1.7;color:#f0f0f0;white-space:pre-wrap;word-break:break-word;}'+
+        '.row.system{margin:16px 0;text-align:center;color:#ccc;}'+
+        '.row.system .text{font-size:12px;letter-spacing:.05em;color:#ddd;white-space:pre-wrap;}'+
+        '.dice-pill{background:#111;border:1px solid rgba(255,255,255,.3);border-radius:5px;padding:4px 14px;display:inline-block;font-size:12.5px;color:#eee;margin:4px 0;}'+
+        '</style></head><body>'+rows+'</body></html>';
+    }
     return '<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>세션 로그</title><style>'+
       'body{font-family:"Noto Serif KR",Georgia,serif;max-width:720px;margin:24px auto;padding:24px 28px;background:#fff;color:#1e2430;}'+
       '.row.gm{margin:10px 0;font-size:14px;line-height:1.7;}'+
@@ -20859,6 +20953,8 @@ var TabLog = (function(){
       search: $('#log-search').value,
       excludeOther: $('#log-exclude-other').checked,
       gm: $('#log-gm').value,
+      theme: $('#log-theme').value,
+      reflectColor: $('#log-reflect-color').checked,
       activeSpeakers: state.activeSpeakers ? Array.from(state.activeSpeakers) : null
     };
   }, function restoreLogSnapshot(snap){
@@ -20872,6 +20968,8 @@ var TabLog = (function(){
     if(snap.gm != null) $('#log-gm').value = snap.gm;
     if(snap.search != null) $('#log-search').value = snap.search;
     $('#log-exclude-other').checked = !!snap.excludeOther;
+    if(snap.theme==='script' || snap.theme==='cocoback') $('#log-theme').value = snap.theme;
+    $('#log-reflect-color').checked = !!snap.reflectColor;
     if(snap.activeSpeakers){
       state.activeSpeakers = new Set(snap.activeSpeakers);
       $all('.chip', $('#log-speakers')).forEach(function(chip){
