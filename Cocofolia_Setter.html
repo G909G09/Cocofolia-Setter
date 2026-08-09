@@ -672,7 +672,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="row">
       <div class="field"><label for="chs-name">이름</label><input type="text" id="chs-name" placeholder="탐사자 이름"></div>
       <div class="field"><label for="chs-job">직업</label><input type="text" id="chs-job" placeholder="예: 사립탐정"></div>
-      <div class="field"><label for="chs-age">나이</label><input type="number" id="chs-age" min="0" style="width:70px;"></div>
+      <div class="field"><label for="chs-age">나이</label><input type="number" id="chs-age" min="0" max="120" style="width:70px;"></div>
       <div class="field"><label for="chs-gender">성별</label><input type="text" id="chs-gender" style="width:80px;"></div>
       <div class="field"><label for="chs-residence">거주지</label><input type="text" id="chs-residence"></div>
       <div class="field"><label for="chs-birthplace">출생지</label><input type="text" id="chs-birthplace"></div>
@@ -18755,6 +18755,10 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
   });
   [loopCountEl, paddingEl, manualSec].forEach(function(el){ el.addEventListener('input', recompute); });
 
+  // 반복 횟수·여백(ms)·직접 입력 길이 중 어느 쪽도 상한이 없어서, 예를 들어 반복 횟수를
+  // 실수로 몇 자리 더 입력하면(예: 100 → 100000) 그만큼 긴 무음 구간을 인코딩하느라 탭이
+  // 사실상 멈춰버릴 수 있었다. 다이스 컷인 용도로는 충분히 넉넉한 10분을 상한으로 둔다.
+  var MP3_MAX_MS = 600000;
   function recompute(){
     var loop = Math.max(1, parseInt(loopCountEl.value,10)||1);
     var pad = Math.max(0, parseFloat(paddingEl.value)||0);
@@ -18766,11 +18770,15 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     } else {
       finalMs = null;
     }
+    var wasClamped = finalMs!=null && finalMs > MP3_MAX_MS;
+    if(wasClamped) finalMs = MP3_MAX_MS;
     if(finalMs==null){
       finalBox.textContent = '최종 길이: - (정지 이미지는 길이를 직접 입력하세요)';
+      finalBox.style.color = '';
       genBtn.disabled = true;
     } else {
-      finalBox.textContent = '최종 길이: '+(finalMs/1000).toFixed(3)+'초';
+      finalBox.textContent = '최종 길이: '+(finalMs/1000).toFixed(3)+'초'+(wasClamped?' (반복 횟수·여백·길이가 너무 커서 10분으로 제한됨)':'');
+      finalBox.style.color = wasClamped ? 'var(--danger)' : '';
       genBtn.disabled = false;
     }
     state.finalMs = finalMs;
@@ -20799,10 +20807,12 @@ var TabLog = (function(){
   // 500이나 음수처럼 범위를 벗어난 값을 입력해도 칸에는 그대로 남고 계산에만 클램프된 값이
   // 쓰이면, 화면에 보이는 숫자와 실제 계산 결과가 말없이 어긋난다. 실제로 범위를 벗어난
   // 경우에만(빈 칸이나 입력 중인 값은 건드리지 않고) 칸 자체를 클램프된 값으로 되돌린다.
-  function clampFieldIfOutOfRange(input){
+  // min/max를 생략하면 특성치·기능치 칸 기준인 0-99를 쓴다("나이" 칸처럼 범위가 다른
+  // 곳에서도 재사용할 수 있도록 매개변수로 뺐다).
+  function clampFieldIfOutOfRange(input, min, max){
     var raw = parseInt(input.value, 10);
     if(!isNaN(raw)){
-      var clamped = clampInt(raw, 0, 99);
+      var clamped = clampInt(raw, min==null?0:min, max==null?99:max);
       if(clamped !== raw) input.value = clamped;
     }
   }
@@ -21053,6 +21063,9 @@ var TabLog = (function(){
     derived.mp.value = Math.floor(POW/5); // CoC 7판 규칙: 마력(MP) = POW의 1/5
     derived.san.value = Math.min(99, POW);
     var baseMov = (STR<SIZ && DEX<SIZ) ? 7 : ((STR>=SIZ && DEX>=SIZ) ? 9 : 8);
+    // 나이 칸도 특성치 칸과 같은 이유로 화면 값과 계산 값이 어긋나지 않도록, 범위(0-120)를
+    // 벗어난 경우에만 칸 자체를 클램프한다(빈 칸은 건드리지 않음 — 나이 미입력은 정상 상태).
+    clampFieldIfOutOfRange($('#chs-age'), 0, 120);
     derived.mov.value = Math.max(1, baseMov - movAgePenalty(parseInt($('#chs-age').value,10)));
 
     var strSiz = STR+SIZ;
@@ -21640,9 +21653,9 @@ var TabLog = (function(){
   // 뜨는 것을 줄여준다. 사용자가 이후 직접 열 개수를 바꾸는 것은 그대로 허용된다.
   function autoSuggestCols(){
     if(!heroImg || items.length===0) return;
-    var panelW = Math.max(120, parseInt($('#cs-hero-width').value,10)||220);
-    var gap = Math.max(0, parseInt($('#cs-gap').value,10)||10);
-    var thumb = Math.max(40, parseInt($('#cs-thumb').value,10)||160);
+    var panelW = clampInt(parseInt($('#cs-hero-width').value,10)||220, 120, 500);
+    var gap = clampInt(parseInt($('#cs-gap').value,10)||10, 0, 60);
+    var thumb = clampInt(parseInt($('#cs-thumb').value,10)||160, 40, 400);
     var pad = 14, imgGap = 14;
     var innerW = panelW - pad*2;
     var imgH = Math.min(innerW * (heroImg.height/heroImg.width), 900);
@@ -21671,8 +21684,8 @@ var TabLog = (function(){
   function minimizeLayoutWaste(){
     if(items.length===0) return false;
     var n = items.length;
-    var gap = Math.max(0, parseInt($('#cs-gap').value,10)||10);
-    var thumb = Math.max(40, parseInt($('#cs-thumb').value,10)||160);
+    var gap = clampInt(parseInt($('#cs-gap').value,10)||10, 0, 60);
+    var thumb = clampInt(parseInt($('#cs-thumb').value,10)||160, 40, 400);
     var nameVal = $('#cs-name').value.trim();
     var catchVal = $('#cs-catch').value.trim();
     var nameAlign = $('#cs-name-align').value || 'right';
@@ -21680,7 +21693,7 @@ var TabLog = (function(){
     var nameFont = $('#cs-name-font').value.trim() || null;
     var panelOn = !!heroImg;
     var effectiveNameAlign = (nameAlign === 'vertical' && !panelOn) ? 'right' : nameAlign;
-    var panelW = panelOn ? Math.max(120, parseInt($('#cs-hero-width').value,10)||220) : 0;
+    var panelW = panelOn ? clampInt(parseInt($('#cs-hero-width').value,10)||220, 120, 500) : 0;
     var ctxTmp = $('#cs-canvas').getContext('2d');
     var panelH = 0;
     if(panelOn){
@@ -21992,9 +22005,9 @@ var TabLog = (function(){
   }
 
   $('#cs-build').addEventListener('click', function(){
-    var cols = Math.max(1, parseInt($('#cs-cols').value,10)||4);
-    var gap = Math.max(0, parseInt($('#cs-gap').value,10)||10);
-    var thumb = Math.max(40, parseInt($('#cs-thumb').value,10)||160);
+    var cols = clampInt(parseInt($('#cs-cols').value,10)||4, 1, 10);
+    var gap = clampInt(parseInt($('#cs-gap').value,10)||10, 0, 60);
+    var thumb = clampInt(parseInt($('#cs-thumb').value,10)||160, 40, 400);
     var rows = Math.ceil(items.length/cols);
     var gridW = cols*thumb + (cols+1)*gap;
     var gridH = rows*thumb + (rows+1)*gap; // 표정 라벨은 썸네일 위에 겹쳐 그리므로 별도 높이가 필요 없음
@@ -22009,7 +22022,7 @@ var TabLog = (function(){
     // 세로쓰기는 대표 이미지가 있을 때만 그 옆에 놓을 수 있다 — 이미지가 없으면 우측 정렬로 대신한다.
     var effectiveNameAlign = (nameAlign === 'vertical' && !panelOn) ? 'right' : nameAlign;
     var verticalNameActive = panelOn && effectiveNameAlign === 'vertical' && !!nameVal;
-    var panelW = panelOn ? Math.max(120, parseInt($('#cs-hero-width').value,10)||220) : 0;
+    var panelW = panelOn ? clampInt(parseInt($('#cs-hero-width').value,10)||220, 120, 500) : 0;
     var panelGap = panelOn ? 18 : 0;
     var pad = 14;
 
