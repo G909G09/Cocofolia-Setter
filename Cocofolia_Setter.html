@@ -488,7 +488,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <input type="file" id="fx-file" accept=".png" class="hidden">
     </div>
     <div class="row">
-      <div class="field"><label for="fx-duration">길이(초)</label><input type="number" id="fx-duration" value="1.0" min="0.1" step="0.1"></div>
+      <div class="field"><label for="fx-duration">길이(초)</label><input type="number" id="fx-duration" value="1.0" min="0.1" max="20" step="0.1"></div>
       <div class="field"><label for="fx-fps">FPS</label><input type="number" id="fx-fps" value="20" min="5" max="60" step="1"></div>
       <div class="field"><label for="fx-fade-mode">페이드</label>
         <select id="fx-fade-mode">
@@ -752,7 +752,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="row">
       <div class="field"><label>목표 비율(가로:세로)</label>
         <div style="display:flex;gap:6px;align-items:center;">
-          <input type="number" id="st-ratio-w" value="1" min="1" step="1" style="width:56px;"><span>:</span><input type="number" id="st-ratio-h" value="1" min="1" step="1" style="width:56px;">
+          <input type="number" id="st-ratio-w" value="1" min="1" max="100" step="1" style="width:56px;"><span>:</span><input type="number" id="st-ratio-h" value="1" min="1" max="100" step="1" style="width:56px;">
         </div>
       </div>
       <div class="field"><label for="st-mode">처리 방식</label>
@@ -768,7 +768,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
           <input type="text" id="st-bgcolor" value="transparent" style="width:80px;font-size:11px;color:var(--sub);" title="CSS 색상값을 직접 입력할 수도 있습니다 (예: transparent, #ff0000, rgba(0,0,0,.5))">
         </div>
       </div>
-      <div class="field"><label for="st-outwidth">출력 폭(px)</label><input type="number" id="st-outwidth" value="480" min="16" step="1"></div>
+      <div class="field"><label for="st-outwidth">출력 폭(px)</label><input type="number" id="st-outwidth" value="480" min="16" max="8000" step="1"></div>
     </div>
     <p class="footnote" style="margin-top:-6px;">위 설정은 이 브라우저에 자동 저장되어 다음에 열어도 유지됩니다.</p>
     <div class="row">
@@ -19287,6 +19287,11 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     {key:'border',    label:'임팩트 테두리',          def:70, hasColor:true, defColor:'#ffe600'}
   ];
   var EFFECT_BY_KEY = {}; EFFECT_CATALOG.forEach(function(e){ EFFECT_BY_KEY[e.key] = e; });
+  // "길이(초)" 칸은 HTML에 min/max(0.1-20)가 있지만 max 속성만으로는 타이핑된 값을 막지
+  // 못한다. 프레임 수는 길이×FPS로 계산되므로(예: 길이 10000초·FPS 60 → 60만 프레임),
+  // 상한 없이 큰 값을 입력하면 프레임을 하나씩 캔버스에 그리다가 탭이 사실상 멈춰버릴 수
+  // 있다. 코코포리아 컷인 연출 용도로 충분히 넉넉한 20초를 상한으로 둔다.
+  var FX_MAX_DURATION_SEC = 20;
   var SLOT_COUNT = 4;
   var slotPreviewTimers = [null,null,null,null];
 
@@ -19516,7 +19521,7 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     }
     function get(key){ return effectState[key] || {on:false, amt:0}; }
     return {
-      duration: Math.max(0.1, parseFloat($('#fx-duration').value)||1),
+      duration: Math.min(FX_MAX_DURATION_SEC, Math.max(0.1, parseFloat($('#fx-duration').value)||1)),
       fps: clampInt(parseInt($('#fx-fps').value,10)||20, 5, 60),
       fadeMode: $('#fx-fade-mode').value,
       zoom: get('zoom'), shake: get('shake'), chroma: get('chroma'), glitch: get('glitch'),
@@ -19841,13 +19846,15 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     renderBtn.disabled = true; renderBtn.textContent = '렌더링 중...';
     setTimeout(function(){
       try{
+        var wasDurationClamped = (parseFloat($('#fx-duration').value)||0) > FX_MAX_DURATION_SEC;
         var result = renderFrames();
         state.frames = result.frames; state.delays = result.delays;
         previewCanvas.width = result.width; previewCanvas.height = result.height;
         previewCanvas.classList.remove('hidden');
         previewToggle.classList.remove('hidden');
         startPreview();
-        info.textContent = '프레임 '+result.frames.length+'개 렌더링 완료. APNG로 인코딩하려면 다운로드를 눌러주세요.';
+        info.textContent = '프레임 '+result.frames.length+'개 렌더링 완료. APNG로 인코딩하려면 다운로드를 눌러주세요.'
+          + (wasDurationClamped ? ' (길이가 너무 커서 '+FX_MAX_DURATION_SEC+'초로 제한됨)' : '');
         $('#fx-result-row').classList.remove('hidden');
         state.blob = null;
       }catch(e){
@@ -20734,7 +20741,7 @@ var TabLog = (function(){
       '<div class="chs-box-body"><div>'+
       '<div class="chs-stat-input-row">'+
       '<input type="number" min="0" max="99" value="50" class="chs-stat-input" data-stat="'+s.key+'">'+
-      '<button type="button" class="chs-mini-roll" title="'+s.label+'만 다시 굴리기">🎲</button>'+
+      '<button type="button" class="chs-mini-roll" title="'+s.label+'만 다시 굴리기" aria-label="'+s.label+'만 다시 굴리기">🎲</button>'+
       '</div>'+
       '<div class="chs-stat-subrow"><div class="chs-half-cell"></div><div class="chs-fifth-cell"></div></div>'+
       '</div></div>';
@@ -20954,7 +20961,7 @@ var TabLog = (function(){
   DERIVED_FIELDS.forEach(function(d){
     var div = document.createElement('div');
     div.className = 'chs-box chs-derived-box';
-    var rollBtn = d.key==='luck' ? '<button type="button" class="chs-mini-roll" id="chs-luck-roll" title="행운 굴리기(3D6×5)">🎲</button>' : '';
+    var rollBtn = d.key==='luck' ? '<button type="button" class="chs-mini-roll" id="chs-luck-roll" title="행운 굴리기(3D6×5)" aria-label="행운 굴리기(3D6×5)">🎲</button>' : '';
     var stateClass = d.ro ? 'chs-field-locked' : '';
     div.innerHTML = '<div class="chs-box-head">'+d.label+'</div>'+
       '<div class="chs-box-body"><div class="'+(rollBtn?'has-roll':'')+'"><input type="number" class="'+stateClass+'" '+(d.ro?'readonly disabled':'')+'>'+rollBtn+'</div></div>';
@@ -21250,10 +21257,15 @@ var TabLog = (function(){
   function clampNum(v,min,max){ return v<min?min:(v>max?max:v); }
 
   function renderItem(it){
-    var rw = Math.max(1, parseFloat($('#st-ratio-w').value)||1);
-    var rh = Math.max(1, parseFloat($('#st-ratio-h').value)||1);
-    var outW = Math.max(16, parseInt($('#st-outwidth').value,10)||480);
-    var outH = Math.round(outW * rh/rw);
+    // 비율(가로:세로)·출력 폭 칸은 HTML에 min/max(비율 1-100, 출력 폭 16-8000px)가 있지만
+    // 브라우저는 max 속성만으로 타이핑된 값을 막아주지 않는다. 비율 두 값이 각각은
+    // 범위 안이어도 서로 극단적으로 벌어지면(예: 1:100) outW를 기준으로 계산한 outH가
+    // 여전히 범위를 크게 벗어날 수 있으므로, 계산된 outH도 별도로 다시 클램프해 실제
+    // 캔버스 크기(및 ZIP에 담기는 각 이미지 크기)가 항상 안전한 범위 안에 있도록 한다.
+    var rw = clampNum(parseFloat($('#st-ratio-w').value)||1, 1, 100);
+    var rh = clampNum(parseFloat($('#st-ratio-h').value)||1, 1, 100);
+    var outW = clampInt(parseInt($('#st-outwidth').value,10)||480, 16, 8000);
+    var outH = clampInt(Math.round(outW * rh/rw), 16, 8000);
     var mode = $('#st-mode').value;
     var bg = $('#st-bgcolor').value.trim() || 'transparent';
     var offsetFrac = (it.offset+100)/200;
