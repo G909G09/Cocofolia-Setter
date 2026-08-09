@@ -286,6 +286,7 @@ img.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;backgr
 .chs-half-cell,.chs-fifth-cell{flex:1;padding:3px 2px;text-align:center;font-size:11px;border-radius:4px;}
 .chs-half-cell{background:#dcedc8;color:#33691e;}
 .chs-fifth-cell{background:#e1d5f5;color:#4a148c;}
+.chs-stat-desc{margin-top:5px;font-size:10.5px;line-height:1.3;color:var(--sub);}
 /* 입력 칸이 "직접 입력해야 하는 곳"인지 "자동으로 채워지지만 고쳐도 되는 곳"인지 "자동으로만
    채워지고 손댈 수 없는 곳"인지 한눈에 구별되도록, 기본 입력 스타일 위에 얹는 두 가지 상태
    클래스. 두 클래스 모두 !important를 쓰는 이유는 기능치 표의 입력칸처럼 요소마다 배경색이
@@ -374,6 +375,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <div class="card">
     <h3 style="margin:0 0 8px;font-size:14px;">업데이트 로그</h3>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-08-09</b> — CoC 캐릭터 시트 메이커: 특성치 카드마다 그 값이 어느 정도 수준인지(예: 근력 50 = 평균적인 성인) 짧은 설명을 표시, 기능치 목록 보기 방식에 "가나다순 정렬" 추가</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-08</b> — 색상 팔레트를 이전 배색(차분한 회색조)으로 되돌리고, 모서리 둥글기·그림자·알약 모양 버튼/탭 같은 형태는 유지</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-08</b> — 전체 UI 디자인 시스템 새로 정리: 따뜻한 오프화이트 배경, 카드는 테두리 대신 옅은 그림자로 구분, 모서리를 더 둥글게, 버튼·탭을 알약(pill) 모양으로 통일 — 공용 컴포넌트(헤더·카드·버튼·입력칸·업로드칸)만 바꿔 14개 탭 전체에 한 번에 적용됨. 라이트/다크 모드 모두 대응</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-08</b> — 결과물 보관함과 연동되는 "임시저장" 버튼을 각 탭의 다운로드 버튼 옆에 추가 — 파일을 실제로 다운로드하지 않고도 결과물 보관함에 바로 저장 가능(컷인·GIF/APNG 변환·PNG 이펙터·로그 백업 2종·스탠딩 재단·컨닝 페이퍼·캐릭터 룸파일·CoC 캐릭터 시트 JSON)</li>
@@ -716,6 +718,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <div class="field"><label for="chs-skill-view">목록 보기 방식</label>
         <select id="chs-skill-view">
           <option value="category">카테고리별로 묶어보기</option>
+          <option value="alpha">가나다순 정렬</option>
           <option value="flat">전체 목록(기존 방식)</option>
         </select>
       </div>
@@ -20769,7 +20772,25 @@ var TabLog = (function(){
     {key:'STR', label:'근력'}, {key:'CON', label:'건강'}, {key:'SIZ', label:'크기'}, {key:'DEX', label:'민첩'},
     {key:'APP', label:'외모'}, {key:'EDU', label:'교육'}, {key:'INT', label:'지능'}, {key:'POW', label:'정신'}
   ];
-  var stats = {}, statHalfCells = {}, statFifthCells = {};
+  // 특성치 숫자만 봐서는 감이 잘 안 잡히는 사람들을 위해, 값 구간마다 "이 정도면 어느
+  // 수준인지"를 특성치별로 다르게 짧은 말로 설명한다(3D6×5 기준 분포를 대략적인 기준으로
+  // 삼아 6구간으로 나눴다 — 41~59가 "평균적인 성인" 구간).
+  var STAT_TIERS = {
+    STR:[[25,'매우 약함'],[40,'평균 이하'],[59,'평균적인 성인'],[74,'단련된 성인'],[89,'매우 강함(운동선수급)'],[Infinity,'인간 한계에 가까운 괴력']],
+    CON:[[25,'매우 허약함'],[40,'평균 이하'],[59,'평균적인 성인'],[74,'튼튼함'],[89,'매우 건강함'],[Infinity,'초인적인 생명력']],
+    SIZ:[[25,'매우 작음/왜소함'],[40,'평균보다 작음'],[59,'평균적인 성인 체격'],[74,'평균보다 큼'],[89,'매우 큼/장신'],[Infinity,'거구']],
+    DEX:[[25,'매우 둔함'],[40,'평균보다 느림'],[59,'평균적인 성인'],[74,'날렵함'],[89,'매우 민첩함(운동선수급)'],[Infinity,'인간 한계에 가까운 반사신경']],
+    APP:[[25,'평균 이하의 외모'],[40,'평범한 외모'],[59,'평균적인 외모'],[74,'호감형 외모'],[89,'매우 매력적인 외모'],[Infinity,'눈에 띄게 빼어난 외모']],
+    EDU:[[25,'정규 교육을 거의 못 받음'],[40,'기초 교육 수준'],[59,'평균적인 성인의 학식'],[74,'고등 교육 수준(대졸급)'],[89,'높은 학식(대학원급)'],[Infinity,'해당 분야 최고 권위자급']],
+    INT:[[25,'평균 이하의 지능'],[40,'평범한 지능'],[59,'평균적인 성인'],[74,'명석함'],[89,'매우 명석함(영재급)'],[Infinity,'천재적인 지능']],
+    POW:[[25,'매우 약한 의지·정신력'],[40,'평균보다 약한 의지'],[59,'평균적인 성인'],[74,'강한 의지'],[89,'매우 강한 의지'],[Infinity,'초인적인 정신력']]
+  };
+  function statTierText(key, val){
+    var tiers = STAT_TIERS[key];
+    for(var i=0;i<tiers.length;i++){ if(val<=tiers[i][0]) return tiers[i][1]; }
+    return tiers[tiers.length-1][1];
+  }
+  var stats = {}, statHalfCells = {}, statFifthCells = {}, statDescCells = {};
   var statGrid = $('#chs-stat-grid');
   // "오프라인용 파일 다운로드" 대체 경로(현재 DOM 직렬화)로 받은 파일을 다시 열면 이 스크립트가
   // 또 실행되므로, 컨테이너가 비어있다는 가정이 깨져 특성치 칸이 두 벌씩 쌓인다. 실행 시작 시
@@ -20789,11 +20810,13 @@ var TabLog = (function(){
       '<button type="button" class="chs-mini-roll" title="'+s.label+'만 다시 굴리기" aria-label="'+s.label+'만 다시 굴리기">🎲</button>'+
       '</div>'+
       '<div class="chs-stat-subrow"><div class="chs-half-cell"></div><div class="chs-fifth-cell"></div></div>'+
+      '<div class="chs-stat-desc"></div>'+
       '</div></div>';
     statGrid.appendChild(div);
     stats[s.key] = div.querySelector('input');
     statHalfCells[s.key] = div.querySelector('.chs-half-cell');
     statFifthCells[s.key] = div.querySelector('.chs-fifth-cell');
+    statDescCells[s.key] = div.querySelector('.chs-stat-desc');
     // 8개를 한꺼번에 다시 굴리는 버튼(아래) 말고, 특정 특성치 하나만 마음에 안 들 때 그것만
     // 바로 다시 굴릴 수 있게 카드마다 작은 주사위 버튼을 붙였다. 값 하나만 바뀌는 가벼운
     // 동작이라 확인창 없이 바로 적용한다(전체 굴리기·전체 초기화와 달리 되돌리기 부담이 적음).
@@ -20936,13 +20959,14 @@ var TabLog = (function(){
   var skillView = 'category';
   try{
     var savedView = localStorage.getItem(SKILL_VIEW_LS_KEY);
-    if(savedView==='flat' || savedView==='category') skillView = savedView;
+    if(savedView==='flat' || savedView==='category' || savedView==='alpha') skillView = savedView;
   }catch(e){}
   $('#chs-skill-view').value = skillView;
   // skillRows에 담긴 기능 데이터(입력값)는 그대로 둔 채, 현재 보기 방식에 맞춰 <tr>들을
   // tbody에 다시 배치만 한다. 카테고리별 보기는 SKILL_GROUPS 순서대로 구역 제목을 넣고
-  // (직접 추가해 카테고리가 없는 기능은 맨 아래 "기타"로), 전체 목록 보기는 예전 방식대로
-  // 구역 제목 없이 원래 순서(FLAT_ORDER, 못 찾으면 추가한 순서)로만 나열한다.
+  // (직접 추가해 카테고리가 없는 기능은 맨 아래 "기타"로), 가나다순 보기는 기능명(현재
+  // 입력칸에 있는 값 기준, 이름을 고쳐 썼으면 그 이름 기준)으로 정렬하며, 전체 목록 보기는
+  // 예전 방식대로 구역 제목 없이 원래 순서(FLAT_ORDER, 못 찾으면 추가한 순서)로만 나열한다.
   function renderSkillTable(){
     var body = $('#chs-skill-body');
     body.innerHTML = '';
@@ -20951,6 +20975,10 @@ var TabLog = (function(){
         var ai = a.flatOrder!=null ? a.flatOrder : 9999+skillRows.indexOf(a);
         var bi = b.flatOrder!=null ? b.flatOrder : 9999+skillRows.indexOf(b);
         return ai-bi;
+      }).forEach(function(row){ body.appendChild(row.tr); });
+    } else if(skillView === 'alpha'){
+      skillRows.slice().sort(function(a,b){
+        return a.nameInput.value.localeCompare(b.nameInput.value, 'ko');
       }).forEach(function(row){ body.appendChild(row.tr); });
     } else {
       SKILL_GROUPS.forEach(function(group){
@@ -21118,6 +21146,7 @@ var TabLog = (function(){
       var v = statVal(s.key);
       statHalfCells[s.key].textContent = Math.floor(v/2);
       statFifthCells[s.key].textContent = Math.floor(v/5);
+      statDescCells[s.key].textContent = statTierText(s.key, v);
     });
 
     var CON=statVal('CON'), SIZ=statVal('SIZ'), POW=statVal('POW'), STR=statVal('STR'), DEX=statVal('DEX'), INT=statVal('INT'), EDU=statVal('EDU');
