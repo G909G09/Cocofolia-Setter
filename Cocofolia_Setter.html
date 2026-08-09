@@ -497,6 +497,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-08-09</b> — CoC 캐릭터 시트 메이커: 일부 환경(풀배열 키보드의 오른쪽 숫자패드 등)에서 특성치·나이·기능점수·행운 등 숫자 입력 칸에 숫자패드 입력이 먹지 않던 문제 수정 — 숫자만 입력되는 텍스트 칸으로 바꾸고 범위를 벗어나거나 숫자가 아닌 값은 그대로 걸러내도록 함(계산 로직과 값 범위 제한은 이전과 동일)</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-09</b> — 토스류 앱을 참고해 UX 다듬기: (1) 파일을 올리면 다음 단계 옵션이 뚝 끊기지 않고 부드럽게 슬라이드+페이드로 나타나도록 개선(PNG 이펙터 효과 슬롯, 컷인 커터·GIF/APNG 변환기·로그 백업 2종의 결과·옵션 패널 등), (2) 결과물 보관함 목록 항목을 마우스로 올리거나(터치 환경에선 왼쪽으로 밀면) 불러오기·다운로드·삭제 버튼이 나타나는 스와이프 방식으로 변경해 평소엔 파일명만 깔끔하게 보이도록 정리(키보드 포커스로도 동일하게 열림)</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-09</b> — "임시저장"/다운로드가 결과물 보관함에 남긴 항목에서 화면을 통째로 다시 불러올 수 있는 "불러오기" 기능 추가(임시저장 버튼이 있는 9개 탭 전부 — 컷인 커터·GIF/APNG 변환기·PNG 이펙터·로그 백업 2종·스탠딩 일괄 재단·컨닝 페이퍼 메이커·캐릭터 룸파일 생성기·CoC 캐릭터 시트 메이커). 업로드했던 파일과 순서, 입력한 값·옵션까지 그때 그대로 복원되며(예: 컨닝 페이퍼 메이커라면 표정 이미지들과 순서, 이름·서체 등), 결과물 보관함과 홈 화면 "최근 결과물" 위젯 모두에서 불러올 수 있음</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-09</b> — 전체 UI 구성 개편(드롭박스 참고, 배색은 그대로 유지): 상단 가로 메뉴를 좌측 고정 사이드바로 교체(카테고리를 클릭하면 아코디언으로 하위 탭이 펼쳐짐, 좁은 화면에서는 햄버거 버튼으로 여닫는 서랍 메뉴), 홈 화면에 기능 검색창·빠른 실행 버튼·카테고리 필터 알약·"최근 결과물"(결과물 보관함 연동) 위젯을 새로 추가하고 업데이트 로그는 접어서 볼 수 있게 정리</li>
@@ -835,7 +836,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="row">
       <div class="field"><label for="chs-name">이름</label><input type="text" id="chs-name" placeholder="탐사자 이름"></div>
       <div class="field"><label for="chs-job">직업</label><input type="text" id="chs-job" placeholder="예: 사립탐정"></div>
-      <div class="field"><label for="chs-age">나이</label><input type="number" id="chs-age" min="0" max="120" style="width:70px;"></div>
+      <div class="field"><label for="chs-age">나이</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="chs-age" min="0" max="120" style="width:70px;"></div>
       <div class="field"><label for="chs-gender">성별</label><input type="text" id="chs-gender" style="width:80px;"></div>
       <div class="field"><label for="chs-residence">거주지</label><input type="text" id="chs-residence"></div>
       <div class="field"><label for="chs-birthplace">출생지</label><input type="text" id="chs-birthplace"></div>
@@ -866,7 +867,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
           <option value="INT">EDU×4 + 지능×2</option>
         </select>
       </div>
-      <div class="field"><label for="chs-occ-points">직업 기능점수</label><input type="number" id="chs-occ-points" value="0" min="0" style="width:90px;"></div>
+      <div class="field"><label for="chs-occ-points">직업 기능점수</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="chs-occ-points" value="0" min="0" style="width:90px;"></div>
       <div class="field"><label for="chs-int-points">관심 기능점수 (지능×2, 자동)</label><input type="number" id="chs-int-points" class="chs-field-locked" readonly disabled style="width:90px;"></div>
     </div>
     <div class="info-box" id="chs-points-info" aria-live="polite">기능치에 점수를 분배하면 남은 점수가 여기 표시됩니다.</div>
@@ -21519,7 +21520,7 @@ var TabLog = (function(){
       '<div class="chs-box-head">'+s.label+'</div>'+
       '<div class="chs-box-body"><div>'+
       '<div class="chs-stat-input-row">'+
-      '<input type="number" min="0" max="99" value="50" class="chs-stat-input" data-stat="'+s.key+'">'+
+      '<input type="text" inputmode="numeric" pattern="[0-9]*" min="0" max="99" value="50" class="chs-stat-input" data-stat="'+s.key+'">'+
       '<button type="button" class="chs-mini-roll" title="'+s.label+'만 다시 굴리기" aria-label="'+s.label+'만 다시 굴리기">🎲</button>'+
       '</div>'+
       '<div class="chs-stat-subrow"><div class="chs-half-cell"></div><div class="chs-fifth-cell"></div></div>'+
@@ -21598,6 +21599,10 @@ var TabLog = (function(){
   // min/max를 생략하면 특성치·기능치 칸 기준인 0-99를 쓴다("나이" 칸처럼 범위가 다른
   // 곳에서도 재사용할 수 있도록 매개변수로 뺐다).
   function clampFieldIfOutOfRange(input, min, max){
+    if(input.type === 'text'){
+      var digitsOnly = input.value.replace(/[^0-9]/g, '');
+      if(digitsOnly !== input.value) input.value = digitsOnly;
+    }
     var raw = parseInt(input.value, 10);
     if(!isNaN(raw)){
       var clamped = clampInt(raw, min==null?0:min, max==null?99:max);
@@ -21624,8 +21629,8 @@ var TabLog = (function(){
     tr.innerHTML =
       '<td style="padding:4px 6px;text-align:center;"><input type="checkbox" title="성장 체크(플레이 중 판정 성공 시 표시 — 참고용, JSON에는 반영되지 않음)"></td>'+
       '<td style="padding:4px 6px;"><input type="text" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;"></td>'+
-      '<td style="padding:4px 6px;"><input type="number" min="0" max="99" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;"></td>'+
-      '<td style="padding:4px 6px;"><input type="number" min="0" max="99" value="0" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;"></td>'+
+      '<td style="padding:4px 6px;"><input type="text" inputmode="numeric" pattern="[0-9]*" min="0" max="99" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;"></td>'+
+      '<td style="padding:4px 6px;"><input type="text" inputmode="numeric" pattern="[0-9]*" min="0" max="99" value="0" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;"></td>'+
       '<td style="padding:4px 6px;text-align:center;font-weight:700;">0</td>'+
       '<td class="chs-skill-half" style="padding:4px 6px;text-align:center;">0</td>'+
       '<td class="chs-skill-fifth" style="padding:4px 6px;text-align:center;">0</td>'+
@@ -21755,8 +21760,9 @@ var TabLog = (function(){
     // 파생 수치(체력·마력·이성·이동력)는 계산식이 따로 있어 여기서 범위를 강제하면 안 되므로
     // 행운에만 적용한다.
     var rangeAttr = d.key==='luck' ? 'min="0" max="99"' : '';
+    var inputTypeAttr = d.ro ? 'type="number"' : 'type="text" inputmode="numeric" pattern="[0-9]*"';
     div.innerHTML = '<div class="chs-box-head">'+d.label+'</div>'+
-      '<div class="chs-box-body"><div class="'+(rollBtn?'has-roll':'')+'"><input type="number" '+rangeAttr+' class="'+stateClass+'" '+(d.ro?'readonly disabled':'')+'>'+rollBtn+'</div></div>';
+      '<div class="chs-box-body"><div class="'+(rollBtn?'has-roll':'')+'"><input '+inputTypeAttr+' '+rangeAttr+' class="'+stateClass+'" '+(d.ro?'readonly disabled':'')+'>'+rollBtn+'</div></div>';
     derivedRow.appendChild(div);
     derived[d.key] = div.querySelector('input');
   });
