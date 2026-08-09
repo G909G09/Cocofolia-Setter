@@ -703,7 +703,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
           <option value="INT">EDU×4 + 지능×2</option>
         </select>
       </div>
-      <div class="field"><label for="chs-occ-points">직업 기능점수</label><input type="number" id="chs-occ-points" value="0" style="width:90px;"></div>
+      <div class="field"><label for="chs-occ-points">직업 기능점수</label><input type="number" id="chs-occ-points" value="0" min="0" style="width:90px;"></div>
       <div class="field"><label for="chs-int-points">관심 기능점수 (지능×2, 자동)</label><input type="number" id="chs-int-points" class="chs-field-locked" readonly disabled style="width:90px;"></div>
     </div>
     <div class="info-box" id="chs-points-info" aria-live="polite">기능치에 점수를 분배하면 남은 점수가 여기 표시됩니다.</div>
@@ -736,7 +736,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <button class="btn ghost" id="chs-download-json">JSON 파일로 다운로드</button>
       <button class="btn ghost" id="chs-send-charfile">→ 11번 캐릭터 룸파일로 보내기</button>
     </div>
-    <div class="field" style="width:100%;margin-top:8px;"><textarea id="chs-json-output" rows="6" style="width:100%;" readonly placeholder="JSON 생성 버튼을 누르면 여기에 표시됩니다."></textarea></div>
+    <div class="field" style="width:100%;margin-top:8px;"><textarea id="chs-json-output" rows="6" style="width:100%;" readonly aria-label="생성된 코코포리아 캐릭터 JSON" placeholder="JSON 생성 버튼을 누르면 여기에 표시됩니다."></textarea></div>
   </div>
 </section>
 
@@ -897,7 +897,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">스테이터스 (선택 사항)</h3>
     <p class="footnote" style="margin:2px 0 6px;">코코포리아 캐릭터 JSON을 붙여넣으면 이름·스탯·능력치·커맨드가 채워집니다(비워두면 스탠딩만 있는 캐릭터).</p>
-    <div class="field" style="width:100%;"><textarea id="cf-status-json" rows="6" style="width:100%;" placeholder='{"kind":"character","data":{"name":"...","status":[...],"params":[...],"commands":"..."}}'></textarea></div>
+    <div class="field" style="width:100%;"><textarea id="cf-status-json" rows="6" style="width:100%;" aria-label="스테이터스 JSON 붙여넣기" placeholder='{"kind":"character","data":{"name":"...","status":[...],"params":[...],"commands":"..."}}'></textarea></div>
     <div class="row"><button class="btn ghost" type="button" id="cf-status-parse">스테이터스 JSON 불러오기</button></div>
     <div class="info-box" id="cf-status-info" aria-live="polite">스테이터스 JSON을 불러오면 확인 내용이 여기 표시됩니다.</div>
 
@@ -20963,8 +20963,14 @@ var TabLog = (function(){
     div.className = 'chs-box chs-derived-box';
     var rollBtn = d.key==='luck' ? '<button type="button" class="chs-mini-roll" id="chs-luck-roll" title="행운 굴리기(3D6×5)" aria-label="행운 굴리기(3D6×5)">🎲</button>' : '';
     var stateClass = d.ro ? 'chs-field-locked' : '';
+    // 행운은 다른 특성치 카드(#chs-stat-grid)와 같은 0-99 퍼센트 스케일 칸인데도 min/max가
+    // 없어서, 직접 입력 시(굴리기 버튼 없이 타이핑) 범위를 벗어난 값이 그대로 남아 카드 폭을
+    // 벗어나거나(예: 4자리 이상) JSON 생성 시 이상치가 그대로 실려 나갈 수 있었다. 읽기전용
+    // 파생 수치(체력·마력·이성·이동력)는 계산식이 따로 있어 여기서 범위를 강제하면 안 되므로
+    // 행운에만 적용한다.
+    var rangeAttr = d.key==='luck' ? 'min="0" max="99"' : '';
     div.innerHTML = '<div class="chs-box-head">'+d.label+'</div>'+
-      '<div class="chs-box-body"><div class="'+(rollBtn?'has-roll':'')+'"><input type="number" class="'+stateClass+'" '+(d.ro?'readonly disabled':'')+'>'+rollBtn+'</div></div>';
+      '<div class="chs-box-body"><div class="'+(rollBtn?'has-roll':'')+'"><input type="number" '+rangeAttr+' class="'+stateClass+'" '+(d.ro?'readonly disabled':'')+'>'+rollBtn+'</div></div>';
     derivedRow.appendChild(div);
     derived[d.key] = div.querySelector('input');
   });
@@ -20976,6 +20982,9 @@ var TabLog = (function(){
     return roll(3,6)*5; // STR·CON·DEX·APP·POW
   }
   $('#chs-luck-roll').addEventListener('click', function(){ derived.luck.value = roll(3,6)*5; });
+  // 행운은 특성치 그리드(#chs-stat-grid) 밖에 있어 recomputeAll을 트리거하는 grid input
+  // 리스너로는 감지되지 않는다 — 나이 칸과 같은 이유로 직접 연결해 타이핑 중에도 범위를 벗어나면 바로잡는다.
+  derived.luck.addEventListener('input', function(){ clampFieldIfOutOfRange(derived.luck); });
 
   // 피해보너스·체구는 둘 다 STR+SIZ 합계 하나에서 함께 나오는 짝이라 카드 하나에 나란히
   // 묶는다 — 7개를 낱개 카드로 늘어놓으면 4열 기준으로 4+3으로 애매하게 갈라지는데,
@@ -21057,6 +21066,7 @@ var TabLog = (function(){
   function recomputeAll(){
     updateSpecialSkillBases();
     refreshSkillTotals();
+    clampFieldIfOutOfRange(derived.luck); // 행운도 특성치 카드와 같은 0-99 스케일이라 동일하게 클램프
 
     STAT_DEFS.forEach(function(s){
       clampFieldIfOutOfRange(stats[s.key]);
@@ -21098,7 +21108,14 @@ var TabLog = (function(){
   }
   grid.addEventListener('input', recomputeAll);
   $('#chs-occ-formula').addEventListener('change', recomputeAll);
-  $('#chs-occ-points').addEventListener('input', refreshPointsInfo);
+  // "직업 기능점수" 직접 입력 모드에서 음수를 입력하면(공식 선택 모드는 항상 자동 계산값이라
+  // 문제 없음) 아래 "총 예산" 안내가 "총 예산 -30점"처럼 말이 안 되는 상태로 표시되고, 실제
+  // 분배 가능 점수도 조용히 줄어들었다. 다른 수동 입력 칸(나이·특성치 등)과 마찬가지로 범위를
+  // 벗어난 경우에만 0으로 바로잡는다(상한은 EDU×4+특성치×2 공식 최대치보다 넉넉하게 둔다).
+  $('#chs-occ-points').addEventListener('input', function(){
+    clampFieldIfOutOfRange($('#chs-occ-points'), 0, 9999);
+    refreshPointsInfo();
+  });
   // 나이는 특성치 그리드(#chs-stat-grid) 밖에 있는 "기본 정보" 칸이라 위 grid input
   // 리스너로는 감지되지 않는다 — 나이가 MOV 계산에 반영되므로 따로 연결해준다.
   $('#chs-age').addEventListener('input', recomputeAll);
