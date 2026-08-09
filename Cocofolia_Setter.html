@@ -1096,6 +1096,10 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <button class="btn ghost" id="history-refresh" type="button">새로고침</button>
       <button class="btn ghost" id="history-clear" type="button" style="color:var(--danger);">전체 삭제</button>
     </div>
+    <div class="row">
+      <div class="field"><label class="wide" for="history-search">파일명 검색</label><input type="text" id="history-search" class="wide" placeholder="파일명으로 검색"></div>
+      <div class="field"><label for="history-tab-filter">출처 탭</label><select id="history-tab-filter"><option value="">전체</option></select></div>
+    </div>
     <div class="info-box" id="history-info" aria-live="polite"></div>
     <div id="history-list" style="margin-top:10px;display:flex;flex-direction:column;gap:8px;"></div>
   </div>
@@ -18169,6 +18173,16 @@ function sanitizeFilename(name){
   return String(name||'').replace(/[\\/:*?"<>|]/g, '_').trim() || 'download';
 }
 
+// 다운로드 파일명 칸(mp3/g2a/fx 등)은 자유 텍스트라 사용자가 확장자를 지우거나 다른 것으로
+// 바꿔도 그대로 통과된다 — 내용물(blob)은 여전히 유효한 mp3/png인데 파일명만 어긋나는
+// 문제를 막기 위해, 실제 blob 형식에 맞는 확장자가 없으면 끝에 붙여준다.
+function ensureExtension(name, ext){
+  var base = String(name||'').trim();
+  ext = String(ext||'').replace(/^\.+/, '').toLowerCase();
+  if(!ext) return base;
+  return new RegExp('\\.' + escapeRegExp(ext) + '$', 'i').test(base) ? base : base + '.' + ext;
+}
+
 /* ============ localStorage 저장 실패를 조용히 삼키지 않고 한 번은 알려주기 ============
    사파리 프라이빗 모드 등 localStorage.setItem이 항상 예외를 던지는 환경에서는 사전
    수정본·즐겨쓰는 설정값 같은 게 전혀 저장되지 않는데도 지금까지는 그냥 조용히 실패해서,
@@ -18629,6 +18643,8 @@ $('#settings-reset').addEventListener('click', function(){
 (function(){
   var listEl = $('#history-list');
   var infoEl = $('#history-info');
+  var searchEl = $('#history-search');
+  var tabFilterEl = $('#history-tab-filter');
   function fmtSize(bytes){
     if(bytes < 1024) return bytes+' B';
     if(bytes < 1024*1024) return (bytes/1024).toFixed(1)+' KB';
@@ -18639,15 +18655,38 @@ $('#settings-reset').addEventListener('click', function(){
     function pad(n){ return (n<10?'0':'')+n; }
     return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
   }
+  // 최대 100개까지 쌓이는 결과물이 14개 탭에서 뒤섞여 들어오다 보니, 특정 파일 하나를
+  // 찾으려면 목록을 끝까지 훑어야 했다. 파일명 검색 + 출처 탭 필터를 추가한다.
+  function populateTabFilter(items){
+    var tabs = Array.from(new Set(items.map(function(it){ return it.tabLabel; }))).sort();
+    var prev = tabFilterEl.value;
+    tabFilterEl.innerHTML = '<option value="">전체</option>' + tabs.map(function(t){
+      return '<option value="'+escHtml(t)+'">'+escHtml(t)+'</option>';
+    }).join('');
+    if(tabs.indexOf(prev) !== -1) tabFilterEl.value = prev;
+  }
   function render(){
     listHistory().then(function(items){
       listEl.innerHTML = '';
       if(!items.length){
         infoEl.textContent = '아직 저장된 결과물이 없습니다. 각 탭에서 결과물을 다운로드하면 여기에도 자동으로 모입니다.';
+        tabFilterEl.innerHTML = '<option value="">전체</option>';
         return;
       }
-      infoEl.textContent = items.length+'개 저장됨 (최근 '+HISTORY_MAX_ITEMS+'개까지 유지)';
-      items.forEach(function(item){
+      populateTabFilter(items);
+      var q = searchEl.value.trim().toLowerCase();
+      var tabFilter = tabFilterEl.value;
+      var filtered = items.filter(function(item){
+        if(tabFilter && item.tabLabel !== tabFilter) return false;
+        if(q && item.filename.toLowerCase().indexOf(q) === -1) return false;
+        return true;
+      });
+      if(!filtered.length){
+        infoEl.textContent = '조건에 맞는 결과물이 없습니다. (전체 '+items.length+'개 중 0개 · 최근 '+HISTORY_MAX_ITEMS+'개까지 유지)';
+        return;
+      }
+      infoEl.textContent = (filtered.length===items.length ? items.length+'개 저장됨' : filtered.length+'개 표시 (전체 '+items.length+'개 중)')+' (최근 '+HISTORY_MAX_ITEMS+'개까지 유지)';
+      filtered.forEach(function(item){
         var row = document.createElement('div');
         row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;';
         row.innerHTML =
@@ -18674,6 +18713,8 @@ $('#settings-reset').addEventListener('click', function(){
     if(!confirm('저장된 결과물을 전체 삭제할까요? 되돌릴 수 없습니다.')) return;
     clearHistory().then(render);
   });
+  searchEl.addEventListener('input', render);
+  tabFilterEl.addEventListener('change', render);
   // 다른 탭에서 다운로드할 때마다 매번 갱신하는 대신, 이 탭을 열 때만 새로고침한다
   // (보고 있지 않을 때 불필요하게 IndexedDB를 조회하지 않기 위함).
   $('#tabbtn-history').addEventListener('click', render);
@@ -19138,11 +19179,11 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
   });
 
   $('#mp3-download').addEventListener('click', function(){
-    if(state.blob) downloadBlob(state.blob, $('#mp3-filename').value.trim() || 'cutin_silence.mp3');
+    if(state.blob) downloadBlob(state.blob, ensureExtension($('#mp3-filename').value.trim() || 'cutin_silence.mp3', 'mp3'));
   });
   insertQuickSaveButton($('#mp3-download'), function(){
     if(!state.blob){ alert('먼저 무음 MP3를 생성해주세요.'); return false; }
-    saveResultToHistory(currentTabLabel(), $('#mp3-filename').value.trim() || 'cutin_silence.mp3', state.blob);
+    saveResultToHistory(currentTabLabel(), ensureExtension($('#mp3-filename').value.trim() || 'cutin_silence.mp3', 'mp3'), state.blob);
   });
 
   function generateSilentMp3(durationSec, sampleRate, kbps){
@@ -19538,11 +19579,13 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
   });
 
   $('#g2a-download').addEventListener('click', function(){
-    if(state.blob) downloadBlob(state.blob, $('#g2a-filename').value.trim() || (state.direction==='apng2gif'?'converted.gif':'converted.png'));
+    var ext = state.direction==='apng2gif' ? 'gif' : 'png';
+    if(state.blob) downloadBlob(state.blob, ensureExtension($('#g2a-filename').value.trim() || ('converted.'+ext), ext));
   });
   insertQuickSaveButton($('#g2a-download'), function(){
     if(!state.blob){ alert('먼저 변환을 실행해주세요.'); return false; }
-    var fname = $('#g2a-filename').value.trim() || (state.direction==='apng2gif'?'converted.gif':'converted.png');
+    var ext = state.direction==='apng2gif' ? 'gif' : 'png';
+    var fname = ensureExtension($('#g2a-filename').value.trim() || ('converted.'+ext), ext);
     saveResultToHistory(currentTabLabel(), fname, state.blob);
   });
 })();
@@ -20201,12 +20244,12 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
   $('#fx-download').addEventListener('click', function(){
     var blob = ensureFxBlob();
     if(!blob) return;
-    downloadBlob(blob, $('#fx-filename').value.trim() || 'cutin_fx.png');
+    downloadBlob(blob, ensureExtension($('#fx-filename').value.trim() || 'cutin_fx.png', 'png'));
   });
   insertQuickSaveButton($('#fx-download'), function(){
     var blob = ensureFxBlob();
     if(!blob){ alert('먼저 미리보기 렌더링을 실행해주세요.'); return false; }
-    saveResultToHistory(currentTabLabel(), $('#fx-filename').value.trim() || 'cutin_fx.png', blob);
+    saveResultToHistory(currentTabLabel(), ensureExtension($('#fx-filename').value.trim() || 'cutin_fx.png', 'png'), blob);
   });
 })();
 
@@ -20380,6 +20423,27 @@ var TabLog = (function(){
     if(names.length===0){ wrap.classList.add('hidden'); return; }
     wrap.classList.remove('hidden');
     state.activeSpeakers = new Set(names);
+    var chipEls = [];
+    // 화자가 많은 세션(TRPG 특성상 흔함)에서 한 명만 남기거나 전체로 되돌리려면 칩을 하나씩
+    // 클릭해야 했다. 전체 선택/해제 지름길 버튼을 칩 목록 앞에 둔다.
+    var selectAllBtn = document.createElement('button');
+    selectAllBtn.type = 'button'; selectAllBtn.className = 'btn ghost'; selectAllBtn.textContent = '전체 선택';
+    selectAllBtn.style.cssText = 'font-size:11px;padding:3px 8px;margin-right:4px;';
+    selectAllBtn.addEventListener('click', function(){
+      names.forEach(function(name){ state.activeSpeakers.add(name); });
+      chipEls.forEach(function(chip){ chip.classList.remove('off'); chip.setAttribute('aria-pressed', 'true'); });
+      render();
+    });
+    var selectNoneBtn = document.createElement('button');
+    selectNoneBtn.type = 'button'; selectNoneBtn.className = 'btn ghost'; selectNoneBtn.textContent = '전체 해제';
+    selectNoneBtn.style.cssText = 'font-size:11px;padding:3px 8px;margin-right:8px;';
+    selectNoneBtn.addEventListener('click', function(){
+      state.activeSpeakers.clear();
+      chipEls.forEach(function(chip){ chip.classList.add('off'); chip.setAttribute('aria-pressed', 'false'); });
+      render();
+    });
+    wrap.appendChild(selectAllBtn);
+    wrap.appendChild(selectNoneBtn);
     names.forEach(function(name){
       var chip = document.createElement('span');
       chip.className = 'chip'; chip.textContent = name;
@@ -20398,6 +20462,7 @@ var TabLog = (function(){
       chip.addEventListener('keydown', function(e){
         if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggle(); }
       });
+      chipEls.push(chip);
       wrap.appendChild(chip);
     });
   }
@@ -21602,6 +21667,17 @@ var TabLog = (function(){
 (function(){
   var items = [];
 
+  // CSS 색상 문자열 유효성 검사: <option>.style.color에 대입해보고 파싱 성공 여부를 확인한다
+  // (Canvas2D의 ctx.fillStyle은 잘못된 값을 대입해도 예외 없이 조용히 무시하기 때문에,
+  // 렌더링 직전에 이 함수로 미리 걸러내지 않으면 사용자가 눈치채지 못한 채 엉뚱한 배경색으로 출력된다).
+  function isValidCssColor(str){
+    if(!str) return false;
+    var opt = document.createElement('option');
+    opt.style.color = '';
+    opt.style.color = str;
+    return opt.style.color !== '';
+  }
+
   // 여백 색상: 색상 피커 + "투명" 버튼으로 고르되, #st-bgcolor(text) 값을 그대로 두어
   // 기존 저장/렌더 로직(persistFormField, renderItem의 bg 읽기)은 그대로 재사용한다.
   (function(){
@@ -21609,11 +21685,17 @@ var TabLog = (function(){
     var bgTransparentBtn = $('#st-bgcolor-transparent');
     var bgTextInput = $('#st-bgcolor');
     function syncBgTransparentBtn(){
-      var isTransparent = bgTextInput.value.trim().toLowerCase() === 'transparent';
+      var val = bgTextInput.value.trim();
+      var isTransparent = val.toLowerCase() === 'transparent';
       bgTransparentBtn.style.background = isTransparent ? 'var(--accent)' : '';
       bgTransparentBtn.style.color = isTransparent ? 'var(--accent-ink)' : '';
       bgTransparentBtn.style.borderColor = isTransparent ? 'var(--accent)' : 'var(--line)';
-      if(!isTransparent && /^#[0-9a-fA-F]{6}$/.test(bgTextInput.value.trim())) bgPicker.value = bgTextInput.value.trim();
+      if(!isTransparent && /^#[0-9a-fA-F]{6}$/.test(val)) bgPicker.value = val;
+      var invalid = !isTransparent && !isValidCssColor(val);
+      bgTextInput.style.borderColor = invalid ? 'var(--danger)' : '';
+      bgTextInput.title = invalid
+        ? '유효하지 않은 색상값입니다 — 결과물에는 투명 배경이 적용됩니다. (예: transparent, #ff0000, rgba(0,0,0,.5))'
+        : 'CSS 색상값을 직접 입력할 수도 있습니다 (예: transparent, #ff0000, rgba(0,0,0,.5))';
     }
     bgPicker.addEventListener('input', function(){
       bgTextInput.value = bgPicker.value;
@@ -21656,6 +21738,7 @@ var TabLog = (function(){
     var outH = clampInt(Math.round(outW * rh/rw), 16, 8000);
     var mode = $('#st-mode').value;
     var bg = $('#st-bgcolor').value.trim() || 'transparent';
+    if(bg !== 'transparent' && !isValidCssColor(bg)) bg = 'transparent';
     var offsetFrac = (it.offset+100)/200;
 
     var canvas = document.createElement('canvas');
