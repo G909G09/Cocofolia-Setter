@@ -19027,9 +19027,22 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
   // 느껴지지 않고), 여러 번 나눠 축소할 때 생기는 재샘플링 누적 손실도 없어 화질도 낫다.
   async function fitApngToLimit(decoded, targetBytes, onProgress){
     var frames = decoded.frames, delays = decoded.delays, w = decoded.width, h = decoded.height;
+    var dimResized = false;
+    // 용량(targetBytes) 조건과 별개로 코코포리아는 긴 변이 COCOFOLIA_MAX_DIM(1200px)을
+    // 넘는 이미지도 서버에서 자동 리사이징한다. 색상 수가 적거나 프레임이 적은 큰 그림은
+    // 이미 1MB 이하로 인코딩돼 아래 용량 검사를 바로 통과해버려서, 지금까지는 1200px를
+    // 넘는 원본 치수가 전혀 손대지 않은 채 "자동 축소됨" 안내도 없이 그대로 나갔다.
+    // 용량을 재기 전에 치수부터 먼저 맞춘다.
+    if(Math.max(w,h) > COCOFOLIA_MAX_DIM){
+      var dimScale = COCOFOLIA_MAX_DIM/Math.max(w,h);
+      var dw0 = Math.max(1, Math.round(w*dimScale)), dh0 = Math.max(1, Math.round(h*dimScale));
+      frames = resizeFrames(frames, w, h, dw0, dh0);
+      w = dw0; h = dh0; dimResized = true;
+      await yieldToBrowser();
+    }
     if(onProgress) onProgress('용량 확인 중...');
     var blob = encodeApng(frames, delays, 0);
-    if(blob.size <= targetBytes) return {blob:blob, w:w, h:h, frameCount:frames.length, resized:false};
+    if(blob.size <= targetBytes) return {blob:blob, w:w, h:h, frameCount:frames.length, resized:dimResized};
     await yieldToBrowser();
 
     if(onProgress) onProgress('색상 수를 줄이는 중...');
@@ -19083,9 +19096,20 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
   // 프레임 솎아내기 순서로 fitApngToLimit과 같은 전략을 쓴다.
   async function fitGifToLimit(decoded, targetBytes, preserveAlpha, onProgress){
     var frames = decoded.frames, delays = decoded.delays, w = decoded.width, h = decoded.height;
+    var dimResized = false;
+    // fitApngToLimit과 동일한 이유: 용량이 이미 1MB 이하인 큰 원본(색상 수가 적은 APNG 등)은
+    // 아래 용량 검사를 바로 통과해버려 1200px 치수 제한이 실제로는 전혀 적용되지 않았다.
+    // 용량을 재기 전에 치수부터 먼저 맞춘다.
+    if(Math.max(w,h) > COCOFOLIA_MAX_DIM){
+      var dimScale = COCOFOLIA_MAX_DIM/Math.max(w,h);
+      var dw0 = Math.max(1, Math.round(w*dimScale)), dh0 = Math.max(1, Math.round(h*dimScale));
+      frames = resizeFrames(frames, w, h, dw0, dh0);
+      w = dw0; h = dh0; dimResized = true;
+      await yieldToBrowser();
+    }
     if(onProgress) onProgress('용량 확인 중...');
     var blob = await encodeGif(frames, delays, w, h, preserveAlpha);
-    if(blob.size <= targetBytes) return {blob:blob, w:w, h:h, frameCount:frames.length, resized:false};
+    if(blob.size <= targetBytes) return {blob:blob, w:w, h:h, frameCount:frames.length, resized:dimResized};
     await yieldToBrowser();
 
     if(onProgress) onProgress('해상도를 줄이는 중...');
@@ -20032,7 +20056,12 @@ var TabLog = (function(){
     var gmName = $('#log-gm').value;
     state.messages.forEach(function(m){
       if(excludeOther && m.tab==='other') return;
-      if(state.activeSpeakers && !state.activeSpeakers.has(m.name)) return;
+      // buildSpeakerChips()는 이름이 있는 화자만 칩으로 만들므로(빈 이름은 .filter(Boolean)에서
+      // 제외됨), activeSpeakers 집합에는 빈 문자열이 들어가지 않는다. "정보" 탭 시스템 알림처럼
+      // 이름이 아예 없는 행까지 이 검사에 걸리면 has('')가 항상 false가 되어, 화자 칩이 하나라도
+      // 있는 로그(거의 항상)에서는 시스템 행이 화자 필터를 건드리지도 않았는데 통째로 사라졌다.
+      // 이름이 있는 메시지만 화자 필터를 적용하도록 한다.
+      if(state.activeSpeakers && m.name && !state.activeSpeakers.has(m.name)) return;
       if(q && m.text.toLowerCase().indexOf(q)===-1) return;
       var row = document.createElement('div');
       var isSystem = m.tab==='info';
@@ -20106,8 +20135,20 @@ var TabLog = (function(){
   $('#log-exclude-other').addEventListener('change', render);
   $('#log-print').addEventListener('click', function(){ window.print(); });
   function buildLogCleanBlob(){
+    // render()가 화면에 보여주는 목록은 "잡담 탭 제외" 체크뿐 아니라 검색어·화자 칩(끄기)
+    // 필터까지 반영하는데, 이 함수는 그동안 "잡담 탭 제외"만 반영하고 검색어/화자 필터는
+    // 무시해왔다. 그래서 검색어로 좁혀보거나 특정 화자를 꺼둔 채로 "정리된 로그 HTML로
+    // 저장"을 누르면, 화면에는 안 보이는 대사까지 전부 포함된 파일이 조용히 저장됐다
+    // (바로 옆 "인쇄/PDF로 저장" 버튼은 화면을 그대로 인쇄하므로 필터가 반영됨 — 두 버튼의
+    // 동작이 서로 달랐다). render()와 동일한 조건으로 걸러서 화면에 보이는 내용과 일치시킨다.
     var excludeOther = $('#log-exclude-other').checked;
-    var msgs = state.messages.filter(function(m){ return !(excludeOther && m.tab==='other'); });
+    var q = $('#log-search').value.trim().toLowerCase();
+    var msgs = state.messages.filter(function(m){
+      if(excludeOther && m.tab==='other') return false;
+      if(state.activeSpeakers && m.name && !state.activeSpeakers.has(m.name)) return false;
+      if(q && m.text.toLowerCase().indexOf(q)===-1) return false;
+      return true;
+    });
     var html = buildStandaloneLogHtml(msgs, $('#log-gm').value);
     return new Blob([html],{type:'text/html'});
   }
