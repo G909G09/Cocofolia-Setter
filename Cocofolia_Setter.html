@@ -20614,7 +20614,11 @@ var TabLog = (function(){
     var pow6 = null;
     $all('input[data-key]', row).forEach(function(inp){
       var v = parseFloat(inp.value);
-      if(!isNaN(v)){
+      // HTML min/max(1~21)는 타이핑으로 입력된 값을 막아주지 않는다 — 아래쪽 일괄 텍스트
+      // 변환기(ed-text-run)는 이미 이 범위를 검사하는데 개별 입력칸 쪽은 빠져 있었다.
+      // 999처럼 범위 밖 값을 넣으면 그대로 ×5 계산되어("POW 999 → 4995") 잘못된 초기
+      // SAN까지 표시됐다. 동일한 1~21 범위 검사를 여기에도 적용한다.
+      if(!isNaN(v)&&v>=1&&v<=21){
         var v7 = Math.round(v*5);
         out.push(inp.dataset.key+': '+v+' → '+v7);
         if(inp.dataset.key==='POW') pow6 = v7;
@@ -21157,7 +21161,13 @@ var TabLog = (function(){
       if(!name) return;
       lines.push('cc<='+skillTotal(row)+' '+name);
     });
-    lines.push('1D3+{DB} 비무장 피해');
+    // {DB}는 코코포리아가 굴림 시점에 실제 DB 파라미터 값으로 치환하는 템플릿이다.
+    // DB 값은 0을 제외하면 이미 부호를 포함하므로('+1D4','-2' 등) 여기서 '+'를 고정해
+    // 붙이면 '1D3++1D4'처럼 연산자가 겹쳐 무효한 굴림식이 됐다(STR+SIZ 124 초과가 흔해
+    // 대부분의 캐릭터가 해당). DB 값에 부호가 없을 때만 '+'를 붙이도록 정규화한다.
+    var dbRaw = (derived.db.value || '0').trim();
+    var dbSigned = /^[+-]/.test(dbRaw) ? dbRaw : ('+'+dbRaw);
+    lines.push('1D3'+dbSigned+' 비무장 피해');
     return lines.join('\n');
   }
   function buildCharacterJson(){
@@ -22202,7 +22212,7 @@ var TabLog = (function(){
       var inp = document.createElement('input');
       inp.type = 'text'; inp.value = it.label;
       inp.style.cssText = 'width:110px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font-size:12px;text-align:center;';
-      inp.addEventListener('input', function(){ it.label = inp.value; it.img.alt = (it.label||'표정')+' 이미지 미리보기'; });
+      inp.addEventListener('input', function(){ it.label = inp.value; it.img.alt = (it.label||'표정')+' 이미지 미리보기'; checkCfLabelDup(); });
       // 이미지를 올릴 때는 파일명 앞에 '@'가 없으면 자동으로 붙여주지만(코코포리아 표정 라벨
       // 규칙), 사용자가 이 칸을 직접 편집해서 '@'를 지우면 그 상태로 룸파일에 그대로 들어가
       // 코코포리아에서 표정으로 인식되지 않는다. 입력 중에는 건드리지 않다가 포커스를 벗어날
@@ -22210,6 +22220,7 @@ var TabLog = (function(){
       inp.addEventListener('blur', function(){
         var v = inp.value.trim();
         if(v && v.charAt(0)!=='@'){ v = '@'+v; inp.value = v; it.label = v; it.img.alt = v+' 이미지 미리보기'; }
+        checkCfLabelDup();
       });
       f.appendChild(inp);
 
@@ -22237,6 +22248,16 @@ var TabLog = (function(){
 
       wrap.appendChild(f);
     });
+  }
+
+  // 업로드 직후에는 uniqueCfLabel()이 라벨 중복을 막아주지만, 그 뒤 사용자가 라벨 입력칸을
+  // 직접 고쳐 두 항목의 라벨이 같아지는 경우는 검사하지 않았다. 코코포리아 룸파일은 라벨로
+  // 표정을 구분하므로, 라벨이 겹치면 한쪽 표정 이미지가 룸파일에서 조용히 사라진다(경고 없음).
+  // 라벨 입력칸이 바뀔 때마다 중복 여부를 확인해 있으면 알려준다.
+  function checkCfLabelDup(){
+    var labels = cfItems.map(function(x){ return x.label; });
+    var dup = labels.find(function(l, i){ return l && labels.indexOf(l) !== i; });
+    if(dup) $('#cf-info').textContent = '⚠ 라벨이 중복되었습니다 ('+dup+') — 코코포리아는 같은 라벨의 표정 중 하나만 인식하므로, 서로 다르게 고쳐주세요.';
   }
 
   function uniqueCfLabel(label, usedLabels){
