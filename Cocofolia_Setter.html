@@ -497,6 +497,8 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-08-09</b> — CoC 캐릭터 시트 메이커: 기능치 목록에 이름으로 필터링하는 검색 칸 추가(카테고리별/가나다순/전체 목록 어느 보기 방식에서도 적용), "무기" 항목 추가(무기명·피해·사거리·공격횟수·내구도·비고를 자유롭게 적는 표 — 피해 칸에 굴림식을 적으면 무기명과 함께 코코포리아 JSON의 굴림 명령어 목록에도 자동으로 실림)</li>
+      <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-08-09</b> — CoC 캐릭터 시트 메이커: 일부 환경(풀배열 키보드의 오른쪽 숫자패드 등)에서 특성치·나이·기능점수·행운 등 숫자 입력 칸에 숫자패드 입력이 먹지 않던 문제 수정 — 숫자만 입력되는 텍스트 칸으로 바꾸고 범위를 벗어나거나 숫자가 아닌 값은 그대로 걸러내도록 함(계산 로직과 값 범위 제한은 이전과 동일)</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-09</b> — 토스류 앱을 참고해 UX 다듬기: (1) 파일을 올리면 다음 단계 옵션이 뚝 끊기지 않고 부드럽게 슬라이드+페이드로 나타나도록 개선(PNG 이펙터 효과 슬롯, 컷인 커터·GIF/APNG 변환기·로그 백업 2종의 결과·옵션 패널 등), (2) 결과물 보관함 목록 항목을 마우스로 올리거나(터치 환경에선 왼쪽으로 밀면) 불러오기·다운로드·삭제 버튼이 나타나는 스와이프 방식으로 변경해 평소엔 파일명만 깔끔하게 보이도록 정리(키보드 포커스로도 동일하게 열림)</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-09</b> — "임시저장"/다운로드가 결과물 보관함에 남긴 항목에서 화면을 통째로 다시 불러올 수 있는 "불러오기" 기능 추가(임시저장 버튼이 있는 9개 탭 전부 — 컷인 커터·GIF/APNG 변환기·PNG 이펙터·로그 백업 2종·스탠딩 일괄 재단·컨닝 페이퍼 메이커·캐릭터 룸파일 생성기·CoC 캐릭터 시트 메이커). 업로드했던 파일과 순서, 입력한 값·옵션까지 그때 그대로 복원되며(예: 컨닝 페이퍼 메이커라면 표정 이미지들과 순서, 이름·서체 등), 결과물 보관함과 홈 화면 "최근 결과물" 위젯 모두에서 불러올 수 있음</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-09</b> — 전체 UI 구성 개편(드롭박스 참고, 배색은 그대로 유지): 상단 가로 메뉴를 좌측 고정 사이드바로 교체(카테고리를 클릭하면 아코디언으로 하위 탭이 펼쳐짐, 좁은 화면에서는 햄버거 버튼으로 여닫는 서랍 메뉴), 홈 화면에 기능 검색창·빠른 실행 버튼·카테고리 필터 알약·"최근 결과물"(결과물 보관함 연동) 위젯을 새로 추가하고 업데이트 로그는 접어서 볼 수 있게 정리</li>
@@ -835,7 +837,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="row">
       <div class="field"><label for="chs-name">이름</label><input type="text" id="chs-name" placeholder="탐사자 이름"></div>
       <div class="field"><label for="chs-job">직업</label><input type="text" id="chs-job" placeholder="예: 사립탐정"></div>
-      <div class="field"><label for="chs-age">나이</label><input type="number" id="chs-age" min="0" max="120" style="width:70px;"></div>
+      <div class="field"><label for="chs-age">나이</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="chs-age" min="0" max="120" style="width:70px;"></div>
       <div class="field"><label for="chs-gender">성별</label><input type="text" id="chs-gender" style="width:80px;"></div>
       <div class="field"><label for="chs-residence">거주지</label><input type="text" id="chs-residence"></div>
       <div class="field"><label for="chs-birthplace">출생지</label><input type="text" id="chs-birthplace"></div>
@@ -866,7 +868,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
           <option value="INT">EDU×4 + 지능×2</option>
         </select>
       </div>
-      <div class="field"><label for="chs-occ-points">직업 기능점수</label><input type="number" id="chs-occ-points" value="0" min="0" style="width:90px;"></div>
+      <div class="field"><label for="chs-occ-points">직업 기능점수</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="chs-occ-points" value="0" min="0" style="width:90px;"></div>
       <div class="field"><label for="chs-int-points">관심 기능점수 (지능×2, 자동)</label><input type="number" id="chs-int-points" class="chs-field-locked" readonly disabled style="width:90px;"></div>
     </div>
     <div class="info-box" id="chs-points-info" aria-live="polite">기능치에 점수를 분배하면 남은 점수가 여기 표시됩니다.</div>
@@ -883,6 +885,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
           <option value="flat">전체 목록(기존 방식)</option>
         </select>
       </div>
+      <div class="field" style="flex:1;min-width:160px;"><label for="chs-skill-search">기능명 검색</label><input type="text" id="chs-skill-search" placeholder="예: 사격, 심리학..."></div>
     </div>
     <div style="max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:8px;">
       <table style="width:100%;border-collapse:collapse;font-size:12.5px;" id="chs-skill-table">
@@ -893,7 +896,21 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       </table>
     </div>
 
-    <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">6. 코코포리아 JSON</h3>
+    <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">6. 무기</h3>
+    <p class="footnote" style="margin:2px 0 6px;">근접·원거리 무기의 피해(대미지)·사거리·공격횟수·내구도를 적어두는 자유 입력 칸입니다. "피해" 칸에 굴림식(예: 1D10, 1D8+1D4)을 적어두면 무기명과 함께 아래 코코포리아 JSON의 굴림 명령어 목록에도 자동으로 포함됩니다.</p>
+    <div class="row">
+      <button class="btn ghost" id="chs-weapon-add" type="button">무기 행 추가</button>
+    </div>
+    <div style="max-height:300px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:8px;">
+      <table style="width:100%;border-collapse:collapse;font-size:12.5px;" id="chs-weapon-table">
+        <thead style="position:sticky;top:0;background:var(--panel);"><tr style="text-align:center;color:var(--sub);">
+          <th style="padding:5px 6px;text-align:left;">무기명</th><th style="padding:5px 6px;width:100px;">피해</th><th style="padding:5px 6px;width:70px;">사거리</th><th style="padding:5px 6px;width:70px;">공격횟수</th><th style="padding:5px 6px;width:70px;">내구도</th><th style="padding:5px 6px;text-align:left;">비고</th><th style="width:50px;"></th>
+        </tr></thead>
+        <tbody id="chs-weapon-body"></tbody>
+      </table>
+    </div>
+
+    <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">7. 코코포리아 JSON</h3>
     <div class="row">
       <button class="btn" id="chs-generate">JSON 생성</button>
       <button class="btn ghost" id="chs-copy-json">복사</button>
@@ -21519,7 +21536,7 @@ var TabLog = (function(){
       '<div class="chs-box-head">'+s.label+'</div>'+
       '<div class="chs-box-body"><div>'+
       '<div class="chs-stat-input-row">'+
-      '<input type="number" min="0" max="99" value="50" class="chs-stat-input" data-stat="'+s.key+'">'+
+      '<input type="text" inputmode="numeric" pattern="[0-9]*" min="0" max="99" value="50" class="chs-stat-input" data-stat="'+s.key+'">'+
       '<button type="button" class="chs-mini-roll" title="'+s.label+'만 다시 굴리기" aria-label="'+s.label+'만 다시 굴리기">🎲</button>'+
       '</div>'+
       '<div class="chs-stat-subrow"><div class="chs-half-cell"></div><div class="chs-fifth-cell"></div></div>'+
@@ -21598,6 +21615,10 @@ var TabLog = (function(){
   // min/max를 생략하면 특성치·기능치 칸 기준인 0-99를 쓴다("나이" 칸처럼 범위가 다른
   // 곳에서도 재사용할 수 있도록 매개변수로 뺐다).
   function clampFieldIfOutOfRange(input, min, max){
+    if(input.type === 'text'){
+      var digitsOnly = input.value.replace(/[^0-9]/g, '');
+      if(digitsOnly !== input.value) input.value = digitsOnly;
+    }
     var raw = parseInt(input.value, 10);
     if(!isNaN(raw)){
       var clamped = clampInt(raw, min==null?0:min, max==null?99:max);
@@ -21624,8 +21645,8 @@ var TabLog = (function(){
     tr.innerHTML =
       '<td style="padding:4px 6px;text-align:center;"><input type="checkbox" title="성장 체크(플레이 중 판정 성공 시 표시 — 참고용, JSON에는 반영되지 않음)"></td>'+
       '<td style="padding:4px 6px;"><input type="text" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;"></td>'+
-      '<td style="padding:4px 6px;"><input type="number" min="0" max="99" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;"></td>'+
-      '<td style="padding:4px 6px;"><input type="number" min="0" max="99" value="0" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;"></td>'+
+      '<td style="padding:4px 6px;"><input type="text" inputmode="numeric" pattern="[0-9]*" min="0" max="99" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;"></td>'+
+      '<td style="padding:4px 6px;"><input type="text" inputmode="numeric" pattern="[0-9]*" min="0" max="99" value="0" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;"></td>'+
       '<td style="padding:4px 6px;text-align:center;font-weight:700;">0</td>'+
       '<td class="chs-skill-half" style="padding:4px 6px;text-align:center;">0</td>'+
       '<td class="chs-skill-fifth" style="padding:4px 6px;text-align:center;">0</td>'+
@@ -21680,36 +21701,58 @@ var TabLog = (function(){
   // (직접 추가해 카테고리가 없는 기능은 맨 아래 "기타"로), 가나다순 보기는 기능명(현재
   // 입력칸에 있는 값 기준, 이름을 고쳐 썼으면 그 이름 기준)으로 정렬하며, 전체 목록 보기는
   // 예전 방식대로 구역 제목 없이 원래 순서(FLAT_ORDER, 못 찾으면 추가한 순서)로만 나열한다.
+  // 검색어는 화면 상태일 뿐 캐릭터 데이터가 아니므로 저장/복원 대상에 넣지 않는다(탭을
+  // 새로 열면 항상 빈 채로 시작). 목록 자체(skillRows)는 그대로 두고 렌더링 시에만
+  // 이름이 검색어를 포함하는 행만 골라 보여준다 — 분배 점수 등 입력값은 검색 중에도 유지됨.
+  var skillSearchQuery = '';
+  function matchesSkillSearch(row){
+    if(!skillSearchQuery) return true;
+    return row.nameInput.value.toLowerCase().indexOf(skillSearchQuery) !== -1;
+  }
   function renderSkillTable(){
     var body = $('#chs-skill-body');
     body.innerHTML = '';
+    var visibleCount = 0;
     if(skillView === 'flat'){
-      skillRows.slice().sort(function(a,b){
+      skillRows.slice().filter(matchesSkillSearch).sort(function(a,b){
         var ai = a.flatOrder!=null ? a.flatOrder : 9999+skillRows.indexOf(a);
         var bi = b.flatOrder!=null ? b.flatOrder : 9999+skillRows.indexOf(b);
         return ai-bi;
-      }).forEach(function(row){ body.appendChild(row.tr); });
+      }).forEach(function(row){ body.appendChild(row.tr); visibleCount++; });
     } else if(skillView === 'alpha'){
-      skillRows.slice().sort(function(a,b){
+      skillRows.slice().filter(matchesSkillSearch).sort(function(a,b){
         return a.nameInput.value.localeCompare(b.nameInput.value, 'ko');
-      }).forEach(function(row){ body.appendChild(row.tr); });
+      }).forEach(function(row){ body.appendChild(row.tr); visibleCount++; });
     } else {
       SKILL_GROUPS.forEach(function(group){
-        var rows = skillRows.filter(function(row){ return row.cat===group.cat; });
+        var rows = skillRows.filter(function(row){ return row.cat===group.cat; }).filter(matchesSkillSearch);
         if(!rows.length) return;
         addCategoryHeaderRow(body, group.cat);
-        rows.forEach(function(row){ body.appendChild(row.tr); });
+        rows.forEach(function(row){ body.appendChild(row.tr); visibleCount++; });
       });
-      var etcRows = skillRows.filter(function(row){ return !row.cat; });
+      var etcRows = skillRows.filter(function(row){ return !row.cat; }).filter(matchesSkillSearch);
       if(etcRows.length){
         addCategoryHeaderRow(body, '기타(직접 추가)');
-        etcRows.forEach(function(row){ body.appendChild(row.tr); });
+        etcRows.forEach(function(row){ body.appendChild(row.tr); visibleCount++; });
       }
+    }
+    if(!visibleCount && skillSearchQuery){
+      var emptyTr = document.createElement('tr');
+      var emptyTd = document.createElement('td');
+      emptyTd.colSpan = 8;
+      emptyTd.style.cssText = 'padding:14px 6px;text-align:center;color:var(--sub);';
+      emptyTd.textContent = '"'+skillSearchQuery+'"과(와) 일치하는 기능이 없습니다.';
+      emptyTr.appendChild(emptyTd);
+      body.appendChild(emptyTr);
     }
   }
   $('#chs-skill-view').addEventListener('change', function(){
     skillView = this.value;
     safeLocalStorageSet(SKILL_VIEW_LS_KEY, skillView);
+    renderSkillTable();
+  });
+  $('#chs-skill-search').addEventListener('input', function(){
+    skillSearchQuery = this.value.trim().toLowerCase();
     renderSkillTable();
   });
   function addCustomSkillRow(){
@@ -21755,8 +21798,9 @@ var TabLog = (function(){
     // 파생 수치(체력·마력·이성·이동력)는 계산식이 따로 있어 여기서 범위를 강제하면 안 되므로
     // 행운에만 적용한다.
     var rangeAttr = d.key==='luck' ? 'min="0" max="99"' : '';
+    var inputTypeAttr = d.ro ? 'type="number"' : 'type="text" inputmode="numeric" pattern="[0-9]*"';
     div.innerHTML = '<div class="chs-box-head">'+d.label+'</div>'+
-      '<div class="chs-box-body"><div class="'+(rollBtn?'has-roll':'')+'"><input type="number" '+rangeAttr+' class="'+stateClass+'" '+(d.ro?'readonly disabled':'')+'>'+rollBtn+'</div></div>';
+      '<div class="chs-box-body"><div class="'+(rollBtn?'has-roll':'')+'"><input '+inputTypeAttr+' '+rangeAttr+' class="'+stateClass+'" '+(d.ro?'readonly disabled':'')+'>'+rollBtn+'</div></div>';
     derivedRow.appendChild(div);
     derived[d.key] = div.querySelector('input');
   });
@@ -21918,8 +21962,70 @@ var TabLog = (function(){
   // 전체 초기화: 이 탭에서 입력한 내용을 전부 지우고 새 캐릭터를 처음부터 만들 수 있게 한다.
   // 되돌릴 수 없는 동작이라 확인을 받는다. 배색·기능치 보기 방식 같은 화면 설정은 캐릭터
   // 데이터가 아니므로 건드리지 않는다(그건 설정 탭의 "저장된 값 전체 초기화" 몫).
+  // ---- 무기 ----
+  // 기능치 목록과 달리 기본 제공 목록이 없다(사람마다 드는 무기가 전혀 다름) — 빈 상태로
+  // 시작해서 필요한 만큼만 행을 추가한다. "피해" 칸은 굴림식을 그대로 문자열로 받아뒀다가
+  // buildCommands()에서 무기명과 함께 코코포리아 굴림 명령어로 그대로 옮겨 쓴다.
+  var weaponBody = $('#chs-weapon-body');
+  var weaponRows = [];
+  function updateWeaponEmptyState(){
+    var existing = weaponBody.querySelector('.chs-weapon-empty-row');
+    if(weaponRows.length){ if(existing) existing.remove(); return; }
+    if(existing) return;
+    var tr = document.createElement('tr');
+    tr.className = 'chs-weapon-empty-row';
+    var td = document.createElement('td');
+    td.colSpan = 7;
+    td.style.cssText = 'padding:14px 6px;text-align:center;color:var(--sub);';
+    td.textContent = '추가된 무기가 없습니다. "무기 행 추가" 버튼으로 추가해보세요.';
+    tr.appendChild(td);
+    weaponBody.appendChild(tr);
+  }
+  function weaponCellInput(cls, placeholder){
+    return '<input type="text" class="'+cls+'" placeholder="'+(placeholder||'')+'" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;">';
+  }
+  function addWeaponRow(name, damage, range, attacks, durability, note){
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td style="padding:4px 6px;">'+weaponCellInput('chs-weapon-name','예: 권총(.38)')+'</td>'+
+      '<td style="padding:4px 6px;">'+weaponCellInput('chs-weapon-damage','예: 1D10')+'</td>'+
+      '<td style="padding:4px 6px;">'+weaponCellInput('chs-weapon-range')+'</td>'+
+      '<td style="padding:4px 6px;">'+weaponCellInput('chs-weapon-attacks')+'</td>'+
+      '<td style="padding:4px 6px;">'+weaponCellInput('chs-weapon-durability')+'</td>'+
+      '<td style="padding:4px 6px;">'+weaponCellInput('chs-weapon-note')+'</td>'+
+      '<td style="padding:4px 6px;"><button type="button" class="btn ghost" style="padding:3px 7px;font-size:11px;color:var(--danger);">삭제</button></td>';
+    var row = {
+      tr: tr,
+      nameInput: tr.querySelector('.chs-weapon-name'),
+      damageInput: tr.querySelector('.chs-weapon-damage'),
+      rangeInput: tr.querySelector('.chs-weapon-range'),
+      attacksInput: tr.querySelector('.chs-weapon-attacks'),
+      durabilityInput: tr.querySelector('.chs-weapon-durability'),
+      noteInput: tr.querySelector('.chs-weapon-note')
+    };
+    row.nameInput.value = name||''; row.damageInput.value = damage||''; row.rangeInput.value = range||'';
+    row.attacksInput.value = attacks||''; row.durabilityInput.value = durability||''; row.noteInput.value = note||'';
+    tr.querySelector('button').addEventListener('click', function(){
+      var i = weaponRows.indexOf(row);
+      if(i>=0) weaponRows.splice(i,1);
+      tr.remove();
+      updateWeaponEmptyState();
+    });
+    weaponRows.push(row);
+    weaponBody.appendChild(tr);
+    updateWeaponEmptyState();
+    return row;
+  }
+  function clearAllWeapons(){
+    weaponRows.forEach(function(row){ row.tr.remove(); });
+    weaponRows = [];
+    updateWeaponEmptyState();
+  }
+  $('#chs-weapon-add').addEventListener('click', function(){ addWeaponRow(); });
+  updateWeaponEmptyState();
+
   $('#chs-reset-all').addEventListener('click', function(){
-    if(!confirm('입력한 모든 내용(이름·특성치·기능치 등)을 지우고 새 캐릭터로 시작할까요? 되돌릴 수 없습니다.')) return;
+    if(!confirm('입력한 모든 내용(이름·특성치·기능치·무기 등)을 지우고 새 캐릭터로 시작할까요? 되돌릴 수 없습니다.')) return;
     ['chs-name','chs-job','chs-age','chs-gender','chs-residence','chs-birthplace'].forEach(function(id){ $('#'+id).value = ''; });
     STAT_DEFS.forEach(function(s){ stats[s.key].value = 50; });
     derived.luck.value = '';
@@ -21927,6 +22033,7 @@ var TabLog = (function(){
     $('#chs-occ-formula').value = 'manual';
     $('#chs-occ-points').value = 0;
     resetSkills();
+    clearAllWeapons();
     recomputeAll();
     var jsonOut = $('#chs-json-output');
     jsonOut.value = '';
@@ -21951,6 +22058,14 @@ var TabLog = (function(){
     var dbRaw = (derived.db.value || '0').trim();
     var dbSigned = /^[+-]/.test(dbRaw) ? dbRaw : ('+'+dbRaw);
     lines.push('1D3'+dbSigned+' 비무장 피해');
+    // 무기명과 피해 굴림식을 둘 다 적어둔 행만 명령어로 옮긴다(굴림식이 없으면 코코포리아에서
+    // 실행할 수 없는 빈 명령어가 되므로 제외).
+    weaponRows.forEach(function(row){
+      var name = row.nameInput.value.trim();
+      var damage = row.damageInput.value.trim();
+      if(!name || !damage) return;
+      lines.push(damage+' '+name+' 피해');
+    });
     return lines.join('\n');
   }
   function buildCharacterJson(){
@@ -22034,11 +22149,17 @@ var TabLog = (function(){
         growth: cb ? cb.checked : false, formula: row.formula, cat: row.cat
       };
     });
+    var weapons = weaponRows.map(function(row){
+      return {
+        name: row.nameInput.value, damage: row.damageInput.value, range: row.rangeInput.value,
+        attacks: row.attacksInput.value, durability: row.durabilityInput.value, note: row.noteInput.value
+      };
+    });
     return {
       basic: basic, stats: statVals,
       luck: derived.luck.value, db: derived.db.value, build: derived.build.value,
       occFormula: $('#chs-occ-formula').value, occPoints: $('#chs-occ-points').value,
-      skills: skills, jsonOutput: $('#chs-json-output').value
+      skills: skills, weapons: weapons, jsonOutput: $('#chs-json-output').value
     };
   }, function restoreChsSnapshot(snap){
     if(snap.basic){
@@ -22059,6 +22180,11 @@ var TabLog = (function(){
     });
     if(!snap.skills || !snap.skills.length) resetSkills();
     renderSkillTable();
+
+    clearAllWeapons();
+    (snap.weapons||[]).forEach(function(w){
+      addWeaponRow(w.name, w.damage, w.range, w.attacks, w.durability, w.note);
+    });
 
     if(snap.luck != null) derived.luck.value = snap.luck;
     if(snap.db != null) derived.db.value = snap.db;
