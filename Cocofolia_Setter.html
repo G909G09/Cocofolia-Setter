@@ -166,17 +166,43 @@
 }
 *{box-sizing:border-box;}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5;}
-/* 상단 바: 드롭박스처럼 카드 아래로 은은한 그림자를 드리워 콘텐츠와 분리하고, 카테고리
-   버튼은 밑줄 대신 둥근 알약(pill) 배경으로 활성 상태를 표시해 더 "터치하기 좋은" 느낌을 준다. */
-header.app-head{padding:16px 24px;border-bottom:none;background:var(--panel);position:sticky;top:0;z-index:10;box-shadow:var(--shadow-sm);}
-header.app-head h1{margin:0 0 14px;font-size:19px;font-weight:800;letter-spacing:-.01em;}
-nav.cat-nav{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:0;padding-bottom:0;border-bottom:none;}
-.cat-btn{border:none;background:transparent;color:var(--sub);padding:8px 14px;border-radius:var(--radius-pill);font-size:14px;font-weight:700;cursor:pointer;transition:background-color .15s,color .15s;}
-.cat-btn:hover{color:var(--ink);background:var(--bg);}
-.cat-btn.active{color:var(--ink);background:var(--bg);}
-.home-btn{border:none;background:transparent;color:var(--sub);padding:8px 14px;border-radius:var(--radius-pill);font-size:14px;font-weight:700;cursor:pointer;transition:background-color .15s,color .15s;}
+/* 드롭박스류 제품처럼 좌측에 고정된 사이드바 내비게이션을 두는 레이아웃. 사이드바는 화면
+   높이만큼 붙박이로 고정되고 자체적으로 스크롤되며, 좁은 화면(모바일)에서는 기본적으로
+   화면 밖으로 숨겨두고 햄버거 버튼으로 여닫는 오버레이 서랍(drawer)으로 바뀐다. */
+.app-shell{display:flex;align-items:stretch;min-height:100vh;}
+.app-sidebar{width:232px;flex:0 0 232px;background:var(--panel);border-right:1px solid var(--line);padding:18px 12px 16px;box-shadow:var(--shadow-sm);position:sticky;top:0;align-self:flex-start;height:100vh;overflow-y:auto;display:flex;flex-direction:column;gap:2px;z-index:20;}
+.app-sidebar h1{margin:2px 8px 16px;font-size:18px;font-weight:800;letter-spacing:-.01em;}
+.sidebar-nav{display:flex;flex-direction:column;gap:2px;}
+.sidebar-toggle{display:none;position:fixed;top:14px;left:14px;z-index:30;border:1px solid var(--line);background:var(--panel);color:var(--ink);width:38px;height:38px;border-radius:10px;font-size:16px;cursor:pointer;box-shadow:var(--shadow-sm);}
+.sidebar-backdrop{display:none;}
+.home-btn{display:flex;align-items:center;gap:8px;width:100%;border:none;background:transparent;color:var(--sub);padding:9px 10px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;text-align:left;transition:background-color .15s,color .15s;}
 .home-btn:hover{color:var(--ink);background:var(--bg);}
 .home-btn.active{color:var(--accent);background:var(--chip);}
+.sidebar-group{display:flex;flex-direction:column;}
+.cat-btn{display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;border:none;background:transparent;color:var(--sub);padding:9px 10px;border-radius:10px;font-size:13.5px;font-weight:700;cursor:pointer;text-align:left;transition:background-color .15s,color .15s;}
+.cat-btn:hover{color:var(--ink);background:var(--bg);}
+.cat-btn.active{color:var(--ink);background:var(--bg);}
+.sidebar-group-caret{font-size:9px;color:var(--sub);transition:transform .18s ease;flex:0 0 auto;}
+.sidebar-group.open .sidebar-group-caret{transform:rotate(180deg);}
+/* 하위 탭 목록을 아코디언처럼 펼치고 접는다. max-height 대신 grid-template-rows를
+   0fr↔1fr로 트랜지션하면 내용의 실제 높이에 맞춰 자연스럽게 늘어난다(홈 카드 펼침
+   애니메이션과 같은 기법). */
+.sidebar-subtabs{display:grid;grid-template-rows:0fr;transition:grid-template-rows .22s cubic-bezier(.32,.72,.35,1);}
+.sidebar-group.open .sidebar-subtabs{grid-template-rows:1fr;}
+.sidebar-subtabs-inner{overflow:hidden;min-height:0;display:flex;flex-direction:column;gap:1px;padding:2px 0 4px 14px;}
+/* 좁은 화면에서는 사이드바를 기본으로 화면 밖에 숨겨두고, 좌상단 햄버거 버튼으로 여닫는
+   오버레이 서랍으로 바꾼다(이 앱은 원래 데스크톱 폭을 전제로 만들어져 반응형 분기점이
+   없었으나, 사이드바 도입으로 좁은 화면에서 내비게이션이 본문을 밀어내지 않도록 필요해짐). */
+@media (max-width:880px){
+  .sidebar-toggle{display:block;}
+  .app-sidebar{position:fixed;left:0;top:0;bottom:0;height:100vh;transform:translateX(-100%);transition:transform .2s ease;box-shadow:var(--shadow-md);}
+  .app-sidebar.open{transform:translateX(0);}
+  .sidebar-backdrop.open{display:block;position:fixed;inset:0;background:rgba(20,20,20,.35);z-index:19;}
+  /* 사이드바가 열려있을 땐 햄버거 버튼이 로고 글자와 겹치므로 숨긴다(뒷배경/닫기 버튼 없이도
+     바깥 영역이나 탭 선택으로 닫을 수 있다). */
+  .app-shell:has(.app-sidebar.open) .sidebar-toggle{display:none;}
+  main{max-width:none;padding:64px 16px 24px;}
+}
 /* 카드는 평소엔 이름만 짧게 보여주다가, 마우스를 올리면(또는 포커스하면) 내용이 잘리지 않도록
    카드 자체가 아래로 부드럽게 늘어나면서 아이콘·설명·바로가기 버튼을 펼쳐 보여준다(고정 높이로
    내용을 억지로 욱여넣지 않는다). */
@@ -202,13 +228,36 @@ nav.cat-nav{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:0;padding-bottom:0
 .chlog-tag[data-cat="coc"]{background:#c1615f;}
 .chlog-tag[data-cat="char"]{background:#b58330;}
 .chlog-tag[data-cat="etc"]{background:#7d8290;}
-nav.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);transition:opacity .12s ease;}
-nav.tabs.cat-switching{opacity:0;}
-.tab-btn{border:1px solid var(--line);background:var(--panel);color:var(--sub);padding:8px 14px;border-radius:var(--radius-pill);font-size:13px;cursor:pointer;font-weight:600;transition:background-color .15s,color .15s,border-color .15s,box-shadow .15s;}
-.tab-btn:hover{color:var(--ink);border-color:var(--sub);}
-.tab-btn.active{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:var(--shadow-sm);}
-.tab-btn.cat-hidden{display:none;}
-main{max-width:1000px;margin:0 auto;padding:28px 24px;}
+/* 홈 화면: 드롭박스 홈 화면처럼 검색창 + 빠른 실행 버튼을 상단에 두고, 최근 결과물과
+   카테고리 필터가 있는 기능 목록을 그 아래 둔다. */
+.home-search-wrap{position:relative;margin-top:14px;}
+.home-search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:14px;opacity:.6;pointer-events:none;}
+.home-search-input{width:100%;padding:11px 14px 11px 38px;border:1px solid var(--line);border-radius:var(--radius-pill);background:var(--bg);color:var(--ink);font-size:13.5px;transition:border-color .15s,box-shadow .15s,background-color .15s;}
+.home-search-input:focus{outline:none;border-color:var(--accent);background:var(--panel);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);}
+.home-quick-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.home-quick-btn{display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:9px 14px;border-radius:var(--radius-pill);font-size:12.5px;font-weight:700;cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .15s;}
+.home-quick-btn:hover{border-color:var(--accent);box-shadow:var(--shadow-sm);transform:translateY(-1px);}
+.home-quick-icon{font-size:14px;}
+.home-recent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;}
+.home-recent-card{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--bg);display:flex;flex-direction:column;gap:6px;}
+.home-recent-name{font-size:12.5px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.home-recent-meta{font-size:10.5px;color:var(--sub);}
+.home-recent-card .btn{align-self:flex-start;padding:5px 12px;font-size:11px;}
+.home-browse-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+.home-filter-pills{display:flex;gap:6px;flex-wrap:wrap;}
+.home-filter-pill{border:1px solid var(--line);background:var(--panel);color:var(--sub);padding:5px 12px;border-radius:var(--radius-pill);font-size:11.5px;font-weight:700;cursor:pointer;transition:background-color .15s,color .15s,border-color .15s;}
+.home-filter-pill:hover{color:var(--ink);border-color:var(--sub);}
+.home-filter-pill.active{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+.home-feature-cat-section{margin-bottom:18px;}
+.home-feature-cat-section:last-child{margin-bottom:0;}
+.home-feature-cat-title{margin:0 0 8px;font-size:13px;color:var(--sub);font-weight:700;}
+details.home-changelog-details{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 24px;margin-bottom:18px;box-shadow:var(--shadow-sm);}
+details.home-changelog-details summary{cursor:pointer;font-size:14px;font-weight:700;color:var(--ink);}
+details.home-changelog-details ul{margin:12px 0 0;}
+.tab-btn{border:none;background:transparent;color:var(--sub);padding:7px 10px;border-radius:8px;font-size:12.5px;text-align:left;cursor:pointer;font-weight:600;transition:background-color .15s,color .15s;}
+.tab-btn:hover{color:var(--ink);background:var(--bg);}
+.tab-btn.active{background:var(--accent);color:var(--accent-ink);}
+main{flex:1 1 auto;min-width:0;max-width:1000px;margin:0 auto;padding:28px 24px;}
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
 /* 카드: 얇은 테두리 대신 옅은 그림자로 배경과 분리해 더 "떠 있는" 느낌을 준다(드롭박스류
@@ -326,8 +375,8 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 .bk-ctl{color:var(--sub);font-size:10px;font-family:var(--mono);background:var(--chip);border-radius:2px;padding:0 3px;margin:0 2px;}
 @media print{
   .no-print{display:none !important;}
-  header.app-head{display:none !important;}
   body{background:#fff;}
+  .app-shell{display:block;}
   main{max-width:none;padding:0;}
   .card{border:none;padding:0;}
   .log-list{max-height:none;overflow:visible;}
@@ -336,33 +385,54 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 </style>
 </head>
 <body>
-<header class="app-head">
+<div class="app-shell">
+<button class="sidebar-toggle no-print" id="sidebarToggle" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="appSidebar">☰</button>
+<div class="sidebar-backdrop no-print" id="sidebarBackdrop"></div>
+<aside class="app-sidebar no-print" id="appSidebar">
   <h1 id="homeLogo" style="cursor:pointer;" title="홈으로">코코세터</h1>
-  <nav class="cat-nav" id="catNav">
-    <button class="home-btn active" id="homeBtn" role="tab" aria-selected="true" aria-controls="tab-home">홈</button>
-    <button class="cat-btn" data-cat="image">이미지·애니메이션</button>
-    <button class="cat-btn" data-cat="log">로그 백업</button>
-    <button class="cat-btn" data-cat="coc">CoC 유틸리티</button>
-    <button class="cat-btn" data-cat="char">캐릭터·스탠딩</button>
-    <button class="cat-btn" data-cat="etc">기타</button>
+  <nav class="sidebar-nav" id="sidebarNav" role="tablist">
+    <button class="home-btn active" id="homeBtn" role="tab" aria-selected="true" aria-controls="tab-home">🏠 홈</button>
+    <div class="sidebar-group" data-cat="image">
+      <button class="cat-btn" data-cat="image" aria-expanded="false" aria-controls="subtabs-image"><span class="sidebar-group-label">이미지·애니메이션</span><span class="sidebar-group-caret" aria-hidden="true">▾</span></button>
+      <div class="sidebar-subtabs" id="subtabs-image"><div class="sidebar-subtabs-inner">
+        <button class="tab-btn" data-target="tab-mp3" data-cat="image" id="tabbtn-mp3" role="tab" aria-selected="false" aria-controls="tab-mp3">1. 컷인 커터</button>
+        <button class="tab-btn" data-target="tab-g2a" data-cat="image" id="tabbtn-g2a" role="tab" aria-selected="false" aria-controls="tab-g2a">2. GIF APNG 변환기</button>
+        <button class="tab-btn" data-target="tab-fx" data-cat="image" id="tabbtn-fx" role="tab" aria-selected="false" aria-controls="tab-fx">3. PNG 이펙터</button>
+      </div></div>
+    </div>
+    <div class="sidebar-group" data-cat="log">
+      <button class="cat-btn" data-cat="log" aria-expanded="false" aria-controls="subtabs-log"><span class="sidebar-group-label">로그 백업</span><span class="sidebar-group-caret" aria-hidden="true">▾</span></button>
+      <div class="sidebar-subtabs" id="subtabs-log"><div class="sidebar-subtabs-inner">
+        <button class="tab-btn" data-target="tab-log" data-cat="log" id="tabbtn-log" role="tab" aria-selected="false" aria-controls="tab-log">4. html용 로그 백업</button>
+        <button class="tab-btn" data-target="tab-book" data-cat="log" id="tabbtn-book" role="tab" aria-selected="false" aria-controls="tab-book">5. 로그북용 로그 백업</button>
+      </div></div>
+    </div>
+    <div class="sidebar-group" data-cat="coc">
+      <button class="cat-btn" data-cat="coc" aria-expanded="false" aria-controls="subtabs-coc"><span class="sidebar-group-label">CoC 유틸리티</span><span class="sidebar-group-caret" aria-hidden="true">▾</span></button>
+      <div class="sidebar-subtabs" id="subtabs-coc"><div class="sidebar-subtabs-inner">
+        <button class="tab-btn" data-target="tab-glossary" data-cat="coc" id="tabbtn-glossary" role="tab" aria-selected="false" aria-controls="tab-glossary">6. CoC 용어 변환기</button>
+        <button class="tab-btn" data-target="tab-edition" data-cat="coc" id="tabbtn-edition" role="tab" aria-selected="false" aria-controls="tab-edition">7. CoC 6판-7판 수치 변환기</button>
+        <button class="tab-btn" data-target="tab-charsheet" data-cat="coc" id="tabbtn-charsheet" role="tab" aria-selected="false" aria-controls="tab-charsheet">8. CoC 캐릭터 시트 메이커</button>
+      </div></div>
+    </div>
+    <div class="sidebar-group" data-cat="char">
+      <button class="cat-btn" data-cat="char" aria-expanded="false" aria-controls="subtabs-char"><span class="sidebar-group-label">캐릭터·스탠딩</span><span class="sidebar-group-caret" aria-hidden="true">▾</span></button>
+      <div class="sidebar-subtabs" id="subtabs-char"><div class="sidebar-subtabs-inner">
+        <button class="tab-btn" data-target="tab-standing" data-cat="char" id="tabbtn-standing" role="tab" aria-selected="false" aria-controls="tab-standing">9. 스탠딩 일괄 재단</button>
+        <button class="tab-btn" data-target="tab-cheatsheet" data-cat="char" id="tabbtn-cheatsheet" role="tab" aria-selected="false" aria-controls="tab-cheatsheet">10. 컨닝 페이퍼 메이커</button>
+        <button class="tab-btn" data-target="tab-charfile" data-cat="char" id="tabbtn-charfile" role="tab" aria-selected="false" aria-controls="tab-charfile">11. 캐릭터 룸파일 생성기</button>
+      </div></div>
+    </div>
+    <div class="sidebar-group" data-cat="etc">
+      <button class="cat-btn" data-cat="etc" aria-expanded="false" aria-controls="subtabs-etc"><span class="sidebar-group-label">기타</span><span class="sidebar-group-caret" aria-hidden="true">▾</span></button>
+      <div class="sidebar-subtabs" id="subtabs-etc"><div class="sidebar-subtabs-inner">
+        <button class="tab-btn" data-target="tab-suggest" data-cat="etc" id="tabbtn-suggest" role="tab" aria-selected="false" aria-controls="tab-suggest">12. 건의함</button>
+        <button class="tab-btn" data-target="tab-settings" data-cat="etc" id="tabbtn-settings" role="tab" aria-selected="false" aria-controls="tab-settings">13. 설정</button>
+        <button class="tab-btn" data-target="tab-history" data-cat="etc" id="tabbtn-history" role="tab" aria-selected="false" aria-controls="tab-history">14. 결과물 보관함</button>
+      </div></div>
+    </div>
   </nav>
-  <nav class="tabs" id="subTabs" role="tablist">
-    <button class="tab-btn" data-target="tab-mp3" data-cat="image" id="tabbtn-mp3" role="tab" aria-selected="false" aria-controls="tab-mp3">1. 컷인 커터</button>
-    <button class="tab-btn" data-target="tab-g2a" data-cat="image" id="tabbtn-g2a" role="tab" aria-selected="false" aria-controls="tab-g2a">2. GIF APNG 변환기</button>
-    <button class="tab-btn" data-target="tab-fx" data-cat="image" id="tabbtn-fx" role="tab" aria-selected="false" aria-controls="tab-fx">3. PNG 이펙터</button>
-    <button class="tab-btn" data-target="tab-log" data-cat="log" id="tabbtn-log" role="tab" aria-selected="false" aria-controls="tab-log">4. html용 로그 백업</button>
-    <button class="tab-btn" data-target="tab-book" data-cat="log" id="tabbtn-book" role="tab" aria-selected="false" aria-controls="tab-book">5. 로그북용 로그 백업</button>
-    <button class="tab-btn" data-target="tab-glossary" data-cat="coc" id="tabbtn-glossary" role="tab" aria-selected="false" aria-controls="tab-glossary">6. CoC 용어 변환기</button>
-    <button class="tab-btn" data-target="tab-edition" data-cat="coc" id="tabbtn-edition" role="tab" aria-selected="false" aria-controls="tab-edition">7. CoC 6판-7판 수치 변환기</button>
-    <button class="tab-btn" data-target="tab-charsheet" data-cat="coc" id="tabbtn-charsheet" role="tab" aria-selected="false" aria-controls="tab-charsheet">8. CoC 캐릭터 시트 메이커</button>
-    <button class="tab-btn" data-target="tab-standing" data-cat="char" id="tabbtn-standing" role="tab" aria-selected="false" aria-controls="tab-standing">9. 스탠딩 일괄 재단</button>
-    <button class="tab-btn" data-target="tab-cheatsheet" data-cat="char" id="tabbtn-cheatsheet" role="tab" aria-selected="false" aria-controls="tab-cheatsheet">10. 컨닝 페이퍼 메이커</button>
-    <button class="tab-btn" data-target="tab-charfile" data-cat="char" id="tabbtn-charfile" role="tab" aria-selected="false" aria-controls="tab-charfile">11. 캐릭터 룸파일 생성기</button>
-    <button class="tab-btn" data-target="tab-suggest" data-cat="etc" id="tabbtn-suggest" role="tab" aria-selected="false" aria-controls="tab-suggest">12. 건의함</button>
-    <button class="tab-btn" data-target="tab-settings" data-cat="etc" id="tabbtn-settings" role="tab" aria-selected="false" aria-controls="tab-settings">13. 설정</button>
-    <button class="tab-btn" data-target="tab-history" data-cat="etc" id="tabbtn-history" role="tab" aria-selected="false" aria-controls="tab-history">14. 결과물 보관함</button>
-  </nav>
-</header>
+</aside>
 <main>
 
 <!-- ===================== 홈 ===================== -->
@@ -370,12 +440,44 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <div class="card">
     <h2>이거 뭐 하는 툴이냐</h2>
     <p class="desc">코코포리아 ORPG 세션 준비에 필요한 컷인 제작·로그 백업·캐릭터 관리 도구를 한 파일에 모은 오프라인 툴킷입니다. 개인적으로 모아놓고 빠르게 작업하기 위해 별 관계 없는 기능들도 많이 더해놨습니다.</p>
-    <button class="btn" id="home-offline-download" type="button" style="margin-top:10px;">오프라인용 파일(html) 다운로드</button>
+    <div class="home-search-wrap">
+      <span class="home-search-icon" aria-hidden="true">🔍</span>
+      <input type="text" id="home-search" class="home-search-input" placeholder="기능 이름이나 설명으로 검색 (예: 스탠딩, 로그, JSON)" aria-label="기능 검색">
+    </div>
+    <div class="home-quick-actions">
+      <button class="home-quick-btn" type="button" data-target="tab-mp3"><span class="home-quick-icon">🎵</span>컷인 만들기</button>
+      <button class="home-quick-btn" type="button" data-target="tab-log"><span class="home-quick-icon">📖</span>로그 백업</button>
+      <button class="home-quick-btn" type="button" data-target="tab-charsheet"><span class="home-quick-icon">🧾</span>CoC 캐릭터 시트</button>
+      <button class="home-quick-btn" type="button" data-target="tab-history"><span class="home-quick-icon">🗂️</span>결과물 보관함</button>
+      <button class="home-quick-btn" id="home-offline-download" type="button"><span class="home-quick-icon">💾</span>오프라인용 파일(html) 다운로드</button>
+    </div>
+  </div>
+
+  <div class="card" id="home-recent-card" style="display:none;">
+    <h3 style="margin:0 0 10px;font-size:14px;">최근 결과물</h3>
+    <div class="home-recent-grid" id="home-recent-grid"></div>
   </div>
 
   <div class="card">
-    <h3 style="margin:0 0 8px;font-size:14px;">업데이트 로그</h3>
+    <div class="home-browse-head">
+      <h3 style="margin:0;font-size:14px;">기능 둘러보기</h3>
+      <div class="home-filter-pills" id="home-filter-pills">
+        <button type="button" class="home-filter-pill active" data-cat="">전체</button>
+        <button type="button" class="home-filter-pill" data-cat="image">이미지·애니메이션</button>
+        <button type="button" class="home-filter-pill" data-cat="log">로그 백업</button>
+        <button type="button" class="home-filter-pill" data-cat="coc">CoC 유틸리티</button>
+        <button type="button" class="home-filter-pill" data-cat="char">캐릭터·스탠딩</button>
+        <button type="button" class="home-filter-pill" data-cat="etc">기타</button>
+      </div>
+    </div>
+    <div id="home-feature-cats"></div>
+    <p class="footnote" id="home-search-empty" style="display:none;">일치하는 기능이 없습니다.</p>
+  </div>
+
+  <details class="home-changelog-details">
+    <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-09</b> — 전체 UI 구성 개편(드롭박스 참고, 배색은 그대로 유지): 상단 가로 메뉴를 좌측 고정 사이드바로 교체(카테고리를 클릭하면 아코디언으로 하위 탭이 펼쳐짐, 좁은 화면에서는 햄버거 버튼으로 여닫는 서랍 메뉴), 홈 화면에 기능 검색창·빠른 실행 버튼·카테고리 필터 알약·"최근 결과물"(결과물 보관함 연동) 위젯을 새로 추가하고 업데이트 로그는 접어서 볼 수 있게 정리</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-09</b> — 메인 메뉴 레일: 카테고리 버튼에 마우스를 올렸을 때 하위 탭 목록이 바로 바뀌지 않고 부드럽게 페이드 전환되도록 개선, 카테고리 버튼을 클릭하면 그 카테고리를 소개하는 설명 페이지(포함된 기능 목록 카드)로 이동하도록 추가</li>
       <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-08-09</b> — CoC 캐릭터 시트 메이커: 특성치 카드마다 그 값이 어느 정도 수준인지(예: 근력 50 = 평균적인 성인) 짧은 설명을 표시, 기능치 목록 보기 방식에 "가나다순 정렬" 추가</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-08</b> — 색상 팔레트를 이전 배색(차분한 회색조)으로 되돌리고, 모서리 둥글기·그림자·알약 모양 버튼/탭 같은 형태는 유지</li>
@@ -405,9 +507,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-07-31</b> — CoC 용어 변환기 사전 검증 및 우선순위 개선</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-07-30 이전</b> — 컷인 커터, 로그 백업(html/로그북), 스탠딩 재단, 컨닝 페이퍼 등 기본 기능 구축</li>
     </ul>
-  </div>
-
-  <div class="card" id="home-feature-cats"></div>
+  </details>
 </section>
 
 <!-- ===================== 카테고리 설명 페이지 ===================== -->
@@ -1006,6 +1106,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 </section>
 
 </main>
+</div>
 <script>
 /* gifuct-js (MIT) - GIF decoder, bundled for offline use */
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
@@ -18404,34 +18505,35 @@ persistFormField('cs-name-font', 'cocofolia_setter_cs_name_font');
 persistFormField('cs-name-weight', 'cocofolia_setter_cs_name_weight');
 persistFormField('cs-name-color', 'cocofolia_setter_cs_name_color');
 
-/* ============ 탭 전환 + 카테고리(마우스 오버 시 하위 메뉴 전환) + 홈 ============ */
+/* ============ 탭 전환 + 사이드바 카테고리 아코디언 + 홈 ============ */
 var currentCatShown = null;
+// 사이드바에서 카테고리를 고르면 그 카테고리의 하위 탭 목록만 아코디언으로 펼치고 나머지는
+// 접는다(한 번에 하나만 펼쳐짐). 접힌 목록은 inert 처리해 화면에 보이지 않는 상태에서
+// Tab으로 포커스가 들어가지 않게 한다.
 function showCategoryTabs(catId){
-  $all('.tab-btn').forEach(function(b){ b.classList.toggle('cat-hidden', b.dataset.cat !== catId); });
-  $all('.cat-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.cat === catId); });
+  $all('.sidebar-group').forEach(function(g){
+    var isOpen = g.dataset.cat === catId;
+    g.classList.toggle('open', isOpen);
+    var catBtn = g.querySelector('.cat-btn');
+    if(catBtn){ catBtn.classList.toggle('active', isOpen); catBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false'); }
+    var inner = g.querySelector('.sidebar-subtabs-inner');
+    if(inner) inner.inert = !isOpen;
+  });
   currentCatShown = catId;
 }
 showCategoryTabs(null); // 처음엔 홈이 열려있어 어느 카테고리도 선택되지 않은 상태로 시작
 
-// 마우스 오버로 하위 탭 목록이 바뀔 때 즉시 뒤바뀌지 않고 살짝 페이드 아웃/인 되도록 감싼 버전.
-// 같은 카테고리에 이미 머무르고 있으면 아무것도 하지 않고, 마우스가 여러 카테고리 버튼을 빠르게
-// 스쳐 지나가도 마지막 카테고리 하나만 반영되도록 이전 타이머를 취소한다.
-var subTabsRailEl = document.getElementById('subTabs');
-var catSwitchTimer = null;
-function showCategoryTabsSmooth(catId){
-  if(catId === currentCatShown) return;
-  if(catSwitchTimer) clearTimeout(catSwitchTimer);
-  subTabsRailEl.classList.add('cat-switching');
-  catSwitchTimer = setTimeout(function(){
-    showCategoryTabs(catId);
-    subTabsRailEl.classList.remove('cat-switching');
-    catSwitchTimer = null;
-  }, 110);
-}
-
 // 마지막으로 보고 있던 탭을 기억해뒀다가 다음에 열 때 그 탭을 바로 보여준다(첫 방문이거나
 // 저장된 탭이 더 이상 없으면 기본값인 홈 화면을 그대로 보여준다).
 var LAST_TAB_LS_KEY = 'cocofolia_setter_last_tab';
+
+// 좁은 화면에서는 사이드바가 오버레이 서랍이라, 탭을 고르고 나면 자동으로 닫아준다
+// (넓은 화면에서는 해당 클래스가 애초에 없으니 아무 효과가 없다).
+function closeSidebarOnMobile(){
+  $('#appSidebar').classList.remove('open');
+  $('#sidebarBackdrop').classList.remove('open');
+  $('#sidebarToggle').setAttribute('aria-expanded', 'false');
+}
 
 function goHome(){
   $all('.tab-btn').forEach(function(b){ b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
@@ -18441,6 +18543,8 @@ function goHome(){
   document.getElementById('tab-home').classList.add('active');
   showCategoryTabs(null);
   safeLocalStorageSet(LAST_TAB_LS_KEY, 'home');
+  closeSidebarOnMobile();
+  renderHomeRecent();
 }
 $('#homeBtn').addEventListener('click', goHome);
 $('#homeLogo').addEventListener('click', goHome);
@@ -18469,8 +18573,23 @@ $all('.tab-btn').forEach(function(btn){
     document.getElementById(btn.dataset.target).classList.add('active');
     showCategoryTabs(btn.dataset.cat);
     safeLocalStorageSet(LAST_TAB_LS_KEY, btn.dataset.target);
+    closeSidebarOnMobile();
   });
 });
+
+// 좁은 화면(모바일)에서 사이드바를 여닫는 햄버거 버튼과, 사이드바 바깥(backdrop)을
+// 클릭하면 닫히는 동작.
+(function(){
+  var toggle = $('#sidebarToggle');
+  var sidebar = $('#appSidebar');
+  var backdrop = $('#sidebarBackdrop');
+  toggle.addEventListener('click', function(){
+    var open = sidebar.classList.toggle('open');
+    backdrop.classList.toggle('open', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  backdrop.addEventListener('click', closeSidebarOnMobile);
+})();
 
 // 페이지를 열었을 때, 저장된 마지막 탭이 있으면(그리고 홈이 아니면) 그 탭을 바로 펼친다.
 (function(){
@@ -18602,30 +18721,30 @@ $('#settings-reset').addEventListener('click', function(){
   render();
 })();
 
-// role="tablist"에 있는 탭들 사이는 WAI-ARIA 탭 패턴대로 방향키(←/→, Home/End)로도 포커스를
-// 옮길 수 있게 한다 — 현재 카테고리에서 실제로 보이는(cat-hidden이 아닌) 탭만 대상으로 하고,
-// 포커스만 옮길 뿐 탭 전환(활성화)은 그대로 클릭/Enter/Space에 맡긴다(수동 활성화 모델).
-$('#subTabs').addEventListener('keydown', function(e){
-  if(e.key!=='ArrowLeft' && e.key!=='ArrowRight' && e.key!=='Home' && e.key!=='End') return;
+// role="tablist"에 있는 탭들 사이는 WAI-ARIA 탭 패턴대로 방향키(사이드바가 세로 목록이므로
+// ↑/↓, Home/End)로도 포커스를 옮길 수 있게 한다 — 현재 펼쳐진 카테고리 안의 탭만 대상으로
+// 하고, 포커스만 옮길 뿐 탭 전환(활성화)은 그대로 클릭/Enter/Space에 맡긴다(수동 활성화 모델).
+$('#sidebarNav').addEventListener('keydown', function(e){
+  if(e.key!=='ArrowUp' && e.key!=='ArrowDown' && e.key!=='Home' && e.key!=='End') return;
   var target = e.target;
   if(!target.classList || !target.classList.contains('tab-btn')) return;
-  var visible = $all('.tab-btn', $('#subTabs')).filter(function(b){ return !b.classList.contains('cat-hidden'); });
+  var group = target.closest('.sidebar-group');
+  if(!group) return;
+  var visible = $all('.tab-btn', group);
   var idx = visible.indexOf(target);
   if(idx===-1) return;
   var next;
-  if(e.key==='ArrowRight') next = visible[(idx+1)%visible.length];
-  else if(e.key==='ArrowLeft') next = visible[(idx-1+visible.length)%visible.length];
+  if(e.key==='ArrowDown') next = visible[(idx+1)%visible.length];
+  else if(e.key==='ArrowUp') next = visible[(idx-1+visible.length)%visible.length];
   else if(e.key==='Home') next = visible[0];
   else if(e.key==='End') next = visible[visible.length-1];
   if(next){ e.preventDefault(); next.focus(); }
 });
 
-// 카테고리 버튼에 마우스를 올리면(또는 클릭하면 — 터치 환경 대응) 해당 카테고리의 하위 탭이
-// 펼쳐지고, 마우스가 다른 곳으로 떠나도 마지막으로 본 카테고리 그대로 유지된다(실제 열려있는
-// 탭의 카테고리로 자동으로 되돌아가지 않음).
+// 카테고리 버튼을 클릭하면 하위 탭 아코디언이 펼쳐지면서 그 카테고리를 소개하는 설명
+// 페이지로 이동한다.
 $all('.cat-btn').forEach(function(btn){
-  btn.addEventListener('mouseenter', function(){ showCategoryTabsSmooth(btn.dataset.cat); });
-  btn.addEventListener('click', function(){ showCategoryPage(btn.dataset.cat); });
+  btn.addEventListener('click', function(){ showCategoryPage(btn.dataset.cat); closeSidebarOnMobile(); });
 });
 
 // ---- 카테고리별 기능 카드 데이터 (홈 화면 + 카테고리 설명 페이지에서 공용) ----
@@ -18675,12 +18794,14 @@ $all('.cat-btn').forEach(function(btn){
   function buildFeatureCard(btn){
     var targetId = btn.dataset.target;
     var name = btn.textContent.replace(/^\d+\.\s*/, '');
+    var desc = TAB_DESCRIPTIONS[targetId] || '';
     var card = document.createElement('div');
     card.className = 'home-feature-card';
     card.tabIndex = 0;
+    card.dataset.searchText = (name + ' ' + desc).toLowerCase();
     card.innerHTML =
       '<div class="home-feature-name">'+name+'</div>'+
-      '<div class="home-feature-overlay"><div class="home-feature-overlay-inner"><div class="home-feature-thumb" aria-hidden="true">'+(TAB_ICONS[targetId]||'▶')+'</div><p>'+(TAB_DESCRIPTIONS[targetId]||'')+'</p><button type="button">바로가기 →</button></div></div>';
+      '<div class="home-feature-overlay"><div class="home-feature-overlay-inner"><div class="home-feature-thumb" aria-hidden="true">'+(TAB_ICONS[targetId]||'▶')+'</div><p>'+desc+'</p><button type="button">바로가기 →</button></div></div>';
     card.addEventListener('click', function(){ btn.click(); });
     card.addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); btn.click(); } });
     card.querySelector('button').addEventListener('click', function(e){ e.stopPropagation(); btn.click(); });
@@ -18703,14 +18824,47 @@ $all('.cat-btn').forEach(function(btn){
   CAT_ORDER.forEach(function(catId){
     if(!groups[catId] || !groups[catId].length) return;
     var section = document.createElement('div');
-    section.style.cssText = 'margin-bottom:18px;';
+    section.className = 'home-feature-cat-section';
+    section.dataset.cat = catId;
     var h = document.createElement('h3');
-    h.style.cssText = 'margin:0 0 8px;font-size:13px;color:var(--sub);font-weight:700;';
+    h.className = 'home-feature-cat-title';
     h.textContent = CAT_LABELS[catId];
     section.appendChild(h);
     section.appendChild(buildCategoryCardGrid(catId));
     homeContainer.appendChild(section);
   });
+
+  // 카테고리 필터 알약 + 검색창: 카테고리 일치와 검색어 일치를 동시에(AND) 만족하는 카드만
+  // 남기고 나머지는 숨긴다. 섹션 안 카드가 하나도 안 남으면 섹션 제목까지 함께 숨긴다.
+  var filterPills = $all('.home-filter-pill');
+  var searchInput = $('#home-search');
+  var emptyMsg = $('#home-search-empty');
+  var activeCat = '';
+  function applyHomeFilter(){
+    var query = searchInput.value.trim().toLowerCase();
+    var anyVisible = false;
+    $all('.home-feature-cat-section', homeContainer).forEach(function(section){
+      var catMatch = !activeCat || section.dataset.cat === activeCat;
+      var sectionVisible = false;
+      $all('.home-feature-card', section).forEach(function(card){
+        var match = catMatch && (!query || card.dataset.searchText.indexOf(query) !== -1);
+        card.style.display = match ? '' : 'none';
+        if(match) sectionVisible = true;
+      });
+      section.style.display = sectionVisible ? '' : 'none';
+      if(sectionVisible) anyVisible = true;
+    });
+    emptyMsg.style.display = anyVisible ? 'none' : '';
+  }
+  filterPills.forEach(function(pill){
+    pill.addEventListener('click', function(){
+      filterPills.forEach(function(p){ p.classList.remove('active'); });
+      pill.classList.add('active');
+      activeCat = pill.dataset.cat;
+      applyHomeFilter();
+    });
+  });
+  searchInput.addEventListener('input', applyHomeFilter);
 
   // 큰 카테고리 버튼을 클릭했을 때 보여주는 카테고리 설명 페이지: 제목·설명 문구를 채우고,
   // 그 카테고리에 속한 탭들만 모은 카드 그리드를 그린다.
@@ -18725,6 +18879,44 @@ $all('.cat-btn').forEach(function(btn){
     cardsEl.appendChild(buildCategoryCardGrid(catId));
   });
 })();
+
+// 홈 화면 상단 빠른 실행 버튼: 해당 탭 버튼을 그대로 눌러서 이동한다.
+$all('.home-quick-btn[data-target]').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var target = document.querySelector('.tab-btn[data-target="'+btn.dataset.target+'"]');
+    if(target) target.click();
+  });
+});
+
+// 홈 화면: 결과물 보관함(IndexedDB)에서 최근 항목 몇 개를 가져와 "최근 결과물"로 보여준다.
+// 저장된 게 하나도 없으면(처음 쓰는 경우 등) 위젯 자체를 숨긴다.
+var HOME_RECENT_COUNT = 6;
+function renderHomeRecent(){
+  var card = document.getElementById('home-recent-card');
+  var grid = document.getElementById('home-recent-grid');
+  if(!card || !grid) return;
+  listHistory().then(function(items){
+    if(!items.length){ card.style.display = 'none'; return; }
+    grid.innerHTML = '';
+    items.slice(0, HOME_RECENT_COUNT).forEach(function(item){
+      var d = new Date(item.createdAt);
+      function pad(n){ return (n<10?'0':'')+n; }
+      var dateStr = pad(d.getMonth()+1)+'/'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+      var el = document.createElement('div');
+      el.className = 'home-recent-card';
+      el.innerHTML =
+        '<div class="home-recent-name">'+escHtml(item.filename)+'</div>'+
+        '<div class="home-recent-meta">'+escHtml(item.tabLabel)+' · '+dateStr+'</div>'+
+        '<button type="button" class="btn ghost">다시 받기</button>';
+      el.querySelector('button').addEventListener('click', function(){
+        downloadBlob(item.blob, item.filename, {skipHistory:true});
+      });
+      grid.appendChild(el);
+    });
+    card.style.display = '';
+  }).catch(function(){ card.style.display = 'none'; });
+}
+renderHomeRecent();
 
 /* ============ GIF 디코드 코어 (gifuct-js) ============ */
 async function decodeGifFile(file){
