@@ -320,32 +320,45 @@ canvas.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;bac
 img.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;background:
   repeating-conic-gradient(#8883 0% 25%, transparent 0% 50%) 50% / 16px 16px;}
 .hidden{display:none !important;}
-/* 4번 탭: 영화 대본집 스타일 (GM 서술 / PL 대사 분리, 색상 구분 없음) */
-.log-list{display:flex;flex-direction:column;gap:2px;max-height:560px;overflow:auto;padding:24px 28px;background:var(--panel);border:1px solid var(--line);border-radius:10px;font-family:"Noto Serif KR",Georgia,serif;}
+/* 4번 탭: 로그 미리보기 — "테마"(글꼴·레이아웃: 대본집/고딕)와 "다크 모드"(색상: 라이트/다크)를
+   서로 독립된 두 축으로 둬서 네 조합(대본집 라이트/다크, 고딕 라이트/다크) 모두 지원한다.
+   .log-list 자체에 CSS 변수로 팔레트를 정의해두고, 아래 구조 규칙들은 그 변수만 참조하므로
+   테마·모드 클래스 조합만 바뀌면(색만) 그대로 다른 조합에도 적용된다. */
+.log-list{
+  --log-bg:var(--panel); --log-ink:var(--ink); --log-sub:var(--sub);
+  --log-row-bg:transparent; --log-gm-bg:transparent; --log-name:var(--log-ink); --log-box-border:transparent;
+  display:flex;flex-direction:column;gap:2px;max-height:560px;overflow:auto;padding:24px 28px;
+  background:var(--log-bg);color:var(--log-ink);border:1px solid var(--line);border-radius:10px;
+  font-family:"Noto Serif KR",Georgia,serif;
+}
+.log-list.mode-light{--log-bg:#ffffff;--log-ink:#1e2430;--log-sub:#6b7280;}
+.log-list.mode-dark{--log-bg:#20232b;--log-ink:#e7e9ee;--log-sub:#9a9fac;}
 .log-row{position:relative;}
-.log-row.gm{margin:10px 0;padding:0;}
-.log-row.gm .log-text{font-size:14px;line-height:1.7;color:var(--ink);}
-.log-row.pl{margin:14px 0 14px 56px;}
-.log-row.pl .log-name{font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);margin-bottom:2px;}
-.log-row.pl .log-text{font-size:14px;line-height:1.6;color:var(--ink);white-space:pre-wrap;word-break:break-word;}
-.log-row.system{margin:16px 0;text-align:center;}
-.log-row.system .log-text{font-size:12px;letter-spacing:.05em;color:var(--sub);white-space:pre-wrap;}
-.log-row.system .log-name{display:none;}
+.log-list .log-row.gm{margin:10px 0;padding:0;}
+.log-list .log-row.gm .log-text{font-size:14px;line-height:1.7;color:var(--log-ink);}
+.log-list .log-row.pl{margin:14px 0 14px 56px;}
+.log-list .log-row.pl .log-name{font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--log-ink);margin-bottom:2px;}
+.log-list .log-row.pl .log-text{font-size:14px;line-height:1.6;color:var(--log-ink);white-space:pre-wrap;word-break:break-word;}
+.log-list .log-row.system{margin:16px 0;text-align:center;}
+.log-list .log-row.system .log-text{font-size:12px;letter-spacing:.05em;color:var(--log-sub);white-space:pre-wrap;}
+.log-list .log-row.system .log-name{display:none;}
 .log-icon,.log-bubble{display:contents;}
-/* 4번 탭 "다크 고딕" 테마: 코코포리아 인기 팬툴("코백")의 다크 UI에서 모티브를 얻은 대체
-   스타일 — 세리프체·색상 없는 기본 테마와 달리 어두운 배경·고딕 계열 폰트·화자 아바타를 쓴다.
-   .theme-cocoback가 붙었을 때만 적용되도록 스코프를 좁혀 기본 테마에는 영향이 없다. */
-.log-list.theme-cocoback{background:#212121;color:#eee;font-family:'Pretendard','Noto Sans KR','Malgun Gothic',sans-serif;border-color:#000;}
-.log-list.theme-cocoback .log-row.gm{margin:10px 0;padding:11px 15px;background:#2c2c2c;border-radius:6px;}
-.log-list.theme-cocoback .log-row.gm .log-text{color:#e8e8e8;font-size:14px;line-height:1.8;}
-.log-list.theme-cocoback .log-row.pl{position:relative;margin:14px 0 14px 56px;padding:8px 12px;background:#333;border-radius:6px;}
-.log-list.theme-cocoback .log-row.pl .log-avatar{position:absolute;left:-52px;top:8px;width:40px;height:40px;border-radius:8px;background-size:cover;background-position:top center;background-color:rgba(255,255,255,.12);}
-.log-list.theme-cocoback .log-row.pl .log-name{font-weight:700;font-size:13px;letter-spacing:0;text-transform:none;color:#999;margin-bottom:4px;}
-.log-list.theme-cocoback .log-row.pl .log-text{font-size:14px;line-height:1.7;color:#f0f0f0;}
-.log-list.theme-cocoback .log-row.system{color:#ccc;}
+/* "고딕" 테마: 코코포리아 인기 팬툴("코백")의 UI에서 모티브를 얻은 대체 스타일 — 세리프체·
+   상자 없는 기본 테마와 달리 고딕 계열 폰트·말풍선 상자·화자 아바타·주사위 결과 강조를 쓴다.
+   라이트/다크는 .mode-light/.mode-dark 색상 변수만 다시 잡아서 구현한다(구조는 공통). */
+.log-list.theme-cocoback{font-family:'Pretendard','Noto Sans KR','Malgun Gothic',sans-serif;}
+.log-list.theme-cocoback.mode-light{--log-row-bg:#ffffff;--log-gm-bg:#ffffff;--log-name:#555555;--log-box-border:#e5e5e8;--log-dice-bg:#eef0f2;--log-dice-border:#d8dadd;--log-avatar-bg:#e2e2e5;}
+.log-list.theme-cocoback.mode-dark{--log-bg:#212121;--log-ink:#eeeeee;--log-sub:#cccccc;--log-row-bg:#333333;--log-gm-bg:#2c2c2c;--log-name:#999999;--log-box-border:transparent;--log-dice-bg:#111111;--log-dice-border:rgba(255,255,255,.3);--log-avatar-bg:rgba(255,255,255,.12);}
+.log-list.theme-cocoback .log-row.gm{margin:10px 0;padding:11px 15px;background:var(--log-gm-bg);border:1px solid var(--log-box-border);border-radius:6px;}
+.log-list.theme-cocoback .log-row.gm .log-text{color:var(--log-ink);font-size:14px;line-height:1.8;}
+.log-list.theme-cocoback .log-row.pl{position:relative;margin:14px 0 14px 56px;padding:8px 12px;background:var(--log-row-bg);border:1px solid var(--log-box-border);border-radius:6px;}
+.log-list.theme-cocoback .log-row.pl .log-avatar{position:absolute;left:-52px;top:8px;width:40px;height:40px;border-radius:8px;background-size:cover;background-position:top center;background-color:var(--log-avatar-bg);}
+.log-list.theme-cocoback .log-row.pl .log-name{font-weight:700;font-size:13px;letter-spacing:0;text-transform:none;color:var(--log-name);margin-bottom:4px;}
+.log-list.theme-cocoback .log-row.pl .log-text{font-size:14px;line-height:1.7;color:var(--log-ink);}
+.log-list.theme-cocoback .log-row.system{color:var(--log-sub);}
 .log-list.theme-cocoback .log-row.system .log-name{display:inline-block;background:#999;color:#fff;border-radius:20px;padding:2px 12px;margin-bottom:6px;font-size:12px;}
-.log-list.theme-cocoback .log-row.system .log-text{color:#ddd;}
-.log-list.theme-cocoback .dice-pill{background:#111;border:1px solid rgba(255,255,255,.3);border-radius:5px;padding:4px 14px;display:inline-block;font-size:12.5px;color:#eee;margin:4px 0;}
+.log-list.theme-cocoback .log-row.system .log-text{color:var(--log-sub);}
+.log-list.theme-cocoback .dice-pill{background:var(--log-dice-bg);border:1px solid var(--log-dice-border);border-radius:5px;padding:4px 14px;display:inline-block;font-size:12.5px;color:var(--log-ink);margin:4px 0;}
 .log-tabchip{position:absolute;top:0;right:0;font-size:9px;color:var(--sub);background:var(--chip);border-radius:4px;padding:1px 6px;}
 .chips{display:flex;gap:6px;flex-wrap:wrap;}
 .chip{background:var(--chip);border-radius:999px;padding:4px 10px;font-size:12px;cursor:pointer;user-select:none;border:1px solid transparent;}
@@ -511,6 +524,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-08-09</b> — html용 로그 백업: 테마("대본집"/"고딕")와 색상("라이트"/"다크 모드")을 서로 독립된 설정으로 분리해 두 테마 모두 라이트·다크 어느 쪽으로도 볼 수 있게 함, "정리된 로그 HTML로 저장" 시 파일명이 처음 업로드한 로그 파일명(보통 "제목[all].html"/"제목[main].html" 형식)에서 확장자와 all/main 표시만 뗀 이름을 따라가도록 변경(예: "시나리오제목[all].html" 업로드 → "시나리오제목_clean.html"로 저장, 기존엔 항상 "log_clean.html" 고정)</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-08-09</b> — html용 로그 백업: "화자 지정 색상 반영" 옵션 추가(원본 로그에 화자별로 지정된 색이 있으면 이름에 그대로 반영, 기본은 꺼짐), 테마 선택 추가("대본집 스타일" 기존 테마 + 다크 배경·고딕체·화자 두상·주사위 결과 강조를 갖춘 "다크 고딕 스타일" 신규 테마) — 화면 미리보기·인쇄·저장 파일 모두 선택한 테마·색상 설정을 그대로 반영</li>
       <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-08-09</b> — CoC 캐릭터 시트 메이커: 넘패드 입력 수정(숫자 전용 텍스트 칸으로 전환) 이후 특성치 카드의 입력 칸과 1/2·1/5 값이 카드 밖으로 삐져나오던 문제 수정(좁은 화면에서 특히 두드러짐)</li>
       <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-08-09</b> — CoC 캐릭터 시트 메이커: 기능치 목록에 이름으로 필터링하는 검색 칸 추가(카테고리별/가나다순/전체 목록 어느 보기 방식에서도 적용), "무기" 항목 추가(무기명·피해·사거리·공격횟수·내구도·비고를 자유롭게 적는 표 — 피해 칸에 굴림식을 적으면 무기명과 함께 코코포리아 JSON의 굴림 명령어 목록에도 자동으로 실림)</li>
@@ -709,10 +723,11 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <div class="field"><label class="wide" for="log-theme">테마</label>
         <select id="log-theme">
           <option value="script">대본집 스타일 (기본)</option>
-          <option value="cocoback">다크 고딕 스타일</option>
+          <option value="cocoback">고딕 스타일</option>
         </select>
       </div>
       <div class="field"><label><input type="checkbox" id="log-exclude-other" checked> 잡담(사담) 탭 제외</label></div>
+      <div class="field"><label><input type="checkbox" id="log-dark-mode"> 다크 모드</label></div>
       <div class="field"><label><input type="checkbox" id="log-reflect-color"> 화자 지정 색상 반영</label>
         <span class="footnote" style="width:200px;">원본 로그에 화자별로 지정된 색상이 있으면 이름에 그대로 반영합니다(없으면 테마 기본 색을 씁니다).</span>
       </div>
@@ -20697,16 +20712,19 @@ function guessGmName(namesSortedByFreqDesc){
    탭 4. 로그 백업 (심플)
 ================================================================ */
 var TabLog = (function(){
-  var state = { messages:[], activeSpeakers:null };
+  var state = { messages:[], activeSpeakers:null, baseFilename:null };
   makeRevealable($('#log-controls'));
 
   // 테마 선택은 캐릭터 데이터가 아니라 화면 취향이므로, 기능치 목록 보기 방식(skillView)과 같은
   // 방식으로 마지막 선택을 기억해뒀다가 다음에 이 탭을 열 때도 그대로 적용한다.
   var LOG_THEME_LS_KEY = 'cocofolia_setter_log_theme_v1';
+  var LOG_DARK_MODE_LS_KEY = 'cocofolia_setter_log_darkmode_v1';
   (function(){
     try{
       var saved = localStorage.getItem(LOG_THEME_LS_KEY);
       if(saved==='script' || saved==='cocoback') $('#log-theme').value = saved;
+      var savedDark = localStorage.getItem(LOG_DARK_MODE_LS_KEY);
+      if(savedDark!=null) $('#log-dark-mode').checked = savedDark==='1';
     }catch(e){}
   })();
   $('#log-theme').addEventListener('change', function(){
@@ -20714,6 +20732,25 @@ var TabLog = (function(){
     render();
   });
   $('#log-reflect-color').addEventListener('change', render);
+  $('#log-dark-mode').addEventListener('change', function(){
+    safeLocalStorageSet(LOG_DARK_MODE_LS_KEY, this.checked ? '1' : '0');
+    render();
+  });
+
+  // 테마(글꼴·레이아웃)와 라이트/다크(색상)를 서로 독립된 두 축으로 뒀다 — 대본집 스타일도
+  // 다크로, 고딕 스타일도 라이트로 볼 수 있어야 하기 때문. 두 값 모두 화면 미리보기·저장
+  // 파일에서 공통으로 쓸 색상 팔레트를 반환한다(값 자체를 한 곳에만 두어 미리보기 CSS의
+  // .mode-dark/.theme-cocoback 조합과 아래 buildStandaloneLogHtml()의 결과가 어긋나지 않게 함).
+  function logThemeCssVars(theme, darkMode){
+    if(theme==='cocoback'){
+      return darkMode
+        ? { bg:'#212121', ink:'#eeeeee', sub:'#cccccc', rowBg:'#333333', gmBg:'#2c2c2c', name:'#999999', diceBg:'#111111', diceBorder:'rgba(255,255,255,.3)', avatarBg:'rgba(255,255,255,.12)', boxBorder:'' }
+        : { bg:'#f7f7f8', ink:'#222222', sub:'#666666', rowBg:'#ffffff', gmBg:'#ffffff', name:'#555555', diceBg:'#eef0f2', diceBorder:'#d8dadd', avatarBg:'#e2e2e5', boxBorder:'#e5e5e8' };
+    }
+    return darkMode
+      ? { bg:'#20232b', ink:'#e7e9ee', sub:'#9a9fac' }
+      : { bg:'#ffffff', ink:'#1e2430', sub:'#6b7280' };
+  }
 
   // <option>.style.color에 대입해보고 파싱 성공 여부를 확인하는 방식(탭9 스탠딩 재단의
   // isValidCssColor와 동일한 기법) — 업로드된 로그 파일 안의 색상 문자열은 사용자가 직접 쓴
@@ -20754,8 +20791,9 @@ var TabLog = (function(){
     var container = $('#log-list');
     container.innerHTML = '';
     var theme = $('#log-theme').value;
+    var darkMode = $('#log-dark-mode').checked;
     var reflectColor = $('#log-reflect-color').checked;
-    container.className = 'log-list' + (theme==='cocoback' ? ' theme-cocoback' : '');
+    container.className = 'log-list' + (theme==='cocoback' ? ' theme-cocoback' : '') + (darkMode ? ' mode-dark' : ' mode-light');
     var q = $('#log-search').value.trim().toLowerCase();
     var excludeOther = $('#log-exclude-other').checked;
     var gmName = $('#log-gm').value;
@@ -20851,6 +20889,18 @@ var TabLog = (function(){
     });
   }
 
+  // 코코포리아 "로그 출력"으로 받는 파일명은 보통 "시나리오 제목[all].html"·"제목[main].html"
+  // 처럼 끝에 탭 구분자가 붙는다(밑줄이 붙는 경우도 있음: "제목_main.html"). 저장 파일명을
+  // 매번 "log_clean.html"로 고정하면 여러 세션을 정리하다가 서로 덮어쓰기 쉬우므로, 업로드한
+  // 원본 파일명에서 그 구분자만 떼어내 재사용한다.
+  function deriveLogBaseName(filename){
+    var base = String(filename||'').replace(/\.[^./\\]+$/, '');
+    base = base.replace(/[\s_-]*\[(all|main)\]\s*$/i, '');
+    base = base.replace(/[\s_-]+(all|main)\s*$/i, '');
+    base = base.trim();
+    return base || '로그';
+  }
+
   setupDrop('log-drop','log-file', async function(file){
     var isJson = /\.json$/i.test(file.name);
     try{
@@ -20863,6 +20913,7 @@ var TabLog = (function(){
         return;
       }
       state.messages = messages;
+      state.baseFilename = deriveLogBaseName(file.name);
       $('#log-rawpreview').textContent = JSON.stringify(messages.slice(0,20), null, 2);
       $('#log-rawwrap').classList.remove('hidden');
       showReveal($('#log-controls'));
@@ -20892,21 +20943,23 @@ var TabLog = (function(){
       if(q && m.text.toLowerCase().indexOf(q)===-1) return false;
       return true;
     });
-    var html = buildStandaloneLogHtml(msgs, $('#log-gm').value, $('#log-theme').value, $('#log-reflect-color').checked);
+    var html = buildStandaloneLogHtml(msgs, $('#log-gm').value, $('#log-theme').value, $('#log-reflect-color').checked, $('#log-dark-mode').checked);
     return new Blob([html],{type:'text/html'});
   }
+  function logCleanFilename(){ return (state.baseFilename || '로그') + '_clean.html'; }
   $('#log-export').addEventListener('click', function(){
-    downloadBlob(buildLogCleanBlob(), 'log_clean.html');
+    downloadBlob(buildLogCleanBlob(), logCleanFilename());
   });
   insertQuickSaveButton($('#log-export'), function(){
     if(!state.messages || !state.messages.length){ alert('먼저 로그 파일을 불러와주세요.'); return false; }
-    saveResultToHistory(currentTabLabel(), 'log_clean.html', buildLogCleanBlob());
+    saveResultToHistory(currentTabLabel(), logCleanFilename(), buildLogCleanBlob());
   });
 
   var esc = escHtml;
 
-  function buildStandaloneLogHtml(messages, gmName, theme, reflectColor){
+  function buildStandaloneLogHtml(messages, gmName, theme, reflectColor, darkMode){
     var cocoback = theme==='cocoback';
+    var c = logThemeCssVars(theme, darkMode);
     var rows = messages.map(function(m){
       var isSystem = m.tab==='info';
       var isGm = !isSystem && m.name===gmName;
@@ -20919,28 +20972,30 @@ var TabLog = (function(){
       return '<div class="row '+cls+'">'+avatarHtml+nameHtml+'<div class="text">'+textInner+'</div></div>';
     }).join('\n');
     if(cocoback){
+      var boxBorder = c.boxBorder ? 'border:1px solid '+c.boxBorder+';' : '';
       return '<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>세션 로그</title><style>'+
-        'body{font-family:"Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;max-width:720px;margin:24px auto;padding:24px 28px;background:#212121;color:#eee;}'+
+        'body{font-family:"Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;max-width:720px;margin:24px auto;padding:24px 28px;background:'+c.bg+';color:'+c.ink+';}'+
         '.row{position:relative;}'+
-        '.row.gm{margin:10px 0;padding:11px 15px;background:#2c2c2c;border-radius:6px;}'+
-        '.row.gm .text{color:#e8e8e8;font-size:14px;line-height:1.8;white-space:pre-wrap;word-break:break-word;}'+
-        '.row.pl{margin:14px 0 14px 56px;padding:8px 12px;background:#333;border-radius:6px;}'+
-        '.row.pl .avatar{position:absolute;left:-52px;top:8px;width:40px;height:40px;border-radius:8px;background-size:cover;background-position:top center;background-color:rgba(255,255,255,.12);}'+
-        '.row.pl .name{font-weight:700;font-size:13px;color:#999;margin-bottom:4px;}'+
-        '.row.pl .text{font-size:14px;line-height:1.7;color:#f0f0f0;white-space:pre-wrap;word-break:break-word;}'+
-        '.row.system{margin:16px 0;text-align:center;color:#ccc;}'+
-        '.row.system .text{font-size:12px;letter-spacing:.05em;color:#ddd;white-space:pre-wrap;}'+
-        '.dice-pill{background:#111;border:1px solid rgba(255,255,255,.3);border-radius:5px;padding:4px 14px;display:inline-block;font-size:12.5px;color:#eee;margin:4px 0;}'+
+        '.row.gm{margin:10px 0;padding:11px 15px;background:'+c.gmBg+';'+boxBorder+'border-radius:6px;}'+
+        '.row.gm .text{color:'+c.ink+';font-size:14px;line-height:1.8;white-space:pre-wrap;word-break:break-word;}'+
+        '.row.pl{margin:14px 0 14px 56px;padding:8px 12px;background:'+c.rowBg+';'+boxBorder+'border-radius:6px;}'+
+        '.row.pl .avatar{position:absolute;left:-52px;top:8px;width:40px;height:40px;border-radius:8px;background-size:cover;background-position:top center;background-color:'+c.avatarBg+';}'+
+        '.row.pl .name{font-weight:700;font-size:13px;color:'+c.name+';margin-bottom:4px;}'+
+        '.row.pl .text{font-size:14px;line-height:1.7;color:'+c.ink+';white-space:pre-wrap;word-break:break-word;}'+
+        '.row.system{margin:16px 0;text-align:center;color:'+c.sub+';}'+
+        '.row.system .text{font-size:12px;letter-spacing:.05em;color:'+c.sub+';white-space:pre-wrap;}'+
+        '.dice-pill{background:'+c.diceBg+';border:1px solid '+c.diceBorder+';border-radius:5px;padding:4px 14px;display:inline-block;font-size:12.5px;color:'+c.ink+';margin:4px 0;}'+
         '</style></head><body>'+rows+'</body></html>';
     }
     return '<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>세션 로그</title><style>'+
-      'body{font-family:"Noto Serif KR",Georgia,serif;max-width:720px;margin:24px auto;padding:24px 28px;background:#fff;color:#1e2430;}'+
+      'body{font-family:"Noto Serif KR",Georgia,serif;max-width:720px;margin:24px auto;padding:24px 28px;background:'+c.bg+';color:'+c.ink+';}'+
       '.row.gm{margin:10px 0;font-size:14px;line-height:1.7;}'+
+      '.row.gm .text{color:'+c.ink+';}'+
       '.row.pl{margin:14px 0 14px 56px;}'+
-      '.row.pl .name{font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px;}'+
-      '.row.pl .text{font-size:14px;line-height:1.6;white-space:pre-wrap;word-break:break-word;}'+
+      '.row.pl .name{font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:'+c.ink+';margin-bottom:2px;}'+
+      '.row.pl .text{font-size:14px;line-height:1.6;color:'+c.ink+';white-space:pre-wrap;word-break:break-word;}'+
       '.row.system{margin:16px 0;text-align:center;}'+
-      '.row.system .text{font-size:12px;letter-spacing:.05em;color:#6b7280;white-space:pre-wrap;}'+
+      '.row.system .text{font-size:12px;letter-spacing:.05em;color:'+c.sub+';white-space:pre-wrap;}'+
       '</style></head><body>'+rows+'</body></html>';
   }
 
@@ -20950,16 +21005,19 @@ var TabLog = (function(){
   registerTabSnapshot('tab-log', function captureLogSnapshot(){
     return {
       messages: state.messages,
+      baseFilename: state.baseFilename,
       search: $('#log-search').value,
       excludeOther: $('#log-exclude-other').checked,
       gm: $('#log-gm').value,
       theme: $('#log-theme').value,
+      darkMode: $('#log-dark-mode').checked,
       reflectColor: $('#log-reflect-color').checked,
       activeSpeakers: state.activeSpeakers ? Array.from(state.activeSpeakers) : null
     };
   }, function restoreLogSnapshot(snap){
     if(!snap.messages || !snap.messages.length) return;
     state.messages = snap.messages;
+    state.baseFilename = snap.baseFilename || null;
     $('#log-rawpreview').textContent = JSON.stringify(snap.messages.slice(0,20), null, 2);
     $('#log-rawwrap').classList.remove('hidden');
     showReveal($('#log-controls'));
@@ -20969,6 +21027,10 @@ var TabLog = (function(){
     if(snap.search != null) $('#log-search').value = snap.search;
     $('#log-exclude-other').checked = !!snap.excludeOther;
     if(snap.theme==='script' || snap.theme==='cocoback') $('#log-theme').value = snap.theme;
+    // 이 옵션들이 생기기 전에 저장된 옛 스냅샷(darkMode 필드 없음)은 그때 "다크 고딕
+    // 스타일"이 곧 다크 팔레트였으므로, 값이 없으면 테마가 고딕일 때만 다크로 되돌려 예전
+    // 모습과 어긋나지 않게 한다.
+    $('#log-dark-mode').checked = snap.darkMode != null ? !!snap.darkMode : ($('#log-theme').value==='cocoback');
     $('#log-reflect-color').checked = !!snap.reflectColor;
     if(snap.activeSpeakers){
       state.activeSpeakers = new Set(snap.activeSpeakers);
