@@ -341,7 +341,7 @@ img.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;backgr
 .chs-box{border:1px solid #333;border-radius:10px;overflow:hidden;}
 .chs-box-head{background:#1e2430;color:#fff;font-weight:800;font-size:11.5px;text-align:center;padding:5px 6px;letter-spacing:.02em;}
 .chs-box-body{display:flex;}
-.chs-box-body > div{flex:1;padding:6px;text-align:center;}
+.chs-box-body > div{flex:1;padding:6px;text-align:center;min-width:0;}
 .chs-box-body > div + div{border-left:1px solid var(--line);}
 .chs-box-body input{width:100%;border:none;background:transparent;color:var(--ink);text-align:center;font-size:15px;font-weight:800;}
 .chs-box-body label{display:block;font-size:10px;color:var(--sub);margin-bottom:2px;}
@@ -349,7 +349,7 @@ img.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;backgr
 .chs-mini-roll{flex:0 0 auto;border:none;background:var(--chip);border-radius:6px;cursor:pointer;font-size:12px;padding:3px 6px;line-height:1;}
 /* 특성치 카드: 파생 수치 카드와 같은 chs-box 뼈대를 쓰되, 값 아래에 1/2·1/5 보조 값을
    나란히 붙인다는 점만 다르다 — 두 구역이 "같은 종류의 정보"라는 걸 형태로 알 수 있게. */
-.chs-stat-input-row{display:flex;align-items:center;justify-content:center;gap:2px;}
+.chs-stat-input-row{display:flex;align-items:center;justify-content:center;gap:2px;min-width:0;}
 .chs-stat-box .chs-stat-input{font-size:20px;padding:2px 0 6px;width:auto;flex:1;min-width:0;}
 .chs-stat-input-row .chs-mini-roll{font-size:13px;padding:4px 6px;}
 .chs-stat-subrow{display:flex;gap:4px;}
@@ -497,6 +497,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-08-09</b> — CoC 캐릭터 시트 메이커: 넘패드 입력 수정(숫자 전용 텍스트 칸으로 전환) 이후 특성치 카드의 입력 칸과 1/2·1/5 값이 카드 밖으로 삐져나오던 문제 수정(좁은 화면에서 특히 두드러짐)</li>
       <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-08-09</b> — CoC 캐릭터 시트 메이커: 기능치 목록에 이름으로 필터링하는 검색 칸 추가(카테고리별/가나다순/전체 목록 어느 보기 방식에서도 적용), "무기" 항목 추가(무기명·피해·사거리·공격횟수·내구도·비고를 자유롭게 적는 표 — 피해 칸에 굴림식을 적으면 무기명과 함께 코코포리아 JSON의 굴림 명령어 목록에도 자동으로 실림)</li>
       <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-08-09</b> — CoC 캐릭터 시트 메이커: 일부 환경(풀배열 키보드의 오른쪽 숫자패드 등)에서 특성치·나이·기능점수·행운 등 숫자 입력 칸에 숫자패드 입력이 먹지 않던 문제 수정 — 숫자만 입력되는 텍스트 칸으로 바꾸고 범위를 벗어나거나 숫자가 아닌 값은 그대로 걸러내도록 함(계산 로직과 값 범위 제한은 이전과 동일)</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-09</b> — 토스류 앱을 참고해 UX 다듬기: (1) 파일을 올리면 다음 단계 옵션이 뚝 끊기지 않고 부드럽게 슬라이드+페이드로 나타나도록 개선(PNG 이펙터 효과 슬롯, 컷인 커터·GIF/APNG 변환기·로그 백업 2종의 결과·옵션 패널 등), (2) 결과물 보관함 목록 항목을 마우스로 올리거나(터치 환경에선 왼쪽으로 밀면) 불러오기·다운로드·삭제 버튼이 나타나는 스와이프 방식으로 변경해 평소엔 파일명만 깔끔하게 보이도록 정리(키보드 포커스로도 동일하게 열림)</li>
