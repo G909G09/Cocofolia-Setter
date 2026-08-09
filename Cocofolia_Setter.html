@@ -481,6 +481,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-09</b> — "임시저장"/다운로드가 결과물 보관함에 남긴 항목에서 화면을 통째로 다시 불러올 수 있는 "불러오기" 기능 추가(임시저장 버튼이 있는 9개 탭 전부 — 컷인 커터·GIF/APNG 변환기·PNG 이펙터·로그 백업 2종·스탠딩 일괄 재단·컨닝 페이퍼 메이커·캐릭터 룸파일 생성기·CoC 캐릭터 시트 메이커). 업로드했던 파일과 순서, 입력한 값·옵션까지 그때 그대로 복원되며(예: 컨닝 페이퍼 메이커라면 표정 이미지들과 순서, 이름·서체 등), 결과물 보관함과 홈 화면 "최근 결과물" 위젯 모두에서 불러올 수 있음</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-09</b> — 전체 UI 구성 개편(드롭박스 참고, 배색은 그대로 유지): 상단 가로 메뉴를 좌측 고정 사이드바로 교체(카테고리를 클릭하면 아코디언으로 하위 탭이 펼쳐짐, 좁은 화면에서는 햄버거 버튼으로 여닫는 서랍 메뉴), 홈 화면에 기능 검색창·빠른 실행 버튼·카테고리 필터 알약·"최근 결과물"(결과물 보관함 연동) 위젯을 새로 추가하고 업데이트 로그는 접어서 볼 수 있게 정리</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-09</b> — 메인 메뉴 레일: 카테고리 버튼에 마우스를 올렸을 때 하위 탭 목록이 바로 바뀌지 않고 부드럽게 페이드 전환되도록 개선, 카테고리 버튼을 클릭하면 그 카테고리를 소개하는 설명 페이지(포함된 기능 목록 카드)로 이동하도록 추가</li>
       <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-08-09</b> — CoC 캐릭터 시트 메이커: 특성치 카드마다 그 값이 어느 정도 수준인지(예: 근력 50 = 평균적인 성인) 짧은 설명을 표시, 기능치 목록 보기 방식에 "가나다순 정렬" 추가</li>
@@ -18256,15 +18257,51 @@ function pruneHistory(db){
     };
   };
 }
+// 탭별로 "지금 화면 상태를 통째로 되돌릴 수 있는 스냅샷"을 만들고 되돌리는 함수 쌍을
+// 등록해둔다. 스냅샷은 업로드한 File/Blob을 포함해도 된다(IndexedDB는 구조화 복제로
+// Blob/File을 그대로 저장·복원할 수 있어 base64 변환이 필요 없다). 등록되지 않은 탭의
+// 결과물은 예전처럼 파일 다운로드만 가능하고 "불러오기"는 지원하지 않는다.
+var TAB_SNAPSHOT_PROVIDERS = {};
+var TAB_SNAPSHOT_RESTORERS = {};
+function registerTabSnapshot(tabId, captureFn, restoreFn){
+  TAB_SNAPSHOT_PROVIDERS[tabId] = captureFn;
+  TAB_SNAPSHOT_RESTORERS[tabId] = restoreFn;
+}
+function currentTabId(){
+  var activeBtn = document.querySelector('.tab-btn.active');
+  return activeBtn ? activeBtn.dataset.target : null;
+}
 function saveResultToHistory(tabLabel, filename, blob){
+  var tabId = currentTabId();
+  var snapshot = null;
+  if(tabId && TAB_SNAPSHOT_PROVIDERS[tabId]){
+    try{ snapshot = TAB_SNAPSHOT_PROVIDERS[tabId](); }catch(e){ snapshot = null; }
+  }
   openHistoryDB().then(function(db){
     var tx = db.transaction(HISTORY_STORE, 'readwrite');
     tx.objectStore(HISTORY_STORE).add({
       tabLabel:tabLabel, filename:filename, blob:blob,
-      mimeType:blob.type||'', size:blob.size||0, createdAt:Date.now()
+      mimeType:blob.type||'', size:blob.size||0, createdAt:Date.now(),
+      tabId:tabId, snapshot:snapshot
     });
     tx.oncomplete = function(){ pruneHistory(db); };
   }).catch(function(){});
+}
+// 결과물 보관함 항목의 "불러오기" 버튼에서 호출: 저장 당시의 탭으로 이동한 뒤, 그 탭에
+// 등록된 복원 함수로 스냅샷을 화면에 되돌린다.
+function restoreHistoryItem(item){
+  if(!item.tabId || !item.snapshot || !TAB_SNAPSHOT_RESTORERS[item.tabId]){
+    alert('이 항목은 다시 불러오기를 지원하지 않습니다.');
+    return;
+  }
+  var btn = document.querySelector('.tab-btn[data-target="'+item.tabId+'"]');
+  if(!btn) return;
+  btn.click();
+  try{
+    TAB_SNAPSHOT_RESTORERS[item.tabId](item.snapshot);
+  }catch(e){
+    alert('불러오는 중 오류가 발생했습니다: '+(e && e.message ? e.message : e));
+  }
 }
 function listHistory(){
   return openHistoryDB().then(function(db){
@@ -18691,6 +18728,7 @@ $('#settings-reset').addEventListener('click', function(){
       }
       infoEl.textContent = (filtered.length===items.length ? items.length+'개 저장됨' : filtered.length+'개 표시 (전체 '+items.length+'개 중)')+' (최근 '+HISTORY_MAX_ITEMS+'개까지 유지)';
       filtered.forEach(function(item){
+        var canRestore = !!(item.tabId && item.snapshot && TAB_SNAPSHOT_RESTORERS[item.tabId]);
         var row = document.createElement('div');
         row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;';
         row.innerHTML =
@@ -18698,8 +18736,14 @@ $('#settings-reset').addEventListener('click', function(){
             '<div style="font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+escHtml(item.filename)+'</div>'+
             '<div style="font-size:11px;color:var(--sub);">'+escHtml(item.tabLabel)+' · '+fmtDate(item.createdAt)+' · '+fmtSize(item.size)+'</div>'+
           '</div>'+
+          (canRestore ? '<button type="button" class="btn ghost" data-act="restore" style="padding:6px 12px;font-size:12px;flex:0 0 auto;">불러오기</button>' : '')+
           '<button type="button" class="btn ghost" data-act="dl" style="padding:6px 12px;font-size:12px;flex:0 0 auto;">다운로드</button>'+
           '<button type="button" class="btn ghost" data-act="del" style="padding:6px 12px;font-size:12px;flex:0 0 auto;color:var(--danger);">삭제</button>';
+        if(canRestore){
+          row.querySelector('[data-act="restore"]').addEventListener('click', function(){
+            restoreHistoryItem(item);
+          });
+        }
         row.querySelector('[data-act="dl"]').addEventListener('click', function(){
           downloadBlob(item.blob, item.filename, {skipHistory:true});
         });
@@ -18906,13 +18950,20 @@ function renderHomeRecent(){
       var d = new Date(item.createdAt);
       function pad(n){ return (n<10?'0':'')+n; }
       var dateStr = pad(d.getMonth()+1)+'/'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+      var canRestore = !!(item.tabId && item.snapshot && TAB_SNAPSHOT_RESTORERS[item.tabId]);
       var el = document.createElement('div');
       el.className = 'home-recent-card';
       el.innerHTML =
         '<div class="home-recent-name">'+escHtml(item.filename)+'</div>'+
         '<div class="home-recent-meta">'+escHtml(item.tabLabel)+' · '+dateStr+'</div>'+
-        '<button type="button" class="btn ghost">다시 받기</button>';
-      el.querySelector('button').addEventListener('click', function(){
+        '<div style="display:flex;gap:6px;">'+
+          (canRestore ? '<button type="button" class="btn ghost" data-act="restore">불러오기</button>' : '')+
+          '<button type="button" class="btn ghost" data-act="dl">다시 받기</button>'+
+        '</div>';
+      if(canRestore){
+        el.querySelector('[data-act="restore"]').addEventListener('click', function(){ restoreHistoryItem(item); });
+      }
+      el.querySelector('[data-act="dl"]').addEventListener('click', function(){
         downloadBlob(item.blob, item.filename, {skipHistory:true});
       });
       grid.appendChild(el);
@@ -19123,7 +19174,8 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     state.finalMs = finalMs;
   }
 
-  setupDrop('mp3-drop','mp3-file', async function(file){
+  var mp3OnFile = async function(file){
+    state.file = file;
     state.blob = null; state.frames = null; state.delays = null;
     $('#mp3-result-row').classList.add('hidden');
     $('#mp3-preview-row').classList.add('hidden');
@@ -19162,7 +19214,8 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
       state.durationMs = null;
     }
     recompute();
-  });
+  };
+  setupDrop('mp3-drop','mp3-file', mp3OnFile);
 
   genBtn.addEventListener('click', function(){
     if(state.finalMs==null) return;
@@ -19188,6 +19241,37 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
   insertQuickSaveButton($('#mp3-download'), function(){
     if(!state.blob){ alert('먼저 무음 MP3를 생성해주세요.'); return false; }
     saveResultToHistory(currentTabLabel(), ensureExtension($('#mp3-filename').value.trim() || 'cutin_silence.mp3', 'mp3'), state.blob);
+  });
+
+  // 업로드했던 원본 파일을 그대로 저장해뒀다가, 되돌릴 때 같은 업로드 경로(mp3OnFile)를
+  // 다시 태워 분석부터 재현한다 — 그래야 반복 횟수·여백·직접 입력 길이 같은 설정이 그때
+  // 그대로 복원되고, 마지막에 자동으로 "생성"까지 눌러 다운로드 가능한 상태로 만든다.
+  registerTabSnapshot('tab-mp3', function captureMp3Snapshot(){
+    return {
+      file: state.file,
+      manualToggle: manualToggle.checked, manualSec: manualSec.value,
+      loopCount: loopCountEl.value, padding: paddingEl.value,
+      filename: $('#mp3-filename').value, bitrate: $('#mp3-bitrate').value
+    };
+  }, function restoreMp3Snapshot(snap){
+    if(snap.filename != null) $('#mp3-filename').value = snap.filename;
+    if(snap.bitrate != null) $('#mp3-bitrate').value = snap.bitrate;
+    function applySettings(){
+      if(snap.loopCount != null) loopCountEl.value = snap.loopCount;
+      if(snap.padding != null) paddingEl.value = snap.padding;
+      manualToggle.checked = !!snap.manualToggle;
+      manualSec.disabled = !manualToggle.checked;
+      if(snap.manualSec != null) manualSec.value = snap.manualSec;
+      recompute();
+    }
+    if(snap.file){
+      mp3OnFile(snap.file).then(function(){
+        applySettings();
+        if(!genBtn.disabled) genBtn.click();
+      });
+    } else {
+      applySettings();
+    }
   });
 
   function generateSilentMp3(durationSec, sampleRate, kbps){
@@ -19490,7 +19574,8 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
 
   $('#g2a-mp4-chroma-tol').addEventListener('input', function(){ $('#g2a-mp4-chroma-tol-val').textContent = this.value; });
 
-  setupDrop('g2a-drop','g2a-file', async function(file){
+  var g2aOnFile = async function(file){
+    state.file = file;
     $('#g2a-result-row').classList.add('hidden');
     $('#g2a-mp4-opts').classList.add('hidden');
     convertBtn.disabled = true;
@@ -19540,7 +19625,8 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     }catch(e){
       info.textContent = '분석 실패: '+e.message;
     }
-  });
+  };
+  setupDrop('g2a-drop','g2a-file', g2aOnFile);
 
   convertBtn.addEventListener('click', function(){
     if(!state.decoded && state.direction!=='mp42apng') return;
@@ -19592,6 +19678,36 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     var fname = ensureExtension($('#g2a-filename').value.trim() || ('converted.'+ext), ext);
     saveResultToHistory(currentTabLabel(), fname, state.blob);
   });
+
+  // 업로드했던 원본 파일(gif/png/mp4)을 저장해뒀다가, 되돌릴 때 같은 업로드 경로(g2aOnFile)를
+  // 다시 태워 분석부터 재현하고, 자동 리사이즈·알파·MP4 구간/FPS/크로마키 설정을 그대로
+  // 되돌린 뒤 자동으로 "변환"까지 눌러 다운로드 가능한 상태로 만든다.
+  registerTabSnapshot('tab-g2a', function captureG2aSnapshot(){
+    return {
+      file: state.file, filename: $('#g2a-filename').value,
+      autoresize: $('#g2a-autoresize').checked, alpha: $('#g2a-alpha').checked,
+      mp4Start: $('#g2a-mp4-start').value, mp4Duration: $('#g2a-mp4-duration').value,
+      mp4Fps: $('#g2a-mp4-fps').value, mp4Chroma: $('#g2a-mp4-chroma').checked,
+      mp4ChromaColor: $('#g2a-mp4-chroma-color').value, mp4ChromaTol: $('#g2a-mp4-chroma-tol').value
+    };
+  }, function restoreG2aSnapshot(snap){
+    if(!snap.file){ return; }
+    g2aOnFile(snap.file).then(function(){
+      if(snap.filename != null) $('#g2a-filename').value = snap.filename;
+      $('#g2a-autoresize').checked = !!snap.autoresize;
+      $('#g2a-alpha').checked = !!snap.alpha;
+      if(snap.mp4Start != null) $('#g2a-mp4-start').value = snap.mp4Start;
+      if(snap.mp4Duration != null) $('#g2a-mp4-duration').value = snap.mp4Duration;
+      if(snap.mp4Fps != null) $('#g2a-mp4-fps').value = snap.mp4Fps;
+      $('#g2a-mp4-chroma').checked = !!snap.mp4Chroma;
+      if(snap.mp4ChromaColor != null) $('#g2a-mp4-chroma-color').value = snap.mp4ChromaColor;
+      if(snap.mp4ChromaTol != null){
+        $('#g2a-mp4-chroma-tol').value = snap.mp4ChromaTol;
+        $('#g2a-mp4-chroma-tol-val').textContent = snap.mp4ChromaTol;
+      }
+      if(!convertBtn.disabled) convertBtn.click();
+    });
+  });
 })();
 
 /* ================================================================
@@ -19614,8 +19730,9 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
   // 강도를 낮춰 다시 렌더링하도록 안내한다.
   var FX_COCOFOLIA_TARGET_BYTES = 0.95*1024*1024;
 
-  setupDrop('fx-drop','fx-file', async function(file){
+  var fxOnFile = async function(file){
     if(!/\.png$/i.test(file.name)){ info.textContent = 'PNG 파일만 지원합니다.'; return; }
+    state.file = file;
     stopPreview();
     state.frames = null; state.delays = null; state.blob = null;
     $('#fx-result-row').classList.add('hidden');
@@ -19629,7 +19746,8 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     }catch(e){
       info.textContent = '이미지 로드 실패: '+e.message;
     }
-  });
+  };
+  setupDrop('fx-drop','fx-file', fxOnFile);
 
   /* ── 효과 슬롯 (드롭다운 4개, 각각 효과 하나 + 미리보기) ── */
   var EFFECT_CATALOG = [
@@ -20255,6 +20373,48 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     if(!blob){ alert('먼저 미리보기 렌더링을 실행해주세요.'); return false; }
     saveResultToHistory(currentTabLabel(), ensureExtension($('#fx-filename').value.trim() || 'cutin_fx.png', 'png'), blob);
   });
+
+  // 업로드했던 원본 PNG와 4개 효과 슬롯(효과 종류·강도·모드·색상)·길이·FPS·페이드 설정을
+  // 저장해뒀다가, 되돌릴 때 같은 업로드 경로(fxOnFile)로 이미지를 다시 불러온 뒤 슬롯을
+  // 그대로 재현하고 자동으로 "미리보기 렌더링"까지 눌러 다운로드 가능한 상태로 만든다.
+  registerTabSnapshot('tab-fx', function captureFxSnapshot(){
+    var slots = [];
+    for(var n=1; n<=SLOT_COUNT; n++){
+      slots.push({
+        key: $('#fx-slot-'+n).value,
+        amount: $('#fx-slot-'+n+'-amount').value,
+        mode: $('#fx-slot-'+n+'-mode').value,
+        color: $('#fx-slot-'+n+'-color').value
+      });
+    }
+    return {
+      file: state.file, filename: $('#fx-filename').value,
+      duration: $('#fx-duration').value, fps: $('#fx-fps').value,
+      fadeMode: $('#fx-fade-mode').value, slots: slots
+    };
+  }, function restoreFxSnapshot(snap){
+    if(!snap.file){ return; }
+    fxOnFile(snap.file).then(function(){
+      if(snap.filename != null) $('#fx-filename').value = snap.filename;
+      if(snap.duration != null) $('#fx-duration').value = snap.duration;
+      if(snap.fps != null) $('#fx-fps').value = snap.fps;
+      if(snap.fadeMode != null) $('#fx-fade-mode').value = snap.fadeMode;
+      (snap.slots||[]).forEach(function(sk, i){
+        var n = i+1;
+        var sel = $('#fx-slot-'+n);
+        if(!sel) return;
+        sel.value = sk.key || '';
+        onSlotEffectChange(n); // 슬롯 표시/숨김과 기본값을 먼저 맞춘 뒤 아래에서 실제 저장값으로 덮어씀
+        if(sk.key){
+          $('#fx-slot-'+n+'-amount').value = sk.amount;
+          if(sk.mode != null) $('#fx-slot-'+n+'-mode').value = sk.mode;
+          if(sk.color != null) $('#fx-slot-'+n+'-color').value = sk.color;
+          renderSlotPreview(n);
+        }
+      });
+      if(!renderBtn.disabled) renderBtn.click();
+    });
+  });
 })();
 
 /* ================================================================
@@ -20544,6 +20704,39 @@ var TabLog = (function(){
       '</style></head><body>'+rows+'</body></html>';
   }
 
+  // 파싱된 메시지는 이미 순수 데이터(JSON 직렬화 가능)라 원본 파일을 다시 저장할 필요 없이
+  // state.messages를 그대로 스냅샷에 담는다. 검색어·"잡담 제외"·GM 화자 선택·화자별 on/off
+  // 상태까지 되돌려서 화면을 그때 보던 그대로 재현한다.
+  registerTabSnapshot('tab-log', function captureLogSnapshot(){
+    return {
+      messages: state.messages,
+      search: $('#log-search').value,
+      excludeOther: $('#log-exclude-other').checked,
+      gm: $('#log-gm').value,
+      activeSpeakers: state.activeSpeakers ? Array.from(state.activeSpeakers) : null
+    };
+  }, function restoreLogSnapshot(snap){
+    if(!snap.messages || !snap.messages.length) return;
+    state.messages = snap.messages;
+    $('#log-rawpreview').textContent = JSON.stringify(snap.messages.slice(0,20), null, 2);
+    $('#log-rawwrap').classList.remove('hidden');
+    $('#log-controls').classList.remove('hidden');
+    populateGm();
+    buildSpeakerChips();
+    if(snap.gm != null) $('#log-gm').value = snap.gm;
+    if(snap.search != null) $('#log-search').value = snap.search;
+    $('#log-exclude-other').checked = !!snap.excludeOther;
+    if(snap.activeSpeakers){
+      state.activeSpeakers = new Set(snap.activeSpeakers);
+      $all('.chip', $('#log-speakers')).forEach(function(chip){
+        var active = state.activeSpeakers.has(chip.textContent);
+        chip.classList.toggle('off', !active);
+        chip.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+    }
+    render();
+  });
+
   return { getMessages: function(){ return state.messages; } };
 })();
 
@@ -20825,6 +21018,36 @@ var TabLog = (function(){
       var b = $('#bk-cpBtn'); var old = b.textContent;
       b.textContent = '복사됨 ✓'; setTimeout(function(){ b.textContent = old; }, 1500);
     }).catch(function(){ alert('클립보드 복사에 실패했습니다. 직접 선택해서 복사해주세요.'); });
+  });
+
+  // parseHtml()이 만든 rowsData는 이미 순수 데이터라 원본 파일을 다시 저장할 필요가 없다.
+  // GM 선택·잡담 포함 여부·화자별 스타일 지정까지 되돌린 뒤 convert()를 다시 실행해
+  // 결과 미리보기까지 재현한다.
+  registerTabSnapshot('tab-book', function captureBookSnapshot(){
+    if(!rowsData) return null;
+    return {
+      rowsData: rowsData,
+      gm: $('#bk-gmSel').value,
+      includeOther: $('#bk-includeOther').checked,
+      charAssignments: charAssignments()
+    };
+  }, function restoreBookSnapshot(snap){
+    if(!snap || !snap.rowsData) return;
+    rowsData = snap.rowsData;
+    $('#bk-loadinfo').classList.remove('hidden');
+    $('#bk-loadinfo').textContent = rowsData.length+'개 문단 (불러온 상태 복원됨)';
+    $('#bk-cfgPanel').classList.remove('hidden');
+    fillConfig(rowsData); // GM 후보 목록·기본 캐릭터 스타일 행을 다시 만든다
+    if(snap.gm != null) $('#bk-gmSel').value = snap.gm;
+    buildCharRows(); // 복원한 GM 기준으로 캐릭터 행을 다시 만든 뒤
+    if(snap.charAssignments){
+      $all('select[data-name]', $('#bk-charRows')).forEach(function(sel){
+        var saved = snap.charAssignments[sel.getAttribute('data-name')];
+        if(saved) sel.value = saved;
+      });
+    }
+    $('#bk-includeOther').checked = !!snap.includeOther;
+    convert();
   });
 })();
 
@@ -21663,6 +21886,56 @@ var TabLog = (function(){
     var tabBtn = document.querySelector('.tab-btn[data-target="tab-charfile"]');
     if(tabBtn) tabBtn.click();
   });
+
+  // "임시저장"/"다운로드"로 결과물 보관함에 남길 때, 이름·특성치·기능치 분배(추가/삭제한
+  // 기능 포함)·직업 기능점수 설정까지 화면을 통째로 되돌리는 데 필요한 값을 담아둔다.
+  // 기능치는 skillRows를 그대로 직렬화해뒀다가, 되돌릴 때 resetSkills()로 기본 목록을
+  // 만드는 대신 스냅샷에 담긴 항목만으로 처음부터 다시 쌓는다 — 그래야 기본 기능을 지웠거나
+  // 직접 추가한 경우에도(위치가 밀려도) 정확히 그때 상태로 복원된다.
+  registerTabSnapshot('tab-charsheet', function captureChsSnapshot(){
+    var basic = {};
+    ['chs-name','chs-job','chs-age','chs-gender','chs-residence','chs-birthplace'].forEach(function(id){ basic[id] = $('#'+id).value; });
+    var statVals = {};
+    STAT_DEFS.forEach(function(s){ statVals[s.key] = stats[s.key].value; });
+    var skills = skillRows.map(function(row){
+      var cb = row.tr.querySelector('input[type=checkbox]');
+      return {
+        name: row.nameInput.value, base: row.baseInput.value, alloc: row.allocInput.value,
+        growth: cb ? cb.checked : false, formula: row.formula, cat: row.cat
+      };
+    });
+    return {
+      basic: basic, stats: statVals,
+      luck: derived.luck.value, db: derived.db.value, build: derived.build.value,
+      occFormula: $('#chs-occ-formula').value, occPoints: $('#chs-occ-points').value,
+      skills: skills, jsonOutput: $('#chs-json-output').value
+    };
+  }, function restoreChsSnapshot(snap){
+    if(snap.basic){
+      Object.keys(snap.basic).forEach(function(id){ var el = $('#'+id); if(el) el.value = snap.basic[id]; });
+    }
+    if(snap.stats){
+      STAT_DEFS.forEach(function(s){ if(snap.stats[s.key] != null) stats[s.key].value = snap.stats[s.key]; });
+    }
+    if(snap.occFormula != null) $('#chs-occ-formula').value = snap.occFormula;
+    if(snap.occPoints != null) $('#chs-occ-points').value = snap.occPoints;
+
+    skillRows = [];
+    (snap.skills||[]).forEach(function(sk){
+      var row = addSkillRow(sk.name, sk.base, sk.formula, sk.cat);
+      row.allocInput.value = sk.alloc;
+      var cb = row.tr.querySelector('input[type=checkbox]');
+      if(cb) cb.checked = !!sk.growth;
+    });
+    if(!snap.skills || !snap.skills.length) resetSkills();
+    renderSkillTable();
+
+    if(snap.luck != null) derived.luck.value = snap.luck;
+    if(snap.db != null) derived.db.value = snap.db;
+    if(snap.build != null) derived.build.value = snap.build;
+    recomputeAll();
+    if(snap.jsonOutput) $('#chs-json-output').value = snap.jsonOutput;
+  });
 })();
 
 /* ================================================================
@@ -21910,6 +22183,41 @@ var TabLog = (function(){
   }
   $('#st-send-cs').addEventListener('click', function(){ sendTo('toCheatsheet', 'tab-cheatsheet', 'st-send-cs'); });
   $('#st-send-cf').addEventListener('click', function(){ sendTo('toCharfile', 'tab-charfile', 'st-send-cf'); });
+
+  // 업로드했던 이미지 파일들(과 순서·세로 위치 미세조정 값)·목표 비율·처리 방식·앵커·여백
+  // 색상·출력 폭을 저장해뒀다가, 되돌릴 때 같은 업로드 경로(loadImagesTolerant)로 다시
+  // 불러온 뒤 설정을 그대로 되돌리고 renderAll()로 재단 결과까지 재현한다.
+  registerTabSnapshot('tab-standing', function captureStandingSnapshot(){
+    return {
+      items: items.map(function(it){ return {file:it.file, offset:it.offset}; }),
+      ratioW: $('#st-ratio-w').value, ratioH: $('#st-ratio-h').value,
+      mode: $('#st-mode').value, anchor: $('#st-anchor').value,
+      bgcolor: $('#st-bgcolor').value, outwidth: $('#st-outwidth').value
+    };
+  }, function restoreStandingSnapshot(snap){
+    if(snap.ratioW != null) $('#st-ratio-w').value = snap.ratioW;
+    if(snap.ratioH != null) $('#st-ratio-h').value = snap.ratioH;
+    if(snap.mode != null) $('#st-mode').value = snap.mode;
+    if(snap.anchor != null) $('#st-anchor').value = snap.anchor;
+    if(snap.bgcolor != null){
+      $('#st-bgcolor').value = snap.bgcolor;
+      $('#st-bgcolor').dispatchEvent(new Event('change', {bubbles:true})); // 색상 피커/투명 버튼 표시 동기화
+    }
+    if(snap.outwidth != null) $('#st-outwidth').value = snap.outwidth;
+
+    if(!snap.items || !snap.items.length){ items = []; renderAll(); return; }
+    var files = snap.items.map(function(it){ return it.file; });
+    var offsets = snap.items.map(function(it){ return it.offset; });
+    loadImagesTolerant(files, function(f, img){
+      var idx = files.indexOf(f);
+      return {file:f, img:img, offset: idx!==-1 ? (offsets[idx]||0) : 0};
+    }).then(function(res){
+      items = res.loaded;
+      $('#st-apply').disabled = items.length===0;
+      $('#st-info').classList.add('hidden');
+      renderAll();
+    });
+  });
 })();
 
 /* ================================================================
@@ -21918,6 +22226,7 @@ var TabLog = (function(){
 (function(){
   var items = [];
   var heroImg = null;
+  var heroFile = null;
   var cropRect = {x:0.25, y:0.05, w:0.5, h:0.4};
   var THUMB_DISPLAY_PX = 88; // 순서 조정 카드 썸네일의 CSS 표시 크기(실제 캔버스 해상도는 devicePixelRatio를 곱해 별도 계산)
   var wrap = $('#cs-cropper-wrap');
@@ -22226,6 +22535,7 @@ var TabLog = (function(){
   setupDrop('cs-hero-drop', 'cs-hero-file', function(f){
     loadImageElement(f).then(function(img){
       heroImg = img;
+      heroFile = f;
       $('#cs-hero-label').textContent = '다시 선택하려면 클릭';
       setBlobUrl($('#cs-hero-preview'), f);
       $('#cs-hero-preview').classList.remove('hidden');
@@ -22622,6 +22932,77 @@ var TabLog = (function(){
   // 다른 탭(9번 스탠딩 재단)에서 처리된 이미지를 다시 다운로드/업로드하지 않고 바로 받기 위한 통로.
   window.__ccSend = window.__ccSend || {};
   window.__ccSend.toCheatsheet = loadCsFiles;
+
+  // "임시저장"/"다운로드"로 결과물 보관함에 남길 때, 업로드한 표정 이미지 파일들(과 순서·라벨)·
+  // 대표 이미지·크롭 영역·이름·서체 등 화면을 그대로 재구성하는 데 필요한 값을 함께 담아둔다.
+  // File은 IndexedDB에 그대로(구조화 복제로) 저장되므로 다시 불러올 때 재업로드가 필요 없다.
+  registerTabSnapshot('tab-cheatsheet', function captureCsSnapshot(){
+    return {
+      items: items.map(function(it){ return {file:it.file, label:it.label}; }),
+      heroFile: heroFile,
+      cropRect: {x:cropRect.x, y:cropRect.y, w:cropRect.w, h:cropRect.h},
+      name: $('#cs-name').value,
+      catch: $('#cs-catch').value,
+      nameFont: $('#cs-name-font').value,
+      nameWeight: $('#cs-name-weight').value,
+      nameColor: $('#cs-name-color').value,
+      nameAlign: $('#cs-name-align').value,
+      heroWidth: $('#cs-hero-width').value,
+      cols: $('#cs-cols').value,
+      gap: $('#cs-gap').value,
+      thumb: $('#cs-thumb').value,
+      scale: $('#cs-scale').value
+    };
+  }, function restoreCsSnapshot(snap){
+    $('#cs-name').value = snap.name || '';
+    $('#cs-catch').value = snap.catch || '';
+    if(snap.nameFont != null) $('#cs-name-font').value = snap.nameFont;
+    if(snap.nameWeight != null) $('#cs-name-weight').value = snap.nameWeight;
+    if(snap.nameColor != null) $('#cs-name-color').value = snap.nameColor;
+    if(snap.nameAlign != null) $('#cs-name-align').value = snap.nameAlign;
+    if(snap.heroWidth != null) $('#cs-hero-width').value = snap.heroWidth;
+    if(snap.cols != null) $('#cs-cols').value = snap.cols;
+    if(snap.gap != null) $('#cs-gap').value = snap.gap;
+    if(snap.thumb != null) $('#cs-thumb').value = snap.thumb;
+    if(snap.scale != null) $('#cs-scale').value = snap.scale;
+    if(snap.cropRect) cropRect = {x:snap.cropRect.x, y:snap.cropRect.y, w:snap.cropRect.w, h:snap.cropRect.h};
+    updateNamePreview();
+
+    heroImg = null; heroFile = null;
+    $('#cs-hero-preview').classList.add('hidden');
+    $('#cs-hero-label').textContent = '대표 이미지';
+    items = [];
+    buildLabelInputs();
+
+    var tasks = [];
+    if(snap.heroFile){
+      tasks.push(loadImageElement(snap.heroFile).then(function(img){
+        heroImg = img;
+        heroFile = snap.heroFile;
+        $('#cs-hero-label').textContent = '다시 선택하려면 클릭';
+        setBlobUrl($('#cs-hero-preview'), snap.heroFile);
+        $('#cs-hero-preview').classList.remove('hidden');
+      }).catch(function(){}));
+    }
+    if(snap.items && snap.items.length){
+      var files = snap.items.map(function(it){ return it.file; });
+      var labels = snap.items.map(function(it){ return it.label; });
+      tasks.push(loadImagesTolerant(files, function(f, img){
+        var idx = files.indexOf(f);
+        return {file:f, img:img, label: (idx!==-1 && labels[idx]) ? labels[idx] : baseName(f.name)};
+      }).then(function(res){
+        items = res.loaded;
+        buildLabelInputs();
+        $('#cs-build').disabled = items.length===0;
+        $('#cs-clear').disabled = items.length===0;
+        $('#cs-minimize-waste').disabled = items.length===0;
+        $('#cs-sort-name').disabled = items.length<2;
+      }));
+    }
+    Promise.all(tasks).then(function(){
+      if(items.length) $('#cs-build').click();
+    });
+  });
 })();
 
 /* ================================================================
@@ -22941,6 +23322,36 @@ var TabLog = (function(){
   // cf-build와 마찬가지로 이미지가 없으면 저장할 결과물도 없다. 다른 탭(9번 스탠딩 재단)에서
   // 넘어온 이미지가 이미 있는 상태로 이 스크립트가 실행됐을 수 있으니 실제 개수 기준으로 맞춘다.
   syncCfButtons();
+
+  // 업로드했던 표정 이미지들(과 라벨·메인 아이콘 지정)·캐릭터 이름·붙여넣은 스테이터스
+  // JSON을 저장해뒀다가, 되돌릴 때 같은 업로드 경로(loadImagesTolerant)로 다시 불러오고
+  // 라벨/메인 지정을 재현한다. "생성" 버튼은 누르는 즉시 파일이 다운로드되는 동작이라
+  // 되돌릴 때 자동으로 누르지는 않고, 바로 누를 수 있는 상태까지만 복원한다.
+  registerTabSnapshot('tab-charfile', function captureCharfileSnapshot(){
+    return {
+      items: cfItems.map(function(it){ return {file:it.file, label:it.label, isMain:it.isMain}; }),
+      name: $('#cf-name').value,
+      statusJson: $('#cf-status-json').value
+    };
+  }, function restoreCharfileSnapshot(snap){
+    if(snap.name != null) $('#cf-name').value = snap.name;
+    if(snap.statusJson != null){
+      $('#cf-status-json').value = snap.statusJson;
+      refreshCfStatusData();
+    }
+    if(!snap.items || !snap.items.length){ cfItems = []; buildCfLabelInputs(); syncCfButtons(); return; }
+    var files = snap.items.map(function(it){ return it.file; });
+    loadImagesTolerant(files, function(f, img){
+      var idx = files.indexOf(f);
+      var saved = idx!==-1 ? snap.items[idx] : null;
+      return {file:f, img:img, label: saved ? saved.label : baseName(f.name), isMain: saved ? !!saved.isMain : false};
+    }).then(function(res){
+      cfItems = res.loaded;
+      if(cfItems.length && !cfItems.some(function(it){ return it.isMain; })) cfItems[0].isMain = true;
+      buildCfLabelInputs();
+      syncCfButtons();
+    });
+  });
 })();
 
 /* ================================================================
