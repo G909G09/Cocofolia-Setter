@@ -170,18 +170,22 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line
    높이만큼 붙박이로 고정되고 자체적으로 스크롤되며, 좁은 화면(모바일)에서는 기본적으로
    화면 밖으로 숨겨두고 햄버거 버튼으로 여닫는 오버레이 서랍(drawer)으로 바뀐다. */
 .app-shell{display:flex;align-items:stretch;min-height:100vh;}
-.app-sidebar{width:232px;flex:0 0 232px;background:var(--panel);border-right:1px solid var(--line);padding:18px 12px 16px;box-shadow:var(--shadow-sm);position:sticky;top:0;align-self:flex-start;height:100vh;overflow-y:auto;display:flex;flex-direction:column;gap:2px;z-index:20;}
+/* 애플 리퀴드 글래스 느낌의 사이드바: 반투명 배경 위에 뒤쪽을 블러+채도업해 "젖빛 유리"
+   너머로 콘텐츠가 은은히 비치는 것처럼 보이게 하고, 안쪽 가장자리에 얇은 하이라이트를
+   둘러 유리 테두리의 반사광을 흉내낸다. 버튼 상태색도 불투명한 칩 대신 반투명 톤으로
+   바꿔 유리판 위에 떠 있는 느낌을 유지한다. */
+.app-sidebar{width:232px;flex:0 0 232px;background:color-mix(in srgb, var(--panel) 62%, transparent);backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);border-right:1px solid color-mix(in srgb, var(--line) 65%, transparent);padding:18px 12px 16px;box-shadow:inset -1px 0 0 color-mix(in srgb, white 35%, transparent), var(--shadow-md);position:sticky;top:0;align-self:flex-start;height:100vh;overflow-y:auto;display:flex;flex-direction:column;gap:2px;z-index:20;}
 .app-sidebar h1{margin:2px 8px 16px;font-size:18px;font-weight:800;letter-spacing:-.01em;}
 .sidebar-nav{display:flex;flex-direction:column;gap:2px;}
-.sidebar-toggle{display:none;position:fixed;top:14px;left:14px;z-index:30;border:1px solid var(--line);background:var(--panel);color:var(--ink);width:38px;height:38px;border-radius:10px;font-size:16px;cursor:pointer;box-shadow:var(--shadow-sm);}
+.sidebar-toggle{display:none;position:fixed;top:14px;left:14px;z-index:30;border:1px solid color-mix(in srgb, var(--line) 65%, transparent);background:color-mix(in srgb, var(--panel) 70%, transparent);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);color:var(--ink);width:38px;height:38px;border-radius:10px;font-size:16px;cursor:pointer;box-shadow:var(--shadow-sm);}
 .sidebar-backdrop{display:none;}
 .home-btn{display:flex;align-items:center;gap:8px;width:100%;border:none;background:transparent;color:var(--sub);padding:9px 10px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;text-align:left;transition:background-color .15s,color .15s;}
-.home-btn:hover{color:var(--ink);background:var(--bg);}
-.home-btn.active{color:var(--accent);background:var(--chip);}
+.home-btn:hover{color:var(--ink);background:color-mix(in srgb, var(--ink) 6%, transparent);}
+.home-btn.active{color:var(--accent);background:color-mix(in srgb, var(--accent) 16%, transparent);}
 .sidebar-group{display:flex;flex-direction:column;}
 .cat-btn{display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;border:none;background:transparent;color:var(--sub);padding:9px 10px;border-radius:10px;font-size:13.5px;font-weight:700;cursor:pointer;text-align:left;transition:background-color .15s,color .15s;}
-.cat-btn:hover{color:var(--ink);background:var(--bg);}
-.cat-btn.active{color:var(--ink);background:var(--bg);}
+.cat-btn:hover{color:var(--ink);background:color-mix(in srgb, var(--ink) 6%, transparent);}
+.cat-btn.active{color:var(--ink);background:color-mix(in srgb, var(--ink) 6%, transparent);}
 .sidebar-group-caret{font-size:9px;color:var(--sub);transition:transform .18s ease;flex:0 0 auto;}
 .sidebar-group.open .sidebar-group-caret{transform:rotate(180deg);}
 /* 하위 탭 목록을 아코디언처럼 펼치고 접는다. max-height 대신 grid-template-rows를
@@ -255,8 +259,8 @@ details.home-changelog-details{background:var(--panel);border:1px solid var(--li
 details.home-changelog-details summary{cursor:pointer;font-size:14px;font-weight:700;color:var(--ink);}
 details.home-changelog-details ul{margin:12px 0 0;}
 .tab-btn{border:none;background:transparent;color:var(--sub);padding:7px 10px;border-radius:8px;font-size:12.5px;text-align:left;cursor:pointer;font-weight:600;transition:background-color .15s,color .15s;}
-.tab-btn:hover{color:var(--ink);background:var(--bg);}
-.tab-btn.active{background:var(--accent);color:var(--accent-ink);}
+.tab-btn:hover{color:var(--ink);background:color-mix(in srgb, var(--ink) 6%, transparent);}
+.tab-btn.active{background:var(--accent);color:var(--accent-ink);box-shadow:var(--shadow-sm);}
 main{flex:1 1 auto;min-width:0;max-width:1000px;margin:0 auto;padding:28px 24px;}
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
