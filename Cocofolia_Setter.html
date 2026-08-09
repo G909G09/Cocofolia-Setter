@@ -226,6 +226,22 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line
 .home-feature-thumb{width:44px;height:44px;border-radius:12px;background:var(--chip);display:flex;align-items:center;justify-content:center;font-size:22px;flex:0 0 auto;}
 .home-feature-overlay p{margin:0;font-size:11.5px;line-height:1.45;color:var(--sub);}
 .home-feature-overlay button{background:var(--accent);color:var(--accent-ink);padding:5px 12px;font-size:11px;border-radius:var(--radius-pill);font-weight:700;border:none;cursor:pointer;}
+/* 토스류 앱처럼, 한 항목을 입력/선택하면 다음 기능이 뚝 끊기지 않고 부드럽게 슬라이드+
+   페이드로 나타나는 공용 유틸리티(위 홈 카드 펼침과 같은 grid-rows 0fr↔1fr 기법).
+   showReveal()/hideReveal() JS 헬퍼와 짝을 이뤄, 완전히 닫힌 뒤에는 기존 .hidden(display:none)
+   으로 되돌아가 포커스·접근성 트리에서도 확실히 빠지도록 한다. */
+.reveal-wrap{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .3s cubic-bezier(.32,.72,.35,1),opacity .25s ease;}
+.reveal-wrap.reveal-open{grid-template-rows:1fr;opacity:1;}
+.reveal-inner{overflow:hidden;min-height:0;}
+/* 토스 거래내역처럼, 목록 항목을 왼쪽으로 밀면(터치 드래그) 또는 마우스를 올리면/키보드로
+   포커스하면 뒤에 숨어있던 불러오기·다운로드·삭제 버튼이 나타나는 스와이프 행. 액션 버튼은
+   항상 DOM에 존재해 마우스가 없는 환경(키보드·스크린리더)에서도 Tab으로 도달하면
+   :focus-within으로 자동 드러난다. */
+.hist-row-swipe{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:8px;}
+.hist-row-actions{position:absolute;top:0;right:0;bottom:0;display:flex;align-items:center;gap:4px;padding:0 8px;background:var(--bg);}
+.hist-row-content{position:relative;z-index:1;background:var(--panel);display:flex;align-items:center;gap:10px;padding:8px 10px;transition:transform .2s ease;touch-action:pan-y;cursor:grab;}
+.hist-row-content:active{cursor:grabbing;}
+.hist-row-swipe:hover .hist-row-content,.hist-row-swipe:focus-within .hist-row-content,.hist-row-swipe.swipe-open .hist-row-content{transform:translateX(var(--swipe-offset, -1px));}
 .chlog-tag{display:inline-block;font-size:10px;font-weight:700;padding:1px 7px;border-radius:999px;margin-right:6px;color:#fff;white-space:nowrap;}
 .chlog-tag[data-cat="image"]{background:#5b7fe0;}
 .chlog-tag[data-cat="log"]{background:#3f9e6c;}
@@ -296,7 +312,7 @@ button.btn.ghost:hover:not(:disabled){background:var(--bg);box-shadow:none;}
 .fx-slot-preview-wrap{display:flex;align-items:center;justify-content:center;height:90px;background:var(--panel);border-radius:8px;border:1px solid var(--line);overflow:hidden;}
 .fx-slot-preview-wrap canvas{width:88px;height:88px;image-rendering:pixelated;}
 .fx-slot-preview-wrap span{font-size:11px;color:var(--sub);}
-.fx-slot-controls{display:flex;flex-direction:column;gap:6px;}
+.fx-slot-controls-inner{display:flex;flex-direction:column;gap:6px;}
 .fx-slot-controls input[type=range]{width:100%;}
 .fx-slot-extra{display:flex;gap:6px;align-items:center;}
 canvas.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;background:
@@ -481,6 +497,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-09</b> — 토스류 앱을 참고해 UX 다듬기: (1) 파일을 올리면 다음 단계 옵션이 뚝 끊기지 않고 부드럽게 슬라이드+페이드로 나타나도록 개선(PNG 이펙터 효과 슬롯, 컷인 커터·GIF/APNG 변환기·로그 백업 2종의 결과·옵션 패널 등), (2) 결과물 보관함 목록 항목을 마우스로 올리거나(터치 환경에선 왼쪽으로 밀면) 불러오기·다운로드·삭제 버튼이 나타나는 스와이프 방식으로 변경해 평소엔 파일명만 깔끔하게 보이도록 정리(키보드 포커스로도 동일하게 열림)</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-09</b> — "임시저장"/다운로드가 결과물 보관함에 남긴 항목에서 화면을 통째로 다시 불러올 수 있는 "불러오기" 기능 추가(임시저장 버튼이 있는 9개 탭 전부 — 컷인 커터·GIF/APNG 변환기·PNG 이펙터·로그 백업 2종·스탠딩 일괄 재단·컨닝 페이퍼 메이커·캐릭터 룸파일 생성기·CoC 캐릭터 시트 메이커). 업로드했던 파일과 순서, 입력한 값·옵션까지 그때 그대로 복원되며(예: 컨닝 페이퍼 메이커라면 표정 이미지들과 순서, 이름·서체 등), 결과물 보관함과 홈 화면 "최근 결과물" 위젯 모두에서 불러올 수 있음</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-09</b> — 전체 UI 구성 개편(드롭박스 참고, 배색은 그대로 유지): 상단 가로 메뉴를 좌측 고정 사이드바로 교체(카테고리를 클릭하면 아코디언으로 하위 탭이 펼쳐짐, 좁은 화면에서는 햄버거 버튼으로 여닫는 서랍 메뉴), 홈 화면에 기능 검색창·빠른 실행 버튼·카테고리 필터 알약·"최근 결과물"(결과물 보관함 연동) 위젯을 새로 추가하고 업데이트 로그는 접어서 볼 수 있게 정리</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-09</b> — 메인 메뉴 레일: 카테고리 버튼에 마우스를 올렸을 때 하위 탭 목록이 바로 바뀌지 않고 부드럽게 페이드 전환되도록 개선, 카테고리 버튼을 클릭하면 그 카테고리를 소개하는 설명 페이지(포함된 기능 목록 카드)로 이동하도록 추가</li>
@@ -18347,6 +18364,103 @@ function downloadBlob(blob, filename, opts){
   if(!(opts && opts.skipHistory)) saveResultToHistory(currentTabLabel(), sanitizeFilename(filename), blob);
 }
 
+// 입력을 마치면 다음 기능이 나타나는 지점(파일 업로드 후 크롭 UI, 효과를 고르면 세부
+// 옵션이 뜨는 것 등)에서 display:none/block으로 뚝 끊기지 않고 부드럽게 슬라이드+페이드로
+// 열리게 하는 헬퍼. 대상 엘리먼트는 CSS의 .reveal-wrap(바깥) > .reveal-inner(안쪽, 실제
+// 내용) 구조를 갖추고 있어야 하며, 평소엔 기존 .hidden 클래스로 완전히 접혀 있다가 열 때만
+// 잠깐 보이는 상태로 전환한 뒤 트랜지션이 끝나면 다시 .hidden으로 완전히 접어 포커스·접근성
+// 트리에서도 빠지게 한다.
+// hideReveal()이 예약해둔 "트랜지션 끝나면 .hidden 추가" 타이머가, 그 사이에 다시 열린
+// showReveal() 호출보다 늦게 실행되면 방금 연 패널을 도로 접어버리는 경합이 생긴다(업로드
+// 시작 시 hideReveal로 초기화해두고 처리 완료 후 곧바로 showReveal하는 흐름에서 실제로
+// 발생). 엘리먼트별로 예약된 타이머를 기억해뒀다가, 반대 동작이 호출되면 즉시 취소한다.
+var revealHideTimers = new WeakMap();
+function showReveal(el){
+  if(!el) return;
+  var pending = revealHideTimers.get(el);
+  if(pending){ clearTimeout(pending); revealHideTimers.delete(el); }
+  el.classList.remove('hidden');
+  requestAnimationFrame(function(){ el.classList.add('reveal-open'); });
+}
+function hideReveal(el){
+  if(!el) return;
+  var pending = revealHideTimers.get(el);
+  if(pending) clearTimeout(pending);
+  el.classList.remove('reveal-open');
+  revealHideTimers.set(el, setTimeout(function(){
+    el.classList.add('hidden');
+    revealHideTimers.delete(el);
+  }, 300));
+}
+// 토스 거래내역 스타일 스와이프 목록 행. 마우스 호버·키보드 포커스는 CSS(:hover/:focus-within)
+// 만으로 이미 열리므로, 여기서는 터치/마우스 드래그로 직접 밀어서 열고 닫는 동작과 "다른 행이
+// 열리면 이전 행은 닫기", "행 바깥을 탭하면 닫기"만 처리한다.
+var openSwipeRows = new Set();
+function closeAllSwipeRows(except){
+  openSwipeRows.forEach(function(el){
+    if(el!==except){ el.classList.remove('swipe-open'); openSwipeRows.delete(el); }
+  });
+}
+document.addEventListener('pointerdown', function(e){
+  if(!e.target.closest || !e.target.closest('.hist-row-swipe')) closeAllSwipeRows();
+});
+function setupSwipeRow(swipeEl){
+  var actionsEl = swipeEl.querySelector('.hist-row-actions');
+  var contentEl = swipeEl.querySelector('.hist-row-content');
+  if(!actionsEl || !contentEl) return;
+  var actionsWidth = actionsEl.offsetWidth || 132;
+  contentEl.style.setProperty('--swipe-offset', (-actionsWidth)+'px');
+  var startX = 0, startOffset = 0, dragging = false, currentOffset = 0, moved = false;
+  contentEl.addEventListener('pointerdown', function(e){
+    if(e.pointerType==='mouse') return; // 마우스는 :hover로 이미 열려 있어 드래그가 필요 없다
+    dragging = true; moved = false;
+    startX = e.clientX;
+    startOffset = swipeEl.classList.contains('swipe-open') ? -actionsWidth : 0;
+    currentOffset = startOffset;
+    contentEl.style.transition = 'none';
+    try{ contentEl.setPointerCapture(e.pointerId); }catch(err){}
+  });
+  contentEl.addEventListener('pointermove', function(e){
+    if(!dragging) return;
+    var dx = e.clientX - startX;
+    if(Math.abs(dx) > 4) moved = true;
+    currentOffset = Math.min(0, Math.max(-actionsWidth, startOffset+dx));
+    contentEl.style.transform = 'translateX('+currentOffset+'px)';
+  });
+  function endDrag(){
+    if(!dragging) return;
+    dragging = false;
+    contentEl.style.transition = '';
+    contentEl.style.transform = '';
+    var openThreshold = -actionsWidth*0.4;
+    if(currentOffset < openThreshold){
+      swipeEl.classList.add('swipe-open');
+      closeAllSwipeRows(swipeEl);
+      openSwipeRows.add(swipeEl);
+    } else {
+      swipeEl.classList.remove('swipe-open');
+      openSwipeRows.delete(swipeEl);
+    }
+  }
+  contentEl.addEventListener('pointerup', endDrag);
+  contentEl.addEventListener('pointercancel', endDrag);
+  // 드래그로 살짝 움직인 것과 실제 클릭을 구분 — 드래그 직후 발생하는 click까지 버튼 동작으로
+  // 이어지면 안 되므로, 의미 있게 움직였을 때만 클릭을 막는다.
+  contentEl.addEventListener('click', function(e){ if(moved) e.stopPropagation(); }, true);
+}
+
+// showReveal/hideReveal는 대상이 .reveal-wrap > .reveal-inner 구조를 갖추고 있다고 가정한다.
+// 이미 정적 HTML로 작성된 기존 패널을 손대지 않고도 적용할 수 있도록, 자식들을 .reveal-inner로
+// 한 번 감싸고 자신은 .reveal-wrap이 되게 하는 초기화 헬퍼(탭이 처음 열릴 때 한 번만 호출).
+function makeRevealable(el){
+  if(!el || el.classList.contains('reveal-wrap')) return;
+  var inner = document.createElement('div');
+  inner.className = 'reveal-inner';
+  while(el.firstChild) inner.appendChild(el.firstChild);
+  el.appendChild(inner);
+  el.classList.add('reveal-wrap');
+}
+
 // 다운로드 버튼 옆에 "임시저장" 버튼을 넣는다 — 파일을 실제로 다운로드하지 않고도 결과물
 // 보관함(14번 탭)에만 남길 수 있다(이것저것 만들어보다가 마음에 드는 버전만 나중에 골라
 // 다운로드하고 싶을 때 유용). onClick은 undefined/true(즉시 성공), false(할 게 없음 — 이
@@ -18730,15 +18844,19 @@ $('#settings-reset').addEventListener('click', function(){
       filtered.forEach(function(item){
         var canRestore = !!(item.tabId && item.snapshot && TAB_SNAPSHOT_RESTORERS[item.tabId]);
         var row = document.createElement('div');
-        row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;';
+        row.className = 'hist-row-swipe';
         row.innerHTML =
-          '<div style="flex:1;min-width:0;">'+
-            '<div style="font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+escHtml(item.filename)+'</div>'+
-            '<div style="font-size:11px;color:var(--sub);">'+escHtml(item.tabLabel)+' · '+fmtDate(item.createdAt)+' · '+fmtSize(item.size)+'</div>'+
+          '<div class="hist-row-actions">'+
+            (canRestore ? '<button type="button" class="btn ghost" data-act="restore" style="padding:6px 12px;font-size:12px;">불러오기</button>' : '')+
+            '<button type="button" class="btn ghost" data-act="dl" style="padding:6px 12px;font-size:12px;">다운로드</button>'+
+            '<button type="button" class="btn ghost" data-act="del" style="padding:6px 12px;font-size:12px;color:var(--danger);">삭제</button>'+
           '</div>'+
-          (canRestore ? '<button type="button" class="btn ghost" data-act="restore" style="padding:6px 12px;font-size:12px;flex:0 0 auto;">불러오기</button>' : '')+
-          '<button type="button" class="btn ghost" data-act="dl" style="padding:6px 12px;font-size:12px;flex:0 0 auto;">다운로드</button>'+
-          '<button type="button" class="btn ghost" data-act="del" style="padding:6px 12px;font-size:12px;flex:0 0 auto;color:var(--danger);">삭제</button>';
+          '<div class="hist-row-content">'+
+            '<div style="flex:1;min-width:0;">'+
+              '<div style="font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+escHtml(item.filename)+'</div>'+
+              '<div style="font-size:11px;color:var(--sub);">'+escHtml(item.tabLabel)+' · '+fmtDate(item.createdAt)+' · '+fmtSize(item.size)+'</div>'+
+            '</div>'+
+          '</div>';
         if(canRestore){
           row.querySelector('[data-act="restore"]').addEventListener('click', function(){
             restoreHistoryItem(item);
@@ -18751,6 +18869,7 @@ $('#settings-reset').addEventListener('click', function(){
           deleteHistoryItem(item.id).then(render);
         });
         listEl.appendChild(row);
+        setupSwipeRow(row);
       });
     }).catch(function(){
       infoEl.textContent = '결과물 보관함을 불러오지 못했습니다(이 브라우저가 IndexedDB를 지원하지 않을 수 있습니다).';
@@ -19113,10 +19232,12 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
   var paddingEl = $('#mp3-padding');
   var previewCanvas = $('#mp3-preview-canvas');
   var previewGen = 0;
+  makeRevealable($('#mp3-preview-row'));
+  makeRevealable($('#mp3-result-row'));
 
   function showPreview(frames, delays, width, height){
     previewCanvas.width = width; previewCanvas.height = height;
-    $('#mp3-preview-row').classList.remove('hidden');
+    showReveal($('#mp3-preview-row'));
     var ctx = previewCanvas.getContext('2d');
     var myGen = ++previewGen;
     if(frames.length===1){
@@ -19177,8 +19298,8 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
   var mp3OnFile = async function(file){
     state.file = file;
     state.blob = null; state.frames = null; state.delays = null;
-    $('#mp3-result-row').classList.add('hidden');
-    $('#mp3-preview-row').classList.add('hidden');
+    hideReveal($('#mp3-result-row'));
+    hideReveal($('#mp3-preview-row'));
     var ext = file.name.split('.').pop().toLowerCase();
     try{
       if(ext==='gif'){
@@ -19227,7 +19348,7 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
         state.blob = blob;
         var audio = $('#mp3-audio');
         setBlobUrl(audio, blob);
-        $('#mp3-result-row').classList.remove('hidden');
+        showReveal($('#mp3-result-row'));
       }catch(e){
         alert('MP3 생성 실패: '+e.message);
       }
@@ -19573,11 +19694,13 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
   }
 
   $('#g2a-mp4-chroma-tol').addEventListener('input', function(){ $('#g2a-mp4-chroma-tol-val').textContent = this.value; });
+  makeRevealable($('#g2a-mp4-opts'));
+  makeRevealable($('#g2a-result-row'));
 
   var g2aOnFile = async function(file){
     state.file = file;
-    $('#g2a-result-row').classList.add('hidden');
-    $('#g2a-mp4-opts').classList.add('hidden');
+    hideReveal($('#g2a-result-row'));
+    hideReveal($('#g2a-mp4-opts'));
     convertBtn.disabled = true;
     if(state.mp4Video && state.mp4Video._objUrl){ try{ URL.revokeObjectURL(state.mp4Video._objUrl); }catch(e){} }
     state.decoded = null; state.blob = null; state.mp4File = null; state.mp4Video = null;
@@ -19603,7 +19726,7 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
         });
         state.direction = 'mp42apng';
         state.mp4File = file; state.mp4Video = video;
-        $('#g2a-mp4-opts').classList.remove('hidden');
+        showReveal($('#g2a-mp4-opts'));
         $('#g2a-mp4-duration').placeholder = fmtSec(video.duration*1000)+' (끝까지)';
         info.textContent = 'MP4: '+video.videoWidth+'x'+video.videoHeight+', 길이 '+fmtSec(video.duration*1000)+'. 구간/FPS를 확인하고 변환을 누르세요.';
         if(file.size > 200*1024*1024){
@@ -19660,7 +19783,7 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
           setBlobUrl($('#g2a-preview'), target3.blob);
           info.textContent = 'APNG → GIF 완료: '+(target3.w||state.decoded.width)+'x'+(target3.h||state.decoded.height)+', 프레임 '+(target3.frameCount||state.decoded.frames.length)+'개 (GIF 크기: '+(target3.blob.size/1024).toFixed(1)+'KB'+(target3.resized?', 코코포리아 기준에 맞춰 자동 축소됨':'')+(target3.blob.size>COCOFOLIA_TARGET_BYTES?' — 1MB를 넘어 코코포리아에서 압축될 수 있습니다':'')+')';
         }
-        $('#g2a-result-row').classList.remove('hidden');
+        showReveal($('#g2a-result-row'));
       }catch(e){
         alert('변환 실패: '+e.message);
       }
@@ -19729,13 +19852,14 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
   // 탭과 동일한 기준으로 다운로드 시점에 결과 용량을 안내해 사용자가 필요하면 길이/FPS/효과
   // 강도를 낮춰 다시 렌더링하도록 안내한다.
   var FX_COCOFOLIA_TARGET_BYTES = 0.95*1024*1024;
+  makeRevealable($('#fx-result-row'));
 
   var fxOnFile = async function(file){
     if(!/\.png$/i.test(file.name)){ info.textContent = 'PNG 파일만 지원합니다.'; return; }
     state.file = file;
     stopPreview();
     state.frames = null; state.delays = null; state.blob = null;
-    $('#fx-result-row').classList.add('hidden');
+    hideReveal($('#fx-result-row'));
     previewCanvas.classList.add('hidden');
     previewToggle.classList.add('hidden');
     try{
@@ -19814,12 +19938,14 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
       previewWrap.appendChild(previewCanvasEl);
 
       var controls = document.createElement('div');
-      controls.className = 'fx-slot-controls hidden';
+      controls.className = 'fx-slot-controls reveal-wrap hidden';
       controls.id = 'fx-slot-'+n+'-controls';
+      var controlsInner = document.createElement('div');
+      controlsInner.className = 'reveal-inner fx-slot-controls-inner';
       var amt = document.createElement('input');
       amt.type = 'range'; amt.min = 0; amt.max = 100; amt.id = 'fx-slot-'+n+'-amount';
       amt.setAttribute('aria-label', '슬롯 '+n+' 효과 강도');
-      controls.appendChild(amt);
+      controlsInner.appendChild(amt);
       var extra = document.createElement('div');
       extra.className = 'fx-slot-extra';
       var modeSel = document.createElement('select');
@@ -19831,7 +19957,8 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
       colorInp.setAttribute('aria-label', '슬롯 '+n+' 효과 색상');
       colorInp.style.cssText = 'width:36px;height:26px;padding:0;border:1px solid var(--line);border-radius:6px;';
       extra.appendChild(modeSel); extra.appendChild(colorInp);
-      controls.appendChild(extra);
+      controlsInner.appendChild(extra);
+      controls.appendChild(controlsInner);
 
       card.appendChild(sel); card.appendChild(previewWrap); card.appendChild(controls);
       wrap.appendChild(card);
@@ -19871,14 +19998,14 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     var modeSel = $('#fx-slot-'+n+'-mode');
     var colorInp = $('#fx-slot-'+n+'-color');
     if(!key){
-      controls.classList.add('hidden');
+      hideReveal(controls);
       stopSlotPreview(n);
       $('#fx-slot-'+n+'-preview').classList.add('hidden');
       $('#fx-slot-'+n+'-preview-wrap').querySelector('span').classList.remove('hidden');
       $('#fx-slot-'+n+'-preview-wrap').querySelector('span').textContent = '효과를 선택하세요';
     } else {
       var entry = EFFECT_BY_KEY[key];
-      controls.classList.remove('hidden');
+      showReveal(controls);
       amt.value = entry.def;
       modeSel.classList.toggle('hidden', !entry.hasMode);
       colorInp.classList.toggle('hidden', !entry.hasColor);
@@ -20338,7 +20465,7 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
         startPreview();
         info.textContent = '프레임 '+result.frames.length+'개 렌더링 완료. APNG로 인코딩하려면 다운로드를 눌러주세요.'
           + (wasDurationClamped ? ' (길이가 너무 커서 '+FX_MAX_DURATION_SEC+'초로 제한됨)' : '');
-        $('#fx-result-row').classList.remove('hidden');
+        showReveal($('#fx-result-row'));
         state.blob = null;
       }catch(e){
         alert('렌더링 실패: '+e.message);
@@ -20529,6 +20656,7 @@ function guessGmName(namesSortedByFreqDesc){
 ================================================================ */
 var TabLog = (function(){
   var state = { messages:[], activeSpeakers:null };
+  makeRevealable($('#log-controls'));
 
   function populateGm(){
     var freq = {};
@@ -20639,13 +20767,13 @@ var TabLog = (function(){
       if(messages.length===0){
         alert('인식된 대사/서술이 없습니다. 코코포리아 "로그 출력" 기능으로 받은 .html 파일(또는 확장 프로그램의 .json)이 맞는지 확인해주세요.');
         $('#log-rawwrap').classList.add('hidden');
-        $('#log-controls').classList.add('hidden');
+        hideReveal($('#log-controls'));
         return;
       }
       state.messages = messages;
       $('#log-rawpreview').textContent = JSON.stringify(messages.slice(0,20), null, 2);
       $('#log-rawwrap').classList.remove('hidden');
-      $('#log-controls').classList.remove('hidden');
+      showReveal($('#log-controls'));
       populateGm();
       buildSpeakerChips();
       render();
@@ -20720,7 +20848,7 @@ var TabLog = (function(){
     state.messages = snap.messages;
     $('#log-rawpreview').textContent = JSON.stringify(snap.messages.slice(0,20), null, 2);
     $('#log-rawwrap').classList.remove('hidden');
-    $('#log-controls').classList.remove('hidden');
+    showReveal($('#log-controls'));
     populateGm();
     buildSpeakerChips();
     if(snap.gm != null) $('#log-gm').value = snap.gm;
@@ -20751,6 +20879,8 @@ var TabLog = (function(){
   var GROUPS = ['대사','대사2','대사3'];
   var rowsData = null, outLines = null;
   var lastNames = null, lastFreq = null;
+  makeRevealable($('#bk-cfgPanel'));
+  makeRevealable($('#bk-outPanel'));
 
   function b64ToBytes(b64){
     var bin = atob(b64.replace(/\s+/g,''));
@@ -20778,23 +20908,23 @@ var TabLog = (function(){
       }catch(e){
         $('#bk-loadinfo').classList.remove('hidden');
         $('#bk-loadinfo').textContent = '분석 실패: '+e.message+' (코코포리아 "로그 출력" 기능으로 받은 html 파일이 맞는지 확인해주세요.)';
-        $('#bk-cfgPanel').classList.add('hidden');
+        hideReveal($('#bk-cfgPanel'));
         return;
       }
       $('#bk-loadinfo').classList.remove('hidden');
       if(rowsData.length===0){
         $('#bk-loadinfo').textContent = '불러옴: '+file.name+' — 인식된 문단이 없습니다. 코코포리아 "로그 출력" 기능으로 받은 html 파일이 맞는지 확인해주세요.';
-        $('#bk-cfgPanel').classList.add('hidden');
+        hideReveal($('#bk-cfgPanel'));
         return;
       }
       $('#bk-loadinfo').textContent = '불러옴: '+file.name+' ('+rowsData.length+'개 문단 인식)';
-      $('#bk-cfgPanel').classList.remove('hidden');
-      $('#bk-outPanel').classList.add('hidden');
+      showReveal($('#bk-cfgPanel'));
+      hideReveal($('#bk-outPanel'));
     };
     r.onerror = function(){
       $('#bk-loadinfo').classList.remove('hidden');
       $('#bk-loadinfo').textContent = '파일을 읽지 못했습니다: '+file.name;
-      $('#bk-cfgPanel').classList.add('hidden');
+      hideReveal($('#bk-cfgPanel'));
     };
     r.readAsText(file, 'utf-8');
   });
@@ -20996,7 +21126,7 @@ var TabLog = (function(){
       row.appendChild(bd); row.appendChild(tx); frag.appendChild(row);
     });
     pv.appendChild(frag);
-    $('#bk-outPanel').classList.remove('hidden');
+    showReveal($('#bk-outPanel'));
   }
 
   function buildTxt(){
@@ -21036,7 +21166,7 @@ var TabLog = (function(){
     rowsData = snap.rowsData;
     $('#bk-loadinfo').classList.remove('hidden');
     $('#bk-loadinfo').textContent = rowsData.length+'개 문단 (불러온 상태 복원됨)';
-    $('#bk-cfgPanel').classList.remove('hidden');
+    showReveal($('#bk-cfgPanel'));
     fillConfig(rowsData); // GM 후보 목록·기본 캐릭터 스타일 행을 다시 만든다
     if(snap.gm != null) $('#bk-gmSel').value = snap.gm;
     buildCharRows(); // 복원한 GM 기준으로 캐릭터 행을 다시 만든 뒤
