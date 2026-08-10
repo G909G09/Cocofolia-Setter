@@ -475,14 +475,15 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
         <button class="tab-btn" data-target="tab-standing" data-cat="char" id="tabbtn-standing" role="tab" aria-selected="false" aria-controls="tab-standing">9. 스탠딩 일괄 재단</button>
         <button class="tab-btn" data-target="tab-cheatsheet" data-cat="char" id="tabbtn-cheatsheet" role="tab" aria-selected="false" aria-controls="tab-cheatsheet">10. 컨닝 페이퍼 메이커</button>
         <button class="tab-btn" data-target="tab-charfile" data-cat="char" id="tabbtn-charfile" role="tab" aria-selected="false" aria-controls="tab-charfile">11. 캐릭터 룸파일 생성기</button>
+        <button class="tab-btn" data-target="tab-trim" data-cat="char" id="tabbtn-trim" role="tab" aria-selected="false" aria-controls="tab-trim">12. 이미지 여백 자동 재단</button>
       </div></div>
     </div>
     <div class="sidebar-group" data-cat="etc">
       <button class="cat-btn" data-cat="etc" aria-expanded="false" aria-controls="subtabs-etc"><span class="sidebar-group-label">기타</span><span class="sidebar-group-caret" aria-hidden="true">▾</span></button>
       <div class="sidebar-subtabs" id="subtabs-etc"><div class="sidebar-subtabs-inner">
-        <button class="tab-btn" data-target="tab-suggest" data-cat="etc" id="tabbtn-suggest" role="tab" aria-selected="false" aria-controls="tab-suggest">12. 건의함</button>
-        <button class="tab-btn" data-target="tab-settings" data-cat="etc" id="tabbtn-settings" role="tab" aria-selected="false" aria-controls="tab-settings">13. 설정</button>
-        <button class="tab-btn" data-target="tab-history" data-cat="etc" id="tabbtn-history" role="tab" aria-selected="false" aria-controls="tab-history">14. 결과물 보관함</button>
+        <button class="tab-btn" data-target="tab-suggest" data-cat="etc" id="tabbtn-suggest" role="tab" aria-selected="false" aria-controls="tab-suggest">13. 건의함</button>
+        <button class="tab-btn" data-target="tab-settings" data-cat="etc" id="tabbtn-settings" role="tab" aria-selected="false" aria-controls="tab-settings">14. 설정</button>
+        <button class="tab-btn" data-target="tab-history" data-cat="etc" id="tabbtn-history" role="tab" aria-selected="false" aria-controls="tab-history">15. 결과물 보관함</button>
       </div></div>
     </div>
   </nav>
@@ -531,6 +532,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-08-10</b> — 새 탭 "이미지 여백 자동 재단" 추가(12번): 이미지 네 모서리 색을 배경으로 자동 인식해 배경이 아닌 실제 그림 부분만 딱 맞게 잘라냄(포토샵의 "트림"·"슈링크 선택"과 비슷). 허용 오차 슬라이더로 비슷한 색까지 배경으로 볼지 조절 가능, 여백 여유(px)로 약간의 테두리를 남길 수도 있음. 여러 장 일괄 처리·ZIP 다운로드 지원, 잘라낸 이미지를 다운로드 없이 9/10/11번 탭(스탠딩 재단·컨닝 페이퍼·캐릭터 룸파일)으로 바로 전달 가능. 이 탭이 새로 끼어들며 기존 건의함(12→13)·설정(13→14)·결과물 보관함(14→15) 탭 번호가 하나씩 밀림</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-09</b> — 전반적인 모바일 호환성 점검 및 수정: (1) CoC 캐릭터 시트 메이커의 기능치·무기 표가 좁은 화면에서 칸이 으스러져 기능명 등 일부 글자가 아예 안 보이던 문제 수정 — 표가 최소 너비를 유지하고 그보다 좁은 화면에서는 좌우로 스크롤되도록 변경, (2) 좁은 화면에서 입력칸을 탭할 때마다 iOS Safari가 화면을 확대해버리던 문제 수정(입력칸 글자 크기를 16px 미만으로 두면 생기는 브라우저 동작 — 넓은 화면에서는 기존 밀도 그대로 유지됨)</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-08-09</b> — html용 로그 백업: 테마("대본집"/"고딕")와 색상("라이트"/"다크 모드")을 서로 독립된 설정으로 분리해 두 테마 모두 라이트·다크 어느 쪽으로도 볼 수 있게 함, "정리된 로그 HTML로 저장" 시 파일명이 처음 업로드한 로그 파일명(보통 "제목[all].html"/"제목[main].html" 형식)에서 확장자와 all/main 표시만 뗀 이름을 따라가도록 변경(예: "시나리오제목[all].html" 업로드 → "시나리오제목_clean.html"로 저장, 기존엔 항상 "log_clean.html" 고정)</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-08-09</b> — html용 로그 백업: "화자 지정 색상 반영" 옵션 추가(원본 로그에 화자별로 지정된 색이 있으면 이름에 그대로 반영, 기본은 꺼짐), 테마 선택 추가("대본집 스타일" 기존 테마 + 다크 배경·고딕체·화자 두상·주사위 결과 강조를 갖춘 "다크 고딕 스타일" 신규 테마) — 화면 미리보기·인쇄·저장 파일 모두 선택한 테마·색상 설정을 그대로 반영</li>
@@ -1139,6 +1141,40 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 </section>
 
 <!-- ===================== TAB 12 ===================== -->
+<section id="tab-trim" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-trim">
+  <div class="card">
+    <h2>이미지 여백 자동 재단</h2>
+    <p class="desc">이미지 네 모서리 색을 배경으로 자동 인식해서, 배경이 아닌 실제 그림 부분만 딱 맞게 잘라냅니다(포토샵의 "트림"·"슈링크 선택"과 비슷한 기능). 스탠딩 이미지처럼 사방에 불필요한 투명·단색 여백이 많을 때 유용합니다.</p>
+    <div class="drop" id="trim-drop">이미지 여러 장
+      <input type="file" id="trim-file" accept=".png,.jpg,.jpeg,.webp" multiple class="hidden">
+    </div>
+    <div class="info-box hidden" id="trim-info" aria-live="polite"></div>
+    <div class="row">
+      <div class="field"><label for="trim-tolerance">허용 오차</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="range" id="trim-tolerance" min="0" max="60" step="1" value="10" style="width:160px;">
+          <span id="trim-tolerance-val" style="font-size:12.5px;color:var(--sub);width:34px;">10%</span>
+        </div>
+      </div>
+      <div class="field"><label for="trim-padding">여백 여유(px)</label><input type="number" id="trim-padding" value="0" min="0" max="2000" step="1" style="width:80px;"></div>
+    </div>
+    <p class="footnote" style="margin-top:-6px;">모서리 색과 비슷한 정도까지 배경으로 볼지를 허용 오차로 조절합니다(0%면 완전히 같은 색만, 값이 커질수록 더 넓게 배경으로 봅니다). 위 설정은 이 브라우저에 자동 저장되어 다음에 열어도 유지됩니다.</p>
+    <div class="row">
+      <button class="btn" id="trim-apply" disabled>전체 다시 감지</button>
+      <button class="btn ghost" id="trim-zip" disabled>ZIP으로 일괄 다운로드</button>
+      <button class="btn ghost" id="trim-clear" disabled style="color:var(--danger);">전체 지우기</button>
+    </div>
+    <div class="row" style="margin-top:-6px;">
+      <button class="btn ghost" id="trim-send-st" disabled>→ 9번 스탠딩 재단으로 바로 보내기</button>
+      <button class="btn ghost" id="trim-send-cs" disabled>→ 10번 컨닝 페이퍼로 바로 보내기</button>
+      <button class="btn ghost" id="trim-send-cf" disabled>→ 11번 캐릭터 룸파일로 바로 보내기</button>
+    </div>
+    <p class="footnote" style="margin-top:-6px;">잘라낸 이미지를 다운로드/재업로드하지 않고 그대로 다른 탭으로 넘겨서 이어서 작업할 수 있습니다.</p>
+    <div id="trim-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:14px;"></div>
+  </div>
+</section>
+
+<!-- ===================== TAB 13 ===================== -->
 <section id="tab-suggest" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-suggest">
   <div class="card">
     <h2>건의함</h2>
@@ -1156,7 +1192,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 13 ===================== -->
+<!-- ===================== TAB 14 ===================== -->
 <section id="tab-settings" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-settings">
   <div class="card">
     <h2>설정</h2>
@@ -1174,7 +1210,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 14 ===================== -->
+<!-- ===================== TAB 15 ===================== -->
 <section id="tab-history" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-history">
   <div class="card">
     <h2>결과물 보관함</h2>
@@ -18724,6 +18760,9 @@ persistFormField('cs-name-align', 'cocofolia_setter_cs_name_align');
 persistFormField('cs-name-font', 'cocofolia_setter_cs_name_font');
 persistFormField('cs-name-weight', 'cocofolia_setter_cs_name_weight');
 persistFormField('cs-name-color', 'cocofolia_setter_cs_name_color');
+// 12번 탭(이미지 여백 자동 재단)
+persistFormField('trim-tolerance', 'cocofolia_setter_trim_tolerance');
+persistFormField('trim-padding', 'cocofolia_setter_trim_padding');
 
 /* ============ 탭 전환 + 사이드바 카테고리 아코디언 + 홈 ============ */
 var currentCatShown = null;
@@ -18875,7 +18914,7 @@ $('#settings-reset').addEventListener('click', function(){
     function pad(n){ return (n<10?'0':'')+n; }
     return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
   }
-  // 최대 100개까지 쌓이는 결과물이 14개 탭에서 뒤섞여 들어오다 보니, 특정 파일 하나를
+  // 최대 100개까지 쌓이는 결과물이 15개 탭에서 뒤섞여 들어오다 보니, 특정 파일 하나를
   // 찾으려면 목록을 끝까지 훑어야 했다. 파일명 검색 + 출처 탭 필터를 추가한다.
   function populateTabFilter(items){
     var tabs = Array.from(new Set(items.map(function(it){ return it.tabLabel; }))).sort();
@@ -18993,6 +19032,7 @@ $all('.cat-btn').forEach(function(btn){
     'tab-standing': '여러 스탠딩 이미지를 같은 비율로 일괄 재단합니다.',
     'tab-cheatsheet': '표정별 스탠딩으로 캐릭터 표정 카탈로그를 만듭니다.',
     'tab-charfile': '스탠딩+스테이터스로 캐릭터 룸파일(zip)을 만듭니다.',
+    'tab-trim': '이미지 모서리 색을 기준으로 배경 여백을 자동으로 찾아 잘라냅니다.',
     'tab-suggest': '기능 건의나 버그를 GitHub 이슈로 남깁니다.',
     'tab-settings': '화면 배색(라이트/다크)과 저장된 값을 관리합니다.',
     'tab-history': '각 탭에서 다운로드한 결과물을 모아 다시 받을 수 있습니다.'
@@ -19003,7 +19043,7 @@ $all('.cat-btn').forEach(function(btn){
     'tab-mp3': '🎵', 'tab-g2a': '🔁', 'tab-fx': '✨',
     'tab-log': '📖', 'tab-book': '📕',
     'tab-glossary': '🈯', 'tab-edition': '🎲', 'tab-charsheet': '🧾',
-    'tab-standing': '✂️', 'tab-cheatsheet': '🙂', 'tab-charfile': '📦',
+    'tab-standing': '✂️', 'tab-cheatsheet': '🙂', 'tab-charfile': '📦', 'tab-trim': '🔲',
     'tab-suggest': '💡', 'tab-settings': '⚙️', 'tab-history': '🗂️'
   };
   var CAT_LABELS = {image:'이미지·애니메이션', log:'로그 백업', coc:'CoC 유틸리티', char:'캐릭터·스탠딩', etc:'기타'};
@@ -22511,7 +22551,7 @@ var TabLog = (function(){
     markPendingWork('standing', items.length>0);
   }
 
-  setupMultiDrop('st-drop','st-file', function(files){
+  function loadStFiles(files){
     loadImagesTolerant(files, function(f, img){ return {file:f, img:img, offset:0}; }).then(function(res){
       items = items.concat(res.loaded);
       if(res.loaded.length){ $('#st-apply').disabled = false; renderAll(); }
@@ -22521,7 +22561,13 @@ var TabLog = (function(){
       $('#st-info').textContent = msg;
       $('#st-info').classList.remove('hidden');
     });
-  });
+  }
+  setupMultiDrop('st-drop','st-file', loadStFiles);
+
+  // 다른 탭(12번 이미지 여백 자동 재단)에서 처리된 이미지를 다시 다운로드/업로드하지 않고
+  // 바로 받기 위한 통로.
+  window.__ccSend = window.__ccSend || {};
+  window.__ccSend.toStanding = loadStFiles;
 
   $('#st-apply').addEventListener('click', renderAll);
   $('#st-clear').addEventListener('click', function(){
@@ -22640,6 +22686,258 @@ var TabLog = (function(){
       items = res.loaded;
       $('#st-apply').disabled = items.length===0;
       $('#st-info').classList.add('hidden');
+      renderAll();
+    });
+  });
+})();
+
+/* ================================================================
+   탭 12. 이미지 여백 자동 재단
+================================================================ */
+(function(){
+  var items = [];
+
+  function sampleCorner(data, w, x, y){
+    var i = (y*w+x)*4;
+    return {r:data[i], g:data[i+1], b:data[i+2], a:data[i+3]};
+  }
+
+  // 네 모서리 픽셀을 평균 내 배경색으로 추정한다. 모서리 중 절반 이상이 거의 투명(알파값 낮음)
+  // 이면 그 이미지는 투명 배경으로 보고, 색상(RGB) 대신 알파값만으로 배경 여부를 판별한다 —
+  // 완전 투명 픽셀의 RGB는 인코더마다 의미 없는 값(0,0,0 등)을 담고 있는 경우가 많아 색상
+  // 비교가 오히려 오판을 부르기 때문이다.
+  function detectBackground(data, w, h){
+    var corners = [
+      sampleCorner(data,w,0,0), sampleCorner(data,w,w-1,0),
+      sampleCorner(data,w,0,h-1), sampleCorner(data,w,w-1,h-1)
+    ];
+    var transparentCount = corners.filter(function(c){ return c.a <= 10; }).length;
+    if(transparentCount >= 2) return {transparent:true, r:0, g:0, b:0, a:0};
+    var sum = {r:0, g:0, b:0, a:0};
+    corners.forEach(function(c){ sum.r+=c.r; sum.g+=c.g; sum.b+=c.b; sum.a+=c.a; });
+    return {transparent:false, r:sum.r/4, g:sum.g/4, b:sum.b/4, a:sum.a/4};
+  }
+
+  // 배경이 아닌 픽셀(허용 오차를 벗어나는 픽셀)이 있는 최소 사각형을 한 번의 스캔으로 찾는다.
+  // 배경이 전혀 없으면(이미지 전체가 배경으로 판정) null을 돌려줘 원본을 그대로 두게 한다.
+  function detectBBox(data, w, h, bg, tolerancePct){
+    var thr = Math.round(tolerancePct/100*255);
+    var alphaThr = Math.max(10, thr);
+    var minX=w, minY=h, maxX=-1, maxY=-1;
+    for(var y=0;y<h;y++){
+      var rowBase = y*w*4;
+      var rowHasContent = false;
+      for(var x=0;x<w;x++){
+        var i = rowBase + x*4;
+        var isBg;
+        if(bg.transparent){
+          isBg = data[i+3] <= alphaThr;
+        } else {
+          isBg = Math.abs(data[i]-bg.r)<=thr && Math.abs(data[i+1]-bg.g)<=thr &&
+                 Math.abs(data[i+2]-bg.b)<=thr && Math.abs(data[i+3]-bg.a)<=thr;
+        }
+        if(!isBg){
+          rowHasContent = true;
+          if(x<minX) minX=x;
+          if(x>maxX) maxX=x;
+        }
+      }
+      if(rowHasContent){
+        if(y<minY) minY=y;
+        if(y>maxY) maxY=y;
+      }
+    }
+    if(maxX<0) return null;
+    return {x:minX, y:minY, w:maxX-minX+1, h:maxY-minY+1};
+  }
+
+  function renderItem(it){
+    var tolerance = clampInt(parseInt($('#trim-tolerance').value,10)||0, 0, 100);
+    var padding = clampInt(parseInt($('#trim-padding').value,10)||0, 0, 2000);
+    var srcCanvas = document.createElement('canvas');
+    srcCanvas.width = it.img.width; srcCanvas.height = it.img.height;
+    var srcCtx = srcCanvas.getContext('2d', {willReadFrequently:true});
+    srcCtx.drawImage(it.img, 0, 0);
+    var w = srcCanvas.width, h = srcCanvas.height;
+    var data = srcCtx.getImageData(0, 0, w, h).data;
+    var bg = detectBackground(data, w, h);
+    var bbox = detectBBox(data, w, h, bg, tolerance);
+    if(!bbox){
+      it.canvas = srcCanvas;
+      it.trimmed = false;
+      it.outW = w; it.outH = h;
+      return;
+    }
+    var x0 = Math.max(0, bbox.x - padding);
+    var y0 = Math.max(0, bbox.y - padding);
+    var x1 = Math.min(w, bbox.x + bbox.w + padding);
+    var y1 = Math.min(h, bbox.y + bbox.h + padding);
+    var outW = x1 - x0, outH = y1 - y0;
+    var canvas = document.createElement('canvas');
+    canvas.width = outW; canvas.height = outH;
+    canvas.getContext('2d').drawImage(srcCanvas, x0, y0, outW, outH, 0, 0, outW, outH);
+    it.canvas = canvas;
+    it.trimmed = (outW !== w || outH !== h);
+    it.outW = outW; it.outH = outH;
+  }
+
+  function renderAll(){
+    items.forEach(renderItem);
+    var grid = $('#trim-grid');
+    grid.innerHTML = '';
+    items.forEach(function(it){
+      var box = document.createElement('div');
+      box.style.cssText = 'background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px;';
+      var img = document.createElement('img');
+      img.src = it.canvas.toDataURL('image/png');
+      img.alt = it.file.name+' 재단 결과 미리보기';
+      img.className = 'preview';
+      img.style.width = '100%';
+      var name = document.createElement('div');
+      name.style.cssText = 'font-size:11px;color:var(--sub);margin-top:6px;word-break:break-all;';
+      name.textContent = it.file.name;
+      var sizeInfo = document.createElement('div');
+      sizeInfo.style.cssText = 'font-size:11px;color:var(--sub);margin-top:2px;';
+      sizeInfo.textContent = it.trimmed
+        ? (it.img.width+'×'+it.img.height+' → '+it.outW+'×'+it.outH)
+        : '배경으로 볼 여백을 찾지 못했습니다 — 원본 그대로';
+      var btnRow = document.createElement('div');
+      btnRow.style.cssText = 'display:flex;gap:4px;margin-top:6px;';
+      var dl = document.createElement('button');
+      dl.className = 'btn ghost'; dl.textContent = '다운로드'; dl.style.cssText='flex:1;padding:6px;font-size:12px;';
+      dl.addEventListener('click', function(){
+        canvasToBlob(it.canvas, function(blob){ downloadBlob(blob, baseName(it.file.name)+'_trim.png'); });
+      });
+      var rm = document.createElement('button');
+      rm.className = 'btn ghost'; rm.textContent = '제거'; rm.style.cssText='padding:6px 10px;font-size:12px;color:var(--danger);';
+      rm.addEventListener('click', function(){
+        var i = items.indexOf(it);
+        if(i>=0){ items.splice(i,1); renderAll(); }
+      });
+      btnRow.appendChild(dl); btnRow.appendChild(rm);
+      box.appendChild(img); box.appendChild(name); box.appendChild(sizeInfo); box.appendChild(btnRow);
+      grid.appendChild(box);
+    });
+    var has = items.length>0;
+    $('#trim-zip').disabled = !has;
+    if(trimZipSaveBtn) trimZipSaveBtn.disabled = !has;
+    $('#trim-apply').disabled = !has;
+    $('#trim-clear').disabled = !has;
+    $('#trim-send-st').disabled = !has;
+    $('#trim-send-cs').disabled = !has;
+    $('#trim-send-cf').disabled = !has;
+    markPendingWork('trim', has);
+  }
+
+  function loadTrimFiles(files){
+    loadImagesTolerant(files, function(f, img){ return {file:f, img:img}; }).then(function(res){
+      items = items.concat(res.loaded);
+      if(res.loaded.length){ $('#trim-apply').disabled = false; renderAll(); }
+      var msg = res.loaded.length ? (res.loaded.length+'장 로드됨.') : '불러온 이미지가 없습니다.';
+      if(res.failed.length) msg += ' (실패 '+res.failed.length+'장: '+res.failed.join(', ')+')';
+      $('#trim-info').textContent = msg;
+      $('#trim-info').classList.remove('hidden');
+    });
+  }
+  setupMultiDrop('trim-drop','trim-file', loadTrimFiles);
+
+  $('#trim-apply').addEventListener('click', renderAll);
+  $('#trim-clear').addEventListener('click', function(){
+    if(!confirm('업로드한 이미지 '+items.length+'장을 모두 지울까요?')) return;
+    items = [];
+    renderAll();
+    $('#trim-info').classList.add('hidden');
+  });
+  $('#trim-tolerance').addEventListener('input', function(){
+    $('#trim-tolerance-val').textContent = this.value+'%';
+    if(items.length) renderAll();
+  });
+  $('#trim-padding').addEventListener('change', function(){ if(items.length) renderAll(); });
+  $('#trim-tolerance-val').textContent = $('#trim-tolerance').value+'%'; // localStorage 복원값과 라벨 동기화
+
+  // 다운로드·임시저장 버튼이 zip 생성 과정을 그대로 공유하고, 진행률 표시와 다 끝난 뒤
+  // 무엇을 할지(다운로드/저장)만 다르게 한다(9번 스탠딩 재단과 동일한 패턴).
+  function buildTrimZip(btn){
+    if(!window.JSZip) return Promise.reject(new Error('JSZip 라이브러리를 불러오지 못했습니다.'));
+    var zip = new JSZip();
+    var pending = items.map(function(it){
+      return new Promise(function(res){
+        canvasToBlob(it.canvas, function(blob){
+          zip.file(baseName(it.file.name)+'_trim.png', blob);
+          res();
+        });
+      });
+    });
+    return Promise.all(pending).then(function(){
+      return zip.generateAsync({type:'blob'}, function(meta){
+        if(btn) btn.textContent = '압축 중... '+Math.round(meta.percent)+'%';
+      });
+    });
+  }
+  function runTrimZipAction(btn, whenDone){
+    var oldText = btn.textContent;
+    btn.disabled = true;
+    return buildTrimZip(btn).then(function(blob){
+      whenDone(blob);
+      btn.disabled = false; btn.textContent = oldText;
+      return true;
+    }).catch(function(e){
+      alert('ZIP 생성 실패: '+e.message);
+      btn.disabled = false; btn.textContent = oldText;
+      return false;
+    });
+  }
+  $('#trim-zip').addEventListener('click', function(){
+    runTrimZipAction($('#trim-zip'), function(blob){ downloadBlob(blob, 'trim_batch.zip'); });
+  });
+  var trimZipSaveBtn = insertQuickSaveButton($('#trim-zip'), function(){
+    if(!items.length){ alert('먼저 이미지를 올려주세요.'); return false; }
+    return runTrimZipAction(trimZipSaveBtn, function(blob){ saveResultToHistory(currentTabLabel(), 'trim_batch.zip', blob); });
+  });
+  trimZipSaveBtn.disabled = true;
+
+  // 잘라낸 이미지를 다운로드→재업로드하지 않고 바로 9/10/11번 탭으로 넘기는 통로.
+  function itemsToFiles(){
+    return Promise.all(items.map(function(it){
+      return new Promise(function(res){
+        canvasToBlob(it.canvas, function(blob){
+          res(new File([blob], baseName(it.file.name)+'.png', {type:'image/png'}));
+        });
+      });
+    }));
+  }
+  function sendTo(loaderKey, targetTabId, btnId){
+    if(items.length===0) return;
+    var btn = $('#'+btnId);
+    btn.disabled = true;
+    itemsToFiles().then(function(files){
+      if(window.__ccSend && window.__ccSend[loaderKey]) window.__ccSend[loaderKey](files);
+      var tabBtn = document.querySelector('.tab-btn[data-target="'+targetTabId+'"]');
+      if(tabBtn) tabBtn.click();
+      btn.disabled = items.length===0;
+    });
+  }
+  $('#trim-send-st').addEventListener('click', function(){ sendTo('toStanding', 'tab-standing', 'trim-send-st'); });
+  $('#trim-send-cs').addEventListener('click', function(){ sendTo('toCheatsheet', 'tab-cheatsheet', 'trim-send-cs'); });
+  $('#trim-send-cf').addEventListener('click', function(){ sendTo('toCharfile', 'tab-charfile', 'trim-send-cf'); });
+
+  // 업로드했던 이미지 파일들·허용 오차·여백 여유를 저장해뒀다가, 되돌릴 때 같은 업로드
+  // 경로(loadImagesTolerant)로 다시 불러온 뒤 renderAll()로 재단 결과까지 재현한다.
+  registerTabSnapshot('tab-trim', function captureTrimSnapshot(){
+    return {
+      items: items.map(function(it){ return {file:it.file}; }),
+      tolerance: $('#trim-tolerance').value, padding: $('#trim-padding').value
+    };
+  }, function restoreTrimSnapshot(snap){
+    if(snap.tolerance != null){ $('#trim-tolerance').value = snap.tolerance; $('#trim-tolerance-val').textContent = snap.tolerance+'%'; }
+    if(snap.padding != null) $('#trim-padding').value = snap.padding;
+
+    if(!snap.items || !snap.items.length){ items = []; renderAll(); return; }
+    var files = snap.items.map(function(it){ return it.file; });
+    loadImagesTolerant(files, function(f, img){ return {file:f, img:img}; }).then(function(res){
+      items = res.loaded;
+      $('#trim-apply').disabled = items.length===0;
+      $('#trim-info').classList.add('hidden');
       renderAll();
     });
   });
