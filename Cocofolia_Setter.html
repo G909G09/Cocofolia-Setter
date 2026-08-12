@@ -541,6 +541,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="more">다른 기능 둘러보기</span><b>2026-08-12</b> — "다른 기능 둘러보기" 카테고리 버튼이 클릭해도 반응이 없던 문제 수정 — 새 카테고리를 추가할 때 카테고리 소개 페이지(cat-page-more)를 빠뜨려서, 클릭 시 그 페이지를 찾지 못해 사이드바 아코디언도 펼쳐지지 않고 아무 일도 일어나지 않았음</li>
       <li><span class="chlog-tag" data-cat="more">다른 기능 둘러보기</span><b>2026-08-12</b> — 새 카테고리 "다른 기능 둘러보기" 추가: 이 사이트와는 별도로 만든 서브컬쳐용 크롬/엣지 확장 프로그램을 소개하고 바로 내려받을 수 있음. Cocofolia Markdown(13번, 코코포리아 채팅에 마크다운 서식 적용)과 텍스트 자동 변환기(14번, 입력 중 기호·화살표 자동 변환 + 커스텀 규칙)를 추가 — 두 다운로드 버튼은 각 원본 GitHub 저장소의 압축 다운로드 링크로 바로 연결되어 누를 때마다 그 시점의 최신 소스를 받아옴(이 파일의 다른 기능과 달리 이 두 다운로드만은 인터넷 연결 필요, 설치는 "개발자 모드"로 압축해제된 확장 프로그램 로드). 이 카테고리가 새로 끼어들며 기존 건의함(13→15)·설정(14→16)·결과물 보관함(15→17) 탭 번호가 두 칸씩 밀림</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-08-10</b> — 새 탭 "이미지 여백 자동 재단" 추가(12번): 이미지 네 모서리 색을 배경으로 자동 인식해 배경이 아닌 실제 그림 부분만 딱 맞게 잘라냄(포토샵의 "트림"·"슈링크 선택"과 비슷). 허용 오차 슬라이더로 비슷한 색까지 배경으로 볼지 조절 가능, 여백 여유(px)로 약간의 테두리를 남길 수도 있음. 여러 장 일괄 처리·ZIP 다운로드 지원, 잘라낸 이미지를 다운로드 없이 9/10/11번 탭(스탠딩 재단·컨닝 페이퍼·캐릭터 룸파일)으로 바로 전달 가능. 이 탭이 새로 끼어들며 기존 건의함(12→13)·설정(13→14)·결과물 보관함(14→15) 탭 번호가 하나씩 밀림</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-09</b> — 전반적인 모바일 호환성 점검 및 수정: (1) CoC 캐릭터 시트 메이커의 기능치·무기 표가 좁은 화면에서 칸이 으스러져 기능명 등 일부 글자가 아예 안 보이던 문제 수정 — 표가 최소 너비를 유지하고 그보다 좁은 화면에서는 좌우로 스크롤되도록 변경, (2) 좁은 화면에서 입력칸을 탭할 때마다 iOS Safari가 화면을 확대해버리던 문제 수정(입력칸 글자 크기를 16px 미만으로 두면 생기는 브라우저 동작 — 넓은 화면에서는 기존 밀도 그대로 유지됨)</li>
@@ -619,6 +620,13 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <p class="desc" id="cat-page-desc-etc"></p>
   </div>
   <div class="card" id="cat-page-cards-etc"></div>
+</section>
+<section id="cat-page-more" class="tab-panel" role="tabpanel" data-cat-page="more">
+  <div class="card">
+    <h2 id="cat-page-title-more"></h2>
+    <p class="desc" id="cat-page-desc-more"></p>
+  </div>
+  <div class="card" id="cat-page-cards-more"></div>
 </section>
 
 <!-- ===================== TAB 1 ===================== -->
