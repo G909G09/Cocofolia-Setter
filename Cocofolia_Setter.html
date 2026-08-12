@@ -305,12 +305,12 @@ main{flex:1 1 auto;min-width:0;max-width:1000px;margin:0 auto;padding:28px 24px;
 .charrow{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);margin-top:6px;}
 .charrow .cname{flex:1;font-size:13px;color:var(--ink);}
 .charrow select{padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);font-size:12.5px;}
-button.btn{border:none;background:var(--accent);color:var(--accent-ink);padding:10px 18px;border-radius:var(--radius-pill);font-size:13px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-sm);transition:transform .1s,box-shadow .15s,opacity .15s;}
-button.btn:hover:not(:disabled){box-shadow:var(--shadow-md);transform:translateY(-1px);}
-button.btn:active:not(:disabled){transform:translateY(0);}
+button.btn,a.btn{border:none;background:var(--accent);color:var(--accent-ink);padding:10px 18px;border-radius:var(--radius-pill);font-size:13px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-sm);transition:transform .1s,box-shadow .15s,opacity .15s;text-decoration:none;display:inline-block;}
+button.btn:hover:not(:disabled),a.btn:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+button.btn:active:not(:disabled),a.btn:active{transform:translateY(0);}
 button.btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;}
-button.btn.ghost{background:var(--panel);border:1px solid var(--line);color:var(--ink);box-shadow:none;}
-button.btn.ghost:hover:not(:disabled){background:var(--bg);box-shadow:none;}
+button.btn.ghost,a.btn.ghost{background:var(--panel);border:1px solid var(--line);color:var(--ink);box-shadow:none;}
+button.btn.ghost:hover:not(:disabled),a.btn.ghost:hover{background:var(--bg);box-shadow:none;}
 .info-box{background:var(--chip);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--sub);margin:8px 0;white-space:pre-line;}
 .slider-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--sub);}
 .slider-row input[type=range]{width:140px;}
@@ -541,6 +541,8 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="more">다른 기능 둘러보기</span><b>2026-08-12</b> — Cocofolia Markdown·텍스트 자동 변환기 소개 페이지를 다른 탭들과 UI를 통일: 줄글 소개를 짧게 줄이고, 다른 탭에는 없던 아이콘 이미지·번호 매긴 줄글 안내를 제거해 일반 제목(h2)과 목록(ol)으로 정리. 다운로드/GitHub 저장소 버튼이 원래 사이트 전체 버튼과 다르게 밑줄 있는 링크로 보이던 문제도 함께 수정(버튼 스타일을 링크 버튼에도 적용)</li>
+      <li><span class="chlog-tag" data-cat="more">다른 기능 둘러보기</span><b>2026-08-12</b> — "다른 기능 둘러보기" 카테고리 버튼이 클릭해도 반응이 없던 문제 수정 — 새 카테고리를 추가할 때 카테고리 소개 페이지(cat-page-more)를 빠뜨려서, 클릭 시 그 페이지를 찾지 못해 사이드바 아코디언도 펼쳐지지 않고 아무 일도 일어나지 않았음</li>
       <li><span class="chlog-tag" data-cat="more">다른 기능 둘러보기</span><b>2026-08-12</b> — 새 카테고리 "다른 기능 둘러보기" 추가: 이 사이트와는 별도로 만든 서브컬쳐용 크롬/엣지 확장 프로그램을 소개하고 바로 내려받을 수 있음. Cocofolia Markdown(13번, 코코포리아 채팅에 마크다운 서식 적용)과 텍스트 자동 변환기(14번, 입력 중 기호·화살표 자동 변환 + 커스텀 규칙)를 추가 — 두 다운로드 버튼은 각 원본 GitHub 저장소의 압축 다운로드 링크로 바로 연결되어 누를 때마다 그 시점의 최신 소스를 받아옴(이 파일의 다른 기능과 달리 이 두 다운로드만은 인터넷 연결 필요, 설치는 "개발자 모드"로 압축해제된 확장 프로그램 로드). 이 카테고리가 새로 끼어들며 기존 건의함(13→15)·설정(14→16)·결과물 보관함(15→17) 탭 번호가 두 칸씩 밀림</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-08-10</b> — 새 탭 "이미지 여백 자동 재단" 추가(12번): 이미지 네 모서리 색을 배경으로 자동 인식해 배경이 아닌 실제 그림 부분만 딱 맞게 잘라냄(포토샵의 "트림"·"슈링크 선택"과 비슷). 허용 오차 슬라이더로 비슷한 색까지 배경으로 볼지 조절 가능, 여백 여유(px)로 약간의 테두리를 남길 수도 있음. 여러 장 일괄 처리·ZIP 다운로드 지원, 잘라낸 이미지를 다운로드 없이 9/10/11번 탭(스탠딩 재단·컨닝 페이퍼·캐릭터 룸파일)으로 바로 전달 가능. 이 탭이 새로 끼어들며 기존 건의함(12→13)·설정(13→14)·결과물 보관함(14→15) 탭 번호가 하나씩 밀림</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-09</b> — 전반적인 모바일 호환성 점검 및 수정: (1) CoC 캐릭터 시트 메이커의 기능치·무기 표가 좁은 화면에서 칸이 으스러져 기능명 등 일부 글자가 아예 안 보이던 문제 수정 — 표가 최소 너비를 유지하고 그보다 좁은 화면에서는 좌우로 스크롤되도록 변경, (2) 좁은 화면에서 입력칸을 탭할 때마다 iOS Safari가 화면을 확대해버리던 문제 수정(입력칸 글자 크기를 16px 미만으로 두면 생기는 브라우저 동작 — 넓은 화면에서는 기존 밀도 그대로 유지됨)</li>
@@ -619,6 +621,13 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <p class="desc" id="cat-page-desc-etc"></p>
   </div>
   <div class="card" id="cat-page-cards-etc"></div>
+</section>
+<section id="cat-page-more" class="tab-panel" role="tabpanel" data-cat-page="more">
+  <div class="card">
+    <h2 id="cat-page-title-more"></h2>
+    <p class="desc" id="cat-page-desc-more"></p>
+  </div>
+  <div class="card" id="cat-page-cards-more"></div>
 </section>
 
 <!-- ===================== TAB 1 ===================== -->
@@ -1187,46 +1196,42 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <!-- ===================== TAB 13 ===================== -->
 <section id="tab-md-ext" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-md-ext">
   <div class="card">
-    <div style="display:flex;align-items:center;gap:12px;">
-      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAABj0lEQVR42u3cwQmEQBQFwQnQDEzXvBRDEBRHu4R/FexXpz3sGA8867Lt7v4bsz1GicIQPQpB5CgEUcMQhAwjEDCMQLgwAsHCCISKIxApDECgOAJxwgCEiSMQJQxAkDgCMQAQBAAHgAPAxQAIEUcgAgBCAOAAePCuPH+OPWMHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgBc+/GtYvv5tAAAgEgAiASASACIBIBIAIgEgEgAiASASAJP/Bu69AHgvAN4LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD+IcQ/hAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAuMkPAABEAMAB4KIAzkeI8PgAAAAAAGIA4ABwUQAQxMcHAAAI6uMDAAAE9fEBAACC+vgQGB8C40NgfAiMD4LhQTA8CIYH47dDH87T5K21Bh4dAAAAAElFTkSuQmCC" alt="" width="40" height="40" style="border-radius:9px;flex:0 0 auto;">
-      <h2 style="margin:0;">Cocofolia Markdown (마크다운 확장 프로그램)</h2>
-    </div>
-    <p class="desc">코코포리아(CCFOLIA) 채팅에 Roll20 스타일 마크다운 서식(<b>**굵게**</b>·<i>*기울임*</i>·<s>~~취소선~~</s>·<code>`코드`</code>)을 적용해주는 크롬/엣지 확장 프로그램입니다. 타이핑하는 동안 실시간 미리보기가 함께 표시됩니다. 코코포리아는 외부 사이트라 화면 구조가 바뀔 수 있어서, 처음 한 번만 채팅 문구·입력창 위치를 직접 클릭해 알려주면 그다음부터는 자동으로 적용됩니다.</p>
-    <div class="info-box" aria-live="polite">
-      <b>설치 방법</b><br>
-      1. 아래 "다운로드(.zip)" 버튼으로 받은 뒤 압축을 풉니다.<br>
-      2. 크롬(또는 엣지) 주소창에 <code>chrome://extensions</code> 입력 → 오른쪽 위 "개발자 모드" 켜기.<br>
-      3. "압축해제된 확장 프로그램을 로드합니다" 클릭 → 압축을 푼 <code>cocofolia-markdown</code> 폴더를 선택합니다.<br>
-      4. 코코포리아 채팅에서 채팅 문구·입력창을 한 번 클릭해 위치를 알려주면 이후 자동으로 서식이 적용됩니다.
+    <h2>Cocofolia Markdown (마크다운 확장 프로그램)</h2>
+    <p class="desc">코코포리아 채팅에 마크다운 서식(굵게·기울임·취소선·코드)을 적용하고 타이핑 중 실시간 미리보기를 보여주는 크롬/엣지 확장 프로그램입니다. 채팅 문구·입력창 위치를 처음 한 번만 클릭해 알려주면 이후 자동으로 적용됩니다.</p>
+    <div class="info-box">
+      <b>설치 방법</b>
+      <ol style="margin:4px 0 0;padding-left:18px;">
+        <li>다운로드 후 압축 해제</li>
+        <li><code>chrome://extensions</code> → "개발자 모드" 켜기</li>
+        <li>"압축해제된 확장 프로그램 로드" → <code>cocofolia-markdown</code> 폴더 선택</li>
+      </ol>
     </div>
     <div class="row">
-      <a class="btn" id="md-ext-download" href="https://github.com/G909G09/Cocofolia-Markdown/archive/refs/heads/main.zip" target="_blank" rel="noopener">다운로드(.zip) — GitHub 최신 버전</a>
-      <a class="btn ghost" href="https://github.com/G909G09/Cocofolia-Markdown" target="_blank" rel="noopener">GitHub에서 소스 보기</a>
+      <a class="btn" id="md-ext-download" href="https://github.com/G909G09/Cocofolia-Markdown/archive/refs/heads/main.zip" target="_blank" rel="noopener">다운로드(.zip)</a>
+      <a class="btn ghost" href="https://github.com/G909G09/Cocofolia-Markdown" target="_blank" rel="noopener">GitHub 저장소</a>
     </div>
-    <p class="footnote">크롬 웹 스토어에는 아직 등록돼 있지 않아 "개발자 모드"로 직접 불러와야 합니다. 코코포리아(ccfolia.com) 채팅 화면에서만 동작합니다. 이 탭의 다운로드만은 GitHub에서 그 자리에서 최신 파일을 받아오므로(이 앱의 다른 기능과 달리) 인터넷 연결이 필요합니다.</p>
+    <p class="footnote">크롬 웹 스토어 미등록이라 "개발자 모드"로 설치합니다. 코코포리아(ccfolia.com) 채팅에서만 동작하며, 이 다운로드만 인터넷 연결이 필요합니다(그 순간의 최신 버전을 GitHub에서 바로 받음).</p>
   </div>
 </section>
 
 <!-- ===================== TAB 14 ===================== -->
 <section id="tab-textable-ext" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-textable-ext">
   <div class="card">
-    <div style="display:flex;align-items:center;gap:12px;">
-      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAABlklEQVR42u3aS47CMBBAwRyUI3BvjgFixzLko8R+ZemtLbpLGk2SZTnxPB+vt/a3jHIsKwrCUqIQLCEKwdCjEAw5DMFgwwgMNIzAIMMIDDCMwODCCAwsjsCwwgAMKo7AkMIADCiOwHDCAAwmjsBQwgAMJI7AMAAwEACUBGAQcQSGAIBBACAABIAAEAACQAAIAAEgAASAABAAAkAACAABIAAEgAAQAAJAAAgAASAABIAAEADr+j1X3V36zbcAsOZcdfeMv/k2AP497p4IwNbj7gkA7D3ujgPYM4xR750GwFHH3XEAW4Yx+r0AAADA1mEcfQAAAAB/AgAAAAD/ivk30IMgD4I8jvUo2AsZL4O8kvU62AchPgjxSZhPwuSjUAEgAASAABAAAkAACAABIAAEgAAQAAJAAAgAASAABIAAEAACQAAIAAEgAASAABAAOhfA9xhEePkAAAAAAIaRBgBBfPkAAABBffkAAABBffkAAABBffkAAABBffkQWD4Elg+B5UNg+RBYPggWD4LFg2DxIFg8EJMt/AO2vdgh99yZOQAAAABJRU5ErkJggg==" alt="" width="40" height="40" style="border-radius:9px;flex:0 0 auto;">
-      <h2 style="margin:0;">텍스트 자동 변환기 (문자 변환 확장 프로그램)</h2>
-    </div>
-    <p class="desc">입력 중 <code>..</code>→"…", <code>-&gt;</code>→"→", <code>&lt;-</code>→"←", <code>--</code>→"—" 같은 기호와 낫표·화살괄호, <code>!수식!</code> 계산을 자동으로 변환해주는 크롬 확장 프로그램입니다. 아무 입력칸(웹페이지 어디서든)에서나 동작하고, 나만의 변환 규칙을 최대 30개까지 등록할 수 있습니다.</p>
-    <div class="info-box" aria-live="polite">
-      <b>설치 방법</b><br>
-      1. 아래 "다운로드(.zip)" 버튼으로 받은 뒤 압축을 풉니다.<br>
-      2. 크롬 주소창에 <code>chrome://extensions</code> 입력 → 오른쪽 위 "개발자 모드" 켜기.<br>
-      3. "압축해제된 확장 프로그램을 로드합니다" 클릭 → 압축을 푼 <code>textable</code> 폴더를 선택합니다.<br>
-      4. 도구 모음의 아이콘을 누르면 커스텀 변환 규칙을 추가·관리할 수 있습니다.
+    <h2>텍스트 자동 변환기 (문자 변환 확장 프로그램)</h2>
+    <p class="desc">입력 중 기호·화살표를 자동 변환하고(<code>..</code>→…, <code>-&gt;</code>→→ 등) <code>!수식!</code> 계산, 커스텀 변환 규칙(최대 30개)을 지원하는 크롬 확장 프로그램입니다. 모든 웹페이지의 입력칸에서 동작합니다.</p>
+    <div class="info-box">
+      <b>설치 방법</b>
+      <ol style="margin:4px 0 0;padding-left:18px;">
+        <li>다운로드 후 압축 해제</li>
+        <li><code>chrome://extensions</code> → "개발자 모드" 켜기</li>
+        <li>"압축해제된 확장 프로그램 로드" → <code>textable</code> 폴더 선택</li>
+      </ol>
     </div>
     <div class="row">
-      <a class="btn" id="textable-ext-download" href="https://github.com/G909G09/textable/archive/refs/heads/main.zip" target="_blank" rel="noopener">다운로드(.zip) — GitHub 최신 버전</a>
-      <a class="btn ghost" href="https://github.com/G909G09/textable" target="_blank" rel="noopener">GitHub에서 소스 보기</a>
+      <a class="btn" id="textable-ext-download" href="https://github.com/G909G09/textable/archive/refs/heads/main.zip" target="_blank" rel="noopener">다운로드(.zip)</a>
+      <a class="btn ghost" href="https://github.com/G909G09/textable" target="_blank" rel="noopener">GitHub 저장소</a>
     </div>
-    <p class="footnote">크롬 웹 스토어에는 아직 등록돼 있지 않아 "개발자 모드"로 직접 불러와야 합니다. 모든 웹페이지의 입력칸에서 동작합니다. 이 탭의 다운로드만은 GitHub에서 그 자리에서 최신 파일을 받아오므로(이 앱의 다른 기능과 달리) 인터넷 연결이 필요합니다.</p>
+    <p class="footnote">크롬 웹 스토어 미등록이라 "개발자 모드"로 설치합니다. 이 다운로드만 인터넷 연결이 필요합니다(그 순간의 최신 버전을 GitHub에서 바로 받음).</p>
   </div>
 </section>
 
