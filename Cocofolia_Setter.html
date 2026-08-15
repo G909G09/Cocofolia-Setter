@@ -541,6 +541,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="image">이미지·애니메이션</span><b>2026-08-15</b> — GIF ↔ APNG 변환기: 움직이는 WebP 파일도 APNG로 변환할 수 있도록 지원 추가(파일 형식은 자동 인식). 브라우저에 내장된 WebCodecs API로 프레임을 읽어오므로 별도 디코더 없이 동작하며, 이 API를 지원하지 않는 브라우저(사파리·구형 브라우저 등)에서는 안내 메시지가 표시됨(Chrome·Edge 권장)</li>
       <li><span class="chlog-tag" data-cat="more">다른 기능 둘러보기</span><b>2026-08-12</b> — Cocofolia Markdown·텍스트 자동 변환기 소개 페이지를 다른 탭들과 UI를 통일: 줄글 소개를 짧게 줄이고, 다른 탭에는 없던 아이콘 이미지·번호 매긴 줄글 안내를 제거해 일반 제목(h2)과 목록(ol)으로 정리. 다운로드/GitHub 저장소 버튼이 원래 사이트 전체 버튼과 다르게 밑줄 있는 링크로 보이던 문제도 함께 수정(버튼 스타일을 링크 버튼에도 적용)</li>
       <li><span class="chlog-tag" data-cat="more">다른 기능 둘러보기</span><b>2026-08-12</b> — "다른 기능 둘러보기" 카테고리 버튼이 클릭해도 반응이 없던 문제 수정 — 새 카테고리를 추가할 때 카테고리 소개 페이지(cat-page-more)를 빠뜨려서, 클릭 시 그 페이지를 찾지 못해 사이드바 아코디언도 펼쳐지지 않고 아무 일도 일어나지 않았음</li>
       <li><span class="chlog-tag" data-cat="more">다른 기능 둘러보기</span><b>2026-08-12</b> — 새 카테고리 "다른 기능 둘러보기" 추가: 이 사이트와는 별도로 만든 서브컬쳐용 크롬/엣지 확장 프로그램을 소개하고 바로 내려받을 수 있음. Cocofolia Markdown(13번, 코코포리아 채팅에 마크다운 서식 적용)과 텍스트 자동 변환기(14번, 입력 중 기호·화살표 자동 변환 + 커스텀 규칙)를 추가 — 두 다운로드 버튼은 각 원본 GitHub 저장소의 압축 다운로드 링크로 바로 연결되어 누를 때마다 그 시점의 최신 소스를 받아옴(이 파일의 다른 기능과 달리 이 두 다운로드만은 인터넷 연결 필요, 설치는 "개발자 모드"로 압축해제된 확장 프로그램 로드). 이 카테고리가 새로 끼어들며 기존 건의함(13→15)·설정(14→16)·결과물 보관함(15→17) 탭 번호가 두 칸씩 밀림</li>
@@ -672,9 +673,9 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <section id="tab-g2a" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-g2a">
   <div class="card">
     <h2>GIF ↔ APNG 변환기</h2>
-    <p class="desc">GIF↔APNG 상호 변환, MP4→APNG 변환을 지원합니다. 파일 형식은 자동 인식됩니다.</p>
-    <div class="drop" id="g2a-drop">GIF · APNG(PNG) · MP4 파일
-      <input type="file" id="g2a-file" accept=".gif,.png,.mp4" class="hidden">
+    <p class="desc">GIF↔APNG 상호 변환, MP4·움직이는 WebP→APNG 변환을 지원합니다. 파일 형식은 자동 인식됩니다.</p>
+    <div class="drop" id="g2a-drop">GIF · APNG(PNG) · MP4 · 움직이는 WebP 파일
+      <input type="file" id="g2a-file" accept=".gif,.png,.mp4,.webp" class="hidden">
     </div>
     <div class="info-box" id="g2a-info" aria-live="polite">파일을 선택하면 정보가 표시됩니다.</div>
     <div class="row hidden" id="g2a-mp4-opts">
@@ -19083,7 +19084,7 @@ $all('.cat-btn').forEach(function(btn){
 (function(){
   var TAB_DESCRIPTIONS = {
     'tab-mp3': '컷인 이미지 길이에 맞춰 무음 mp3를 만듭니다.',
-    'tab-g2a': 'GIF↔APNG 상호 변환, MP4→APNG 변환을 지원합니다.',
+    'tab-g2a': 'GIF↔APNG 상호 변환, MP4·움직이는 WebP→APNG 변환을 지원합니다.',
     'tab-fx': '정지 이미지에 효과를 입혀 짧은 연출용 APNG를 만듭니다.',
     'tab-log': '코코포리아 로그를 대본집처럼 정리합니다.',
     'tab-book': '로그를 인쇄용 로그북 조판 마커 텍스트로 변환합니다.',
@@ -19292,6 +19293,50 @@ async function decodeGifFile(file){
       ctx.putImageData(saved, 0, 0);
     }
   }
+  return {frames:frames, delays:delays, width:width, height:height};
+}
+
+/* ============ 움직이는 WebP 디코드 코어 (브라우저 내장 WebCodecs ImageDecoder) ============
+   gifuct-js·UPNG.js처럼 파일 포맷을 직접 파싱하는 대신, 크로미움 계열 브라우저에
+   내장된 ImageDecoder API로 각 프레임을 이미 합성된 상태(dispose/blend 처리 완료)로
+   받아온다 — WebP 디코더를 별도로 번들할 필요가 없다. 이 API가 없는 브라우저(사파리·
+   파이어폭스 등)에서는 안내 메시지로 실패를 알린다. */
+async function decodeWebpFile(file){
+  if(typeof ImageDecoder === 'undefined'){
+    throw new Error('이 브라우저는 움직이는 WebP 디코딩을 지원하지 않습니다. Chrome 또는 Edge 최신 버전에서 시도해주세요.');
+  }
+  var buf = await file.arrayBuffer();
+  var decoder;
+  try{
+    decoder = new ImageDecoder({data: buf, type: 'image/webp'});
+    await decoder.tracks.ready;
+  }catch(e){
+    throw new Error('WebP 파일을 열 수 없습니다 (지원하지 않는 형식이거나 손상된 파일).');
+  }
+  var track = decoder.tracks.selectedTrack;
+  if(!track || !track.animated || track.frameCount < 2){
+    decoder.close();
+    throw new Error('애니메이션이 없는 정지 WebP입니다. APNG 변환에는 움직이는 WebP가 필요합니다.');
+  }
+  var frameCount = track.frameCount;
+  var canvas = document.createElement('canvas');
+  var ctx = null, width = 0, height = 0;
+  var frames = [], delays = [];
+  for(var i=0;i<frameCount;i++){
+    var result = await decoder.decode({frameIndex:i});
+    var vf = result.image;
+    if(i===0){
+      width = vf.displayWidth; height = vf.displayHeight;
+      canvas.width = width; canvas.height = height;
+      ctx = canvas.getContext('2d');
+    }
+    ctx.clearRect(0,0,width,height);
+    ctx.drawImage(vf, 0, 0, width, height);
+    frames.push(ctx.getImageData(0,0,width,height));
+    delays.push(Math.max(20, Math.round((vf.duration||100000)/1000)));
+    vf.close();
+  }
+  decoder.close();
   return {frames:frames, delays:delays, width:width, height:height};
 }
 
@@ -19877,7 +19922,8 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     var isGif = /\.gif$/i.test(file.name);
     var isPng = /\.png$/i.test(file.name);
     var isMp4 = /\.mp4$/i.test(file.name);
-    if(!isGif && !isPng && !isMp4){ info.textContent = 'GIF, PNG(APNG) 또는 MP4 파일만 지원합니다.'; return; }
+    var isWebp = /\.webp$/i.test(file.name);
+    if(!isGif && !isPng && !isMp4 && !isWebp){ info.textContent = 'GIF, PNG(APNG), MP4 또는 WebP 파일만 지원합니다.'; return; }
     info.textContent = '분석 중...';
     try{
       if(isGif){
@@ -19885,6 +19931,12 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
         state.decoded = decoded; state.direction = 'gif2apng';
         var totalMs = decoded.delays.reduce(function(a,b){return a+b;},0);
         info.textContent = 'GIF: '+decoded.width+'x'+decoded.height+', 프레임 '+decoded.delays.length+'개, 1회 재생 '+fmtSec(totalMs)+' → APNG로 변환합니다.';
+        $('#g2a-filename').value = baseName(file.name)+'.png';
+      } else if(isWebp){
+        var decodedWebp = await decodeWebpFile(file);
+        state.decoded = decodedWebp; state.direction = 'webp2apng';
+        var totalMsWebp = decodedWebp.delays.reduce(function(a,b){return a+b;},0);
+        info.textContent = 'WebP: '+decodedWebp.width+'x'+decodedWebp.height+', 프레임 '+decodedWebp.delays.length+'개, 1회 재생 '+fmtSec(totalMsWebp)+' → APNG로 변환합니다.';
         $('#g2a-filename').value = baseName(file.name)+'.png';
       } else if(isMp4){
         var video = document.createElement('video');
@@ -19926,11 +19978,12 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     convertBtn.disabled = true; convertBtn.textContent = '변환 중...';
     setTimeout(async function(){
       try{
-        if(state.direction==='gif2apng'){
+        if(state.direction==='gif2apng' || state.direction==='webp2apng'){
+          var srcLabel = state.direction==='webp2apng' ? 'WebP' : 'GIF';
           var target = $('#g2a-autoresize').checked ? await fitApngToLimit(state.decoded, COCOFOLIA_TARGET_BYTES, function(msg){ info.textContent = msg; }) : {blob:encodeApng(state.decoded.frames, state.decoded.delays, 0), resized:false};
           state.blob = target.blob;
           setBlobUrl($('#g2a-preview'), target.blob);
-          info.textContent = 'GIF → APNG 완료: '+(target.w||state.decoded.width)+'x'+(target.h||state.decoded.height)+', 프레임 '+(target.frameCount||state.decoded.frames.length)+'개 (APNG 크기: '+(target.blob.size/1024).toFixed(1)+'KB'+(target.resized?', 코코포리아 기준에 맞춰 자동 축소됨':'')+(target.blob.size>COCOFOLIA_TARGET_BYTES?' — 1MB를 넘어 코코포리아에서 압축될 수 있습니다':'')+')';
+          info.textContent = srcLabel+' → APNG 완료: '+(target.w||state.decoded.width)+'x'+(target.h||state.decoded.height)+', 프레임 '+(target.frameCount||state.decoded.frames.length)+'개 (APNG 크기: '+(target.blob.size/1024).toFixed(1)+'KB'+(target.resized?', 코코포리아 기준에 맞춰 자동 축소됨':'')+(target.blob.size>COCOFOLIA_TARGET_BYTES?' — 1MB를 넘어 코코포리아에서 압축될 수 있습니다':'')+')';
         } else if(state.direction==='mp42apng'){
           var opts = {
             start: parseFloat($('#g2a-mp4-start').value)||0,
