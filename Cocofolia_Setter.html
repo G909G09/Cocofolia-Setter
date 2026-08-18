@@ -40,7 +40,7 @@
   --aurora-1:#8b93ff; --aurora-2:#ff9eb0; --aurora-3:#7be0b8; --aurora-a:16%;
 }
 /* 시스템이 다크 모드일 때 자동으로 어두운 배색 적용(밝기만 다르고 나머지 스타일/레이아웃은 전부
-   재사용). 5번/8번 탭의 인쇄물·시트 근사색 배지들은 실물 문서 색을 그대로 보여줘야 의미가 있어
+   재사용). 6번/9번 탭의 인쇄물·시트 근사색 배지들은 실물 문서 색을 그대로 보여줘야 의미가 있어
    변수화하지 않고 원래 색을 유지한다(다크 모드에서도 종이 위 배지처럼 밝게 보이는 것이 의도됨).
    어두운 배경 위에서는 검은 그림자가 거의 안 보이므로 그림자는 더 옅고 불투명하게 다시 잡는다. */
 @media (prefers-color-scheme: dark){
@@ -368,7 +368,7 @@ canvas.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;bac
 img.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;background:
   repeating-conic-gradient(#8883 0% 25%, transparent 0% 50%) 50% / 16px 16px;}
 .hidden{display:none !important;}
-/* 4번 탭: 로그 미리보기 — "테마"(글꼴·레이아웃: 대본집/고딕)와 "다크 모드"(색상: 라이트/다크)를
+/* 5번 탭: 로그 미리보기 — "테마"(글꼴·레이아웃: 대본집/고딕)와 "다크 모드"(색상: 라이트/다크)를
    서로 독립된 두 축으로 둬서 네 조합(대본집 라이트/다크, 고딕 라이트/다크) 모두 지원한다.
    .log-list 자체에 CSS 변수로 팔레트를 정의해두고, 아래 구조 규칙들은 그 변수만 참조하므로
    테마·모드 클래스 조합만 바뀌면(색만) 그대로 다른 조합에도 적용된다. */
@@ -426,7 +426,7 @@ img.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;backgr
 .sg-badge[data-status="progress"]{background:color-mix(in srgb, var(--warn) 18%, transparent);color:var(--warn);}
 .sg-badge[data-status="done"]{background:color-mix(in srgb, var(--ok) 16%, transparent);color:var(--ok);}
 .sg-badge[data-status="declined"]{background:color-mix(in srgb, var(--sub) 16%, transparent);color:var(--sub);}
-/* 8번 탭: CoC 캐릭터 시트 메이커 — 익숙한 종이 시트 느낌(검은 헤더 바 + 1/2·1/5 색상 셀)을 참고한 스타일 */
+/* 9번 탭: CoC 캐릭터 시트 메이커 — 익숙한 종이 시트 느낌(검은 헤더 바 + 1/2·1/5 색상 셀)을 참고한 스타일 */
 .chs-box{border:1px solid #333;border-radius:10px;overflow:hidden;}
 .chs-box-head{background:#1e2430;color:#fff;font-weight:800;font-size:11.5px;text-align:center;padding:5px 6px;letter-spacing:.02em;}
 .chs-box-body{display:flex;}
@@ -471,7 +471,7 @@ details.raw summary{cursor:pointer;font-size:12px;color:var(--sub);}
 details.raw{margin-top:10px;}
 details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px;border-radius:8px;font-size:11px;}
 
-/* 5번 탭: 한/글 스타일 배지 근사색 (Cocofolia_Log_V4.hwp 실측 색 기준) */
+/* 6번 탭: 한/글 스타일 배지 근사색 (Cocofolia_Log_V4.hwp 실측 색 기준) */
 .bk-sv-대사2, .bk-sv-대사2_2{background:#f0f0f0;color:#222;}
 .bk-sv-대사3, .bk-sv-대사3_2{background:#d9d9d9;color:#222;}
 .bk-sv-system{background:#d3d3d3;color:#222;}
@@ -508,45 +508,46 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
         <button class="tab-btn" data-target="tab-mp3" data-cat="image" id="tabbtn-mp3" role="tab" aria-selected="false" aria-controls="tab-mp3">1. 컷인 커터</button>
         <button class="tab-btn" data-target="tab-g2a" data-cat="image" id="tabbtn-g2a" role="tab" aria-selected="false" aria-controls="tab-g2a">2. GIF APNG 변환기</button>
         <button class="tab-btn" data-target="tab-fx" data-cat="image" id="tabbtn-fx" role="tab" aria-selected="false" aria-controls="tab-fx">3. PNG 이펙터</button>
+        <button class="tab-btn" data-target="tab-imgopt" data-cat="image" id="tabbtn-imgopt" role="tab" aria-selected="false" aria-controls="tab-imgopt">4. 이미지 용량 최적화</button>
       </div></div>
     </div>
     <div class="sidebar-group" data-cat="log">
       <button class="cat-btn" data-cat="log" aria-expanded="false" aria-controls="subtabs-log"><span class="sidebar-group-label">로그 백업</span><span class="sidebar-group-caret" aria-hidden="true">▾</span></button>
       <div class="sidebar-subtabs" id="subtabs-log"><div class="sidebar-subtabs-inner">
-        <button class="tab-btn" data-target="tab-log" data-cat="log" id="tabbtn-log" role="tab" aria-selected="false" aria-controls="tab-log">4. html용 로그 백업</button>
-        <button class="tab-btn" data-target="tab-book" data-cat="log" id="tabbtn-book" role="tab" aria-selected="false" aria-controls="tab-book">5. 로그북용 로그 백업</button>
+        <button class="tab-btn" data-target="tab-log" data-cat="log" id="tabbtn-log" role="tab" aria-selected="false" aria-controls="tab-log">5. html용 로그 백업</button>
+        <button class="tab-btn" data-target="tab-book" data-cat="log" id="tabbtn-book" role="tab" aria-selected="false" aria-controls="tab-book">6. 로그북용 로그 백업</button>
       </div></div>
     </div>
     <div class="sidebar-group" data-cat="coc">
       <button class="cat-btn" data-cat="coc" aria-expanded="false" aria-controls="subtabs-coc"><span class="sidebar-group-label">CoC 유틸리티</span><span class="sidebar-group-caret" aria-hidden="true">▾</span></button>
       <div class="sidebar-subtabs" id="subtabs-coc"><div class="sidebar-subtabs-inner">
-        <button class="tab-btn" data-target="tab-glossary" data-cat="coc" id="tabbtn-glossary" role="tab" aria-selected="false" aria-controls="tab-glossary">6. CoC 용어 변환기</button>
-        <button class="tab-btn" data-target="tab-edition" data-cat="coc" id="tabbtn-edition" role="tab" aria-selected="false" aria-controls="tab-edition">7. CoC 6판-7판 수치 변환기</button>
-        <button class="tab-btn" data-target="tab-charsheet" data-cat="coc" id="tabbtn-charsheet" role="tab" aria-selected="false" aria-controls="tab-charsheet">8. CoC 캐릭터 시트 메이커</button>
+        <button class="tab-btn" data-target="tab-glossary" data-cat="coc" id="tabbtn-glossary" role="tab" aria-selected="false" aria-controls="tab-glossary">7. CoC 용어 변환기</button>
+        <button class="tab-btn" data-target="tab-edition" data-cat="coc" id="tabbtn-edition" role="tab" aria-selected="false" aria-controls="tab-edition">8. CoC 6판-7판 수치 변환기</button>
+        <button class="tab-btn" data-target="tab-charsheet" data-cat="coc" id="tabbtn-charsheet" role="tab" aria-selected="false" aria-controls="tab-charsheet">9. CoC 캐릭터 시트 메이커</button>
       </div></div>
     </div>
     <div class="sidebar-group" data-cat="char">
       <button class="cat-btn" data-cat="char" aria-expanded="false" aria-controls="subtabs-char"><span class="sidebar-group-label">캐릭터·스탠딩</span><span class="sidebar-group-caret" aria-hidden="true">▾</span></button>
       <div class="sidebar-subtabs" id="subtabs-char"><div class="sidebar-subtabs-inner">
-        <button class="tab-btn" data-target="tab-standing" data-cat="char" id="tabbtn-standing" role="tab" aria-selected="false" aria-controls="tab-standing">9. 스탠딩 일괄 재단</button>
-        <button class="tab-btn" data-target="tab-cheatsheet" data-cat="char" id="tabbtn-cheatsheet" role="tab" aria-selected="false" aria-controls="tab-cheatsheet">10. 컨닝 페이퍼 메이커</button>
-        <button class="tab-btn" data-target="tab-charfile" data-cat="char" id="tabbtn-charfile" role="tab" aria-selected="false" aria-controls="tab-charfile">11. 캐릭터 룸파일 생성기</button>
-        <button class="tab-btn" data-target="tab-trim" data-cat="char" id="tabbtn-trim" role="tab" aria-selected="false" aria-controls="tab-trim">12. 이미지 여백 자동 재단</button>
+        <button class="tab-btn" data-target="tab-standing" data-cat="char" id="tabbtn-standing" role="tab" aria-selected="false" aria-controls="tab-standing">10. 스탠딩 일괄 재단</button>
+        <button class="tab-btn" data-target="tab-cheatsheet" data-cat="char" id="tabbtn-cheatsheet" role="tab" aria-selected="false" aria-controls="tab-cheatsheet">11. 컨닝 페이퍼 메이커</button>
+        <button class="tab-btn" data-target="tab-charfile" data-cat="char" id="tabbtn-charfile" role="tab" aria-selected="false" aria-controls="tab-charfile">12. 캐릭터 룸파일 생성기</button>
+        <button class="tab-btn" data-target="tab-trim" data-cat="char" id="tabbtn-trim" role="tab" aria-selected="false" aria-controls="tab-trim">13. 이미지 여백 자동 재단</button>
       </div></div>
     </div>
     <div class="sidebar-group" data-cat="etc">
       <button class="cat-btn" data-cat="etc" aria-expanded="false" aria-controls="subtabs-etc"><span class="sidebar-group-label">기타</span><span class="sidebar-group-caret" aria-hidden="true">▾</span></button>
       <div class="sidebar-subtabs" id="subtabs-etc"><div class="sidebar-subtabs-inner">
-        <button class="tab-btn" data-target="tab-suggest" data-cat="etc" id="tabbtn-suggest" role="tab" aria-selected="false" aria-controls="tab-suggest">15. 건의함</button>
-        <button class="tab-btn" data-target="tab-settings" data-cat="etc" id="tabbtn-settings" role="tab" aria-selected="false" aria-controls="tab-settings">16. 설정</button>
-        <button class="tab-btn" data-target="tab-history" data-cat="etc" id="tabbtn-history" role="tab" aria-selected="false" aria-controls="tab-history">17. 결과물 보관함</button>
+        <button class="tab-btn" data-target="tab-suggest" data-cat="etc" id="tabbtn-suggest" role="tab" aria-selected="false" aria-controls="tab-suggest">16. 건의함</button>
+        <button class="tab-btn" data-target="tab-settings" data-cat="etc" id="tabbtn-settings" role="tab" aria-selected="false" aria-controls="tab-settings">17. 설정</button>
+        <button class="tab-btn" data-target="tab-history" data-cat="etc" id="tabbtn-history" role="tab" aria-selected="false" aria-controls="tab-history">18. 결과물 보관함</button>
       </div></div>
     </div>
     <div class="sidebar-group" data-cat="more">
       <button class="cat-btn" data-cat="more" aria-expanded="false" aria-controls="subtabs-more"><span class="sidebar-group-label">다른 기능 둘러보기</span><span class="sidebar-group-caret" aria-hidden="true">▾</span></button>
       <div class="sidebar-subtabs" id="subtabs-more"><div class="sidebar-subtabs-inner">
-        <button class="tab-btn" data-target="tab-md-ext" data-cat="more" id="tabbtn-md-ext" role="tab" aria-selected="false" aria-controls="tab-md-ext">13. Cocofolia Markdown</button>
-        <button class="tab-btn" data-target="tab-textable-ext" data-cat="more" id="tabbtn-textable-ext" role="tab" aria-selected="false" aria-controls="tab-textable-ext">14. 텍스트 자동 변환기</button>
+        <button class="tab-btn" data-target="tab-md-ext" data-cat="more" id="tabbtn-md-ext" role="tab" aria-selected="false" aria-controls="tab-md-ext">14. Cocofolia Markdown</button>
+        <button class="tab-btn" data-target="tab-textable-ext" data-cat="more" id="tabbtn-textable-ext" role="tab" aria-selected="false" aria-controls="tab-textable-ext">15. 텍스트 자동 변환기</button>
       </div></div>
     </div>
   </nav>
@@ -596,6 +597,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="image">이미지·애니메이션</span><b>2026-08-18</b> — 새 탭 "이미지 용량 최적화" 추가(4번): 정지 이미지(PNG/JPG/WebP) 여러 장을 코코포리아 업로드 기준(긴 변 1200px, 1MB 이하)에 맞춰 자동으로 줄여줌 — JPG/WebP는 화질을 먼저 낮추고, PNG처럼 화질 손잡이가 없는 형식은 해상도를 단계적으로 축소. 이미 기준 이내인 이미지는 원본 그대로 유지되고, 개별/ZIP 일괄 다운로드 모두 지원. 이 탭이 새로 끼어들며 기존 4~17번 탭 번호가 전부 하나씩 밀림</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-18</b> — 전체 UI/UX 리퀴드 글래스 개편: 사이드바에만 있던 반투명·블러 유리 재질을 카드·버튼·입력칸·검색창·업데이트 로그 등 화면 전체로 통일하고, 화면 뒤에 옅은 색 얼룩(오로라)을 깔아 유리 표면이 실제로 비쳐 보이도록 함. 버튼·칩·카드에 토스류 앱처럼 누르면 살짝 줄어드는 반응 추가. 이모지 아이콘을 전부 걷어내고 홈 카드는 카테고리 색으로 물든 번호 타일로, 햄버거·홈·검색·빠른 실행·주사위 굴리기 버튼은 선 아이콘(SVG)으로, 건의함 상태 표시는 색으로 구분되는 배지로 교체(파비콘도 이모지 대신 자체 아이콘으로 변경)</li>
       <li><span class="chlog-tag" data-cat="image">이미지·애니메이션</span><b>2026-08-15</b> — GIF ↔ APNG 변환기: 움직이는 WebP 파일도 APNG로 변환할 수 있도록 지원 추가(파일 형식은 자동 인식). 브라우저에 내장된 WebCodecs API로 프레임을 읽어오므로 별도 디코더 없이 동작하며, 이 API를 지원하지 않는 브라우저(사파리·구형 브라우저 등)에서는 안내 메시지가 표시됨(Chrome·Edge 권장)</li>
       <li><span class="chlog-tag" data-cat="more">다른 기능 둘러보기</span><b>2026-08-12</b> — Cocofolia Markdown·텍스트 자동 변환기 소개 페이지를 다른 탭들과 UI를 통일: 줄글 소개를 짧게 줄이고, 다른 탭에는 없던 아이콘 이미지·번호 매긴 줄글 안내를 제거해 일반 제목(h2)과 목록(ol)으로 정리. 다운로드/GitHub 저장소 버튼이 원래 사이트 전체 버튼과 다르게 밑줄 있는 링크로 보이던 문제도 함께 수정(버튼 스타일을 링크 버튼에도 적용)</li>
@@ -796,6 +798,23 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 </section>
 
 <!-- ===================== TAB 4 ===================== -->
+<section id="tab-imgopt" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-imgopt">
+  <div class="card">
+    <h2>이미지 용량 최적화</h2>
+    <p class="desc">정지 이미지(PNG/JPG/WebP)를 코코포리아 업로드 기준(긴 변 1200px, 1MB 이하)에 맞춰 자동으로 줄여줍니다. 이미 기준 이내인 이미지는 원본 그대로 유지됩니다.</p>
+    <div class="drop" id="imgopt-drop">이미지 여러 장
+      <input type="file" id="imgopt-file" accept=".png,.jpg,.jpeg,.webp" multiple class="hidden">
+    </div>
+    <div class="info-box hidden" id="imgopt-info" aria-live="polite"></div>
+    <div class="row">
+      <button class="btn ghost" id="imgopt-zip" disabled>ZIP으로 일괄 다운로드</button>
+      <button class="btn ghost" id="imgopt-clear" disabled style="color:var(--danger);">전체 지우기</button>
+    </div>
+    <div id="imgopt-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:14px;"></div>
+  </div>
+</section>
+
+<!-- ===================== TAB 5 ===================== -->
 <section id="tab-log" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-log">
   <div class="card">
     <h2>html용 로그 백업</h2>
@@ -826,7 +845,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 5 ===================== -->
+<!-- ===================== TAB 6 ===================== -->
 <section id="tab-book" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-book">
   <div class="card">
     <h2>로그북용 로그 백업 (A5 국배판 · 한/글 매크로 연동)</h2>
@@ -877,7 +896,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 6 ===================== -->
+<!-- ===================== TAB 7 ===================== -->
 <section id="tab-glossary" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-glossary">
   <div class="card">
     <h2>CoC 용어 변환기 (번역 아님)</h2>
@@ -909,7 +928,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 7 ===================== -->
+<!-- ===================== TAB 8 ===================== -->
 <section id="tab-edition" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-edition">
   <div class="card">
     <h2>CoC 6판 → 7판 수치 변환기</h2>
@@ -930,7 +949,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 
   <div class="card">
     <h3 style="font-size:13px;color:var(--sub);margin:0 0 6px;">Damage Bonus / Build 참고표</h3>
-    <p class="desc">CoC 7판 공식 표가 기본으로 채워져 있어 바로 조회할 수 있습니다. 다른 룰북을 쓴다면 값을 직접 고쳐 쓰세요 — 이 표는 CoC 캐릭터 시트 메이커(8번 탭)에서도 그대로 쓰입니다. 입력값은 브라우저에 자동 저장됩니다.</p>
+    <p class="desc">CoC 7판 공식 표가 기본으로 채워져 있어 바로 조회할 수 있습니다. 다른 룰북을 쓴다면 값을 직접 고쳐 쓰세요 — 이 표는 CoC 캐릭터 시트 메이커(9번 탭)에서도 그대로 쓰입니다. 입력값은 브라우저에 자동 저장됩니다.</p>
     <table style="width:100%;border-collapse:collapse;font-size:13px;" id="ed-db-table">
       <thead><tr style="text-align:left;color:var(--sub);"><th style="padding:4px;">STR+SIZ 최소</th><th style="padding:4px;">STR+SIZ 최대</th><th style="padding:4px;">Damage Bonus</th><th style="padding:4px;">Build</th><th></th></tr></thead>
       <tbody id="ed-db-body"></tbody>
@@ -943,7 +962,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 12 ===================== -->
+<!-- ===================== TAB 13 ===================== -->
 <section id="tab-charsheet" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-charsheet">
   <div class="card">
     <h2>CoC 캐릭터 시트 메이커</h2>
@@ -1000,7 +1019,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="info-box" id="chs-points-info" aria-live="polite">기능치에 점수를 분배하면 남은 점수가 여기 표시됩니다.</div>
 
     <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">5. 기능치</h3>
-    <p class="footnote" style="margin:2px 0 6px;">기능명은 직접 수정할 수 있습니다. 괄호가 빈 기능(예술/공예, 과학 등)은 괄호 안에 세부 분야를 적어주세요. 총합 = 기본 + 분배(최대 99). "분배" 칸에 점수를 넣을 때마다 위 4번 칸의 남은 점수가 줄어듭니다 — 다 쓰고 나면 0점이 되도록 맞추면 됩니다.</p>
+    <p class="footnote" style="margin:2px 0 6px;">기능명은 직접 수정할 수 있습니다. 괄호가 빈 기능(예술/공예, 과학 등)은 괄호 안에 세부 분야를 적어주세요. 총합 = 기본 + 분배(최대 99). "분배" 칸에 점수를 넣을 때마다 위 5번 칸의 남은 점수가 줄어듭니다 — 다 쓰고 나면 0점이 되도록 맞추면 됩니다.</p>
     <div class="row">
       <button class="btn ghost" id="chs-skill-add" type="button">기능 행 추가</button>
       <button class="btn ghost" id="chs-skill-reset" type="button">기본 기능 목록으로 초기화</button>
@@ -1041,13 +1060,13 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <button class="btn" id="chs-generate">JSON 생성</button>
       <button class="btn ghost" id="chs-copy-json">복사</button>
       <button class="btn ghost" id="chs-download-json">JSON 파일로 다운로드</button>
-      <button class="btn ghost" id="chs-send-charfile">→ 11번 캐릭터 룸파일로 보내기</button>
+      <button class="btn ghost" id="chs-send-charfile">→ 12번 캐릭터 룸파일로 보내기</button>
     </div>
     <div class="field" style="width:100%;margin-top:8px;"><textarea id="chs-json-output" rows="6" style="width:100%;" readonly aria-label="생성된 코코포리아 캐릭터 JSON" placeholder="JSON 생성 버튼을 누르면 여기에 표시됩니다."></textarea></div>
   </div>
 </section>
 
-<!-- ===================== TAB 8 ===================== -->
+<!-- ===================== TAB 9 ===================== -->
 <section id="tab-standing" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-standing">
   <div class="card">
     <h2>스탠딩 이미지 일괄 재단</h2>
@@ -1084,15 +1103,15 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <button class="btn ghost" id="st-clear" disabled style="color:var(--danger);">전체 지우기</button>
     </div>
     <div class="row" style="margin-top:-6px;">
-      <button class="btn ghost" id="st-send-cs" disabled>→ 10번 컨닝 페이퍼로 바로 보내기</button>
-      <button class="btn ghost" id="st-send-cf" disabled>→ 11번 캐릭터 룸파일로 바로 보내기</button>
+      <button class="btn ghost" id="st-send-cs" disabled>→ 11번 컨닝 페이퍼로 바로 보내기</button>
+      <button class="btn ghost" id="st-send-cf" disabled>→ 12번 캐릭터 룸파일로 바로 보내기</button>
     </div>
     <p class="footnote" style="margin-top:-6px;">재단된 이미지를 다운로드/재업로드하지 않고 그대로 다른 탭으로 넘겨서 이어서 작업할 수 있습니다.</p>
     <div id="st-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:14px;"></div>
   </div>
 </section>
 
-<!-- ===================== TAB 9 ===================== -->
+<!-- ===================== TAB 10 ===================== -->
 <section id="tab-cheatsheet" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-cheatsheet">
   <div class="card">
     <h2>표정 카탈로그 컨닝 페이퍼 메이커</h2>
@@ -1187,7 +1206,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 10 ===================== -->
+<!-- ===================== TAB 11 ===================== -->
 <section id="tab-charfile" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-charfile">
   <div class="card">
     <h2>코코포리아 캐릭터 룸파일 생성기</h2>
@@ -1216,7 +1235,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 12 ===================== -->
+<!-- ===================== TAB 13 ===================== -->
 <section id="tab-trim" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-trim">
   <div class="card">
     <h2>이미지 여백 자동 재단</h2>
@@ -1241,16 +1260,16 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <button class="btn ghost" id="trim-clear" disabled style="color:var(--danger);">전체 지우기</button>
     </div>
     <div class="row" style="margin-top:-6px;">
-      <button class="btn ghost" id="trim-send-st" disabled>→ 9번 스탠딩 재단으로 바로 보내기</button>
-      <button class="btn ghost" id="trim-send-cs" disabled>→ 10번 컨닝 페이퍼로 바로 보내기</button>
-      <button class="btn ghost" id="trim-send-cf" disabled>→ 11번 캐릭터 룸파일로 바로 보내기</button>
+      <button class="btn ghost" id="trim-send-st" disabled>→ 10번 스탠딩 재단으로 바로 보내기</button>
+      <button class="btn ghost" id="trim-send-cs" disabled>→ 11번 컨닝 페이퍼로 바로 보내기</button>
+      <button class="btn ghost" id="trim-send-cf" disabled>→ 12번 캐릭터 룸파일로 바로 보내기</button>
     </div>
     <p class="footnote" style="margin-top:-6px;">잘라낸 이미지를 다운로드/재업로드하지 않고 그대로 다른 탭으로 넘겨서 이어서 작업할 수 있습니다.</p>
     <div id="trim-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:14px;"></div>
   </div>
 </section>
 
-<!-- ===================== TAB 13 ===================== -->
+<!-- ===================== TAB 14 ===================== -->
 <section id="tab-md-ext" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-md-ext">
   <div class="card">
     <h2>Cocofolia Markdown (마크다운 확장 프로그램)</h2>
@@ -1271,7 +1290,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 14 ===================== -->
+<!-- ===================== TAB 15 ===================== -->
 <section id="tab-textable-ext" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-textable-ext">
   <div class="card">
     <h2>텍스트 자동 변환기 (문자 변환 확장 프로그램)</h2>
@@ -1292,7 +1311,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 15 ===================== -->
+<!-- ===================== TAB 16 ===================== -->
 <section id="tab-suggest" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-suggest">
   <div class="card">
     <h2>건의함</h2>
@@ -1310,7 +1329,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 16 ===================== -->
+<!-- ===================== TAB 17 ===================== -->
 <section id="tab-settings" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-settings">
   <div class="card">
     <h2>설정</h2>
@@ -1328,7 +1347,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 17 ===================== -->
+<!-- ===================== TAB 18 ===================== -->
 <section id="tab-history" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-history">
   <div class="card">
     <h2>결과물 보관함</h2>
@@ -18681,7 +18700,7 @@ function makeRevealable(el){
 }
 
 // 다운로드 버튼 옆에 "임시저장" 버튼을 넣는다 — 파일을 실제로 다운로드하지 않고도 결과물
-// 보관함(14번 탭)에만 남길 수 있다(이것저것 만들어보다가 마음에 드는 버전만 나중에 골라
+// 보관함(15번 탭)에만 남길 수 있다(이것저것 만들어보다가 마음에 드는 버전만 나중에 골라
 // 다운로드하고 싶을 때 유용). onClick은 undefined/true(즉시 성공), false(할 게 없음 — 이
 // 경우 onClick 안에서 직접 alert로 안내해야 함), 또는 Promise<boolean>을 반환할 수 있다.
 function insertQuickSaveButton(afterBtn, onClick){
@@ -18846,7 +18865,7 @@ function persistFormField(id, storageKey){
 }
 
 /* ============ 업로드해둔 작업물이 저장/다운로드 전에 날아가지 않도록 경고 ============
-   9/10/11번 탭은 이미지를 여러 장 올려 놓고 순서·라벨 등을 다듬은 뒤에야 다운로드하는 구조라,
+   10/11/12번 탭은 이미지를 여러 장 올려 놓고 순서·라벨 등을 다듬은 뒤에야 다운로드하는 구조라,
    결과물을 받기 전에 실수로 탭을 닫거나 새로고침하면 그 작업이 전부 사라진다. 각 탭은 이미지
    목록이 바뀔 때마다 markPendingWork(자기 탭 이름, 목록이 비어있지 않은지)를 호출해두고,
    beforeunload에서 하나라도 남아있으면 브라우저 기본 확인창을 띄운다. */
@@ -18861,14 +18880,14 @@ window.addEventListener('beforeunload', function(e){
 // 구간·FPS·크로마키 값처럼 파일마다 달라지는 값은 저장 대상에서 제외한다.
 persistFormField('g2a-autoresize', 'cocofolia_setter_g2a_autoresize');
 persistFormField('g2a-alpha', 'cocofolia_setter_g2a_alpha');
-// 9번 탭(스탠딩 일괄 재단)
+// 10번 탭(스탠딩 일괄 재단)
 persistFormField('st-ratio-w', 'cocofolia_setter_st_ratio_w');
 persistFormField('st-ratio-h', 'cocofolia_setter_st_ratio_h');
 persistFormField('st-mode', 'cocofolia_setter_st_mode');
 persistFormField('st-anchor', 'cocofolia_setter_st_anchor');
 persistFormField('st-bgcolor', 'cocofolia_setter_st_bgcolor');
 persistFormField('st-outwidth', 'cocofolia_setter_st_outwidth');
-// 10번 탭(컨닝 페이퍼 메이커)
+// 11번 탭(컨닝 페이퍼 메이커)
 persistFormField('cs-hero-width', 'cocofolia_setter_cs_hero_width');
 persistFormField('cs-cols', 'cocofolia_setter_cs_cols');
 persistFormField('cs-gap', 'cocofolia_setter_cs_gap');
@@ -18878,7 +18897,7 @@ persistFormField('cs-name-align', 'cocofolia_setter_cs_name_align');
 persistFormField('cs-name-font', 'cocofolia_setter_cs_name_font');
 persistFormField('cs-name-weight', 'cocofolia_setter_cs_name_weight');
 persistFormField('cs-name-color', 'cocofolia_setter_cs_name_color');
-// 12번 탭(이미지 여백 자동 재단)
+// 13번 탭(이미지 여백 자동 재단)
 persistFormField('trim-tolerance', 'cocofolia_setter_trim_tolerance');
 persistFormField('trim-padding', 'cocofolia_setter_trim_padding');
 
@@ -19142,6 +19161,7 @@ $all('.cat-btn').forEach(function(btn){
     'tab-mp3': '컷인 이미지 길이에 맞춰 무음 mp3를 만듭니다.',
     'tab-g2a': 'GIF↔APNG 상호 변환, MP4·움직이는 WebP→APNG 변환을 지원합니다.',
     'tab-fx': '정지 이미지에 효과를 입혀 짧은 연출용 APNG를 만듭니다.',
+    'tab-imgopt': '이미지를 코코포리아 업로드 기준(1200px·1MB)에 맞춰 자동으로 줄입니다.',
     'tab-log': '코코포리아 로그를 대본집처럼 정리합니다.',
     'tab-book': '로그를 인쇄용 로그북 조판 마커 텍스트로 변환합니다.',
     'tab-glossary': 'CoC 관련 일본어 용어를 국내 표준 용어로 치환합니다.',
@@ -19429,7 +19449,7 @@ function loadImageElement(file){
   });
 }
 
-// 여러 이미지를 한꺼번에 업로드하는 탭(9/10/11번)에서 공용으로 쓰는 헬퍼. Promise.all은 하나만
+// 여러 이미지를 한꺼번에 업로드하는 탭(10/11/12번)에서 공용으로 쓰는 헬퍼. Promise.all은 하나만
 // 실패해도 전체가 그대로 reject되어 나머지 정상 파일까지 조용히 무시되므로(콘솔에만 에러가
 // 남고 화면은 아무 반응 없음), 파일별로 성공/실패를 따로 모아서 성공한 것만 쓰고 실패 목록은
 // 호출부가 안내할 수 있게 한다.
@@ -20922,7 +20942,201 @@ function guessGmName(namesSortedByFreqDesc){
 }
 
 /* ================================================================
-   탭 4. 로그 백업 (심플)
+   탭 4. 이미지 코코포리아 규격 압축기
+   여러 정지 이미지(PNG/JPG/WebP)를 한 번에 올려서 코코포리아 업로드
+   기준(긴 변 COCOFOLIA_MAX_DIM, 용량 COCOFOLIA_TARGET_BYTES)에 맞춰
+   자동으로 줄인다. 2번(GIF/APNG 변환기)의 fitApngToLimit/fitGifToLimit과
+   같은 목적이지만 그쪽은 애니메이션 프레임 배열을 다루는 반면, 이건 정지
+   이미지 1장짜리 캔버스를 다룬다는 점만 다르다. JPEG/WebP는 화질(quality)
+   손잡이가 있어 먼저 화질을 낮추고, 그래도 부족하면(또는 PNG처럼 화질
+   손잡이가 없으면) 해상도를 단계적으로 줄인다 — 픽셀이 뭉개지는 것보다
+   먼저 화질을 낮추는 편이 육안상 손상이 덜하기 때문이다.
+================================================================ */
+(function(){
+  var IMGOPT_TARGET_BYTES = 0.95*1024*1024;
+  var IMGOPT_MAX_DIM = 1200;
+  var items = [];
+
+  function outputMime(file){
+    var ext = (file.name.split('.').pop()||'').toLowerCase();
+    if(ext==='jpg' || ext==='jpeg') return 'image/jpeg';
+    if(ext==='webp') return 'image/webp';
+    return 'image/png';
+  }
+  function outputExt(mime){
+    if(mime==='image/jpeg') return '.jpg';
+    if(mime==='image/webp') return '.webp';
+    return '.png';
+  }
+  function toBlobP(canvas, mime, quality){
+    return new Promise(function(res){
+      canvas.toBlob(function(blob){ res(blob); }, mime, quality);
+    });
+  }
+
+  // 캔버스를 (w,h)로 다시 그린다 — img는 원본 그대로 유지하고 매번 원본에서 다시 그려야
+  // JPEG 화질을 반복적으로 낮출 때 재압축이 누적되어 품질이 계단식으로 더 나빠지는 것을 막는다.
+  function drawAt(img, w, h){
+    var c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    c.getContext('2d').drawImage(img, 0, 0, w, h);
+    return c;
+  }
+
+  async function fitImageToLimit(img, mime, targetBytes, maxDim){
+    var srcW = img.width, srcH = img.height;
+    var scale = Math.min(1, maxDim/Math.max(srcW, srcH));
+    var w = Math.max(1, Math.round(srcW*scale)), h = Math.max(1, Math.round(srcH*scale));
+    var hasQuality = (mime==='image/jpeg' || mime==='image/webp');
+    var quality = 0.92;
+    var canvas = drawAt(img, w, h);
+    var blob = await toBlobP(canvas, mime, hasQuality ? quality : undefined);
+    var resized = (scale < 1);
+
+    var guard = 0;
+    while(blob && blob.size > targetBytes && guard < 14){
+      guard++;
+      if(hasQuality && quality > 0.5){
+        quality = Math.max(0.5, quality - 0.1);
+        blob = await toBlobP(canvas, mime, quality);
+      } else if(Math.max(w,h) > 300){
+        w = Math.max(300, Math.round(w*0.85));
+        h = Math.max(300, Math.round(h*0.85));
+        canvas = drawAt(img, w, h);
+        blob = await toBlobP(canvas, mime, hasQuality ? quality : undefined);
+        resized = true;
+      } else {
+        break;
+      }
+    }
+    return {blob:blob, w:w, h:h, resized:resized};
+  }
+
+  function fmtKB(bytes){ return (bytes/1024).toFixed(1)+'KB'; }
+
+  function renderRow(it){
+    var box = document.createElement('div');
+    box.style.cssText = 'background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px;';
+    var img = document.createElement('img');
+    img.src = URL.createObjectURL(it.blob);
+    img.alt = it.file.name+' 압축 결과 미리보기';
+    img.className = 'preview';
+    img.style.width = '100%';
+    var name = document.createElement('div');
+    name.style.cssText = 'font-size:11px;color:var(--sub);margin-top:6px;word-break:break-all;';
+    name.textContent = it.outName;
+    var sizeInfo = document.createElement('div');
+    sizeInfo.style.cssText = 'font-size:11px;color:var(--sub);margin-top:2px;';
+    var savedPct = it.origBytes>0 ? Math.round((1 - it.blob.size/it.origBytes)*100) : 0;
+    sizeInfo.textContent = it.resized
+      ? (it.origW+'×'+it.origH+' '+fmtKB(it.origBytes)+' → '+it.w+'×'+it.h+' '+fmtKB(it.blob.size)+' ('+(savedPct>0?'-'+savedPct+'%':'변화 없음')+')')
+      : '이미 기준 이내 — 원본 그대로 ('+fmtKB(it.blob.size)+')';
+    var btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:4px;margin-top:6px;';
+    var dl = document.createElement('button');
+    dl.className = 'btn ghost'; dl.textContent = '다운로드'; dl.style.cssText='flex:1;padding:6px;font-size:12px;';
+    dl.addEventListener('click', function(){ downloadBlob(it.blob, it.outName); });
+    var rm = document.createElement('button');
+    rm.className = 'btn ghost'; rm.textContent = '제거'; rm.style.cssText='padding:6px 10px;font-size:12px;color:var(--danger);';
+    rm.addEventListener('click', function(){
+      var i = items.indexOf(it);
+      if(i>=0){ items.splice(i,1); renderAll(); }
+    });
+    btnRow.appendChild(dl); btnRow.appendChild(rm);
+    box.appendChild(img); box.appendChild(name); box.appendChild(sizeInfo); box.appendChild(btnRow);
+    return box;
+  }
+
+  function renderAll(){
+    var grid = $('#imgopt-grid');
+    grid.innerHTML = '';
+    items.forEach(function(it){ grid.appendChild(renderRow(it)); });
+    var has = items.length>0;
+    $('#imgopt-zip').disabled = !has;
+    if(imgoptZipSaveBtn) imgoptZipSaveBtn.disabled = !has;
+    $('#imgopt-clear').disabled = !has;
+    markPendingWork('imgopt', has);
+  }
+
+  function loadImgoptFiles(files){
+    loadImagesTolerant(files, function(f, img){ return {file:f, img:img}; }).then(function(res){
+      var info = $('#imgopt-info');
+      if(!res.loaded.length){
+        info.textContent = '불러온 이미지가 없습니다.'+(res.failed.length?(' (실패: '+res.failed.join(', ')+')'):'');
+        info.classList.remove('hidden');
+        return;
+      }
+      info.textContent = res.loaded.length+'장 압축 중...'+(res.failed.length?(' (실패 '+res.failed.length+'장: '+res.failed.join(', ')+')'):'');
+      info.classList.remove('hidden');
+      Promise.all(res.loaded.map(function(it){
+        var mime = outputMime(it.file);
+        return fitImageToLimit(it.img, mime, IMGOPT_TARGET_BYTES, IMGOPT_MAX_DIM).then(function(r){
+          return {
+            file: it.file, blob: r.blob, w: r.w, h: r.h, resized: r.resized,
+            origW: it.img.width, origH: it.img.height, origBytes: it.file.size,
+            outName: baseName(it.file.name)+'_opt'+outputExt(mime)
+          };
+        });
+      })).then(function(results){
+        items = items.concat(results);
+        renderAll();
+        info.textContent = results.length+'장 처리 완료.'+(res.failed.length?(' (실패 '+res.failed.length+'장: '+res.failed.join(', ')+')'):'');
+      });
+    });
+  }
+  setupMultiDrop('imgopt-drop','imgopt-file', loadImgoptFiles);
+
+  $('#imgopt-clear').addEventListener('click', function(){
+    if(!confirm('업로드한 이미지 '+items.length+'장을 모두 지울까요?')) return;
+    items = [];
+    renderAll();
+    $('#imgopt-info').classList.add('hidden');
+  });
+
+  function buildImgoptZip(btn){
+    if(!window.JSZip) return Promise.reject(new Error('JSZip 라이브러리를 불러오지 못했습니다.'));
+    var zip = new JSZip();
+    items.forEach(function(it){ zip.file(it.outName, it.blob); });
+    return zip.generateAsync({type:'blob'}, function(meta){
+      if(btn) btn.textContent = '압축 중... '+Math.round(meta.percent)+'%';
+    });
+  }
+  function runImgoptZipAction(btn, whenDone){
+    var oldText = btn.textContent;
+    btn.disabled = true;
+    return buildImgoptZip(btn).then(function(blob){
+      whenDone(blob);
+      btn.disabled = false; btn.textContent = oldText;
+      return true;
+    }).catch(function(e){
+      alert('ZIP 생성 실패: '+e.message);
+      btn.disabled = false; btn.textContent = oldText;
+      return false;
+    });
+  }
+  $('#imgopt-zip').addEventListener('click', function(){
+    runImgoptZipAction($('#imgopt-zip'), function(blob){ downloadBlob(blob, 'imgopt_batch.zip'); });
+  });
+  var imgoptZipSaveBtn = insertQuickSaveButton($('#imgopt-zip'), function(){
+    if(!items.length){ alert('먼저 이미지를 올려주세요.'); return false; }
+    return runImgoptZipAction(imgoptZipSaveBtn, function(blob){ saveResultToHistory(currentTabLabel(), 'imgopt_batch.zip', blob); });
+  });
+  imgoptZipSaveBtn.disabled = true;
+
+  // 업로드했던 원본 파일들을 저장해뒀다가, 되돌릴 때 같은 업로드 경로(loadImgoptFiles)를
+  // 다시 태워 압축부터 재현한다(trim 탭과 같은 패턴).
+  registerTabSnapshot('tab-imgopt', function captureImgoptSnapshot(){
+    return { files: items.map(function(it){ return it.file; }) };
+  }, function restoreImgoptSnapshot(snap){
+    items = [];
+    $('#imgopt-info').classList.add('hidden');
+    renderAll();
+    if(snap.files && snap.files.length) loadImgoptFiles(snap.files);
+  });
+})();
+
+/* ================================================================
+   탭 5. 로그 백업 (심플)
 ================================================================ */
 var TabLog = (function(){
   var state = { messages:[], activeSpeakers:null, baseFilename:null };
@@ -21260,7 +21474,7 @@ var TabLog = (function(){
 })();
 
 /* ================================================================
-   탭 5. 로그북용 한/글 매크로 마커 변환기
+   탭 6. 로그북용 한/글 매크로 마커 변환기
    (Cocofolia_Log_V4.html 변환 엔진을 그대로 이식 — 기존 .hwp 템플릿/
     .msr 매크로와 100% 호환되는 @@스타일@@본문 마커 텍스트를 생성한다)
 ================================================================ */
@@ -21573,7 +21787,7 @@ var TabLog = (function(){
 })();
 
 /* ================================================================
-   탭 6. CoC 용어 변환기 (실제 번역은 하지 않음 — 용어 치환만)
+   탭 7. CoC 용어 변환기 (실제 번역은 하지 않음 — 용어 치환만)
 ================================================================ */
 (function(){
   var DEFAULT_GLOSSARY = [
@@ -21731,7 +21945,7 @@ var TabLog = (function(){
 })();
 
 /* ================================================================
-   탭 7. CoC 6판 → 7판 수치 변환기
+   탭 8. CoC 6판 → 7판 수치 변환기
 ================================================================ */
 (function(){
   var STATS = [
@@ -21869,7 +22083,7 @@ var TabLog = (function(){
 })();
 
 /* ================================================================
-   탭 12. CoC 캐릭터 시트 메이커
+   탭 13. CoC 캐릭터 시트 메이커
 ================================================================ */
 (function(){
   var STAT_DEFS = [
@@ -22206,7 +22420,7 @@ var TabLog = (function(){
   derived.db = dbBuildInputs[0];
   derived.build = dbBuildInputs[1];
 
-  var DBTABLE_LS_KEY = 'cocofolia_setter_dbtable_v1'; // 7번 탭(CoC 6판→7판 수치 변환기)이 쓰는 것과 동일한 저장 키를 재사용
+  var DBTABLE_LS_KEY = 'cocofolia_setter_dbtable_v1'; // 8번 탭(CoC 6판→7판 수치 변환기)이 쓰는 것과 동일한 저장 키를 재사용
   function lookupCustomDbBuild(strSizSum){
     try{
       var raw = localStorage.getItem(DBTABLE_LS_KEY);
@@ -22219,10 +22433,10 @@ var TabLog = (function(){
       }) || null;
     }catch(e){ return null; }
   }
-  // CoC 7판 공식 규칙집의 Damage Bonus/Build 표(STR+SIZ 기준). 예전에는 7번 탭(CoC 6판→7판
+  // CoC 7판 공식 규칙집의 Damage Bonus/Build 표(STR+SIZ 기준). 예전에는 8번 탭(CoC 6판→7판
   // 수치 변환기)에 이 표를 직접 입력해둬야만 자동 계산이 됐는데, 표를 채워두지 않은 사용자가
   // 대부분이라 매번 손으로 입력해야 하는 게 불편했다. 이제는 공식 표를 기본값으로 내장해서
-  // 아무것도 준비하지 않아도 바로 계산되고, 7번 탭에 직접 표를 채워둔 경우에만(홈브류 규칙 등)
+  // 아무것도 준비하지 않아도 바로 계산되고, 8번 탭에 직접 표를 채워둔 경우에만(홈브류 규칙 등)
   // 그 값이 우선 적용된다.
   function officialDbBuild(strSiz){
     if(strSiz<=64) return {db:'-2', build:'-2'};
@@ -22296,7 +22510,7 @@ var TabLog = (function(){
     setAutoIfUnedited(derived.db, auto.db);
     setAutoIfUnedited(derived.build, auto.build);
     $('#chs-db-note').textContent = customFound
-      ? ('STR+SIZ='+strSiz+' → 7번 탭에 직접 입력해둔 표에서 찾았습니다(직접 값을 고치면 그 값이 우선 유지됩니다).')
+      ? ('STR+SIZ='+strSiz+' → 8번 탭에 직접 입력해둔 표에서 찾았습니다(직접 값을 고치면 그 값이 우선 유지됩니다).')
       : ('STR+SIZ='+strSiz+' → CoC 7판 공식 표로 자동 계산했습니다(직접 값을 고치면 그 값이 우선 유지됩니다).');
 
     var formula = $('#chs-occ-formula').value;
@@ -22569,7 +22783,7 @@ var TabLog = (function(){
 })();
 
 /* ================================================================
-   탭 8. 스탠딩 이미지 일괄 재단
+   탭 9. 스탠딩 이미지 일괄 재단
 ================================================================ */
 (function(){
   var items = [];
@@ -22720,7 +22934,7 @@ var TabLog = (function(){
     loadImagesTolerant(files, function(f, img){ return {file:f, img:img, offset:0}; }).then(function(res){
       items = items.concat(res.loaded);
       if(res.loaded.length){ $('#st-apply').disabled = false; renderAll(); }
-      // 다른 다중 업로드 탭(10/11번)과 동일하게, 차단형 alert() 대신 aria-live 상태 표시줄에 결과를 안내한다.
+      // 다른 다중 업로드 탭(11/12번)과 동일하게, 차단형 alert() 대신 aria-live 상태 표시줄에 결과를 안내한다.
       var msg = res.loaded.length ? (res.loaded.length+'장 로드됨.') : '불러온 이미지가 없습니다.';
       if(res.failed.length) msg += ' (실패 '+res.failed.length+'장: '+res.failed.join(', ')+')';
       $('#st-info').textContent = msg;
@@ -22729,7 +22943,7 @@ var TabLog = (function(){
   }
   setupMultiDrop('st-drop','st-file', loadStFiles);
 
-  // 다른 탭(12번 이미지 여백 자동 재단)에서 처리된 이미지를 다시 다운로드/업로드하지 않고
+  // 다른 탭(13번 이미지 여백 자동 재단)에서 처리된 이미지를 다시 다운로드/업로드하지 않고
   // 바로 받기 위한 통로.
   window.__ccSend = window.__ccSend || {};
   window.__ccSend.toStanding = loadStFiles;
@@ -22793,7 +23007,7 @@ var TabLog = (function(){
   });
   stZipSaveBtn.disabled = true; // st-zip과 마찬가지로 이미지가 없으면 저장할 결과물도 없다
 
-  // 재단된 이미지를 다운로드→재업로드하지 않고 바로 10번/11번 탭으로 넘기는 통로.
+  // 재단된 이미지를 다운로드→재업로드하지 않고 바로 11번/12번 탭으로 넘기는 통로.
   // window.__ccSend는 각 탭이 자기 업로드 처리 함수를 등록해두는 전역 브릿지.
   function itemsToFiles(){
     // 다운로드용 파일명(_cut 접미사)과 달리, 다른 탭으로 넘길 때는 라벨 자동 생성에 그대로
@@ -22857,7 +23071,7 @@ var TabLog = (function(){
 })();
 
 /* ================================================================
-   탭 12. 이미지 여백 자동 재단
+   탭 13. 이미지 여백 자동 재단
 ================================================================ */
 (function(){
   var items = [];
@@ -23021,7 +23235,7 @@ var TabLog = (function(){
   $('#trim-tolerance-val').textContent = $('#trim-tolerance').value+'%'; // localStorage 복원값과 라벨 동기화
 
   // 다운로드·임시저장 버튼이 zip 생성 과정을 그대로 공유하고, 진행률 표시와 다 끝난 뒤
-  // 무엇을 할지(다운로드/저장)만 다르게 한다(9번 스탠딩 재단과 동일한 패턴).
+  // 무엇을 할지(다운로드/저장)만 다르게 한다(10번 스탠딩 재단과 동일한 패턴).
   function buildTrimZip(btn){
     if(!window.JSZip) return Promise.reject(new Error('JSZip 라이브러리를 불러오지 못했습니다.'));
     var zip = new JSZip();
@@ -23061,7 +23275,7 @@ var TabLog = (function(){
   });
   trimZipSaveBtn.disabled = true;
 
-  // 잘라낸 이미지를 다운로드→재업로드하지 않고 바로 9/10/11번 탭으로 넘기는 통로.
+  // 잘라낸 이미지를 다운로드→재업로드하지 않고 바로 10/11/12번 탭으로 넘기는 통로.
   function itemsToFiles(){
     return Promise.all(items.map(function(it){
       return new Promise(function(res){
@@ -23109,7 +23323,7 @@ var TabLog = (function(){
 })();
 
 /* ================================================================
-   탭 9. 표정 카탈로그 컨닝 페이퍼 메이커
+   탭 10. 표정 카탈로그 컨닝 페이퍼 메이커
 ================================================================ */
 (function(){
   var items = [];
@@ -23817,7 +24031,7 @@ var TabLog = (function(){
   });
   csSaveBtn.classList.add('hidden'); // cs-download와 마찬가지로 결과물이 생기기 전엔 숨김
 
-  // 다른 탭(9번 스탠딩 재단)에서 처리된 이미지를 다시 다운로드/업로드하지 않고 바로 받기 위한 통로.
+  // 다른 탭(10번 스탠딩 재단)에서 처리된 이미지를 다시 다운로드/업로드하지 않고 바로 받기 위한 통로.
   window.__ccSend = window.__ccSend || {};
   window.__ccSend.toCheatsheet = loadCsFiles;
 
@@ -23894,7 +24108,7 @@ var TabLog = (function(){
 })();
 
 /* ================================================================
-   탭 10. 코코포리아 캐릭터 룸파일 생성기
+   탭 11. 코코포리아 캐릭터 룸파일 생성기
    ── 코코포리아는 캐릭터 단독 내보내기/가져오기를 지원하지 않아서,
    캐릭터 1명만 담은 "룸 데이터" 형식(zip: __data.json + 이미지 파일들)을
    만들어 그걸 룸 가져오기로 불러오게 하는 방식을 쓴다. 이 형식은 실제
@@ -24207,7 +24421,7 @@ var TabLog = (function(){
       return ok;
     });
   });
-  // cf-build와 마찬가지로 이미지가 없으면 저장할 결과물도 없다. 다른 탭(9번 스탠딩 재단)에서
+  // cf-build와 마찬가지로 이미지가 없으면 저장할 결과물도 없다. 다른 탭(10번 스탠딩 재단)에서
   // 넘어온 이미지가 이미 있는 상태로 이 스크립트가 실행됐을 수 있으니 실제 개수 기준으로 맞춘다.
   syncCfButtons();
 
@@ -24248,7 +24462,7 @@ var TabLog = (function(){
    인터넷 연결이 필요함 — 항상 그 순간의 최신 소스를 받아온다). */
 
 /* ================================================================
-   탭 15. 건의함 (GitHub 이슈 연동)
+   탭 16. 건의함 (GitHub 이슈 연동)
 ================================================================ */
 (function(){
   var OWNER = 'G909G09', REPO = 'Cocofolia-Setter', LABEL = '건의';
