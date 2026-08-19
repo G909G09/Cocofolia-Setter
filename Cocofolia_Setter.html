@@ -598,6 +598,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-19</b> — 이미지 용량 최적화(4번)·스탠딩 일괄 재단(10번)·이미지 여백 자동 재단(13번) 탭의 "ZIP으로 일괄 다운로드"에서, 서로 다른 폴더 등에서 온 파일명이 같은 원본을 여러 장 올리면 결과물 파일명도 똑같아져 압축을 풀 때 뒤 항목이 앞 항목을 조용히 덮어써 이미지 하나가 사라지던 문제 수정 — 이름이 겹치면 자동으로 "(2)"부터 번호를 붙여 구분되도록 함</li>
+      <li><span class="chlog-tag" data-cat="image">이미지·애니메이션</span><b>2026-08-19</b> — 이미지 용량 최적화: 2장 이상 올리면 카드별 절감률과는 별도로 전체 용량 변화(예: "전체 5장 · 4.2MB → 1.1MB (-74%)")를 한 줄로 함께 보여줌</li>
       <li><span class="chlog-tag" data-cat="image">이미지·애니메이션</span><b>2026-08-18</b> — 새 탭 "이미지 용량 최적화" 추가(4번): 정지 이미지(PNG/JPG/WebP) 여러 장을 코코포리아 업로드 기준(긴 변 1200px, 1MB 이하)에 맞춰 자동으로 줄여줌 — JPG/WebP는 화질을 먼저 낮추고, PNG처럼 화질 손잡이가 없는 형식은 해상도를 단계적으로 축소. 이미 기준 이내인 이미지는 원본 그대로 유지되고, 개별/ZIP 일괄 다운로드 모두 지원. 이 탭이 새로 끼어들며 기존 4~17번 탭 번호가 전부 하나씩 밀림</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-18</b> — 전체 UI/UX 리퀴드 글래스 개편: 사이드바에만 있던 반투명·블러 유리 재질을 카드·버튼·입력칸·검색창·업데이트 로그 등 화면 전체로 통일하고, 화면 뒤에 옅은 색 얼룩(오로라)을 깔아 유리 표면이 실제로 비쳐 보이도록 함. 버튼·칩·카드에 토스류 앱처럼 누르면 살짝 줄어드는 반응 추가. 이모지 아이콘을 전부 걷어내고 홈 카드는 카테고리 색으로 물든 번호 타일로, 햄버거·홈·검색·빠른 실행·주사위 굴리기 버튼은 선 아이콘(SVG)으로, 건의함 상태 표시는 색으로 구분되는 배지로 교체(파비콘도 이모지 대신 자체 아이콘으로 변경)</li>
       <li><span class="chlog-tag" data-cat="image">이미지·애니메이션</span><b>2026-08-15</b> — GIF ↔ APNG 변환기: 움직이는 WebP 파일도 APNG로 변환할 수 있도록 지원 추가(파일 형식은 자동 인식). 브라우저에 내장된 WebCodecs API로 프레임을 읽어오므로 별도 디코더 없이 동작하며, 이 API를 지원하지 않는 브라우저(사파리·구형 브라우저 등)에서는 안내 메시지가 표시됨(Chrome·Edge 권장)</li>
@@ -811,6 +812,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <button class="btn ghost" id="imgopt-zip" disabled>ZIP으로 일괄 다운로드</button>
       <button class="btn ghost" id="imgopt-clear" disabled style="color:var(--danger);">전체 지우기</button>
     </div>
+    <div id="imgopt-summary" class="hidden" style="font-size:12px;color:var(--sub);margin-top:8px;"></div>
     <div id="imgopt-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:14px;"></div>
   </div>
 </section>
@@ -21065,10 +21067,23 @@ function guessGmName(namesSortedByFreqDesc){
     return box;
   }
 
+  // 이미지가 여러 장이면 개별 카드의 절감률만으로는 전체적으로 얼마나 줄었는지 한눈에
+  // 안 들어와서, 장 수가 늘어날 때(2장 이상)만 총 용량 변화를 한 줄로 더해 보여준다.
+  function renderSummary(){
+    var summary = $('#imgopt-summary');
+    if(items.length < 2){ summary.classList.add('hidden'); return; }
+    var totalOrig = 0, totalOut = 0;
+    items.forEach(function(it){ totalOrig += it.origBytes; totalOut += it.blob.size; });
+    var savedPct = totalOrig>0 ? Math.round((1 - totalOut/totalOrig)*100) : 0;
+    summary.textContent = '전체 '+items.length+'장 · '+fmtKB(totalOrig)+' → '+fmtKB(totalOut)+' ('+(savedPct>0?'-'+savedPct+'%':'변화 없음')+')';
+    summary.classList.remove('hidden');
+  }
+
   function renderAll(){
     var grid = $('#imgopt-grid');
     grid.innerHTML = '';
     items.forEach(function(it){ grid.appendChild(renderRow(it)); });
+    renderSummary();
     var has = items.length>0;
     $('#imgopt-zip').disabled = !has;
     if(imgoptZipSaveBtn) imgoptZipSaveBtn.disabled = !has;
