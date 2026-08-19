@@ -21001,6 +21001,7 @@ function guessGmName(namesSortedByFreqDesc){
   var IMGOPT_TARGET_BYTES = 0.95*1024*1024;
   var IMGOPT_MAX_DIM = 1200;
   var items = [];
+  var imgoptPreviewUrls = []; // renderRow가 만든 blob URL들 — renderAll()이 다시 그리기 전에 매번 해제한다
 
   function outputMime(file){
     var ext = (file.name.split('.').pop()||'').toLowerCase();
@@ -21063,7 +21064,13 @@ function guessGmName(namesSortedByFreqDesc){
     var box = document.createElement('div');
     box.style.cssText = 'background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px;';
     var img = document.createElement('img');
-    img.src = URL.createObjectURL(it.blob);
+    // renderAll()이 items 배열 전체를 다시 그릴 때마다 매번 새 blob URL을 만드는데, 예전에는
+    // 이전 렌더에서 만든 URL을 해제하지 않아서 이미지를 추가/제거하거나 되돌리기를 할 때마다
+    // (특히 "제거" 버튼처럼 renderAll이 반복 호출되는 상황에서) 브라우저 메모리에 계속 쌓이는
+    // 누수가 있었다. renderAll()에서 그리기 직전에 이전 URL들을 한꺼번에 해제해 이를 막는다.
+    var url = URL.createObjectURL(it.blob);
+    imgoptPreviewUrls.push(url);
+    img.src = url;
     img.alt = it.file.name+' 압축 결과 미리보기';
     img.className = 'preview';
     img.style.width = '100%';
@@ -21106,6 +21113,8 @@ function guessGmName(namesSortedByFreqDesc){
 
   function renderAll(){
     var grid = $('#imgopt-grid');
+    imgoptPreviewUrls.forEach(function(u){ URL.revokeObjectURL(u); });
+    imgoptPreviewUrls = [];
     grid.innerHTML = '';
     items.forEach(function(it){ grid.appendChild(renderRow(it)); });
     renderSummary();
