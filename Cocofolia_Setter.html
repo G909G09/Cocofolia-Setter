@@ -19071,7 +19071,7 @@ $('#settings-reset').addEventListener('click', function(){
     function pad(n){ return (n<10?'0':'')+n; }
     return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
   }
-  // 최대 100개까지 쌓이는 결과물이 15개 탭에서 뒤섞여 들어오다 보니, 특정 파일 하나를
+  // 최대 100개까지 쌓이는 결과물이 11개 탭에서 뒤섞여 들어오다 보니, 특정 파일 하나를
   // 찾으려면 목록을 끝까지 훑어야 했다. 파일명 검색 + 출처 탭 필터를 추가한다.
   function populateTabFilter(items){
     var tabs = Array.from(new Set(items.map(function(it){ return it.tabLabel; }))).sort();
