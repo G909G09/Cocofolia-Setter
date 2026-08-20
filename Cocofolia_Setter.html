@@ -928,6 +928,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <thead><tr style="text-align:left;color:var(--sub);"><th style="padding:4px;">원어(일본어 등)</th><th style="padding:4px;">국내 용어</th><th></th></tr></thead>
       <tbody id="gl-dict-body"></tbody>
     </table>
+    <div class="info-box" id="gl-dict-warn" aria-live="polite"></div>
   </div>
 </section>
 
@@ -21906,14 +21907,24 @@ var TabLog = (function(){
 
   var dict = loadSavedGlossary() || DEFAULT_GLOSSARY.map(function(p){ return {jp:p[0], kr:p[1]}; });
 
+  // 행 추가나 JSON 불러오기로 같은 원어(jp)가 두 번 이상 등록되면, 변환 시 첫 항목만
+  // 살아남고(#gl-run의 jpToKr는 첫 등록만 채택) 나머지는 아무 경고 없이 조용히 무시된다.
+  // 캐릭터 룸파일 생성기(탭 12)의 checkCfLabelDup()과 같은 방식으로, 원어 중복을
+  // 감지해 #gl-dict-warn에 알려준다.
+  function checkDictDup(){
+    var jps = dict.map(function(d){ return d.jp; });
+    var dup = jps.find(function(v, i){ return v && jps.indexOf(v) !== i; });
+    $('#gl-dict-warn').textContent = dup ? '원어가 중복되었습니다 ('+dup+') — 변환 시 먼저 등록된 항목만 적용되고 나머지는 무시되니, 서로 다르게 고쳐주세요.' : '';
+  }
+
   function renderDictTable(){
     var body = $('#gl-dict-body');
     body.innerHTML = '';
     dict.forEach(function(row, idx){
       var tr = document.createElement('tr');
       tr.innerHTML =
-        '<td style="padding:4px;"><input type="text" data-idx="'+idx+'" data-f="jp" style="width:100%;padding:5px 7px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);"></td>'+
-        '<td style="padding:4px;"><input type="text" data-idx="'+idx+'" data-f="kr" style="width:100%;padding:5px 7px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);"></td>'+
+        '<td style="padding:4px;"><input type="text" data-idx="'+idx+'" data-f="jp" aria-label="원어(일본어 등)" style="width:100%;padding:5px 7px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);"></td>'+
+        '<td style="padding:4px;"><input type="text" data-idx="'+idx+'" data-f="kr" aria-label="국내 용어" style="width:100%;padding:5px 7px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);"></td>'+
         '<td style="padding:4px;"><button class="btn ghost gl-del" data-idx="'+idx+'" style="padding:5px 10px;">삭제</button></td>';
       tr.querySelector('[data-f="jp"]').value = row.jp;
       tr.querySelector('[data-f="kr"]').value = row.kr;
@@ -21923,6 +21934,7 @@ var TabLog = (function(){
       inp.addEventListener('input', function(){
         dict[+inp.dataset.idx][inp.dataset.f] = inp.value;
         saveGlossary();
+        checkDictDup();
       });
     });
     $all('.gl-del', body).forEach(function(btn){
@@ -21932,6 +21944,7 @@ var TabLog = (function(){
         saveGlossary();
       });
     });
+    checkDictDup();
   }
   renderDictTable();
 
@@ -22106,10 +22119,10 @@ var TabLog = (function(){
     dbRows.forEach(function(r, idx){
       var tr = document.createElement('tr');
       tr.innerHTML =
-        '<td style="padding:4px;"><input type="number" data-idx="'+idx+'" data-f="min" style="width:100%;padding:5px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);"></td>'+
-        '<td style="padding:4px;"><input type="number" data-idx="'+idx+'" data-f="max" style="width:100%;padding:5px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);"></td>'+
-        '<td style="padding:4px;"><input type="text" data-idx="'+idx+'" data-f="db" style="width:100%;padding:5px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);" placeholder="예: +1D4"></td>'+
-        '<td style="padding:4px;"><input type="text" data-idx="'+idx+'" data-f="build" style="width:100%;padding:5px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);" placeholder="예: 1"></td>'+
+        '<td style="padding:4px;"><input type="number" data-idx="'+idx+'" data-f="min" aria-label="STR+SIZ 최소" style="width:100%;padding:5px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);"></td>'+
+        '<td style="padding:4px;"><input type="number" data-idx="'+idx+'" data-f="max" aria-label="STR+SIZ 최대" style="width:100%;padding:5px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);"></td>'+
+        '<td style="padding:4px;"><input type="text" data-idx="'+idx+'" data-f="db" aria-label="Damage Bonus" style="width:100%;padding:5px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);" placeholder="예: +1D4"></td>'+
+        '<td style="padding:4px;"><input type="text" data-idx="'+idx+'" data-f="build" aria-label="Build" style="width:100%;padding:5px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);" placeholder="예: 1"></td>'+
         '<td style="padding:4px;"><button class="btn ghost ed-db-del" data-idx="'+idx+'" style="padding:5px 10px;">삭제</button></td>';
       ['min','max','db','build'].forEach(function(f){
         tr.querySelector('[data-f="'+f+'"]').value = r[f];
@@ -22294,19 +22307,28 @@ var TabLog = (function(){
     var tr = document.createElement('tr');
     tr.innerHTML =
       '<td style="padding:4px 6px;text-align:center;"><input type="checkbox" title="성장 체크(플레이 중 판정 성공 시 표시 — 참고용, JSON에는 반영되지 않음)"></td>'+
-      '<td style="padding:4px 6px;"><input type="text" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;"></td>'+
+      '<td style="padding:4px 6px;"><input type="text" aria-label="기능명" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;"></td>'+
       '<td style="padding:4px 6px;"><input type="text" inputmode="numeric" pattern="[0-9]*" min="0" max="99" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;"></td>'+
       '<td style="padding:4px 6px;"><input type="text" inputmode="numeric" pattern="[0-9]*" min="0" max="99" value="0" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font-size:12.5px;"></td>'+
       '<td style="padding:4px 6px;text-align:center;font-weight:700;">0</td>'+
       '<td class="chs-skill-half" style="padding:4px 6px;text-align:center;">0</td>'+
       '<td class="chs-skill-fifth" style="padding:4px 6px;text-align:center;">0</td>'+
       '<td style="padding:4px 6px;"><button type="button" class="btn ghost" style="padding:3px 7px;font-size:11px;color:var(--danger);">삭제</button></td>';
+    var checkboxInput = tr.children[0].querySelector('input');
     var nameInput = tr.children[1].querySelector('input');
     var baseInput = tr.children[2].querySelector('input');
     var allocInput = tr.children[3].querySelector('input');
     var totalCell = tr.children[4];
     var halfCell = tr.children[5];
     var fifthCell = tr.children[6];
+    // aria-label에 기능명을 넣어야 스크린리더로 "기본치"/"분배 점수" 입력칸이 몇 번째 행인지
+    // 구분되지만, 기능명은 사용자가 직접 고칠 수 있는 텍스트라 innerHTML 문자열에 그대로
+    // 이어붙이면 따옴표 등으로 속성을 깨는 XSS로 이어질 수 있다. setAttribute는 값을 HTML로
+    // 파싱하지 않으므로 안전하다.
+    var label = name || '기능';
+    checkboxInput.setAttribute('aria-label', label+' 성장 체크');
+    baseInput.setAttribute('aria-label', label+' 기본치');
+    allocInput.setAttribute('aria-label', label+' 분배 점수');
     nameInput.value = name;
     baseInput.value = base;
     if(formula){ baseInput.readOnly = true; baseInput.classList.add('chs-field-locked'); }
