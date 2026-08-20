@@ -19409,21 +19409,33 @@ async function decodeWebpFile(file){
   var canvas = document.createElement('canvas');
   var ctx = null, width = 0, height = 0;
   var frames = [], delays = [];
-  for(var i=0;i<frameCount;i++){
-    var result = await decoder.decode({frameIndex:i});
-    var vf = result.image;
-    if(i===0){
-      width = vf.displayWidth; height = vf.displayHeight;
-      canvas.width = width; canvas.height = height;
-      ctx = canvas.getContext('2d');
+  // 프레임이 많은 WebP 도중(예: 특정 프레임이 손상됐거나 캔버스 크기 제한에 걸려
+  // decode()/drawImage()/getImageData()가 예외를 던지는 경우) 루프를 벗어나면, 그 아래
+  // decoder.close()가 실행되지 않아 ImageDecoder가 붙잡고 있는 디코더 리소스(브라우저가
+  // 동시에 열 수 있는 개수가 제한적인 하드웨어/소프트웨어 디코더)가 계속 열린 채로
+  // 남는다. 예외 발생 여부와 무관하게 반드시 정리되도록 try/finally로 감쌌다(각 프레임의
+  // VideoFrame도 마찬가지로 예외가 나도 close되도록 함께 감쌈).
+  try{
+    for(var i=0;i<frameCount;i++){
+      var result = await decoder.decode({frameIndex:i});
+      var vf = result.image;
+      try{
+        if(i===0){
+          width = vf.displayWidth; height = vf.displayHeight;
+          canvas.width = width; canvas.height = height;
+          ctx = canvas.getContext('2d');
+        }
+        ctx.clearRect(0,0,width,height);
+        ctx.drawImage(vf, 0, 0, width, height);
+        frames.push(ctx.getImageData(0,0,width,height));
+        delays.push(Math.max(20, Math.round((vf.duration||100000)/1000)));
+      }finally{
+        vf.close();
+      }
     }
-    ctx.clearRect(0,0,width,height);
-    ctx.drawImage(vf, 0, 0, width, height);
-    frames.push(ctx.getImageData(0,0,width,height));
-    delays.push(Math.max(20, Math.round((vf.duration||100000)/1000)));
-    vf.close();
+  }finally{
+    decoder.close();
   }
-  decoder.close();
   return {frames:frames, delays:delays, width:width, height:height};
 }
 
