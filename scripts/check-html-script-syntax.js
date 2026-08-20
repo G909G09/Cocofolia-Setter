@@ -31,7 +31,10 @@ for (const file of files) {
       new vm.Script(code, { filename: `${file}#inline-script-${count}` });
     } catch (err) {
       hasError = true;
+      const start = Math.max(0, code.length - 200);
       console.error(`Syntax error in ${file} (inline <script> #${count}): ${err.message}`);
+      console.error(`  block length: ${code.length} chars`);
+      console.error(`  last 200 chars of block: ${JSON.stringify(code.slice(start))}`);
     }
   }
 
