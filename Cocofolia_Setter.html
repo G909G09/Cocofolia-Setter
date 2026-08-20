@@ -18754,6 +18754,18 @@ function canvasToBlob(canvas, cb){
   });
 }
 
+// canvasToBlob()은 실패 시 cb를 아예 호출하지 않는다(대신 alert만 띄움) — 파일 한 장을
+// 바로 다운로드하는 곳에서는 문제없지만, 여러 장을 new Promise(function(res){ canvasToBlob(...) })
+// 형태로 감싸 Promise.all()로 묶는 배치 처리(ZIP 생성, 다른 탭으로 이미지 넘기기 등)에서는
+// 실패한 한 장 때문에 그 Promise가 영영 resolve되지 않아 Promise.all() 전체가 멈춰버리고,
+// 이미 성공한 나머지 이미지까지 함께 화면에 반영되지 않는다(사용자에게는 "압축 중..."에서
+// 멈춘 것처럼만 보이고 canvasToBlob()의 alert 말고는 별다른 안내도 없다). 배치 처리 쪽은
+// 이 함수로 blob이 null이어도 항상 콜백을 호출해, 실패한 항목만 걸러내고 나머지는 계속
+// 진행할 수 있게 한다(null 여부 판단과 사용자 안내는 호출한 쪽이 맡는다).
+function canvasToBlobOrNull(canvas, cb){
+  canvas.toBlob(function(blob){ cb(blob); });
+}
+
 // 오프라인용 파일 다운로드: fetch로 원본 소스를 그대로 받아오는 게 가장 정확하지만,
 // 이 파일을 서버 없이 file://로 직접 열어둔 상태라면 브라우저가 fetch(자기 자신)를 막는다.
 // 그럴 땐 현재 DOM을 직렬화해 대체 소스로 쓴다(상호작용으로 바뀐 값은 반영되지 않지만
@@ -23065,15 +23077,20 @@ var TabLog = (function(){
     if(!window.JSZip) return Promise.reject(new Error('JSZip 라이브러리를 불러오지 못했습니다.'));
     var zip = new JSZip();
     var usedNames = new Set();
+    // canvasToBlob() 대신 canvasToBlobOrNull()을 써서, 한 장이 실패해도 Promise.all()이
+    // 멈추지 않고 나머지 장은 ZIP에 그대로 담기게 한다(위 canvasToBlobOrNull() 정의 참고).
+    var failed = [];
     var pending = items.map(function(it){
       return new Promise(function(res){
-        canvasToBlob(it.canvas, function(blob){
-          zip.file(uniqueZipName(usedNames, baseName(it.file.name)+'_cut.png'), blob);
+        canvasToBlobOrNull(it.canvas, function(blob){
+          if(blob) zip.file(uniqueZipName(usedNames, baseName(it.file.name)+'_cut.png'), blob);
+          else failed.push(it.file.name);
           res();
         });
       });
     });
     return Promise.all(pending).then(function(){
+      if(failed.length) alert('다음 이미지는 변환에 실패해 ZIP에서 제외되었습니다: '+failed.join(', '));
       return zip.generateAsync({type:'blob'}, function(meta){
         if(btn) btn.textContent = '압축 중... '+Math.round(meta.percent)+'%';
       });
@@ -23106,13 +23123,20 @@ var TabLog = (function(){
   function itemsToFiles(){
     // 다운로드용 파일명(_cut 접미사)과 달리, 다른 탭으로 넘길 때는 라벨 자동 생성에 그대로
     // 쓰이므로 접미사 없이 원래 이름을 유지한다.
+    // canvasToBlobOrNull() 사용 이유는 buildStandingZip()과 동일 — 한 장이 실패해도
+    // Promise.all()이 멈추지 않게 한다.
+    var failed = [];
     return Promise.all(items.map(function(it){
       return new Promise(function(res){
-        canvasToBlob(it.canvas, function(blob){
-          res(new File([blob], baseName(it.file.name)+'.png', {type:'image/png'}));
+        canvasToBlobOrNull(it.canvas, function(blob){
+          if(!blob) failed.push(it.file.name);
+          res(blob ? new File([blob], baseName(it.file.name)+'.png', {type:'image/png'}) : null);
         });
       });
-    }));
+    })).then(function(files){
+      if(failed.length) alert('다음 이미지는 변환에 실패해 전달되지 않았습니다: '+failed.join(', '));
+      return files.filter(Boolean);
+    });
   }
   function sendTo(loaderKey, targetTabId, btnId){
     if(items.length===0) return;
@@ -23334,15 +23358,20 @@ var TabLog = (function(){
     if(!window.JSZip) return Promise.reject(new Error('JSZip 라이브러리를 불러오지 못했습니다.'));
     var zip = new JSZip();
     var usedNames = new Set();
+    // canvasToBlobOrNull() 사용 이유는 10번 탭 buildStandingZip()과 동일 — 한 장이 실패해도
+    // Promise.all()이 멈추지 않게 한다.
+    var failed = [];
     var pending = items.map(function(it){
       return new Promise(function(res){
-        canvasToBlob(it.canvas, function(blob){
-          zip.file(uniqueZipName(usedNames, baseName(it.file.name)+'_trim.png'), blob);
+        canvasToBlobOrNull(it.canvas, function(blob){
+          if(blob) zip.file(uniqueZipName(usedNames, baseName(it.file.name)+'_trim.png'), blob);
+          else failed.push(it.file.name);
           res();
         });
       });
     });
     return Promise.all(pending).then(function(){
+      if(failed.length) alert('다음 이미지는 변환에 실패해 ZIP에서 제외되었습니다: '+failed.join(', '));
       return zip.generateAsync({type:'blob'}, function(meta){
         if(btn) btn.textContent = '압축 중... '+Math.round(meta.percent)+'%';
       });
@@ -23371,14 +23400,21 @@ var TabLog = (function(){
   trimZipSaveBtn.disabled = true;
 
   // 잘라낸 이미지를 다운로드→재업로드하지 않고 바로 10/11/12번 탭으로 넘기는 통로.
+  // canvasToBlobOrNull() 사용 이유는 위 buildTrimZip()과 동일 — 한 장이 실패해도
+  // Promise.all()이 멈추지 않게 한다.
   function itemsToFiles(){
+    var failed = [];
     return Promise.all(items.map(function(it){
       return new Promise(function(res){
-        canvasToBlob(it.canvas, function(blob){
-          res(new File([blob], baseName(it.file.name)+'.png', {type:'image/png'}));
+        canvasToBlobOrNull(it.canvas, function(blob){
+          if(!blob) failed.push(it.file.name);
+          res(blob ? new File([blob], baseName(it.file.name)+'.png', {type:'image/png'}) : null);
         });
       });
-    }));
+    })).then(function(files){
+      if(failed.length) alert('다음 이미지는 변환에 실패해 전달되지 않았습니다: '+failed.join(', '));
+      return files.filter(Boolean);
+    });
   }
   function sendTo(loaderKey, targetTabId, btnId){
     if(items.length===0) return;
@@ -24117,8 +24153,13 @@ var TabLog = (function(){
   var csSaveBtn = insertQuickSaveButton($('#cs-download'), function(){
     var canvas = $('#cs-canvas');
     if(!canvas.width || !canvas.height){ alert('먼저 컨닝 페이퍼를 생성해주세요.'); return false; }
-    return new Promise(function(resolve, reject){
-      canvasToBlob(canvas, function(blob){
+    // canvasToBlob()을 그대로 쓰면 blob이 null일 때 cb가 호출되지 않아 이 Promise가 영영
+    // resolve되지 않는다 — "임시저장" 버튼이 "저장 중..." 상태로 멈추진 않지만(이 onClick은
+    // btn.disabled를 직접 건드리지 않음) 저장도, "저장됨!" 표시도 영영 일어나지 않는다.
+    // canvasToBlobOrNull()로 바꿔 실패를 직접 판단하고 항상 resolve한다.
+    return new Promise(function(resolve){
+      canvasToBlobOrNull(canvas, function(blob){
+        if(!blob){ alert('이미지 생성에 실패했습니다. 해상도나 배율을 낮추고 다시 시도해주세요.'); resolve(false); return; }
         saveResultToHistory(currentTabLabel(), csResultFilename(), blob);
         resolve(true);
       });
