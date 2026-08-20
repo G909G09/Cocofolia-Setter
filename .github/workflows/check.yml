@@ -1,11 +1,11 @@
-name: Syntax check
+name: Check
 
 on:
   push:
   pull_request:
 
 jobs:
-  check-inline-scripts:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -13,3 +13,4 @@ jobs:
         with:
           node-version: 20
       - run: node scripts/check-html-script-syntax.js Cocofolia_Setter.html
+      - run: node --test
