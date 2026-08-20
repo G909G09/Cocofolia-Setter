@@ -18547,6 +18547,29 @@ function currentTabId(){
   var activeBtn = document.querySelector('.tab-btn.active');
   return activeBtn ? activeBtn.dataset.target : null;
 }
+// 일반 "다운로드" 버튼에서는 이 저장이 실패해도 조용히 무시하는 게 맞다(다운로드 자체는
+// 항상 성공해야 하니까, 위 주석 참고). 하지만 "임시저장" 버튼은 파일을 따로 내려받지 않고
+// 오직 이 저장 하나에만 기능이 의존하므로, 실패해도 버튼이 "저장됨!"으로 바뀌어버리면
+// 사용자는 보관함에 아무것도 남지 않았다는 사실을 알 방법이 전혀 없었다(콘솔 에러 하나 없이
+// 완전히 조용한 실패). safeLocalStorageSet()이 쓰는 것과 같은 방식(세션당 한 번, 눈에 띄는
+// 배너, 다른 기능은 막지 않음)으로 IndexedDB 저장 실패도 사용자에게 알린다.
+var historyWarningShown = false;
+function warnHistorySaveFailed(){
+  if(historyWarningShown) return;
+  historyWarningShown = true;
+  try{
+    var box = document.createElement('div');
+    box.setAttribute('role', 'alert');
+    box.setAttribute('aria-live', 'assertive');
+    box.textContent = '이 브라우저에서는 결과물 보관함에 저장할 수 없습니다 (사파리 프라이빗 모드나 저장 공간 부족 등에서 흔함). "임시저장"을 눌러도 목록에 남지 않을 수 있으니, 결과물은 "다운로드" 버튼으로 직접 받아주세요.';
+    box.style.cssText = 'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:99999;'
+      + 'max-width:min(92vw,540px);padding:10px 16px;border-radius:10px;'
+      + 'background:#3a2323;color:#ffd7d7;border:1px solid #a33;'
+      + 'box-shadow:0 4px 16px rgba(0,0,0,.35);font-size:13px;line-height:1.5;text-align:center;';
+    document.body.appendChild(box);
+    setTimeout(function(){ box.remove(); }, 8000);
+  }catch(e2){}
+}
 function saveResultToHistory(tabLabel, filename, blob){
   var tabId = currentTabId();
   var snapshot = null;
@@ -18561,7 +18584,9 @@ function saveResultToHistory(tabLabel, filename, blob){
       tabId:tabId, snapshot:snapshot
     });
     tx.oncomplete = function(){ pruneHistory(db); };
-  }).catch(function(){});
+    tx.onerror = function(){ warnHistorySaveFailed(); };
+    tx.onabort = function(){ warnHistorySaveFailed(); };
+  }).catch(function(){ warnHistorySaveFailed(); });
 }
 // 결과물 보관함 항목의 "불러오기" 버튼에서 호출: 저장 당시의 탭으로 이동한 뒤, 그 탭에
 // 등록된 복원 함수로 스냅샷을 화면에 되돌린다.
@@ -21068,7 +21093,8 @@ function guessGmName(namesSortedByFreqDesc){
     // 만들어지고 이후 바뀌지 않으므로, 매번 새 object URL을 만들면 이전 렌더에서 만든
     // URL은 참조를 잃고도 revoke되지 않아 해당 blob이 페이지를 닫을 때까지 계속
     // 메모리에 남는다(다른 탭의 previewedUrl/setBlobUrl과 같은 이유). 항목당 URL을
-    // 한 번만 만들어 재사용한다.
+    // 한 번만 만들어 재사용한다(매 renderAll()마다 새로 만들고 한꺼번에 revoke하는
+    // 방식보다, 안 바뀐 항목은 URL을 그대로 재사용해 불필요한 재생성을 피한다).
     if(!it.previewUrl) it.previewUrl = URL.createObjectURL(it.blob);
     img.src = it.previewUrl;
     img.alt = it.file.name+' 압축 결과 미리보기';
@@ -22179,7 +22205,7 @@ var TabLog = (function(){
 })();
 
 /* ================================================================
-   탭 13. CoC 캐릭터 시트 메이커
+   탭 9. CoC 캐릭터 시트 메이커
 ================================================================ */
 (function(){
   var STAT_DEFS = [
@@ -22888,7 +22914,7 @@ var TabLog = (function(){
 })();
 
 /* ================================================================
-   탭 9. 스탠딩 이미지 일괄 재단
+   탭 10. 스탠딩 이미지 일괄 재단
 ================================================================ */
 (function(){
   var items = [];
@@ -23454,7 +23480,7 @@ var TabLog = (function(){
 })();
 
 /* ================================================================
-   탭 10. 표정 카탈로그 컨닝 페이퍼 메이커
+   탭 11. 표정 카탈로그 컨닝 페이퍼 메이커
 ================================================================ */
 (function(){
   var items = [];
@@ -24244,7 +24270,7 @@ var TabLog = (function(){
 })();
 
 /* ================================================================
-   탭 11. 코코포리아 캐릭터 룸파일 생성기
+   탭 12. 코코포리아 캐릭터 룸파일 생성기
    ── 코코포리아는 캐릭터 단독 내보내기/가져오기를 지원하지 않아서,
    캐릭터 1명만 담은 "룸 데이터" 형식(zip: __data.json + 이미지 파일들)을
    만들어 그걸 룸 가져오기로 불러오게 하는 방식을 쓴다. 이 형식은 실제
