@@ -21051,7 +21051,14 @@ function guessGmName(namesSortedByFreqDesc){
     var box = document.createElement('div');
     box.style.cssText = 'background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px;';
     var img = document.createElement('img');
-    img.src = URL.createObjectURL(it.blob);
+    // renderAll()은 목록에 있는 항목 하나를 추가/제거하기만 해도 살아남은 항목까지
+    // 포함해 전체를 다시 그린다(grid.innerHTML=''). it.blob은 항목 생성 시 한 번만
+    // 만들어지고 이후 바뀌지 않으므로, 매번 새 object URL을 만들면 이전 렌더에서 만든
+    // URL은 참조를 잃고도 revoke되지 않아 해당 blob이 페이지를 닫을 때까지 계속
+    // 메모리에 남는다(다른 탭의 previewedUrl/setBlobUrl과 같은 이유). 항목당 URL을
+    // 한 번만 만들어 재사용한다.
+    if(!it.previewUrl) it.previewUrl = URL.createObjectURL(it.blob);
+    img.src = it.previewUrl;
     img.alt = it.file.name+' 압축 결과 미리보기';
     img.className = 'preview';
     img.style.width = '100%';
@@ -21073,7 +21080,7 @@ function guessGmName(namesSortedByFreqDesc){
     rm.className = 'btn ghost'; rm.textContent = '제거'; rm.style.cssText='padding:6px 10px;font-size:12px;color:var(--danger);';
     rm.addEventListener('click', function(){
       var i = items.indexOf(it);
-      if(i>=0){ items.splice(i,1); renderAll(); }
+      if(i>=0){ items.splice(i,1); if(it.previewUrl) URL.revokeObjectURL(it.previewUrl); renderAll(); }
     });
     btnRow.appendChild(dl); btnRow.appendChild(rm);
     box.appendChild(img); box.appendChild(name); box.appendChild(sizeInfo); box.appendChild(btnRow);
@@ -21145,6 +21152,7 @@ function guessGmName(namesSortedByFreqDesc){
 
   $('#imgopt-clear').addEventListener('click', function(){
     if(!confirm('업로드한 이미지 '+items.length+'장을 모두 지울까요?')) return;
+    items.forEach(function(it){ if(it.previewUrl) URL.revokeObjectURL(it.previewUrl); });
     items = [];
     renderAll();
     $('#imgopt-info').classList.add('hidden');
@@ -21186,6 +21194,7 @@ function guessGmName(namesSortedByFreqDesc){
   registerTabSnapshot('tab-imgopt', function captureImgoptSnapshot(){
     return { files: items.map(function(it){ return it.file; }) };
   }, function restoreImgoptSnapshot(snap){
+    items.forEach(function(it){ if(it.previewUrl) URL.revokeObjectURL(it.previewUrl); });
     items = [];
     $('#imgopt-info').classList.add('hidden');
     renderAll();
