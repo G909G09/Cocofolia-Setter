@@ -19409,21 +19409,33 @@ async function decodeWebpFile(file){
   var canvas = document.createElement('canvas');
   var ctx = null, width = 0, height = 0;
   var frames = [], delays = [];
-  for(var i=0;i<frameCount;i++){
-    var result = await decoder.decode({frameIndex:i});
-    var vf = result.image;
-    if(i===0){
-      width = vf.displayWidth; height = vf.displayHeight;
-      canvas.width = width; canvas.height = height;
-      ctx = canvas.getContext('2d');
+  // 프레임이 많은 WebP 도중(예: 특정 프레임이 손상됐거나 캔버스 크기 제한에 걸려
+  // decode()/drawImage()/getImageData()가 예외를 던지는 경우) 루프를 벗어나면, 그 아래
+  // decoder.close()가 실행되지 않아 ImageDecoder가 붙잡고 있는 디코더 리소스(브라우저가
+  // 동시에 열 수 있는 개수가 제한적인 하드웨어/소프트웨어 디코더)가 계속 열린 채로
+  // 남는다. 예외 발생 여부와 무관하게 반드시 정리되도록 try/finally로 감쌌다(각 프레임의
+  // VideoFrame도 마찬가지로 예외가 나도 close되도록 함께 감쌈).
+  try{
+    for(var i=0;i<frameCount;i++){
+      var result = await decoder.decode({frameIndex:i});
+      var vf = result.image;
+      try{
+        if(i===0){
+          width = vf.displayWidth; height = vf.displayHeight;
+          canvas.width = width; canvas.height = height;
+          ctx = canvas.getContext('2d');
+        }
+        ctx.clearRect(0,0,width,height);
+        ctx.drawImage(vf, 0, 0, width, height);
+        frames.push(ctx.getImageData(0,0,width,height));
+        delays.push(Math.max(20, Math.round((vf.duration||100000)/1000)));
+      }finally{
+        vf.close();
+      }
     }
-    ctx.clearRect(0,0,width,height);
-    ctx.drawImage(vf, 0, 0, width, height);
-    frames.push(ctx.getImageData(0,0,width,height));
-    delays.push(Math.max(20, Math.round((vf.duration||100000)/1000)));
-    vf.close();
+  }finally{
+    decoder.close();
   }
-  decoder.close();
   return {frames:frames, delays:delays, width:width, height:height};
 }
 
@@ -21101,9 +21113,18 @@ function guessGmName(namesSortedByFreqDesc){
       }
       info.textContent = res.loaded.length+'장 압축 중...'+(res.failed.length?(' (실패 '+res.failed.length+'장: '+res.failed.join(', ')+')'):'');
       info.classList.remove('hidden');
+      // canvas.toBlob()은 캔버스가 너무 크거나 브라우저 메모리 부족 등으로 콜백에 null을
+      // 넘길 수 있다(다른 탭의 canvasToBlob() 헬퍼가 처리하는 것과 동일한 상황) — 이
+      // 탭은 화질/해상도를 반복 조정하며 자체 toBlobP()로 직접 toBlob을 호출하느라 그
+      // 케이스를 놓치고 있었다. blob이 null인 항목을 그대로 items에 넣으면 미리보기에서
+      // URL.createObjectURL(null)이 예외를 던져 renderAll() 전체가 멈추고, 같이 올린
+      // 다른 정상 이미지들까지 화면·ZIP에서 통째로 사라진다. 실패한 항목은 items에
+      // 넣지 않고 다른 로드 실패(res.failed)와 동일하게 안내 문구에만 반영한다.
+      var optFailed = [];
       Promise.all(res.loaded.map(function(it){
         var mime = outputMime(it.file);
         return fitImageToLimit(it.img, mime, IMGOPT_TARGET_BYTES, IMGOPT_MAX_DIM).then(function(r){
+          if(!r.blob){ optFailed.push(it.file.name); return null; }
           return {
             file: it.file, blob: r.blob, w: r.w, h: r.h, resized: r.resized,
             origW: it.img.width, origH: it.img.height, origBytes: it.file.size,
@@ -21111,9 +21132,11 @@ function guessGmName(namesSortedByFreqDesc){
           };
         });
       })).then(function(results){
+        results = results.filter(Boolean);
         items = items.concat(results);
         renderAll();
-        info.textContent = results.length+'장 처리 완료.'+(res.failed.length?(' (실패 '+res.failed.length+'장: '+res.failed.join(', ')+')'):'');
+        var failedNames = res.failed.concat(optFailed);
+        info.textContent = results.length+'장 처리 완료.'+(failedNames.length?(' (실패 '+failedNames.length+'장: '+failedNames.join(', ')+')'):'');
       });
     });
   }
@@ -24492,7 +24515,7 @@ var TabLog = (function(){
   });
 })();
 
-/* 탭 13/14. 다른 기능 둘러보기 (Cocofolia Markdown / 텍스트 자동 변환기) —
+/* 탭 14/15. 다른 기능 둘러보기 (Cocofolia Markdown / 텍스트 자동 변환기) —
    다운로드 버튼이 GitHub의 저장소 zip 아카이브(archive/refs/heads/main.zip)를 직접
    가리키는 평범한 링크라 별도 JS가 필요 없다(다른 탭과 달리 이 두 탭만 예외적으로
    인터넷 연결이 필요함 — 항상 그 순간의 최신 소스를 받아온다). */
