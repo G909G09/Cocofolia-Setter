@@ -214,7 +214,7 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
 /* 하위 탭 목록을 아코디언처럼 펼치고 접는다. max-height 대신 grid-template-rows를
    0fr↔1fr로 트랜지션하면 내용의 실제 높이에 맞춰 자연스럽게 늘어난다(홈 카드 펼침
    애니메이션과 같은 기법). */
-.sidebar-subtabs{display:grid;grid-template-rows:0fr;transition:grid-template-rows .22s cubic-bezier(.32,.72,.35,1);}
+.sidebar-subtabs{display:grid;grid-template-rows:0fr;contain:layout style;transition:grid-template-rows .22s cubic-bezier(.32,.72,.35,1);}
 .sidebar-group.open .sidebar-subtabs{grid-template-rows:1fr;}
 .sidebar-subtabs-inner{overflow:hidden;min-height:0;display:flex;flex-direction:column;gap:1px;padding:2px 0 4px 14px;}
 /* 좁은 화면에서는 사이드바를 기본으로 화면 밖에 숨겨두고, 좌상단 햄버거 버튼으로 여닫는
@@ -240,7 +240,15 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
 /* 카드는 평소엔 이름만 짧게 보여주다가, 마우스를 올리면(또는 포커스하면) 내용이 잘리지 않도록
    카드 자체가 아래로 부드럽게 늘어나면서 아이콘·설명·바로가기 버튼을 펼쳐 보여준다(고정 높이로
    내용을 억지로 욱여넣지 않는다). */
-.home-feature-card{border:1px solid color-mix(in srgb, var(--line) 65%, transparent);border-radius:14px;padding:14px 10px;background:color-mix(in srgb, var(--panel) 68%, transparent);backdrop-filter:var(--glass-blur-sm);-webkit-backdrop-filter:var(--glass-blur-sm);min-height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;transition:border-color .18s var(--ease-spring),box-shadow .18s var(--ease-spring),transform .18s var(--ease-spring);}
+/* 이 카드는 호버/포커스 시 자식(.home-feature-overlay)이 grid-template-rows로
+   펼쳐지며 카드 자신의 박스 높이가 매 프레임 바뀐다. backdrop-filter(블러)는 그
+   블러 대상 영역이 바뀔 때마다 다시 계산해야 해서, "크기가 바뀌는 요소 위에 블러"
+   조합이 곧 애니메이션 매 프레임 리레이아웃+블러 재계산이 겹치는 상황이 되어
+   버벅임(jank)의 직접 원인이었다(CPU 스로틀 상태에서 프레임당 40ms 안팎, 60fps
+   기준 예산 16.7ms를 크게 초과하는 것을 실측으로 확인). 블러 없이 반투명 배경만
+   유지해 이 조합을 피한다. contain:layout style은 이 카드의 리레이아웃이 카드
+   바깥(전체 그리드 등)까지 다시 계산하게 만드는 범위를 카드 내부로 좁혀준다. */
+.home-feature-card{border:1px solid color-mix(in srgb, var(--line) 65%, transparent);border-radius:14px;padding:14px 10px;background:color-mix(in srgb, var(--panel) 82%, transparent);contain:layout style;min-height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;transition:border-color .18s var(--ease-spring),box-shadow .18s var(--ease-spring),transform .18s var(--ease-spring);}
 /* :focus-within(자손 포함)을 써야 한다 — :focus-visible만 쓰면 카드 자체가 아니라 카드 안의
    "바로가기" 버튼으로 Tab이 넘어가는 순간 카드의 :focus-visible이 풀려 오버레이가 즉시 접히면서
    포커스는 여전히(화면에 보이지 않는) 버튼에 남는 문제가 있었다. */
@@ -250,7 +258,7 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
    달라서, 트랜지션 시간의 앞부분에만 실제로 펼쳐지는 것처럼 보이고 나머지는 헛도는 시간이라
    눈에는 "휙" 하고 빨리 끝나는 것처럼 보인다. grid-template-rows를 0fr↔1fr로 트랜지션하면
    내용의 실제 높이에 맞춰 처음부터 끝까지 고르게 늘어나므로 훨씬 자연스럽다. */
-.home-feature-overlay{width:100%;display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .38s cubic-bezier(.32,.72,.35,1),opacity .3s ease;}
+.home-feature-overlay{width:100%;display:grid;grid-template-rows:0fr;opacity:0;contain:layout style;transition:grid-template-rows .38s cubic-bezier(.32,.72,.35,1),opacity .3s ease;}
 .home-feature-card:hover .home-feature-overlay,.home-feature-card:focus-within .home-feature-overlay{grid-template-rows:1fr;opacity:1;}
 .home-feature-overlay-inner{overflow:hidden;min-height:0;display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:10px;}
 /* 이모지 대신 탭 번호를 카테고리 색으로 물들인 타일로 대체 — chlog-tag와 같은
@@ -269,7 +277,7 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
    페이드로 나타나는 공용 유틸리티(위 홈 카드 펼침과 같은 grid-rows 0fr↔1fr 기법).
    showReveal()/hideReveal() JS 헬퍼와 짝을 이뤄, 완전히 닫힌 뒤에는 기존 .hidden(display:none)
    으로 되돌아가 포커스·접근성 트리에서도 확실히 빠지도록 한다. */
-.reveal-wrap{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .3s cubic-bezier(.32,.72,.35,1),opacity .25s ease;}
+.reveal-wrap{display:grid;grid-template-rows:0fr;opacity:0;contain:layout style;transition:grid-template-rows .3s cubic-bezier(.32,.72,.35,1),opacity .25s ease;}
 .reveal-wrap.reveal-open{grid-template-rows:1fr;opacity:1;}
 .reveal-inner{overflow:hidden;min-height:0;}
 /* 토스 거래내역처럼, 목록 항목을 왼쪽으로 밀면(터치 드래그) 또는 마우스를 올리면/키보드로
@@ -597,6 +605,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-20</b> — 홈 화면 기능 카드가 펼쳐질 때(마우스 올림) 버벅이던 문제 수정: 카드 자신에 걸려있던 반투명 블러가, 카드 높이가 매 프레임 바뀌는 펼침 애니메이션과 겹치면서 블러를 매 프레임 다시 계산해야 했던 게 원인이었음(리퀴드 글래스 개편 때 생긴 문제). 카드에서는 블러를 빼고 반투명 배경만 남기고, 펼침 애니메이션이 쓰이는 세 곳(홈 카드·사이드바 아코디언·"다음 단계 나타남" 공용 효과)에 리레이아웃 범위를 좁혀주는 CSS containment를 추가 — CPU 스로틀 상태에서 실측한 평균 프레임 시간이 약 24% 줄고 눈에 띄는 끊김(50ms 이상 프레임)은 절반 가까이 줄어듦</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-19</b> — 이미지 용량 최적화(4번)·스탠딩 일괄 재단(10번)·이미지 여백 자동 재단(13번) 탭의 "ZIP으로 일괄 다운로드"에서, 서로 다른 폴더 등에서 온 파일명이 같은 원본을 여러 장 올리면 결과물 파일명도 똑같아져 압축을 풀 때 뒤 항목이 앞 항목을 조용히 덮어써 이미지 하나가 사라지던 문제 수정 — 이름이 겹치면 자동으로 "(2)"부터 번호를 붙여 구분되도록 함</li>
       <li><span class="chlog-tag" data-cat="image">이미지·애니메이션</span><b>2026-08-19</b> — 이미지 용량 최적화: 2장 이상 올리면 카드별 절감률과는 별도로 전체 용량 변화(예: "전체 5장 · 4.2MB → 1.1MB (-74%)")를 한 줄로 함께 보여줌</li>
       <li><span class="chlog-tag" data-cat="image">이미지·애니메이션</span><b>2026-08-18</b> — 새 탭 "이미지 용량 최적화" 추가(4번): 정지 이미지(PNG/JPG/WebP) 여러 장을 코코포리아 업로드 기준(긴 변 1200px, 1MB 이하)에 맞춰 자동으로 줄여줌 — JPG/WebP는 화질을 먼저 낮추고, PNG처럼 화질 손잡이가 없는 형식은 해상도를 단계적으로 축소. 이미 기준 이내인 이미지는 원본 그대로 유지되고, 개별/ZIP 일괄 다운로드 모두 지원. 이 탭이 새로 끼어들며 기존 4~17번 탭 번호가 전부 하나씩 밀림</li>
