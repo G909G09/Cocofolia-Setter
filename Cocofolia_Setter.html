@@ -605,6 +605,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="image">이미지·애니메이션</span><b>2026-08-22</b> — PNG 이펙터에 "둥실둥실(부유)" 효과 추가(18번째 효과): 위아래로 부드럽게 둥둥 뜨는 느낌의 사인파 움직임을 줌. 길이(초) 설정과 무관하게 항상 같은 속도(약 1.4초에 한 바퀴)로 부유하도록 주기를 다시 계산하며, 같은 슬롯에서 흔들림 효과와 함께 켜면 흔들림 위에 둥실거림이 자연스럽게 더해짐</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-20</b> — 홈 화면 기능 카드가 펼쳐질 때(마우스 올림) 버벅이던 문제 수정: 카드 자신에 걸려있던 반투명 블러가, 카드 높이가 매 프레임 바뀌는 펼침 애니메이션과 겹치면서 블러를 매 프레임 다시 계산해야 했던 게 원인이었음(리퀴드 글래스 개편 때 생긴 문제). 카드에서는 블러를 빼고 반투명 배경만 남기고, 펼침 애니메이션이 쓰이는 세 곳(홈 카드·사이드바 아코디언·"다음 단계 나타남" 공용 효과)에 리레이아웃 범위를 좁혀주는 CSS containment를 추가 — CPU 스로틀 상태에서 실측한 평균 프레임 시간이 약 24% 줄고 눈에 띄는 끊김(50ms 이상 프레임)은 절반 가까이 줄어듦</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-19</b> — 이미지 용량 최적화(4번)·스탠딩 일괄 재단(10번)·이미지 여백 자동 재단(13번) 탭의 "ZIP으로 일괄 다운로드"에서, 서로 다른 폴더 등에서 온 파일명이 같은 원본을 여러 장 올리면 결과물 파일명도 똑같아져 압축을 풀 때 뒤 항목이 앞 항목을 조용히 덮어써 이미지 하나가 사라지던 문제 수정 — 이름이 겹치면 자동으로 "(2)"부터 번호를 붙여 구분되도록 함</li>
       <li><span class="chlog-tag" data-cat="image">이미지·애니메이션</span><b>2026-08-19</b> — 이미지 용량 최적화: 2장 이상 올리면 카드별 절감률과는 별도로 전체 용량 변화(예: "전체 5장 · 4.2MB → 1.1MB (-74%)")를 한 줄로 함께 보여줌</li>
@@ -20245,6 +20246,7 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
   /* ── 효과 슬롯 (드롭다운 4개, 각각 효과 하나 + 미리보기) ── */
   var EFFECT_CATALOG = [
     {key:'zoom',      label:'확대/축소',              def:20},
+    {key:'float',     label:'둥실둥실(부유)',         def:30},
     {key:'shake',     label:'흔들림',                 def:30},
     {key:'chroma',    label:'색수차',                 def:30},
     {key:'glitch',    label:'글리치',                 def:30},
@@ -20268,6 +20270,10 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
   // 상한 없이 큰 값을 입력하면 프레임을 하나씩 캔버스에 그리다가 탭이 사실상 멈춰버릴 수
   // 있다. 코코포리아 컷인 연출 용도로 충분히 넉넉한 20초를 상한으로 둔다.
   var FX_MAX_DURATION_SEC = 20;
+  // "둥실둥실" 효과 한 번 위아래로 뜨는 데 걸리는 시간(초). 길이(초) 설정과 무관하게
+  // 항상 같은 속도로 부유하는 느낌을 유지하도록, 실제 주기 수는 duration/이 값으로
+  // 매번 다시 계산한다(고정 주기 수를 쓰면 길이를 늘렸을 때 오히려 굼떠 보인다).
+  var FLOAT_PERIOD_SEC = 1.4;
   var SLOT_COUNT = 4;
   var slotPreviewTimers = [null,null,null,null];
 
@@ -20428,6 +20434,11 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
       if(key==='shake'){
         var a = amt/8; dx=(Math.random()*2-1)*a; dy=(Math.random()*2-1)*a;
       }
+      if(key==='float'){
+        // 미리보기는 t=0→1을 계속 반복 재생하므로, 정수 주기(여기선 1바퀴)로 맞춰야
+        // 마지막 프레임에서 첫 프레임으로 돌아갈 때 위치가 툭 끊기지 않고 이어진다.
+        dy += -(amt/3)*Math.sin(t*Math.PI*2);
+      }
       if(key==='blur'){
         var blurPx;
         if(mode==='in') blurPx = (amt/100)*10*(1-t);
@@ -20503,7 +20514,7 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
       duration: Math.min(FX_MAX_DURATION_SEC, Math.max(0.1, parseFloat($('#fx-duration').value)||1)),
       fps: clampInt(parseInt($('#fx-fps').value,10)||20, 5, 60),
       fadeMode: $('#fx-fade-mode').value,
-      zoom: get('zoom'), shake: get('shake'), chroma: get('chroma'), glitch: get('glitch'),
+      zoom: get('zoom'), float: get('float'), shake: get('shake'), chroma: get('chroma'), glitch: get('glitch'),
       scan: get('scan'), rotate: get('rotate'), blur: get('blur'), tint: get('tint'),
       vignette: get('vignette'), noise: get('noise'), flash: get('flash'), wave: get('wave'),
       pixelate: get('pixelate'), invert: get('invert'), hue: get('hue'), posterize: get('posterize'),
@@ -20767,9 +20778,13 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
         ctx.translate(w/2,h/2); ctx.rotate(ang); ctx.translate(-w/2,-h/2);
       }
       var dx=0, dy=0;
+      if(opts.float.on){
+        var cycles = opts.duration/FLOAT_PERIOD_SEC;
+        dy += -(opts.float.amt/3)*Math.sin(t*Math.PI*2*cycles);
+      }
       if(opts.shake.on){
         var amp = opts.shake.amt/8;
-        dx = (Math.random()*2-1)*amp; dy = (Math.random()*2-1)*amp;
+        dx += (Math.random()*2-1)*amp; dy += (Math.random()*2-1)*amp;
       }
       var filterParts = [];
       if(opts.blur.on){
