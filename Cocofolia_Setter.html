@@ -605,6 +605,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-08-27</b> — 로그북용 로그 백업: "OO 판정" 문구를 스토리다이스로 인식하는 범위 확대 — 끝에 마침표/느낌표가 붙은 경우("이성 판정.", "이성판정!"), 접두 문구와 "판정" 사이에 공백이 없는 경우, "A 또는 B판정"처럼 두 기능명이 나열된 경우, "이성 판정(1D10/1D100)"처럼 판정 문구 바로 뒤에 괄호로 굴림식이 붙는 경우까지 모두 인식하도록 정규식 확장(기존엔 "OO 판정" 또는 "OO 판정 50/25" 형태만 인식)</li>
       <li><span class="chlog-tag" data-cat="image">이미지·애니메이션</span><b>2026-08-22</b> — PNG 이펙터에 "둥실둥실(부유)" 효과 추가(18번째 효과): 위아래로 부드럽게 둥둥 뜨는 느낌의 사인파 움직임을 줌. 길이(초) 설정과 무관하게 항상 같은 속도(약 1.4초에 한 바퀴)로 부유하도록 주기를 다시 계산하며, 같은 슬롯에서 흔들림 효과와 함께 켜면 흔들림 위에 둥실거림이 자연스럽게 더해짐</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-20</b> — 홈 화면 기능 카드가 펼쳐질 때(마우스 올림) 버벅이던 문제 수정: 카드 자신에 걸려있던 반투명 블러가, 카드 높이가 매 프레임 바뀌는 펼침 애니메이션과 겹치면서 블러를 매 프레임 다시 계산해야 했던 게 원인이었음(리퀴드 글래스 개편 때 생긴 문제). 카드에서는 블러를 빼고 반투명 배경만 남기고, 펼침 애니메이션이 쓰이는 세 곳(홈 카드·사이드바 아코디언·"다음 단계 나타남" 공용 효과)에 리레이아웃 범위를 좁혀주는 CSS containment를 추가 — CPU 스로틀 상태에서 실측한 평균 프레임 시간이 약 24% 줄고 눈에 띄는 끊김(50ms 이상 프레임)은 절반 가까이 줄어듦</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-19</b> — 이미지 용량 최적화(4번)·스탠딩 일괄 재단(10번)·이미지 여백 자동 재단(13번) 탭의 "ZIP으로 일괄 다운로드"에서, 서로 다른 폴더 등에서 온 파일명이 같은 원본을 여러 장 올리면 결과물 파일명도 똑같아져 압축을 풀 때 뒤 항목이 앞 항목을 조용히 덮어써 이미지 하나가 사라지던 문제 수정 — 이름이 겹치면 자동으로 "(2)"부터 번호를 붙여 구분되도록 함</li>
@@ -21737,9 +21738,14 @@ var TabLog = (function(){
     return chunkText(rawBody.replace(/<br\s*\/?>/gi,' '));
   }
   function isDice(t){ return /\(\d*[dD]\d+(<=\d+)?\)/.test(t) && t.indexOf('＞')>=0; }
+  // "OO 판정" 계열 문구(스토리다이스로 표시)를 판별한다. 실제 판정 요청 문구는 표기가
+  // 제각각이라("이성 판정", "이성 판정.", "이성판정!", "회피 또는 크툴루신화판정.",
+  // "이성 판정(1D10/1D100)") 아래 세 가지를 모두 허용한다: (1) 접두 문구와 "판정" 사이
+  // 공백 유무 무관, (2) 끝에 마침표/느낌표 허용, (3) 뒤에 "N/M" 형태(예: SAN 체크 성공/실패
+  // 감소치) 또는 괄호 안 굴림식(예: "(1D10/1D100)")이 붙는 경우 모두 허용.
   function isJudge(t){
     if(isDice(t) || t.length>30) return false;
-    return /^\S.{0,20}판정(\s+\d+\s*\/\s*\S+)?$/.test(t.trim());
+    return /^\S.{0,28}판정(?:\s*\(\s*[^)]+\s*\)|\s+\d+\s*\/\s*\S+)?[.!?]?$/.test(t.trim());
   }
   function isSanity(t){ return /^\d+\s*\/\s*\S+$/.test(t.trim()); }
   function diceBreak(t){ return t.replace(/\)\s+(?=보너스)/, ')'+MK+'BR'+MK); }
