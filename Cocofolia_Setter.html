@@ -605,6 +605,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="image">이미지·애니메이션</span><b>2026-08-29</b> — 컷인 커터(1번)에 WebP 지원 추가: 움직이는 WebP는 브라우저 내장 WebCodecs API로 재생 길이를 자동 감지하고(GIF·APNG과 동일하게), 정지 WebP는 정지 PNG처럼 길이를 직접 입력. 2번 탭(GIF APNG 변환기)이 쓰던 WebP 디코드 코어를 정지 이미지도 받을 수 있게 손봐서 그대로 재사용함</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-08-27</b> — 로그북용 로그 백업: "OO 판정" 문구를 스토리다이스로 인식하는 범위 확대 — 끝에 마침표/느낌표가 붙은 경우("이성 판정.", "이성판정!"), 접두 문구와 "판정" 사이에 공백이 없는 경우, "A 또는 B판정"처럼 두 기능명이 나열된 경우, "이성 판정(1D10/1D100)"처럼 판정 문구 바로 뒤에 괄호로 굴림식이 붙는 경우까지 모두 인식하도록 정규식 확장(기존엔 "OO 판정" 또는 "OO 판정 50/25" 형태만 인식)</li>
       <li><span class="chlog-tag" data-cat="image">이미지·애니메이션</span><b>2026-08-22</b> — PNG 이펙터에 "둥실둥실(부유)" 효과 추가(18번째 효과): 위아래로 부드럽게 둥둥 뜨는 느낌의 사인파 움직임을 줌. 길이(초) 설정과 무관하게 항상 같은 속도(약 1.4초에 한 바퀴)로 부유하도록 주기를 다시 계산하며, 같은 슬롯에서 흔들림 효과와 함께 켜면 흔들림 위에 둥실거림이 자연스럽게 더해짐</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-08-20</b> — 홈 화면 기능 카드가 펼쳐질 때(마우스 올림) 버벅이던 문제 수정: 카드 자신에 걸려있던 반투명 블러가, 카드 높이가 매 프레임 바뀌는 펼침 애니메이션과 겹치면서 블러를 매 프레임 다시 계산해야 했던 게 원인이었음(리퀴드 글래스 개편 때 생긴 문제). 카드에서는 블러를 빼고 반투명 배경만 남기고, 펼침 애니메이션이 쓰이는 세 곳(홈 카드·사이드바 아코디언·"다음 단계 나타남" 공용 효과)에 리레이아웃 범위를 좁혀주는 CSS containment를 추가 — CPU 스로틀 상태에서 실측한 평균 프레임 시간이 약 24% 줄고 눈에 띄는 끊김(50ms 이상 프레임)은 절반 가까이 줄어듦</li>
@@ -706,9 +707,9 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <section id="tab-mp3" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-mp3">
   <div class="card">
     <h2>다이스 컷인용 무음 MP3 생성</h2>
-    <p class="desc">컷인 이미지를 올리면 재생 길이를 감지해 같은 길이의 무음 mp3를 만듭니다. 이미지·사운드 재생 시간을 맞출 때 사용하세요.</p>
-    <div class="drop" id="mp3-drop">png / gif / apng 파일
-      <input type="file" id="mp3-file" accept=".png,.gif" class="hidden">
+    <p class="desc">컷인 이미지를 올리면 재생 길이를 감지해 같은 길이의 무음 mp3를 만듭니다. 이미지·사운드 재생 시간을 맞출 때 사용하세요. 움직이는 WebP는 Chrome·Edge 등 WebCodecs를 지원하는 브라우저에서만 길이를 자동 감지합니다.</p>
+    <div class="drop" id="mp3-drop">png / gif / apng / webp 파일
+      <input type="file" id="mp3-file" accept=".png,.gif,.webp" class="hidden">
     </div>
     <div class="info-box" id="mp3-info" aria-live="polite">파일을 선택하면 여기에 감지 결과가 표시됩니다.</div>
     <div class="row hidden" id="mp3-preview-row">
@@ -19437,9 +19438,13 @@ async function decodeGifFile(file){
    내장된 ImageDecoder API로 각 프레임을 이미 합성된 상태(dispose/blend 처리 완료)로
    받아온다 — WebP 디코더를 별도로 번들할 필요가 없다. 이 API가 없는 브라우저(사파리·
    파이어폭스 등)에서는 안내 메시지로 실패를 알린다. */
-async function decodeWebpFile(file){
+// allowStatic: 기본값(false/생략)은 기존 그대로 정지 WebP를 에러로 거부한다(2번 탭의
+// "움직이는 WebP → APNG" 변환에는 정지 이미지가 의미 없으므로). true로 넘기면 정지
+// WebP도 프레임 1장짜리로 받아온다(1번 탭 컷인 커터처럼 정지 이미지도 유효한 입력인
+// 경우). 반환값의 isAnimated로 어느 쪽이었는지 구분한다.
+async function decodeWebpFile(file, allowStatic){
   if(typeof ImageDecoder === 'undefined'){
-    throw new Error('이 브라우저는 움직이는 WebP 디코딩을 지원하지 않습니다. Chrome 또는 Edge 최신 버전에서 시도해주세요.');
+    throw new Error('이 브라우저는 WebP 디코딩을 지원하지 않습니다. Chrome 또는 Edge 최신 버전에서 시도해주세요.');
   }
   var buf = await file.arrayBuffer();
   var decoder;
@@ -19450,11 +19455,16 @@ async function decodeWebpFile(file){
     throw new Error('WebP 파일을 열 수 없습니다 (지원하지 않는 형식이거나 손상된 파일).');
   }
   var track = decoder.tracks.selectedTrack;
-  if(!track || !track.animated || track.frameCount < 2){
+  if(!track){
+    decoder.close();
+    throw new Error('WebP 파일을 열 수 없습니다 (지원하지 않는 형식이거나 손상된 파일).');
+  }
+  var isAnimated = !!(track.animated && track.frameCount >= 2);
+  if(!isAnimated && !allowStatic){
     decoder.close();
     throw new Error('애니메이션이 없는 정지 WebP입니다. APNG 변환에는 움직이는 WebP가 필요합니다.');
   }
-  var frameCount = track.frameCount;
+  var frameCount = isAnimated ? track.frameCount : 1;
   var canvas = document.createElement('canvas');
   var ctx = null, width = 0, height = 0;
   var frames = [], delays = [];
@@ -19485,7 +19495,7 @@ async function decodeWebpFile(file){
   }finally{
     decoder.close();
   }
-  return {frames:frames, delays:delays, width:width, height:height};
+  return {frames:frames, delays:delays, width:width, height:height, isAnimated:isAnimated};
 }
 
 /* ============ APNG 인코드/디코드 코어 (UPNG.js + pako) ============ */
@@ -19689,8 +19699,24 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
           state.frames = d.frames; state.delays = [0];
           showPreview(d.frames, [0], d.width, d.height);
         }
+      } else if(ext==='webp'){
+        info.textContent = '분석 중...';
+        var w = await decodeWebpFile(file, true);
+        if(w.isAnimated){
+          state.durationMs = w.delays.reduce(function(a,b){return a+b;},0);
+          info.textContent = '움직이는 WebP 감지: 프레임 '+w.delays.length+'개, 1회 재생 '+fmtSec(state.durationMs)+' ('+w.width+'x'+w.height+')';
+          manualToggle.checked = false; manualSec.disabled = true;
+          state.frames = w.frames; state.delays = w.delays;
+          showPreview(w.frames, w.delays, w.width, w.height);
+        } else {
+          state.durationMs = null;
+          info.textContent = '정지 WebP 이미지입니다 ('+w.width+'x'+w.height+'). 아래에서 길이를 직접 입력하세요.';
+          manualToggle.checked = true; manualSec.disabled = false;
+          state.frames = w.frames; state.delays = [0];
+          showPreview(w.frames, [0], w.width, w.height);
+        }
       } else {
-        info.textContent = 'png 또는 gif 파일만 지원합니다.';
+        info.textContent = 'png, gif 또는 webp 파일만 지원합니다.';
         state.durationMs = null;
       }
     }catch(e){
