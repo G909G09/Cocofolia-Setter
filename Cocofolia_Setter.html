@@ -606,6 +606,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 파츠 조합 스탠딩 메이커(11번) 대개편: (1) 효과 레이어를 여러 장 동시에 겹쳐 쓸 수 있게 함(다른 카테고리는 라디오처럼 하나만, 효과만 체크박스처럼 토글 — 켠 효과마다 각자 다른 위치/크기/기울기를 가질 수 있음, 조합 개수 계산도 부분집합 방식(2^n)으로 변경). (2) 위치·크기·기울기 조정을 슬라이더 대신 미리보기 위에 뜨는 변형 손잡이(테두리 박스+모서리 4개+회전 손잡이)로 직접 드래그해서 하도록 변경 — 파츠를 고르면 그 파츠가 편집 대상이 되고, 박스를 끌면 이동·모서리를 끌면 확대축소·위쪽 손잡이를 끌면 회전. (3) 미리보기를 약 2배로 확대(최대 640px)하고 레이아웃을 왼쪽 미리보기+오른쪽 담아두기, 그 아래 파츠 업로드로 재배치. 탭 상태 저장/불러오기에도 효과별 개별 조정값이 함께 저장됨</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 파츠 조합 스탠딩 메이커(11번) 가시성 개선: 화면을 왼쪽 미리보기(스크롤해도 화면에 고정)·가운데 파츠 업로드·오른쪽 담아둔 조합 3단으로 재배치해 파츠를 고르는 동안에도 결과를 계속 볼 수 있게 함. 담아둔 조합 썸네일 크기를 52px→96px로 키워 여러 조합을 한눈에 구분하기 쉽게 함. 파츠 갤러리의 각 파츠 이름과 담아둔 조합의 파일명을 이름 칸 클릭으로 직접 수정할 수 있게 해서(업로드 파일명 대신 "웃음"처럼 알아보기 쉬운 이름으로), ZIP/다운로드 파일명에도 그대로 반영되게 함</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 파츠 조합 스탠딩 메이커(11번)에 파츠별 위치·크기·기울기 조정 기능 추가: 각 카테고리(몸·눈썹·눈·입·효과) 아래에 X/Y 위치·크기(50~200%)·기울기(±45°) 슬라이더가 생겨서, 미리 정확히 정렬돼 있지 않은 파츠도 미리보기를 보면서 캔버스 중심 기준으로 바로 맞출 수 있음("초기화" 버튼으로 그 파츠만 원상복구). 같은 카테고리의 다른 변형으로 바꿔도 조정값 유지, "전체 조합 ZIP/담아두기"로 만드는 모든 조합에도 동일하게 적용됨. 조정값은 탭 상태 저장/불러오기에도 함께 저장됨</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 파츠 조합 스탠딩 메이커(11번)에 "담아두기" 편의 기능 추가: 마음에 드는 조합이 나올 때마다 "현재 조합 담아두기"로 오른쪽 패널에 하나씩 모아둘 수 있고, "전체 조합 담아두기"를 누르면 기존 "전체 조합 ZIP" 기능이 쓰던 조합 자동 생성 로직을 그대로 재사용해 가능한 모든 조합을 한 번에 오른쪽에 쌓아줌(새 자동 조합 로직을 따로 만들지 않고 결과 출력 방식만 ZIP 즉시 다운로드 대신 담아두기로 바꿈). 담아둔 조합은 썸네일 클릭으로 그것만 바로 다운로드하거나 ×로 개별 삭제할 수 있고, 필요 없는 것만 골라 지운 뒤 "담아둔 조합 일괄 저장(ZIP)"으로 나머지를 한 번에 ZIP으로 받을 수 있음(최대 500개)</li>
@@ -1136,15 +1137,18 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <section id="tab-parts" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-parts">
   <div class="card">
     <h2>파츠 조합 스탠딩 메이커</h2>
-    <p class="desc">몸·눈썹·눈·입·효과 파츠 이미지를 각각 올리면 겹쳐서 스탠딩 이미지를 조합합니다. 파츠가 미리 같은 캔버스 크기·위치로 맞춰진 투명 배경 PNG가 아니어도, 각 파츠 아래 "위치·크기·기울기 조정" 슬라이더로 미리보기를 보면서 직접 맞출 수 있습니다. 카테고리마다 한 번에 하나씩만 고를 수 있습니다. 마음에 드는 조합이 나오면 오른쪽 "담아두기"에 모아뒀다가 한 번에 ZIP으로 저장할 수 있고, "전체 조합 담아두기"로 가능한 모든 조합을 자동으로 만들어 오른쪽에 모아둔 뒤 필요 없는 것만 지우고 저장할 수도 있습니다. 미리보기 왼쪽 썸네일과 담아둔 조합의 파일명은 이름 칸을 클릭해 직접 고칠 수 있습니다.</p>
+    <p class="desc">몸·눈썹·눈·입·효과 파츠 이미지를 각각 올리면 겹쳐서 스탠딩 이미지를 조합합니다. 파츠가 미리 같은 캔버스 크기·위치로 맞춰진 투명 배경 PNG가 아니어도, 미리보기에서 파츠를 직접 드래그해 위치를 옮기고 모서리 손잡이로 크기를, 위쪽 손잡이로 기울기를 조정할 수 있습니다(파츠를 고르면 그 파츠가 편집 대상이 됩니다). 눈썹·눈·입은 카테고리마다 한 번에 하나씩만 고를 수 있지만, 효과는 여러 개를 동시에 겹쳐 쓸 수 있습니다. 마음에 드는 조합이 나오면 오른쪽 "담아두기"에 모아뒀다가 한 번에 ZIP으로 저장할 수 있고, "전체 조합 담아두기"로 가능한 모든 조합을 자동으로 만들어 오른쪽에 모아둔 뒤 필요 없는 것만 지우고 저장할 수도 있습니다. 파츠 이름과 담아둔 조합의 파일명은 이름 칸을 클릭해 직접 고칠 수 있습니다.</p>
 
-    <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;">
-      <div id="parts-preview-col" style="flex:0 1 260px;min-width:240px;position:sticky;top:12px;">
+    <div id="parts-top-row" style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;">
+      <div id="parts-preview-col" style="flex:1 1 520px;min-width:360px;">
         <div class="info-box hidden" id="parts-info" aria-live="polite"></div>
 
-        <div class="row" style="margin-bottom:10px;">
-          <canvas class="preview hidden" id="parts-preview-canvas"></canvas>
+        <div id="parts-canvas-wrap" style="position:relative;display:inline-block;max-width:100%;margin-bottom:10px;">
+          <canvas class="preview hidden" id="parts-preview-canvas" style="max-height:640px;"></canvas>
+          <div id="parts-gizmo" class="hidden"></div>
         </div>
+
+        <div class="info-box hidden" id="parts-active-layer-box"></div>
 
         <div class="field" style="margin-bottom:8px;"><label for="parts-filename">파일명</label><input type="text" id="parts-filename" class="wide" value="standing_combo.png"></div>
         <div class="row" style="margin-top:-4px;">
@@ -1161,16 +1165,12 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
         </div>
       </div>
 
-      <div style="flex:3 1 300px;min-width:260px;">
-        <div id="parts-cats" style="display:flex;flex-direction:column;gap:14px;"></div>
-      </div>
-
-      <div style="flex:2 1 240px;min-width:220px;border-left:1px solid var(--line);padding-left:16px;">
+      <div style="flex:1 1 300px;min-width:260px;border-left:1px solid var(--line);padding-left:16px;">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
           <h3 style="margin:0;font-size:14px;">담아둔 조합<span id="parts-tray-count" style="color:var(--sub);font-weight:400;font-size:12px;"></span></h3>
         </div>
         <p class="desc" style="margin:6px 0 8px;">"담아두기"로 모은 조합들입니다. 썸네일을 클릭하면 그 조합만 바로 다운로드되고, ×로 하나씩 뺄 수 있습니다. 이름 칸을 클릭하면 그 조합만의 파일명을 고칠 수 있습니다.</p>
-        <div id="parts-tray-gallery" style="display:flex;flex-wrap:wrap;gap:10px;min-height:100px;"></div>
+        <div id="parts-tray-gallery" style="display:flex;flex-wrap:wrap;gap:10px;min-height:100px;max-height:520px;overflow-y:auto;padding-right:2px;"></div>
         <div class="info-box hidden" id="parts-tray-hint" style="margin-top:8px;">아직 담아둔 조합이 없습니다.</div>
         <div class="row" style="margin-top:10px;">
           <button class="btn" id="parts-tray-save-all" disabled>담아둔 조합 일괄 저장 (ZIP)</button>
@@ -1180,6 +1180,8 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
         </div>
       </div>
     </div>
+
+    <div id="parts-cats" style="display:flex;flex-wrap:wrap;gap:14px;margin-top:20px;"></div>
   </div>
 </section>
 
@@ -23330,19 +23332,25 @@ var TabLog = (function(){
 /* ================================================================
    탭 11. 파츠 조합 스탠딩 메이커
    눈/눈썹/입/효과 파츠는 기본적으로 몸(베이스) 이미지와 같은 캔버스 크기·위치로
-   미리 정렬된 투명 배경 PNG라고 가정하지만, 카테고리(레이어)마다 위치(X/Y)·크기·
-   기울기를 슬라이더로 직접 조정할 수 있어(state.transform[key], 캔버스 중심을
-   기준점으로 이동/회전/확대축소) 살짝 어긋난 파츠도 화면에서 바로 맞출 수 있다.
-   크기가 다른 파츠를 고르면 위쪽 안내에 경고는 그대로 띄운다(참고용 — transform으로
-   보정했다면 무시해도 됨). 카테고리마다 라디오처럼 하나만 고를 수 있고(효과도
-   마찬가지 — 여러 효과를 동시에 쓰려면 미리 합성해둔 파일을 올려야 함), "없음"을
-   고르면 그 레이어를 아예 그리지 않는다. 같은 카테고리의 다른 변형으로 바꿔도
-   transform 값은 유지된다(같은 파츠의 변형들은 같은 기준점에 맞춰져 있다고 가정).
-   오른쪽 "담아두기"(tray)는 렌더링된 조합 PNG blob을 그대로 들고 있는
-   보관함으로, 지금 고른 조합을 하나씩 담거나("현재 조합 담아두기") 기존
-   전체-조합 생성 로직(allComboSelections/drawCombo)을 그대로 재사용해
-   가능한 모든 조합을 한 번에 담을 수 있다("전체 조합 담아두기"). 담아둔
-   것들은 한 번에 ZIP으로 저장하거나, 마음에 안 드는 것만 개별 삭제할 수 있다.
+   미리 정렬된 투명 배경 PNG라고 가정하지만, 파츠마다 위치(X/Y)·크기·기울기를
+   슬라이더가 아니라 미리보기 위에 뜨는 변형 손잡이(gizmo)로 직접 드래그해
+   조정한다 — 박스 안을 끌면 이동, 모서리 손잡이를 끌면 확대/축소, 위쪽 손잡이를
+   끌면 회전(state.transform[key] 또는 효과는 state.effectTransforms[uid], 둘 다
+   캔버스 중심을 기준점으로 이동/회전/확대축소). 갤러리에서 파츠를 고르면 그
+   파츠가 손잡이의 편집 대상(state.activeLayer)이 된다. 크기가 다른 파츠를
+   고르면 위쪽 안내에 경고는 그대로 띄운다(참고용 — 손잡이로 위치를 맞췄다면
+   무시해도 됨). 눈썹/눈/입/몸은 카테고리마다 라디오처럼 하나만 고를 수 있지만,
+   효과(PART_CATEGORIES의 multi:true)만은 체크박스처럼 여러 장을 동시에 켜서
+   겹쳐 그릴 수 있고, 효과 이미지마다 손잡이 조정값을 따로 갖는다(같은 위치에
+   고정된 게 아니라 각자 다른 곳에 배치할 수 있어야 하므로 카테고리 공용
+   transform이 아니라 업로드 시 부여한 고유 uid로 개별 관리). 같은 카테고리의
+   다른 변형으로 바꿔도 transform 값은 유지된다(같은 파츠의 변형들은 같은
+   기준점에 맞춰져 있다고 가정). 오른쪽 "담아두기"(tray)는 렌더링된 조합 PNG
+   blob을 그대로 들고 있는 보관함으로, 지금 고른 조합을 하나씩 담거나("현재
+   조합 담아두기") 기존 전체-조합 생성 로직(allComboSelections/drawCombo)을
+   그대로 재사용해 가능한 모든 조합을 한 번에 담을 수 있다("전체 조합
+   담아두기"). 담아둔 것들은 한 번에 ZIP으로 저장하거나, 마음에 안 드는 것만
+   개별 삭제할 수 있다.
 ================================================================ */
 (function(){
   var PART_CATEGORIES = [
@@ -23350,20 +23358,41 @@ var TabLog = (function(){
     {key:'eyebrow', label:'눈썹'},
     {key:'eye', label:'눈'},
     {key:'mouth', label:'입'},
-    {key:'effect', label:'효과'}
+    {key:'effect', label:'효과', multi:true}
   ];
   var PART_BY_KEY = {};
   PART_CATEGORIES.forEach(function(c){ PART_BY_KEY[c.key] = c; });
 
-  // state.parts[key] = [{file, img, name}, ...] / state.selected[key] = 인덱스, 없음은 -1(필수인 body는 null이 "아직 없음")
-  // state.transform[key] = {x,y,scale,rot} — 카테고리(레이어) 단위 위치/크기/기울기 조정값.
-  // 같은 카테고리 안에서 다른 변형(예: 눈썹_웃음/눈썹_화남)으로 바꿔도 이 조정값은 유지된다 —
-  // 보통 같은 파츠의 변형들은 같은 기준점에 맞춰 그려져 있다고 가정하기 때문.
   function identityTransform(){ return {x:0, y:0, scale:1, rot:0}; }
-  var state = { parts:{}, selected:{}, transform:{} };
-  PART_CATEGORIES.forEach(function(c){ state.parts[c.key] = []; state.selected[c.key] = c.required ? null : -1; state.transform[c.key] = identityTransform(); });
 
-  var MAX_COMBOS = 300; // 조합 폭주(카테고리마다 변형이 많으면 곱으로 커짐)로 탭이 멈추는 것을 막는 상한
+  var uidSeq = 0; // 업로드된 파츠마다 부여하는 고유 id — 배열 인덱스는 삭제/재정렬로 바뀌지만
+                   // uid는 안 바뀌므로 효과별 개별 transform·활성 레이어 추적에 이 값을 쓴다.
+
+  // state.parts[key] = [{file, img, name, uid}, ...]
+  // state.selected[key] = 단일 카테고리는 인덱스(없음=-1, 필수인 body는 아직 없음=null),
+  //                        효과(multi)는 켜져 있는 인덱스들의 배열(중첩 가능)
+  // state.transform[key] = {x,y,scale,rot} — 단일 카테고리 공용 조정값(변형이 바뀌어도 유지)
+  // state.effectTransforms[uid] = {x,y,scale,rot} — 효과는 동시에 여러 장이 켜질 수 있어
+  //   카테고리 공용이 아니라 이미지 uid별로 따로 관리한다
+  // state.activeLayer = {cat, uid} — 지금 미리보기 손잡이로 조정 중인 레이어
+  var state = { parts:{}, selected:{}, transform:{}, effectTransforms:{}, activeLayer:null };
+  PART_CATEGORIES.forEach(function(c){
+    state.parts[c.key] = [];
+    state.selected[c.key] = c.multi ? [] : (c.required ? null : -1);
+    state.transform[c.key] = identityTransform();
+  });
+
+  function resetPartsState(){
+    PART_CATEGORIES.forEach(function(c){
+      state.parts[c.key] = [];
+      state.selected[c.key] = c.multi ? [] : (c.required ? null : -1);
+      state.transform[c.key] = identityTransform();
+    });
+    state.effectTransforms = {};
+    state.activeLayer = null;
+  }
+
+  var MAX_COMBOS = 300; // 조합 폭주(카테고리마다 변형이 많으면 곱으로 커짐, 효과는 부분집합이라 2^n)로 탭이 멈추는 것을 막는 상한
 
   // tray: 오른쪽 "담아두기"에 모아둔 조합들. 항목마다 렌더링된 PNG blob과 그 blob을
   // 가리키는 object URL(썸네일용)을 갖고 있으며, 이 URL은 항목이 빠지거나("×"·비우기)
@@ -23381,18 +23410,19 @@ var TabLog = (function(){
     return item ? {w:item.img.naturalWidth||item.img.width, h:item.img.naturalHeight||item.img.height} : null;
   }
 
+  function effectTransformFor(uid){
+    if(!state.effectTransforms[uid]) state.effectTransforms[uid] = identityTransform();
+    return state.effectTransforms[uid];
+  }
+
   // transform은 캔버스 중심을 기준점으로 이동·회전·확대축소한다(레이어별로 몸 중심에서
-  // 얼마나 벗어났는지로 다루는 게, 이미지 좌상단 기준보다 직관적이라서). transform 인자를
-  // 생략하면(예: 과거 스냅샷 복원 등 안전망) 원래 위치 그대로 그린다.
-  function drawCombo(ctx, w, h, sel, transformMap){
+  // 얼마나 벗어났는지로 다루는 게, 이미지 좌상단 기준보다 직관적이라서). transformMap/
+  // effectTransforms 인자를 생략하면(예: 과거 스냅샷 복원 등 안전망) 원래 위치 그대로 그린다.
+  function drawCombo(ctx, w, h, sel, transformMap, effectTransforms){
     ctx.clearRect(0,0,w,h);
     var cx = w/2, cy = h/2;
-    PART_CATEGORIES.forEach(function(c){
-      var idx = sel[c.key];
-      if(idx==null || idx<0) return;
-      var item = state.parts[c.key][idx];
+    function drawLayer(item, t){
       if(!item) return;
-      var t = (transformMap && transformMap[c.key]) || identityTransform();
       ctx.save();
       ctx.translate(cx + (t.x||0), cy + (t.y||0));
       ctx.rotate((t.rot||0) * Math.PI/180);
@@ -23400,6 +23430,21 @@ var TabLog = (function(){
       ctx.translate(-cx, -cy);
       ctx.drawImage(item.img, 0, 0);
       ctx.restore();
+    }
+    PART_CATEGORIES.forEach(function(c){
+      if(c.multi){
+        (sel[c.key]||[]).forEach(function(idx){
+          var item = state.parts[c.key][idx];
+          if(!item) return;
+          drawLayer(item, (effectTransforms && effectTransforms[item.uid]) || identityTransform());
+        });
+        return;
+      }
+      var idx = sel[c.key];
+      if(idx==null || idx<0) return;
+      var item = state.parts[c.key][idx];
+      if(!item) return;
+      drawLayer(item, (transformMap && transformMap[c.key]) || identityTransform());
     });
   }
 
@@ -23410,10 +23455,40 @@ var TabLog = (function(){
     var total = 1;
     PART_CATEGORIES.forEach(function(c){
       var n = state.parts[c.key].length;
-      var choices = c.required ? n : n+1; // +1은 "없음"
+      var choices;
+      if(c.multi) choices = Math.pow(2, n); // 효과 하나하나를 켜고 끌 수 있는 모든 부분집합
+      else choices = c.required ? n : n+1; // +1은 "없음"
       total *= choices;
     });
     return total;
+  }
+
+  function setActiveLayer(cat, uid){ state.activeLayer = {cat: cat, uid: uid}; }
+  function clearActiveLayerIfMatches(cat, uid){
+    if(state.activeLayer && state.activeLayer.cat===cat && state.activeLayer.uid===uid) state.activeLayer = null;
+  }
+  function activeLayerTransform(){
+    if(!state.activeLayer) return null;
+    var cat = state.activeLayer.cat;
+    if(PART_BY_KEY[cat] && PART_BY_KEY[cat].multi) return effectTransformFor(state.activeLayer.uid);
+    return state.transform[cat];
+  }
+  function activeLayerItem(){
+    if(!state.activeLayer) return null;
+    var arr = state.parts[state.activeLayer.cat] || [];
+    for(var i=0;i<arr.length;i++){ if(arr[i].uid===state.activeLayer.uid) return arr[i]; }
+    return null;
+  }
+  // 활성 레이어가 실제로 지금 조합에 포함돼 있는지 확인한다(효과는 편집 대상으로
+  // 찍어둔 뒤에도 토글을 꺼버릴 수 있으므로, 그런 경우 손잡이를 숨겨야 한다).
+  function activeLayerIncluded(){
+    if(!state.activeLayer) return false;
+    var cat = state.activeLayer.cat;
+    var item = activeLayerItem();
+    if(!item) return false;
+    var idx = state.parts[cat].indexOf(item);
+    if(PART_BY_KEY[cat].multi) return state.selected[cat].indexOf(idx) >= 0;
+    return state.selected[cat] === idx;
   }
 
   function updateAll(){
@@ -23430,13 +23505,13 @@ var TabLog = (function(){
       $('#parts-combo-count').textContent = '';
       if(state.parts.body.length===0) showInfo('먼저 몸(베이스) 이미지를 올려주세요.');
       else hideInfo();
+      renderGizmo();
       markPendingWork('parts', hasAnyUpload);
       return;
     }
     canvas.classList.remove('hidden');
     canvas.width = size.w; canvas.height = size.h;
-    drawCombo(canvas.getContext('2d'), size.w, size.h, state.selected, state.transform);
-    updateTransformRanges(size);
+    drawCombo(canvas.getContext('2d'), size.w, size.h, state.selected, state.transform, state.effectTransforms);
     $('#parts-download').disabled = false;
     $('#parts-add-tray').disabled = false;
 
@@ -23448,6 +23523,15 @@ var TabLog = (function(){
 
     var mismatches = [];
     PART_CATEGORIES.forEach(function(c){
+      if(c.multi){
+        (state.selected[c.key]||[]).forEach(function(idx){
+          var item = state.parts[c.key][idx];
+          if(!item) return;
+          var iw = item.img.naturalWidth||item.img.width, ih = item.img.naturalHeight||item.img.height;
+          if(iw!==size.w || ih!==size.h) mismatches.push(c.label+'('+item.name+': '+iw+'x'+ih+')');
+        });
+        return;
+      }
       var idx = state.selected[c.key];
       if(idx==null || idx<0) return;
       var item = state.parts[c.key][idx];
@@ -23456,106 +23540,148 @@ var TabLog = (function(){
     });
     if(mismatches.length) showInfo('주의: 몸 이미지('+size.w+'x'+size.h+')와 크기가 다른 파츠가 있어 위치가 어긋날 수 있습니다 — '+mismatches.join(', '));
     else hideInfo();
+    renderGizmo();
     markPendingWork('parts', hasAnyUpload);
   }
 
-  // X/Y 슬라이더의 이동 가능 범위를 캔버스(=몸 이미지) 크기에 맞춰 넉넉하게 늘려준다.
-  // 몸 이미지를 올리기 전에는 고정된 기본값(±600px)을 쓴다.
-  function updateTransformRanges(size){
-    var maxX = size ? Math.max(200, size.w) : 600;
-    var maxY = size ? Math.max(200, size.h) : 600;
-    PART_CATEGORIES.forEach(function(c){
-      var xEl = document.getElementById('parts-tf-'+c.key+'-x');
-      var yEl = document.getElementById('parts-tf-'+c.key+'-y');
-      if(xEl){ xEl.min = -maxX; xEl.max = maxX; }
-      if(yEl){ yEl.min = -maxY; yEl.max = maxY; }
-    });
+  function transformReadoutText(t){
+    return 'X '+Math.round(t.x||0)+'px · Y '+Math.round(t.y||0)+'px · 크기 '+Math.round((t.scale||1)*100)+'% · 기울기 '+(Math.round((t.rot||0)*10)/10)+'°';
   }
 
-  function transformValText(axis, v){
-    if(axis==='scale') return Math.round(v*100)+'%';
-    if(axis==='rot') return (Math.round(v*10)/10)+'°';
-    return Math.round(v)+'px';
+  function pageToCanvasPoint(pageX, pageY){
+    var canvas = $('#parts-preview-canvas');
+    var rect = canvas.getBoundingClientRect();
+    var scaleX = canvas.width / (rect.width || 1);
+    var scaleY = canvas.height / (rect.height || 1);
+    return { x: (pageX - rect.left) * scaleX, y: (pageY - rect.top) * scaleY };
   }
 
-  // 리셋 버튼 등으로 state.transform이 코드에서 바뀌었을 때, 화면에 떠 있는 슬라이더와
-  // 값 표시(span)를 그 값에 맞춰 다시 맞춰준다(슬라이더를 직접 드래그한 경우는 각 슬라이더의
-  // input 리스너가 이미 state를 갱신했으므로 이 함수를 부를 필요가 없다).
-  function syncTransformControls(key){
-    var t = state.transform[key];
-    ['x','y','scale','rot'].forEach(function(axis){
-      var input = document.getElementById('parts-tf-'+key+'-'+axis);
-      var valSpan = document.getElementById('parts-tf-'+key+'-'+axis+'-val');
-      if(input) input.value = t[axis];
-      if(valSpan) valSpan.textContent = transformValText(axis, t[axis]);
-    });
+  // 미리보기 위 변형 손잡이(gizmo) 드래그로 이동/확대축소/회전한다. 이동은 화면(캔버스)
+  // 좌표계 그대로 델타를 더하면 되고(translate가 rotate보다 먼저 적용되므로 레이어
+  // 자신의 회전값과 무관), 확대는 중심에서의 거리 비율로, 회전은 중심 기준 각도 차이로 계산한다.
+  function startGizmoDrag(mode, e){
+    var t = activeLayerTransform();
+    var size = currentCanvasSize();
+    if(!t || !size) return;
+    e.preventDefault();
+    var startPt = pageToCanvasPoint(e.clientX, e.clientY);
+    var centerCanvas = { x: size.w/2 + (t.x||0), y: size.h/2 + (t.y||0) };
+    var start = { x:t.x||0, y:t.y||0, scale:t.scale||1, rot:t.rot||0 };
+    var startDist = Math.hypot(startPt.x-centerCanvas.x, startPt.y-centerCanvas.y) || 1;
+    var startAngle = Math.atan2(startPt.y-centerCanvas.y, startPt.x-centerCanvas.x) * 180/Math.PI;
+
+    function onMove(ev){
+      var pt = pageToCanvasPoint(ev.clientX, ev.clientY);
+      if(mode==='move'){
+        t.x = start.x + (pt.x - startPt.x);
+        t.y = start.y + (pt.y - startPt.y);
+      } else if(mode==='scale'){
+        var dist = Math.hypot(pt.x-centerCanvas.x, pt.y-centerCanvas.y) || 1;
+        t.scale = Math.min(4, Math.max(0.2, start.scale * (dist/startDist)));
+      } else if(mode==='rotate'){
+        var angle = Math.atan2(pt.y-centerCanvas.y, pt.x-centerCanvas.x) * 180/Math.PI;
+        t.rot = start.rot + (angle - startAngle);
+      }
+      updateAll();
+    }
+    function onUp(){
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+    }
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
   }
 
-  function buildTransformControls(cat){
-    var wrap = document.createElement('div');
-    wrap.style.cssText = 'margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);';
-    var title = document.createElement('div');
-    title.style.cssText = 'font-size:11px;color:var(--sub);margin-bottom:6px;';
-    title.textContent = '위치·크기·기울기 조정';
-    wrap.appendChild(title);
+  var gizmoBuilt = false;
+  function buildGizmoDom(){
+    if(gizmoBuilt) return;
+    gizmoBuilt = true;
+    var gizmo = $('#parts-gizmo');
+    gizmo.style.cssText = 'position:absolute;border:2px solid var(--accent);box-sizing:border-box;cursor:move;touch-action:none;';
+    gizmo.addEventListener('pointerdown', function(e){ startGizmoDrag('move', e); });
 
-    var row = document.createElement('div');
-    row.style.cssText = 'display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;';
-
-    var specs = [
-      {axis:'x', label:'X', min:-600, max:600, step:1},
-      {axis:'y', label:'Y', min:-600, max:600, step:1},
-      {axis:'scale', label:'크기', min:0.5, max:2, step:0.01},
-      {axis:'rot', label:'기울기', min:-45, max:45, step:0.5}
-    ];
-    var t = state.transform[cat.key];
-    specs.forEach(function(spec){
-      var box = document.createElement('label');
-      box.style.cssText = 'display:flex;flex-direction:column;gap:2px;font-size:11px;color:var(--sub);';
-      var top = document.createElement('span');
-      top.textContent = spec.label+' ';
-      var valSpan = document.createElement('span');
-      valSpan.id = 'parts-tf-'+cat.key+'-'+spec.axis+'-val';
-      valSpan.textContent = transformValText(spec.axis, t[spec.axis]);
-      top.appendChild(valSpan);
-      box.appendChild(top);
-      var input = document.createElement('input');
-      input.type = 'range'; input.min = spec.min; input.max = spec.max; input.step = spec.step; input.value = t[spec.axis];
-      input.id = 'parts-tf-'+cat.key+'-'+spec.axis;
-      input.style.width = '90px';
-      input.setAttribute('aria-label', cat.label+' '+spec.label+' 조정');
-      input.addEventListener('input', function(){
-        var v = parseFloat(input.value);
-        state.transform[cat.key][spec.axis] = v;
-        valSpan.textContent = transformValText(spec.axis, v);
-        updateAll();
-      });
-      box.appendChild(input);
-      row.appendChild(box);
+    ['nw','ne','sw','se'].forEach(function(pos){
+      var h = document.createElement('div');
+      h.className = 'parts-gizmo-handle';
+      h.style.cssText = 'position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid var(--accent);'+
+        'box-shadow:0 1px 3px rgba(0,0,0,.35);cursor:'+((pos==='nw'||pos==='se')?'nwse-resize':'nesw-resize')+';touch-action:none;';
+      if(pos.indexOf('n')>=0) h.style.top = '-8px'; else h.style.bottom = '-8px';
+      if(pos.indexOf('w')>=0) h.style.left = '-8px'; else h.style.right = '-8px';
+      h.addEventListener('pointerdown', function(e){ e.stopPropagation(); startGizmoDrag('scale', e); });
+      gizmo.appendChild(h);
     });
 
+    var stem = document.createElement('div');
+    stem.style.cssText = 'position:absolute;left:50%;top:-26px;width:1px;height:26px;background:var(--accent);margin-left:-0.5px;pointer-events:none;';
+    gizmo.appendChild(stem);
+
+    var rotHandle = document.createElement('div');
+    rotHandle.title = '드래그해서 회전';
+    rotHandle.setAttribute('aria-label', '회전 손잡이');
+    rotHandle.style.cssText = 'position:absolute;left:50%;top:-33px;width:14px;height:14px;margin-left:-7px;border-radius:50%;'+
+      'background:#fff;border:2px solid var(--accent);box-shadow:0 1px 3px rgba(0,0,0,.35);cursor:grab;touch-action:none;';
+    rotHandle.addEventListener('pointerdown', function(e){ e.stopPropagation(); startGizmoDrag('rotate', e); });
+    gizmo.appendChild(rotHandle);
+  }
+
+  function renderGizmo(){
+    buildGizmoDom();
+    var gizmo = $('#parts-gizmo');
+    var box = $('#parts-active-layer-box');
+    var size = currentCanvasSize();
+    var t = activeLayerTransform();
+    if(!size || !t || !activeLayerIncluded()){
+      gizmo.classList.add('hidden');
+      box.classList.add('hidden');
+      return;
+    }
+    var canvas = $('#parts-preview-canvas');
+    var rect = canvas.getBoundingClientRect();
+    var wrapRect = $('#parts-canvas-wrap').getBoundingClientRect();
+    var dispScale = (rect.width || size.w) / size.w;
+    var boxW = size.w * (t.scale||1) * dispScale;
+    var boxH = size.h * (t.scale||1) * dispScale;
+    var centerX = (rect.left - wrapRect.left) + (size.w/2 + (t.x||0)) * dispScale;
+    var centerY = (rect.top - wrapRect.top) + (size.h/2 + (t.y||0)) * dispScale;
+    gizmo.classList.remove('hidden');
+    gizmo.style.width = boxW+'px';
+    gizmo.style.height = boxH+'px';
+    gizmo.style.left = (centerX - boxW/2)+'px';
+    gizmo.style.top = (centerY - boxH/2)+'px';
+    gizmo.style.transform = 'rotate('+(t.rot||0)+'deg)';
+
+    var item = activeLayerItem();
+    box.classList.remove('hidden');
+    box.innerHTML = '';
+    var head = document.createElement('div');
+    head.style.cssText = 'font-weight:700;margin-bottom:4px;';
+    head.textContent = '지금 조정 중: '+PART_BY_KEY[state.activeLayer.cat].label+(item?' — '+item.name:'');
+    box.appendChild(head);
+    var readout = document.createElement('div');
+    readout.style.cssText = 'font-size:11px;color:var(--sub);';
+    readout.textContent = transformReadoutText(t);
+    box.appendChild(readout);
     var resetBtn = document.createElement('button');
     resetBtn.type = 'button'; resetBtn.className = 'btn ghost';
-    resetBtn.textContent = '초기화'; resetBtn.style.cssText = 'padding:4px 10px;font-size:11px;';
-    resetBtn.setAttribute('aria-label', cat.label+' 위치·크기·기울기 초기화');
+    resetBtn.textContent = '이 레이어 위치 초기화';
+    resetBtn.style.cssText = 'margin-top:6px;padding:4px 10px;font-size:11px;';
     resetBtn.addEventListener('click', function(){
-      state.transform[cat.key] = identityTransform();
-      syncTransformControls(cat.key);
+      var t2 = activeLayerTransform();
+      t2.x = 0; t2.y = 0; t2.scale = 1; t2.rot = 0;
       updateAll();
     });
-    row.appendChild(resetBtn);
-
-    wrap.appendChild(row);
-    return wrap;
+    box.appendChild(resetBtn);
   }
 
-  function makeThumb(item, label, active, onClick, onRemove){
+  function makeThumb(item, label, selected, onClick, onRemove, editing){
     var box = document.createElement('div');
     box.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;width:60px;';
     var tb = document.createElement('div');
-    tb.style.cssText = 'width:52px;height:52px;border-radius:8px;border:2px solid '+(active?'var(--accent)':'var(--line)')+
+    tb.style.cssText = 'width:52px;height:52px;border-radius:8px;border:2px solid '+(selected?'var(--accent)':'var(--line)')+
       ';overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative;'+
-      'background:'+(active?'var(--chip)':'var(--bg)')+' repeating-conic-gradient(#8883 0% 25%, transparent 0% 50%) 50%/10px 10px;';
+      'background:'+(selected?'var(--chip)':'var(--bg)')+' repeating-conic-gradient(#8883 0% 25%, transparent 0% 50%) 50%/10px 10px;'+
+      (editing ? 'box-shadow:0 0 0 2px var(--bg), 0 0 0 4px var(--accent);' : '');
+    if(editing) tb.title = '지금 미리보기에서 조정 중인 파츠입니다';
     if(item){
       // item.img.src는 loadImagesTolerant()가 로드 직후 revoke한 blob URL이라
       // 새 <img>를 만들어 src만 복사하면 재요청이 실패한다(ERR_FILE_NOT_FOUND).
@@ -23672,15 +23798,58 @@ var TabLog = (function(){
 
   function selectPart(catKey, idx){
     state.selected[catKey] = idx;
+    if(idx>=0){
+      var item = state.parts[catKey][idx];
+      if(item) setActiveLayer(catKey, item.uid);
+    } else if(state.activeLayer && state.activeLayer.cat===catKey){
+      state.activeLayer = null;
+    }
     renderGallery(catKey);
     updateAll();
   }
 
+  // 효과는 라디오가 아니라 체크박스처럼 동작한다 — 여러 장을 동시에 켜서 겹쳐 그릴 수
+  // 있고, 켠 항목이 바로 손잡이 편집 대상이 된다(꺼면 그게 활성 레이어였을 때만 해제).
+  function toggleEffect(idx){
+    var arr = state.selected.effect;
+    var pos = arr.indexOf(idx);
+    var item = state.parts.effect[idx];
+    if(pos>=0){
+      arr.splice(pos, 1);
+      if(item) clearActiveLayerIfMatches('effect', item.uid);
+    } else {
+      arr.push(idx);
+      if(item) setActiveLayer('effect', item.uid);
+    }
+    renderGallery('effect');
+    updateAll();
+  }
+
   function removePart(catKey, idx){
+    var cat = PART_BY_KEY[catKey];
+    var removedItem = state.parts[catKey][idx];
     state.parts[catKey].splice(idx, 1);
-    var cur = state.selected[catKey];
-    if(cur === idx) state.selected[catKey] = PART_BY_KEY[catKey].required ? (state.parts[catKey].length ? 0 : null) : -1;
-    else if(cur!=null && cur > idx) state.selected[catKey] = cur-1;
+    if(cat.multi){
+      var arr = state.selected[catKey];
+      var pos = arr.indexOf(idx);
+      if(pos>=0) arr.splice(pos, 1);
+      // 지운 항목보다 뒤에 있던 선택 인덱스들은 배열이 한 칸씩 당겨졌으니 같이 당겨줘야 한다.
+      state.selected[catKey] = arr.map(function(v){ return v>idx ? v-1 : v; });
+      if(removedItem){
+        delete state.effectTransforms[removedItem.uid];
+        clearActiveLayerIfMatches(catKey, removedItem.uid);
+      }
+    } else {
+      var cur = state.selected[catKey];
+      if(cur === idx){
+        state.selected[catKey] = cat.required ? (state.parts[catKey].length ? 0 : null) : -1;
+        if(removedItem) clearActiveLayerIfMatches(catKey, removedItem.uid);
+        if(state.selected[catKey]!=null && state.selected[catKey]>=0){
+          var newItem = state.parts[catKey][state.selected[catKey]];
+          if(newItem) setActiveLayer(catKey, newItem.uid);
+        }
+      } else if(cur!=null && cur > idx) state.selected[catKey] = cur-1;
+    }
     renderGallery(catKey);
     updateAll();
   }
@@ -23689,22 +23858,40 @@ var TabLog = (function(){
     var cat = PART_BY_KEY[catKey];
     var gallery = $('#parts-gallery-'+catKey);
     gallery.innerHTML = '';
+    function isEditing(uid){
+      return !!(state.activeLayer && state.activeLayer.cat===catKey && state.activeLayer.uid===uid);
+    }
+    if(cat.multi){
+      state.parts[catKey].forEach(function(item, idx){
+        var included = state.selected[catKey].indexOf(idx) >= 0;
+        gallery.appendChild(makeThumb(item, item.name, included,
+          function(){ toggleEffect(idx); },
+          function(){ removePart(catKey, idx); },
+          isEditing(item.uid)));
+      });
+      return;
+    }
     if(!cat.required){
       gallery.appendChild(makeThumb(null, '없음', state.selected[catKey]===-1, function(){ selectPart(catKey, -1); }));
     }
     state.parts[catKey].forEach(function(item, idx){
       gallery.appendChild(makeThumb(item, item.name, state.selected[catKey]===idx,
         function(){ selectPart(catKey, idx); },
-        function(){ removePart(catKey, idx); }));
+        function(){ removePart(catKey, idx); },
+        isEditing(item.uid)));
     });
   }
 
   function loadPartFiles(catKey, files){
     var pngFiles = files.filter(function(f){ return /\.png$/i.test(f.name); });
     var skippedExt = files.length - pngFiles.length;
-    loadImagesTolerant(pngFiles, function(f, img){ return {file:f, img:img, name: baseName(f.name)}; }).then(function(res){
+    loadImagesTolerant(pngFiles, function(f, img){ return {file:f, img:img, name: baseName(f.name), uid: ++uidSeq}; }).then(function(res){
       state.parts[catKey] = state.parts[catKey].concat(res.loaded);
-      if(PART_BY_KEY[catKey].required && state.selected[catKey]==null && state.parts[catKey].length) state.selected[catKey] = 0;
+      var cat = PART_BY_KEY[catKey];
+      if(cat.required && state.selected[catKey]==null && state.parts[catKey].length){
+        state.selected[catKey] = 0;
+        setActiveLayer(catKey, state.parts[catKey][0].uid);
+      }
       renderGallery(catKey);
       updateAll();
       if(skippedExt || res.failed.length){
@@ -23718,10 +23905,10 @@ var TabLog = (function(){
     wrap.innerHTML = '';
     PART_CATEGORIES.forEach(function(cat){
       var box = document.createElement('div');
-      box.style.cssText = 'border:1px solid var(--line);border-radius:10px;padding:10px;';
+      box.style.cssText = 'border:1px solid var(--line);border-radius:10px;padding:10px;flex:1 1 260px;min-width:240px;';
       var lab = document.createElement('div');
       lab.style.cssText = 'font-weight:700;font-size:13px;margin-bottom:6px;';
-      lab.textContent = cat.label + (cat.required ? ' (필수)' : '');
+      lab.textContent = cat.label + (cat.required ? ' (필수)' : '') + (cat.multi ? ' (여러 개 중첩 가능)' : '');
       box.appendChild(lab);
 
       var drop = document.createElement('div');
@@ -23739,8 +23926,6 @@ var TabLog = (function(){
       gallery.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;';
       box.appendChild(gallery);
 
-      box.appendChild(buildTransformControls(cat));
-
       wrap.appendChild(box);
       setupMultiDrop('parts-drop-'+cat.key, 'parts-file-'+cat.key, function(files){ loadPartFiles(cat.key, files); });
       renderGallery(cat.key);
@@ -23751,7 +23936,7 @@ var TabLog = (function(){
 
   $('#parts-clear').addEventListener('click', function(){
     if(!confirm('업로드한 모든 파츠를 지울까요? (위치·크기·기울기 조정값도 함께 초기화됩니다)')) return;
-    PART_CATEGORIES.forEach(function(c){ state.parts[c.key] = []; state.selected[c.key] = c.required ? null : -1; state.transform[c.key] = identityTransform(); });
+    resetPartsState();
     buildCatUI();
     updateAll();
     hideInfo();
@@ -23776,9 +23961,26 @@ var TabLog = (function(){
     });
   });
 
+  // n개 인덱스[0..n-1]의 모든 부분집합(공집합 포함)을 배열의 배열로 돌려준다 —
+  // 효과 레이어는 각 이미지를 독립적으로 켜고 끌 수 있으므로 "하나만 고르기"가
+  // 아니라 "부분집합 고르기" 조합이 필요하다.
+  function powerSetIndices(n){
+    var result = [[]];
+    for(var i=0;i<n;i++){
+      var next = [];
+      result.forEach(function(subset){
+        next.push(subset);
+        next.push(subset.concat([i]));
+      });
+      result = next;
+    }
+    return result;
+  }
+
   function allComboSelections(){
     var lists = PART_CATEGORIES.map(function(c){
       var n = state.parts[c.key].length;
+      if(c.multi) return powerSetIndices(n);
       if(c.required) return Array.from({length:n}, function(_,i){ return i; });
       var arr = [-1];
       for(var i=0;i<n;i++) arr.push(i);
@@ -23801,6 +24003,13 @@ var TabLog = (function(){
 
   function comboLabel(sel){
     var parts = PART_CATEGORIES.map(function(c){
+      if(c.multi){
+        var names = (sel[c.key]||[]).map(function(idx){
+          var item = state.parts[c.key][idx];
+          return item ? sanitizeFilename(item.name) : null;
+        }).filter(Boolean);
+        return names.length ? names.join('+') : null;
+      }
       var idx = sel[c.key];
       if(idx==null || idx<0) return null;
       var item = state.parts[c.key][idx];
@@ -23825,7 +24034,7 @@ var TabLog = (function(){
     // 공유하고 있어서 나중 조합이 이전 조합을 덮어써버린 뒤에야 콜백이 도는 경우가
     // 생긴다). 그래서 배치 처리를 위한 Promise.all 패턴 대신 순차 await로 처리한다.
     for(var i=0;i<combos.length;i++){
-      drawCombo(ctx, size.w, size.h, combos[i], state.transform);
+      drawCombo(ctx, size.w, size.h, combos[i], state.transform, state.effectTransforms);
       var blob = await new Promise(function(res){ canvasToBlobOrNull(canvas, res); });
       if(blob) zip.file(uniqueZipName(usedNames, (comboLabel(combos[i])||('combo_'+(i+1)))+'.png'), blob);
       if(btn) btn.textContent = '조합 렌더링 중... ('+(i+1)+'/'+combos.length+')';
@@ -23865,7 +24074,7 @@ var TabLog = (function(){
     canvas.width = size.w; canvas.height = size.h;
     var ctx = canvas.getContext('2d');
     for(var i=0;i<combos.length;i++){
-      drawCombo(ctx, size.w, size.h, combos[i], state.transform);
+      drawCombo(ctx, size.w, size.h, combos[i], state.transform, state.effectTransforms);
       var blob = await new Promise(function(res){ canvasToBlobOrNull(canvas, res); });
       if(blob) addToTray(comboLabel(combos[i])||('combo_'+(i+1)), blob);
       if(btn) btn.textContent = '담는 중... ('+(i+1)+'/'+combos.length+')';
@@ -23928,29 +24137,54 @@ var TabLog = (function(){
   // 같은 업로드 경로(loadPartFiles와 동일한 loadImagesTolerant)로 다시 불러온 뒤
   // 갤러리를 재구성하고 선택 상태까지 그대로 복원한다.
   registerTabSnapshot('tab-parts', function capturePartsSnapshot(){
-    var catFiles = {};
-    PART_CATEGORIES.forEach(function(c){ catFiles[c.key] = state.parts[c.key].map(function(it){ return it.file; }); });
-    return { catFiles: catFiles, selected: state.selected, transform: state.transform, filename: $('#parts-filename').value };
-  }, function restorePartsSnapshot(snap){
+    var catFiles = {}, catUids = {};
     PART_CATEGORIES.forEach(function(c){
-      state.parts[c.key] = []; state.selected[c.key] = c.required ? null : -1;
-      var t = snap.transform && snap.transform[c.key];
-      state.transform[c.key] = t ? {x:t.x||0, y:t.y||0, scale:t.scale||1, rot:t.rot||0} : identityTransform();
+      catFiles[c.key] = state.parts[c.key].map(function(it){ return it.file; });
+      catUids[c.key] = state.parts[c.key].map(function(it){ return it.uid; });
     });
+    return {
+      catFiles: catFiles, catUids: catUids,
+      selected: state.selected, transform: state.transform, effectTransforms: state.effectTransforms,
+      filename: $('#parts-filename').value
+    };
+  }, function restorePartsSnapshot(snap){
+    resetPartsState();
     if(snap.filename != null) $('#parts-filename').value = snap.filename;
     var loaders = PART_CATEGORIES.map(function(c){
       var files = (snap.catFiles && snap.catFiles[c.key]) || [];
+      var uids = (snap.catUids && snap.catUids[c.key]) || [];
       if(!files.length) return Promise.resolve();
-      return loadImagesTolerant(files, function(f, img){ return {file:f, img:img, name: baseName(f.name)}; }).then(function(res){
+      // uid는 배열 인덱스가 아니라 File 객체 자체로 원래 순서를 찾는다 — loadImagesTolerant는
+      // Promise.all로 파일마다 병렬 로드하기 때문에 mapFn 콜백이 완료된 순서(=업로드 순서와
+      // 다를 수 있음)로 불릴 수 있어, 카운터 증가 방식으로는 잘못된 uid가 매칭될 수 있다.
+      return loadImagesTolerant(files, function(f, img){
+        var i = files.indexOf(f);
+        var uid = (i>=0 && uids[i]!=null) ? uids[i] : ++uidSeq;
+        uidSeq = Math.max(uidSeq, uid);
+        return {file:f, img:img, name: baseName(f.name), uid: uid};
+      }).then(function(res){
         state.parts[c.key] = res.loaded;
       });
     });
     Promise.all(loaders).then(function(){
       PART_CATEGORIES.forEach(function(c){
         var v = snap.selected ? snap.selected[c.key] : undefined;
-        if(v!=null && (v===-1 || state.parts[c.key][v])) state.selected[c.key] = v;
+        if(c.multi){
+          state.selected[c.key] = Array.isArray(v) ? v.filter(function(i){ return !!state.parts[c.key][i]; }) : [];
+        } else if(v!=null && (v===-1 || state.parts[c.key][v])) state.selected[c.key] = v;
         else if(c.required && state.parts[c.key].length) state.selected[c.key] = 0;
+
+        var t = snap.transform && snap.transform[c.key];
+        state.transform[c.key] = t ? {x:t.x||0, y:t.y||0, scale:t.scale||1, rot:t.rot||0} : identityTransform();
       });
+      state.effectTransforms = {};
+      if(snap.effectTransforms){
+        Object.keys(snap.effectTransforms).forEach(function(uid){
+          var t = snap.effectTransforms[uid];
+          state.effectTransforms[uid] = {x:t.x||0, y:t.y||0, scale:t.scale||1, rot:t.rot||0};
+        });
+      }
+      state.activeLayer = null;
       buildCatUI();
       updateAll();
     });
