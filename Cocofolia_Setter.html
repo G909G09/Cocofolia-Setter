@@ -538,24 +538,25 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <button class="cat-btn" data-cat="char" aria-expanded="false" aria-controls="subtabs-char"><span class="sidebar-group-label">캐릭터·스탠딩</span><span class="sidebar-group-caret" aria-hidden="true">▾</span></button>
       <div class="sidebar-subtabs" id="subtabs-char"><div class="sidebar-subtabs-inner">
         <button class="tab-btn" data-target="tab-standing" data-cat="char" id="tabbtn-standing" role="tab" aria-selected="false" aria-controls="tab-standing">10. 스탠딩 일괄 재단</button>
-        <button class="tab-btn" data-target="tab-cheatsheet" data-cat="char" id="tabbtn-cheatsheet" role="tab" aria-selected="false" aria-controls="tab-cheatsheet">11. 컨닝 페이퍼 메이커</button>
-        <button class="tab-btn" data-target="tab-charfile" data-cat="char" id="tabbtn-charfile" role="tab" aria-selected="false" aria-controls="tab-charfile">12. 캐릭터 룸파일 생성기</button>
-        <button class="tab-btn" data-target="tab-trim" data-cat="char" id="tabbtn-trim" role="tab" aria-selected="false" aria-controls="tab-trim">13. 이미지 여백 자동 재단</button>
+        <button class="tab-btn" data-target="tab-parts" data-cat="char" id="tabbtn-parts" role="tab" aria-selected="false" aria-controls="tab-parts">11. 파츠 조합 스탠딩 메이커</button>
+        <button class="tab-btn" data-target="tab-cheatsheet" data-cat="char" id="tabbtn-cheatsheet" role="tab" aria-selected="false" aria-controls="tab-cheatsheet">12. 컨닝 페이퍼 메이커</button>
+        <button class="tab-btn" data-target="tab-charfile" data-cat="char" id="tabbtn-charfile" role="tab" aria-selected="false" aria-controls="tab-charfile">13. 캐릭터 룸파일 생성기</button>
+        <button class="tab-btn" data-target="tab-trim" data-cat="char" id="tabbtn-trim" role="tab" aria-selected="false" aria-controls="tab-trim">14. 이미지 여백 자동 재단</button>
       </div></div>
     </div>
     <div class="sidebar-group" data-cat="etc">
       <button class="cat-btn" data-cat="etc" aria-expanded="false" aria-controls="subtabs-etc"><span class="sidebar-group-label">기타</span><span class="sidebar-group-caret" aria-hidden="true">▾</span></button>
       <div class="sidebar-subtabs" id="subtabs-etc"><div class="sidebar-subtabs-inner">
-        <button class="tab-btn" data-target="tab-suggest" data-cat="etc" id="tabbtn-suggest" role="tab" aria-selected="false" aria-controls="tab-suggest">16. 건의함</button>
-        <button class="tab-btn" data-target="tab-settings" data-cat="etc" id="tabbtn-settings" role="tab" aria-selected="false" aria-controls="tab-settings">17. 설정</button>
-        <button class="tab-btn" data-target="tab-history" data-cat="etc" id="tabbtn-history" role="tab" aria-selected="false" aria-controls="tab-history">18. 결과물 보관함</button>
+        <button class="tab-btn" data-target="tab-suggest" data-cat="etc" id="tabbtn-suggest" role="tab" aria-selected="false" aria-controls="tab-suggest">17. 건의함</button>
+        <button class="tab-btn" data-target="tab-settings" data-cat="etc" id="tabbtn-settings" role="tab" aria-selected="false" aria-controls="tab-settings">18. 설정</button>
+        <button class="tab-btn" data-target="tab-history" data-cat="etc" id="tabbtn-history" role="tab" aria-selected="false" aria-controls="tab-history">19. 결과물 보관함</button>
       </div></div>
     </div>
     <div class="sidebar-group" data-cat="more">
       <button class="cat-btn" data-cat="more" aria-expanded="false" aria-controls="subtabs-more"><span class="sidebar-group-label">다른 기능 둘러보기</span><span class="sidebar-group-caret" aria-hidden="true">▾</span></button>
       <div class="sidebar-subtabs" id="subtabs-more"><div class="sidebar-subtabs-inner">
-        <button class="tab-btn" data-target="tab-md-ext" data-cat="more" id="tabbtn-md-ext" role="tab" aria-selected="false" aria-controls="tab-md-ext">14. Cocofolia Markdown</button>
-        <button class="tab-btn" data-target="tab-textable-ext" data-cat="more" id="tabbtn-textable-ext" role="tab" aria-selected="false" aria-controls="tab-textable-ext">15. 텍스트 자동 변환기</button>
+        <button class="tab-btn" data-target="tab-md-ext" data-cat="more" id="tabbtn-md-ext" role="tab" aria-selected="false" aria-controls="tab-md-ext">15. Cocofolia Markdown</button>
+        <button class="tab-btn" data-target="tab-textable-ext" data-cat="more" id="tabbtn-textable-ext" role="tab" aria-selected="false" aria-controls="tab-textable-ext">16. 텍스트 자동 변환기</button>
       </div></div>
     </div>
   </nav>
@@ -605,6 +606,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 새 탭 "파츠 조합 스탠딩 메이커" 추가(11번): 몸(베이스)·눈썹·눈·입·효과 파츠 PNG를 각각 올리면 겹쳐서 스탠딩 이미지로 조합. 모든 파츠가 같은 캔버스 크기·위치로 정렬된 투명 배경 PNG라고 가정하고 그대로 겹쳐 그리며(별도 위치·배율 조정 UI 없음), 몸과 크기가 다른 파츠를 고르면 경고 표시. 몸은 필수, 눈썹·눈·입·효과는 카테고리마다 "없음" 포함 한 번에 하나씩만 선택. 파츠 갯수 기준으로 나올 수 있는 전체 조합 개수를 계산해 "전체 조합 ZIP으로 다운로드"로 한 번에 받을 수 있음(브라우저 멈춤 방지를 위해 300개 상한). 이 탭이 새로 끼어들며 기존 컨닝 페이퍼 메이커(11→12)·캐릭터 룸파일 생성기(12→13)·이미지 여백 자동 재단(13→14)·Cocofolia Markdown(14→15)·텍스트 자동 변환기(15→16)·건의함(16→17)·설정(17→18)·결과물 보관함(18→19) 탭 번호가 하나씩 밀림</li>
       <li><span class="chlog-tag" data-cat="image">이미지·애니메이션</span><b>2026-08-29</b> — 컷인 커터(1번)에 WebP 지원 추가: 움직이는 WebP는 브라우저 내장 WebCodecs API로 재생 길이를 자동 감지하고(GIF·APNG과 동일하게), 정지 WebP는 정지 PNG처럼 길이를 직접 입력. 2번 탭(GIF APNG 변환기)이 쓰던 WebP 디코드 코어를 정지 이미지도 받을 수 있게 손봐서 그대로 재사용함</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-08-27</b> — 로그북용 로그 백업: "OO 판정" 문구를 스토리다이스로 인식하는 범위 확대 — 끝에 마침표/느낌표가 붙은 경우("이성 판정.", "이성판정!"), 접두 문구와 "판정" 사이에 공백이 없는 경우, "A 또는 B판정"처럼 두 기능명이 나열된 경우, "이성 판정(1D10/1D100)"처럼 판정 문구 바로 뒤에 괄호로 굴림식이 붙는 경우까지 모두 인식하도록 정규식 확장(기존엔 "OO 판정" 또는 "OO 판정 50/25" 형태만 인식)</li>
       <li><span class="chlog-tag" data-cat="image">이미지·애니메이션</span><b>2026-08-22</b> — PNG 이펙터에 "둥실둥실(부유)" 효과 추가(18번째 효과): 위아래로 부드럽게 둥둥 뜨는 느낌의 사인파 움직임을 줌. 길이(초) 설정과 무관하게 항상 같은 속도(약 1.4초에 한 바퀴)로 부유하도록 주기를 다시 계산하며, 같은 슬롯에서 흔들림 효과와 함께 켜면 흔들림 위에 둥실거림이 자연스럽게 더해짐</li>
@@ -978,7 +980,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 13 ===================== -->
+<!-- ===================== TAB 14 ===================== -->
 <section id="tab-charsheet" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-charsheet">
   <div class="card">
     <h2>CoC 캐릭터 시트 메이커</h2>
@@ -1076,7 +1078,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <button class="btn" id="chs-generate">JSON 생성</button>
       <button class="btn ghost" id="chs-copy-json">복사</button>
       <button class="btn ghost" id="chs-download-json">JSON 파일로 다운로드</button>
-      <button class="btn ghost" id="chs-send-charfile">→ 12번 캐릭터 룸파일로 보내기</button>
+      <button class="btn ghost" id="chs-send-charfile">→ 13번 캐릭터 룸파일로 보내기</button>
     </div>
     <div class="field" style="width:100%;margin-top:8px;"><textarea id="chs-json-output" rows="6" style="width:100%;" readonly aria-label="생성된 코코포리아 캐릭터 JSON" placeholder="JSON 생성 버튼을 누르면 여기에 표시됩니다."></textarea></div>
   </div>
@@ -1119,11 +1121,39 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <button class="btn ghost" id="st-clear" disabled style="color:var(--danger);">전체 지우기</button>
     </div>
     <div class="row" style="margin-top:-6px;">
-      <button class="btn ghost" id="st-send-cs" disabled>→ 11번 컨닝 페이퍼로 바로 보내기</button>
-      <button class="btn ghost" id="st-send-cf" disabled>→ 12번 캐릭터 룸파일로 바로 보내기</button>
+      <button class="btn ghost" id="st-send-cs" disabled>→ 12번 컨닝 페이퍼로 바로 보내기</button>
+      <button class="btn ghost" id="st-send-cf" disabled>→ 13번 캐릭터 룸파일로 바로 보내기</button>
     </div>
     <p class="footnote" style="margin-top:-6px;">재단된 이미지를 다운로드/재업로드하지 않고 그대로 다른 탭으로 넘겨서 이어서 작업할 수 있습니다.</p>
     <div id="st-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:14px;"></div>
+  </div>
+</section>
+
+<!-- ===================== TAB 11 ===================== -->
+<section id="tab-parts" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-parts">
+  <div class="card">
+    <h2>파츠 조합 스탠딩 메이커</h2>
+    <p class="desc">몸·눈썹·눈·입·효과 파츠 이미지를 각각 올리면 겹쳐서 스탠딩 이미지를 조합합니다. 모든 파츠가 같은 캔버스 크기·위치로 맞춰진 투명 배경 PNG여야 정확히 겹쳐집니다. 카테고리마다 한 번에 하나씩만 고를 수 있습니다.</p>
+
+    <div id="parts-cats" style="display:flex;flex-direction:column;gap:14px;"></div>
+
+    <div class="info-box hidden" id="parts-info" aria-live="polite"></div>
+
+    <div class="row">
+      <canvas class="preview hidden" id="parts-preview-canvas"></canvas>
+    </div>
+
+    <div class="row">
+      <div class="field"><label for="parts-filename">파일명</label><input type="text" id="parts-filename" class="wide" value="standing_combo.png"></div>
+      <button class="btn" id="parts-download" disabled>현재 조합 다운로드</button>
+    </div>
+    <div class="row" style="margin-top:-6px;align-items:center;">
+      <button class="btn ghost" id="parts-zip-all" disabled>전체 조합 ZIP으로 다운로드</button>
+      <span id="parts-combo-count" style="font-size:12px;color:var(--sub);"></span>
+    </div>
+    <div class="row" style="margin-top:-6px;">
+      <button class="btn ghost" id="parts-clear" disabled style="color:var(--danger);">전체 지우기</button>
+    </div>
   </div>
 </section>
 
@@ -1222,7 +1252,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 11 ===================== -->
+<!-- ===================== TAB 12 ===================== -->
 <section id="tab-charfile" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-charfile">
   <div class="card">
     <h2>코코포리아 캐릭터 룸파일 생성기</h2>
@@ -1251,7 +1281,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 13 ===================== -->
+<!-- ===================== TAB 14 ===================== -->
 <section id="tab-trim" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-trim">
   <div class="card">
     <h2>이미지 여백 자동 재단</h2>
@@ -1277,15 +1307,15 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     </div>
     <div class="row" style="margin-top:-6px;">
       <button class="btn ghost" id="trim-send-st" disabled>→ 10번 스탠딩 재단으로 바로 보내기</button>
-      <button class="btn ghost" id="trim-send-cs" disabled>→ 11번 컨닝 페이퍼로 바로 보내기</button>
-      <button class="btn ghost" id="trim-send-cf" disabled>→ 12번 캐릭터 룸파일로 바로 보내기</button>
+      <button class="btn ghost" id="trim-send-cs" disabled>→ 12번 컨닝 페이퍼로 바로 보내기</button>
+      <button class="btn ghost" id="trim-send-cf" disabled>→ 13번 캐릭터 룸파일로 바로 보내기</button>
     </div>
     <p class="footnote" style="margin-top:-6px;">잘라낸 이미지를 다운로드/재업로드하지 않고 그대로 다른 탭으로 넘겨서 이어서 작업할 수 있습니다.</p>
     <div id="trim-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:14px;"></div>
   </div>
 </section>
 
-<!-- ===================== TAB 14 ===================== -->
+<!-- ===================== TAB 15 ===================== -->
 <section id="tab-md-ext" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-md-ext">
   <div class="card">
     <h2>Cocofolia Markdown (마크다운 확장 프로그램)</h2>
@@ -1306,7 +1336,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 15 ===================== -->
+<!-- ===================== TAB 16 ===================== -->
 <section id="tab-textable-ext" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-textable-ext">
   <div class="card">
     <h2>텍스트 자동 변환기 (문자 변환 확장 프로그램)</h2>
@@ -1327,7 +1357,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 16 ===================== -->
+<!-- ===================== TAB 17 ===================== -->
 <section id="tab-suggest" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-suggest">
   <div class="card">
     <h2>건의함</h2>
@@ -1345,7 +1375,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 17 ===================== -->
+<!-- ===================== TAB 18 ===================== -->
 <section id="tab-settings" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-settings">
   <div class="card">
     <h2>설정</h2>
@@ -1363,7 +1393,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 18 ===================== -->
+<!-- ===================== TAB 19 ===================== -->
 <section id="tab-history" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-history">
   <div class="card">
     <h2>결과물 보관함</h2>
@@ -18459,7 +18489,7 @@ function ensureExtension(name, ext){
   return new RegExp('\\.' + escapeRegExp(ext) + '$', 'i').test(base) ? base : base + '.' + ext;
 }
 
-// 여러 장을 한 번에 zip으로 묶는 탭(4/10/13번)은 파일명에 "_opt"/"_cut"/"_trim" 같은 고정
+// 여러 장을 한 번에 zip으로 묶는 탭(4/10/14번)은 파일명에 "_opt"/"_cut"/"_trim" 같은 고정
 // 접미사만 붙이므로, 같은 이름의 원본을 두 번 이상 올리면(예: 서로 다른 폴더에서 온
 // "1.png" 두 장) zip 안에 이름이 완전히 같은 항목이 여러 개 생긴다. JSZip은 이를 그대로
 // 허용해 만들어주지만 대부분의 압축 해제 프로그램은 나중 항목이 앞의 것을 덮어써버려
@@ -18758,7 +18788,7 @@ function makeRevealable(el){
 }
 
 // 다운로드 버튼 옆에 "임시저장" 버튼을 넣는다 — 파일을 실제로 다운로드하지 않고도 결과물
-// 보관함(18번 탭)에만 남길 수 있다(이것저것 만들어보다가 마음에 드는 버전만 나중에 골라
+// 보관함(19번 탭)에만 남길 수 있다(이것저것 만들어보다가 마음에 드는 버전만 나중에 골라
 // 다운로드하고 싶을 때 유용). onClick은 undefined/true(즉시 성공), false(할 게 없음 — 이
 // 경우 onClick 안에서 직접 alert로 안내해야 함), 또는 Promise<boolean>을 반환할 수 있다.
 function insertQuickSaveButton(afterBtn, onClick){
@@ -18935,7 +18965,7 @@ function persistFormField(id, storageKey){
 }
 
 /* ============ 업로드해둔 작업물이 저장/다운로드 전에 날아가지 않도록 경고 ============
-   10/11/12번 탭은 이미지를 여러 장 올려 놓고 순서·라벨 등을 다듬은 뒤에야 다운로드하는 구조라,
+   10/12/13번 탭은 이미지를 여러 장 올려 놓고 순서·라벨 등을 다듬은 뒤에야 다운로드하는 구조라,
    결과물을 받기 전에 실수로 탭을 닫거나 새로고침하면 그 작업이 전부 사라진다. 각 탭은 이미지
    목록이 바뀔 때마다 markPendingWork(자기 탭 이름, 목록이 비어있지 않은지)를 호출해두고,
    beforeunload에서 하나라도 남아있으면 브라우저 기본 확인창을 띄운다. */
@@ -18957,7 +18987,7 @@ persistFormField('st-mode', 'cocofolia_setter_st_mode');
 persistFormField('st-anchor', 'cocofolia_setter_st_anchor');
 persistFormField('st-bgcolor', 'cocofolia_setter_st_bgcolor');
 persistFormField('st-outwidth', 'cocofolia_setter_st_outwidth');
-// 11번 탭(컨닝 페이퍼 메이커)
+// 12번 탭(컨닝 페이퍼 메이커)
 persistFormField('cs-hero-width', 'cocofolia_setter_cs_hero_width');
 persistFormField('cs-cols', 'cocofolia_setter_cs_cols');
 persistFormField('cs-gap', 'cocofolia_setter_cs_gap');
@@ -18967,7 +18997,7 @@ persistFormField('cs-name-align', 'cocofolia_setter_cs_name_align');
 persistFormField('cs-name-font', 'cocofolia_setter_cs_name_font');
 persistFormField('cs-name-weight', 'cocofolia_setter_cs_name_weight');
 persistFormField('cs-name-color', 'cocofolia_setter_cs_name_color');
-// 13번 탭(이미지 여백 자동 재단)
+// 14번 탭(이미지 여백 자동 재단)
 persistFormField('trim-tolerance', 'cocofolia_setter_trim_tolerance');
 persistFormField('trim-padding', 'cocofolia_setter_trim_padding');
 
@@ -19238,6 +19268,7 @@ $all('.cat-btn').forEach(function(btn){
     'tab-edition': 'CoC 6판 능력치를 7판 스케일로 변환합니다.',
     'tab-charsheet': '특성치·기능치를 자동계산하고 캐릭터 JSON을 만듭니다.',
     'tab-standing': '여러 스탠딩 이미지를 같은 비율로 일괄 재단합니다.',
+    'tab-parts': '몸·눈·눈썹·입·효과 파츠를 조합해 스탠딩 이미지를 만듭니다.',
     'tab-cheatsheet': '표정별 스탠딩으로 캐릭터 표정 카탈로그를 만듭니다.',
     'tab-charfile': '스탠딩+스테이터스로 캐릭터 룸파일(zip)을 만듭니다.',
     'tab-trim': '이미지 모서리 색을 기준으로 배경 여백을 자동으로 찾아 잘라냅니다.',
@@ -19540,7 +19571,7 @@ function loadImageElement(file){
   });
 }
 
-// 여러 이미지를 한꺼번에 업로드하는 탭(10/11/12번)에서 공용으로 쓰는 헬퍼. Promise.all은 하나만
+// 여러 이미지를 한꺼번에 업로드하는 탭(10/12/13번)에서 공용으로 쓰는 헬퍼. Promise.all은 하나만
 // 실패해도 전체가 그대로 reject되어 나머지 정상 파일까지 조용히 무시되므로(콘솔에만 에러가
 // 남고 화면은 아무 반응 없음), 파일별로 성공/실패를 따로 모아서 성공한 것만 쓰고 실패 목록은
 // 호출부가 안내할 수 있게 한다.
@@ -23121,7 +23152,7 @@ var TabLog = (function(){
     loadImagesTolerant(files, function(f, img){ return {file:f, img:img, offset:0}; }).then(function(res){
       items = items.concat(res.loaded);
       if(res.loaded.length){ $('#st-apply').disabled = false; renderAll(); }
-      // 다른 다중 업로드 탭(11/12번)과 동일하게, 차단형 alert() 대신 aria-live 상태 표시줄에 결과를 안내한다.
+      // 다른 다중 업로드 탭(12/13번)과 동일하게, 차단형 alert() 대신 aria-live 상태 표시줄에 결과를 안내한다.
       var msg = res.loaded.length ? (res.loaded.length+'장 로드됨.') : '불러온 이미지가 없습니다.';
       if(res.failed.length) msg += ' (실패 '+res.failed.length+'장: '+res.failed.join(', ')+')';
       $('#st-info').textContent = msg;
@@ -23130,7 +23161,7 @@ var TabLog = (function(){
   }
   setupMultiDrop('st-drop','st-file', loadStFiles);
 
-  // 다른 탭(13번 이미지 여백 자동 재단)에서 처리된 이미지를 다시 다운로드/업로드하지 않고
+  // 다른 탭(14번 이미지 여백 자동 재단)에서 처리된 이미지를 다시 다운로드/업로드하지 않고
   // 바로 받기 위한 통로.
   window.__ccSend = window.__ccSend || {};
   window.__ccSend.toStanding = loadStFiles;
@@ -23200,7 +23231,7 @@ var TabLog = (function(){
   });
   stZipSaveBtn.disabled = true; // st-zip과 마찬가지로 이미지가 없으면 저장할 결과물도 없다
 
-  // 재단된 이미지를 다운로드→재업로드하지 않고 바로 11번/12번 탭으로 넘기는 통로.
+  // 재단된 이미지를 다운로드→재업로드하지 않고 바로 12번/13번 탭으로 넘기는 통로.
   // window.__ccSend는 각 탭이 자기 업로드 처리 함수를 등록해두는 전역 브릿지.
   function itemsToFiles(){
     // 다운로드용 파일명(_cut 접미사)과 달리, 다른 탭으로 넘길 때는 라벨 자동 생성에 그대로
@@ -23271,7 +23302,337 @@ var TabLog = (function(){
 })();
 
 /* ================================================================
-   탭 13. 이미지 여백 자동 재단
+   탭 11. 파츠 조합 스탠딩 메이커
+   눈/눈썹/입/효과 파츠는 전부 몸(베이스) 이미지와 같은 캔버스 크기·위치로
+   미리 정렬된 투명 배경 PNG라고 가정하고, drawImage(img,0,0)만으로 겹쳐
+   그린다(별도 위치/배율 조정 UI를 두지 않음 — 그 대신 크기가 다른 파츠를
+   고르면 위쪽 안내에 경고를 띄운다). 카테고리마다 라디오처럼 하나만 고를
+   수 있고(효과도 마찬가지 — 여러 효과를 동시에 쓰려면 미리 합성해둔 파일을
+   올려야 함), "없음"을 고르면 그 레이어를 아예 그리지 않는다.
+================================================================ */
+(function(){
+  var PART_CATEGORIES = [
+    {key:'body', label:'몸(베이스)', required:true},
+    {key:'eyebrow', label:'눈썹'},
+    {key:'eye', label:'눈'},
+    {key:'mouth', label:'입'},
+    {key:'effect', label:'효과'}
+  ];
+  var PART_BY_KEY = {};
+  PART_CATEGORIES.forEach(function(c){ PART_BY_KEY[c.key] = c; });
+
+  // state.parts[key] = [{file, img, name}, ...] / state.selected[key] = 인덱스, 없음은 -1(필수인 body는 null이 "아직 없음")
+  var state = { parts:{}, selected:{} };
+  PART_CATEGORIES.forEach(function(c){ state.parts[c.key] = []; state.selected[c.key] = c.required ? null : -1; });
+
+  var MAX_COMBOS = 300; // 조합 폭주(카테고리마다 변형이 많으면 곱으로 커짐)로 탭이 멈추는 것을 막는 상한
+
+  function yieldToBrowser(){ return new Promise(function(res){ setTimeout(res, 0); }); }
+
+  function currentCanvasSize(){
+    var idx = state.selected.body;
+    var item = idx!=null ? state.parts.body[idx] : null;
+    return item ? {w:item.img.naturalWidth||item.img.width, h:item.img.naturalHeight||item.img.height} : null;
+  }
+
+  function drawCombo(ctx, w, h, sel){
+    ctx.clearRect(0,0,w,h);
+    PART_CATEGORIES.forEach(function(c){
+      var idx = sel[c.key];
+      if(idx==null || idx<0) return;
+      var item = state.parts[c.key][idx];
+      if(item) ctx.drawImage(item.img, 0, 0);
+    });
+  }
+
+  function showInfo(msg){ var b = $('#parts-info'); b.textContent = msg; b.classList.remove('hidden'); }
+  function hideInfo(){ $('#parts-info').classList.add('hidden'); }
+
+  function comboTotal(){
+    var total = 1;
+    PART_CATEGORIES.forEach(function(c){
+      var n = state.parts[c.key].length;
+      var choices = c.required ? n : n+1; // +1은 "없음"
+      total *= choices;
+    });
+    return total;
+  }
+
+  function updateAll(){
+    var hasAnyUpload = PART_CATEGORIES.some(function(c){ return state.parts[c.key].length>0; });
+    $('#parts-clear').disabled = !hasAnyUpload;
+    var size = currentCanvasSize();
+    var canvas = $('#parts-preview-canvas');
+    if(!size){
+      canvas.classList.add('hidden');
+      $('#parts-download').disabled = true;
+      $('#parts-zip-all').disabled = true;
+      $('#parts-combo-count').textContent = '';
+      if(state.parts.body.length===0) showInfo('먼저 몸(베이스) 이미지를 올려주세요.');
+      else hideInfo();
+      markPendingWork('parts', hasAnyUpload);
+      return;
+    }
+    canvas.classList.remove('hidden');
+    canvas.width = size.w; canvas.height = size.h;
+    drawCombo(canvas.getContext('2d'), size.w, size.h, state.selected);
+    $('#parts-download').disabled = false;
+
+    var total = comboTotal();
+    var overCap = total > MAX_COMBOS;
+    $('#parts-combo-count').textContent = total>1 ? ('가능한 전체 조합: '+total+'개'+(overCap?' — 상한 '+MAX_COMBOS+'개를 넘어 ZIP 생성 불가':'')) : '';
+    $('#parts-zip-all').disabled = total<=1 || overCap;
+
+    var mismatches = [];
+    PART_CATEGORIES.forEach(function(c){
+      var idx = state.selected[c.key];
+      if(idx==null || idx<0) return;
+      var item = state.parts[c.key][idx];
+      var iw = item.img.naturalWidth||item.img.width, ih = item.img.naturalHeight||item.img.height;
+      if(item && (iw!==size.w || ih!==size.h)) mismatches.push(c.label+'('+item.name+': '+iw+'x'+ih+')');
+    });
+    if(mismatches.length) showInfo('주의: 몸 이미지('+size.w+'x'+size.h+')와 크기가 다른 파츠가 있어 위치가 어긋날 수 있습니다 — '+mismatches.join(', '));
+    else hideInfo();
+    markPendingWork('parts', hasAnyUpload);
+  }
+
+  function makeThumb(item, label, active, onClick, onRemove){
+    var box = document.createElement('div');
+    box.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;width:60px;';
+    var tb = document.createElement('div');
+    tb.style.cssText = 'width:52px;height:52px;border-radius:8px;border:2px solid '+(active?'var(--accent)':'var(--line)')+
+      ';overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative;'+
+      'background:'+(active?'var(--chip)':'var(--bg)')+' repeating-conic-gradient(#8883 0% 25%, transparent 0% 50%) 50%/10px 10px;';
+    if(item){
+      // item.img.src는 loadImagesTolerant()가 로드 직후 revoke한 blob URL이라
+      // 새 <img>를 만들어 src만 복사하면 재요청이 실패한다(ERR_FILE_NOT_FOUND).
+      // 이미 디코드된 item.img 엘리먼트 자체를 옮겨 붙여야 안전하다.
+      item.img.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;';
+      tb.appendChild(item.img);
+    } else {
+      tb.textContent = '없음'; tb.style.fontSize='11px'; tb.style.color='var(--sub)';
+    }
+    box.appendChild(tb);
+    var lab = document.createElement('span');
+    lab.textContent = label;
+    lab.style.cssText = 'font-size:10px;color:var(--sub);max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+    box.appendChild(lab);
+    box.addEventListener('click', onClick);
+    if(onRemove){
+      var rm = document.createElement('button');
+      rm.type='button'; rm.textContent='×'; rm.title='이 파츠 삭제';
+      rm.setAttribute('aria-label', label+' 삭제');
+      rm.style.cssText = 'position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;border:none;background:var(--danger);color:#fff;font-size:12px;line-height:1;cursor:pointer;padding:0;';
+      rm.addEventListener('click', function(e){ e.stopPropagation(); onRemove(); });
+      tb.appendChild(rm);
+    }
+    return box;
+  }
+
+  function selectPart(catKey, idx){
+    state.selected[catKey] = idx;
+    renderGallery(catKey);
+    updateAll();
+  }
+
+  function removePart(catKey, idx){
+    state.parts[catKey].splice(idx, 1);
+    var cur = state.selected[catKey];
+    if(cur === idx) state.selected[catKey] = PART_BY_KEY[catKey].required ? (state.parts[catKey].length ? 0 : null) : -1;
+    else if(cur!=null && cur > idx) state.selected[catKey] = cur-1;
+    renderGallery(catKey);
+    updateAll();
+  }
+
+  function renderGallery(catKey){
+    var cat = PART_BY_KEY[catKey];
+    var gallery = $('#parts-gallery-'+catKey);
+    gallery.innerHTML = '';
+    if(!cat.required){
+      gallery.appendChild(makeThumb(null, '없음', state.selected[catKey]===-1, function(){ selectPart(catKey, -1); }));
+    }
+    state.parts[catKey].forEach(function(item, idx){
+      gallery.appendChild(makeThumb(item, item.name, state.selected[catKey]===idx,
+        function(){ selectPart(catKey, idx); },
+        function(){ removePart(catKey, idx); }));
+    });
+  }
+
+  function loadPartFiles(catKey, files){
+    var pngFiles = files.filter(function(f){ return /\.png$/i.test(f.name); });
+    var skippedExt = files.length - pngFiles.length;
+    loadImagesTolerant(pngFiles, function(f, img){ return {file:f, img:img, name: baseName(f.name)}; }).then(function(res){
+      state.parts[catKey] = state.parts[catKey].concat(res.loaded);
+      if(PART_BY_KEY[catKey].required && state.selected[catKey]==null && state.parts[catKey].length) state.selected[catKey] = 0;
+      renderGallery(catKey);
+      updateAll();
+      if(skippedExt || res.failed.length){
+        showInfo((skippedExt? 'PNG 파일만 지원합니다(제외됨: '+skippedExt+'개). ' : '')+(res.failed.length? '불러오기 실패: '+res.failed.join(', ') : ''));
+      }
+    });
+  }
+
+  function buildCatUI(){
+    var wrap = $('#parts-cats');
+    wrap.innerHTML = '';
+    PART_CATEGORIES.forEach(function(cat){
+      var box = document.createElement('div');
+      box.style.cssText = 'border:1px solid var(--line);border-radius:10px;padding:10px;';
+      var lab = document.createElement('div');
+      lab.style.cssText = 'font-weight:700;font-size:13px;margin-bottom:6px;';
+      lab.textContent = cat.label + (cat.required ? ' (필수)' : '');
+      box.appendChild(lab);
+
+      var drop = document.createElement('div');
+      drop.className = 'drop';
+      drop.id = 'parts-drop-'+cat.key;
+      drop.style.cssText = 'padding:12px;font-size:12px;';
+      drop.textContent = cat.label+' PNG 여러 장';
+      var input = document.createElement('input');
+      input.type = 'file'; input.id = 'parts-file-'+cat.key; input.accept = '.png'; input.multiple = true; input.className = 'hidden';
+      drop.appendChild(input);
+      box.appendChild(drop);
+
+      var gallery = document.createElement('div');
+      gallery.id = 'parts-gallery-'+cat.key;
+      gallery.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;';
+      box.appendChild(gallery);
+
+      wrap.appendChild(box);
+      setupMultiDrop('parts-drop-'+cat.key, 'parts-file-'+cat.key, function(files){ loadPartFiles(cat.key, files); });
+      renderGallery(cat.key);
+    });
+  }
+  buildCatUI();
+  updateAll();
+
+  $('#parts-clear').addEventListener('click', function(){
+    if(!confirm('업로드한 모든 파츠를 지울까요?')) return;
+    PART_CATEGORIES.forEach(function(c){ state.parts[c.key] = []; state.selected[c.key] = c.required ? null : -1; });
+    buildCatUI();
+    updateAll();
+    hideInfo();
+  });
+
+  $('#parts-download').addEventListener('click', function(){
+    canvasToBlob($('#parts-preview-canvas'), function(blob){
+      downloadBlob(blob, ensureExtension($('#parts-filename').value.trim() || 'standing_combo.png', 'png'));
+    });
+  });
+  var partsSaveBtn = insertQuickSaveButton($('#parts-download'), function(){
+    if(!currentCanvasSize()){ alert('먼저 몸 이미지를 올리고 조합을 완성해주세요.'); return false; }
+    canvasToBlob($('#parts-preview-canvas'), function(blob){
+      saveResultToHistory(currentTabLabel(), ensureExtension($('#parts-filename').value.trim() || 'standing_combo.png', 'png'), blob);
+    });
+  });
+
+  function allComboSelections(){
+    var lists = PART_CATEGORIES.map(function(c){
+      var n = state.parts[c.key].length;
+      if(c.required) return Array.from({length:n}, function(_,i){ return i; });
+      var arr = [-1];
+      for(var i=0;i<n;i++) arr.push(i);
+      return arr;
+    });
+    var results = [{}];
+    PART_CATEGORIES.forEach(function(c, ci){
+      var next = [];
+      results.forEach(function(sel){
+        lists[ci].forEach(function(v){
+          var s2 = {}; for(var k in sel) s2[k]=sel[k];
+          s2[c.key] = v;
+          next.push(s2);
+        });
+      });
+      results = next;
+    });
+    return results;
+  }
+
+  function comboLabel(sel){
+    var parts = PART_CATEGORIES.map(function(c){
+      var idx = sel[c.key];
+      if(idx==null || idx<0) return null;
+      var item = state.parts[c.key][idx];
+      return item ? item.name : null;
+    }).filter(Boolean);
+    return parts.join('_');
+  }
+
+  async function buildAllCombosZip(btn){
+    if(!window.JSZip) throw new Error('JSZip 라이브러리를 불러오지 못했습니다.');
+    var size = currentCanvasSize();
+    if(!size) throw new Error('먼저 몸 이미지를 올려주세요.');
+    var combos = allComboSelections();
+    if(combos.length > MAX_COMBOS) throw new Error('조합 수가 너무 많습니다('+combos.length+'개, 최대 '+MAX_COMBOS+'개).');
+    var zip = new JSZip();
+    var usedNames = new Set();
+    var canvas = document.createElement('canvas');
+    canvas.width = size.w; canvas.height = size.h;
+    var ctx = canvas.getContext('2d');
+    // canvas.toBlob()은 비동기라, 다음 조합을 그리기 전에 반드시 이전 조합의 blob
+    // 콜백이 끝나길 기다려야 한다(동시에 여러 장을 Promise.all로 묶으면 캔버스를
+    // 공유하고 있어서 나중 조합이 이전 조합을 덮어써버린 뒤에야 콜백이 도는 경우가
+    // 생긴다). 그래서 배치 처리를 위한 Promise.all 패턴 대신 순차 await로 처리한다.
+    for(var i=0;i<combos.length;i++){
+      drawCombo(ctx, size.w, size.h, combos[i]);
+      var blob = await new Promise(function(res){ canvasToBlobOrNull(canvas, res); });
+      if(blob) zip.file(uniqueZipName(usedNames, (comboLabel(combos[i])||('combo_'+(i+1)))+'.png'), blob);
+      if(btn) btn.textContent = '조합 렌더링 중... ('+(i+1)+'/'+combos.length+')';
+      if(i%4===3) await yieldToBrowser();
+    }
+    return zip.generateAsync({type:'blob'}, function(meta){
+      if(btn) btn.textContent = '압축 중... '+Math.round(meta.percent)+'%';
+    });
+  }
+  function runAllCombosZip(btn, whenDone){
+    var oldText = btn.textContent;
+    btn.disabled = true;
+    return buildAllCombosZip(btn).then(function(blob){
+      whenDone(blob);
+      btn.disabled = false; btn.textContent = oldText;
+      return true;
+    }).catch(function(e){
+      alert('전체 조합 ZIP 생성 실패: '+e.message);
+      btn.disabled = false; btn.textContent = oldText;
+      return false;
+    });
+  }
+  $('#parts-zip-all').addEventListener('click', function(){
+    runAllCombosZip($('#parts-zip-all'), function(blob){ downloadBlob(blob, 'standing_combo_all.zip'); });
+  });
+
+  // 업로드했던 카테고리별 원본 파일들과 현재 선택 상태를 저장해뒀다가, 되돌릴 때
+  // 같은 업로드 경로(loadPartFiles와 동일한 loadImagesTolerant)로 다시 불러온 뒤
+  // 갤러리를 재구성하고 선택 상태까지 그대로 복원한다.
+  registerTabSnapshot('tab-parts', function capturePartsSnapshot(){
+    var catFiles = {};
+    PART_CATEGORIES.forEach(function(c){ catFiles[c.key] = state.parts[c.key].map(function(it){ return it.file; }); });
+    return { catFiles: catFiles, selected: state.selected, filename: $('#parts-filename').value };
+  }, function restorePartsSnapshot(snap){
+    PART_CATEGORIES.forEach(function(c){ state.parts[c.key] = []; state.selected[c.key] = c.required ? null : -1; });
+    if(snap.filename != null) $('#parts-filename').value = snap.filename;
+    var loaders = PART_CATEGORIES.map(function(c){
+      var files = (snap.catFiles && snap.catFiles[c.key]) || [];
+      if(!files.length) return Promise.resolve();
+      return loadImagesTolerant(files, function(f, img){ return {file:f, img:img, name: baseName(f.name)}; }).then(function(res){
+        state.parts[c.key] = res.loaded;
+      });
+    });
+    Promise.all(loaders).then(function(){
+      PART_CATEGORIES.forEach(function(c){
+        var v = snap.selected ? snap.selected[c.key] : undefined;
+        if(v!=null && (v===-1 || state.parts[c.key][v])) state.selected[c.key] = v;
+        else if(c.required && state.parts[c.key].length) state.selected[c.key] = 0;
+      });
+      buildCatUI();
+      updateAll();
+    });
+  });
+})();
+
+/* ================================================================
+   탭 14. 이미지 여백 자동 재단
 ================================================================ */
 (function(){
   var items = [];
@@ -23481,7 +23842,7 @@ var TabLog = (function(){
   });
   trimZipSaveBtn.disabled = true;
 
-  // 잘라낸 이미지를 다운로드→재업로드하지 않고 바로 10/11/12번 탭으로 넘기는 통로.
+  // 잘라낸 이미지를 다운로드→재업로드하지 않고 바로 10/12/13번 탭으로 넘기는 통로.
   // canvasToBlobOrNull() 사용 이유는 위 buildTrimZip()과 동일 — 한 장이 실패해도
   // Promise.all()이 멈추지 않게 한다.
   function itemsToFiles(){
@@ -23536,7 +23897,7 @@ var TabLog = (function(){
 })();
 
 /* ================================================================
-   탭 11. 표정 카탈로그 컨닝 페이퍼 메이커
+   탭 12. 표정 카탈로그 컨닝 페이퍼 메이커
 ================================================================ */
 (function(){
   var items = [];
@@ -24326,7 +24687,7 @@ var TabLog = (function(){
 })();
 
 /* ================================================================
-   탭 12. 코코포리아 캐릭터 룸파일 생성기
+   탭 13. 코코포리아 캐릭터 룸파일 생성기
    ── 코코포리아는 캐릭터 단독 내보내기/가져오기를 지원하지 않아서,
    캐릭터 1명만 담은 "룸 데이터" 형식(zip: __data.json + 이미지 파일들)을
    만들어 그걸 룸 가져오기로 불러오게 하는 방식을 쓴다. 이 형식은 실제
@@ -24680,7 +25041,7 @@ var TabLog = (function(){
    인터넷 연결이 필요함 — 항상 그 순간의 최신 소스를 받아온다). */
 
 /* ================================================================
-   탭 16. 건의함 (GitHub 이슈 연동)
+   탭 17. 건의함 (GitHub 이슈 연동)
 ================================================================ */
 (function(){
   var OWNER = 'G909G09', REPO = 'Cocofolia-Setter', LABEL = '건의';
