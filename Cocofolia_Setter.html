@@ -606,6 +606,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 파츠 조합 스탠딩 메이커(11번)에 파츠별 위치·크기·기울기 조정 기능 추가: 각 카테고리(몸·눈썹·눈·입·효과) 아래에 X/Y 위치·크기(50~200%)·기울기(±45°) 슬라이더가 생겨서, 미리 정확히 정렬돼 있지 않은 파츠도 미리보기를 보면서 캔버스 중심 기준으로 바로 맞출 수 있음("초기화" 버튼으로 그 파츠만 원상복구). 같은 카테고리의 다른 변형으로 바꿔도 조정값 유지, "전체 조합 ZIP/담아두기"로 만드는 모든 조합에도 동일하게 적용됨. 조정값은 탭 상태 저장/불러오기에도 함께 저장됨</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 파츠 조합 스탠딩 메이커(11번)에 "담아두기" 편의 기능 추가: 마음에 드는 조합이 나올 때마다 "현재 조합 담아두기"로 오른쪽 패널에 하나씩 모아둘 수 있고, "전체 조합 담아두기"를 누르면 기존 "전체 조합 ZIP" 기능이 쓰던 조합 자동 생성 로직을 그대로 재사용해 가능한 모든 조합을 한 번에 오른쪽에 쌓아줌(새 자동 조합 로직을 따로 만들지 않고 결과 출력 방식만 ZIP 즉시 다운로드 대신 담아두기로 바꿈). 담아둔 조합은 썸네일 클릭으로 그것만 바로 다운로드하거나 ×로 개별 삭제할 수 있고, 필요 없는 것만 골라 지운 뒤 "담아둔 조합 일괄 저장(ZIP)"으로 나머지를 한 번에 ZIP으로 받을 수 있음(최대 500개)</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 새 탭 "파츠 조합 스탠딩 메이커" 추가(11번): 몸(베이스)·눈썹·눈·입·효과 파츠 PNG를 각각 올리면 겹쳐서 스탠딩 이미지로 조합. 모든 파츠가 같은 캔버스 크기·위치로 정렬된 투명 배경 PNG라고 가정하고 그대로 겹쳐 그리며(별도 위치·배율 조정 UI 없음), 몸과 크기가 다른 파츠를 고르면 경고 표시. 몸은 필수, 눈썹·눈·입·효과는 카테고리마다 "없음" 포함 한 번에 하나씩만 선택. 파츠 갯수 기준으로 나올 수 있는 전체 조합 개수를 계산해 "전체 조합 ZIP으로 다운로드"로 한 번에 받을 수 있음(브라우저 멈춤 방지를 위해 300개 상한). 이 탭이 새로 끼어들며 기존 컨닝 페이퍼 메이커(11→12)·캐릭터 룸파일 생성기(12→13)·이미지 여백 자동 재단(13→14)·Cocofolia Markdown(14→15)·텍스트 자동 변환기(15→16)·건의함(16→17)·설정(17→18)·결과물 보관함(18→19) 탭 번호가 하나씩 밀림</li>
       <li><span class="chlog-tag" data-cat="image">이미지·애니메이션</span><b>2026-08-29</b> — 컷인 커터(1번)에 WebP 지원 추가: 움직이는 WebP는 브라우저 내장 WebCodecs API로 재생 길이를 자동 감지하고(GIF·APNG과 동일하게), 정지 WebP는 정지 PNG처럼 길이를 직접 입력. 2번 탭(GIF APNG 변환기)이 쓰던 WebP 디코드 코어를 정지 이미지도 받을 수 있게 손봐서 그대로 재사용함</li>
@@ -1134,7 +1135,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <section id="tab-parts" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-parts">
   <div class="card">
     <h2>파츠 조합 스탠딩 메이커</h2>
-    <p class="desc">몸·눈썹·눈·입·효과 파츠 이미지를 각각 올리면 겹쳐서 스탠딩 이미지를 조합합니다. 모든 파츠가 같은 캔버스 크기·위치로 맞춰진 투명 배경 PNG여야 정확히 겹쳐집니다. 카테고리마다 한 번에 하나씩만 고를 수 있습니다. 마음에 드는 조합이 나오면 오른쪽 "담아두기"에 모아뒀다가 한 번에 ZIP으로 저장할 수 있고, "전체 조합 담아두기"로 가능한 모든 조합을 자동으로 만들어 오른쪽에 모아둔 뒤 필요 없는 것만 지우고 저장할 수도 있습니다.</p>
+    <p class="desc">몸·눈썹·눈·입·효과 파츠 이미지를 각각 올리면 겹쳐서 스탠딩 이미지를 조합합니다. 파츠가 미리 같은 캔버스 크기·위치로 맞춰진 투명 배경 PNG가 아니어도, 각 파츠 아래 "위치·크기·기울기 조정" 슬라이더로 미리보기를 보면서 직접 맞출 수 있습니다. 카테고리마다 한 번에 하나씩만 고를 수 있습니다. 마음에 드는 조합이 나오면 오른쪽 "담아두기"에 모아뒀다가 한 번에 ZIP으로 저장할 수 있고, "전체 조합 담아두기"로 가능한 모든 조합을 자동으로 만들어 오른쪽에 모아둔 뒤 필요 없는 것만 지우고 저장할 수도 있습니다.</p>
 
     <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;">
       <div style="flex:2 1 320px;min-width:280px;">
@@ -23325,12 +23326,15 @@ var TabLog = (function(){
 
 /* ================================================================
    탭 11. 파츠 조합 스탠딩 메이커
-   눈/눈썹/입/효과 파츠는 전부 몸(베이스) 이미지와 같은 캔버스 크기·위치로
-   미리 정렬된 투명 배경 PNG라고 가정하고, drawImage(img,0,0)만으로 겹쳐
-   그린다(별도 위치/배율 조정 UI를 두지 않음 — 그 대신 크기가 다른 파츠를
-   고르면 위쪽 안내에 경고를 띄운다). 카테고리마다 라디오처럼 하나만 고를
-   수 있고(효과도 마찬가지 — 여러 효과를 동시에 쓰려면 미리 합성해둔 파일을
-   올려야 함), "없음"을 고르면 그 레이어를 아예 그리지 않는다.
+   눈/눈썹/입/효과 파츠는 기본적으로 몸(베이스) 이미지와 같은 캔버스 크기·위치로
+   미리 정렬된 투명 배경 PNG라고 가정하지만, 카테고리(레이어)마다 위치(X/Y)·크기·
+   기울기를 슬라이더로 직접 조정할 수 있어(state.transform[key], 캔버스 중심을
+   기준점으로 이동/회전/확대축소) 살짝 어긋난 파츠도 화면에서 바로 맞출 수 있다.
+   크기가 다른 파츠를 고르면 위쪽 안내에 경고는 그대로 띄운다(참고용 — transform으로
+   보정했다면 무시해도 됨). 카테고리마다 라디오처럼 하나만 고를 수 있고(효과도
+   마찬가지 — 여러 효과를 동시에 쓰려면 미리 합성해둔 파일을 올려야 함), "없음"을
+   고르면 그 레이어를 아예 그리지 않는다. 같은 카테고리의 다른 변형으로 바꿔도
+   transform 값은 유지된다(같은 파츠의 변형들은 같은 기준점에 맞춰져 있다고 가정).
    오른쪽 "담아두기"(tray)는 렌더링된 조합 PNG blob을 그대로 들고 있는
    보관함으로, 지금 고른 조합을 하나씩 담거나("현재 조합 담아두기") 기존
    전체-조합 생성 로직(allComboSelections/drawCombo)을 그대로 재사용해
@@ -23349,8 +23353,12 @@ var TabLog = (function(){
   PART_CATEGORIES.forEach(function(c){ PART_BY_KEY[c.key] = c; });
 
   // state.parts[key] = [{file, img, name}, ...] / state.selected[key] = 인덱스, 없음은 -1(필수인 body는 null이 "아직 없음")
-  var state = { parts:{}, selected:{} };
-  PART_CATEGORIES.forEach(function(c){ state.parts[c.key] = []; state.selected[c.key] = c.required ? null : -1; });
+  // state.transform[key] = {x,y,scale,rot} — 카테고리(레이어) 단위 위치/크기/기울기 조정값.
+  // 같은 카테고리 안에서 다른 변형(예: 눈썹_웃음/눈썹_화남)으로 바꿔도 이 조정값은 유지된다 —
+  // 보통 같은 파츠의 변형들은 같은 기준점에 맞춰 그려져 있다고 가정하기 때문.
+  function identityTransform(){ return {x:0, y:0, scale:1, rot:0}; }
+  var state = { parts:{}, selected:{}, transform:{} };
+  PART_CATEGORIES.forEach(function(c){ state.parts[c.key] = []; state.selected[c.key] = c.required ? null : -1; state.transform[c.key] = identityTransform(); });
 
   var MAX_COMBOS = 300; // 조합 폭주(카테고리마다 변형이 많으면 곱으로 커짐)로 탭이 멈추는 것을 막는 상한
 
@@ -23370,13 +23378,25 @@ var TabLog = (function(){
     return item ? {w:item.img.naturalWidth||item.img.width, h:item.img.naturalHeight||item.img.height} : null;
   }
 
-  function drawCombo(ctx, w, h, sel){
+  // transform은 캔버스 중심을 기준점으로 이동·회전·확대축소한다(레이어별로 몸 중심에서
+  // 얼마나 벗어났는지로 다루는 게, 이미지 좌상단 기준보다 직관적이라서). transform 인자를
+  // 생략하면(예: 과거 스냅샷 복원 등 안전망) 원래 위치 그대로 그린다.
+  function drawCombo(ctx, w, h, sel, transformMap){
     ctx.clearRect(0,0,w,h);
+    var cx = w/2, cy = h/2;
     PART_CATEGORIES.forEach(function(c){
       var idx = sel[c.key];
       if(idx==null || idx<0) return;
       var item = state.parts[c.key][idx];
-      if(item) ctx.drawImage(item.img, 0, 0);
+      if(!item) return;
+      var t = (transformMap && transformMap[c.key]) || identityTransform();
+      ctx.save();
+      ctx.translate(cx + (t.x||0), cy + (t.y||0));
+      ctx.rotate((t.rot||0) * Math.PI/180);
+      ctx.scale(t.scale||1, t.scale||1);
+      ctx.translate(-cx, -cy);
+      ctx.drawImage(item.img, 0, 0);
+      ctx.restore();
     });
   }
 
@@ -23412,7 +23432,8 @@ var TabLog = (function(){
     }
     canvas.classList.remove('hidden');
     canvas.width = size.w; canvas.height = size.h;
-    drawCombo(canvas.getContext('2d'), size.w, size.h, state.selected);
+    drawCombo(canvas.getContext('2d'), size.w, size.h, state.selected, state.transform);
+    updateTransformRanges(size);
     $('#parts-download').disabled = false;
     $('#parts-add-tray').disabled = false;
 
@@ -23433,6 +23454,96 @@ var TabLog = (function(){
     if(mismatches.length) showInfo('주의: 몸 이미지('+size.w+'x'+size.h+')와 크기가 다른 파츠가 있어 위치가 어긋날 수 있습니다 — '+mismatches.join(', '));
     else hideInfo();
     markPendingWork('parts', hasAnyUpload);
+  }
+
+  // X/Y 슬라이더의 이동 가능 범위를 캔버스(=몸 이미지) 크기에 맞춰 넉넉하게 늘려준다.
+  // 몸 이미지를 올리기 전에는 고정된 기본값(±600px)을 쓴다.
+  function updateTransformRanges(size){
+    var maxX = size ? Math.max(200, size.w) : 600;
+    var maxY = size ? Math.max(200, size.h) : 600;
+    PART_CATEGORIES.forEach(function(c){
+      var xEl = document.getElementById('parts-tf-'+c.key+'-x');
+      var yEl = document.getElementById('parts-tf-'+c.key+'-y');
+      if(xEl){ xEl.min = -maxX; xEl.max = maxX; }
+      if(yEl){ yEl.min = -maxY; yEl.max = maxY; }
+    });
+  }
+
+  function transformValText(axis, v){
+    if(axis==='scale') return Math.round(v*100)+'%';
+    if(axis==='rot') return (Math.round(v*10)/10)+'°';
+    return Math.round(v)+'px';
+  }
+
+  // 리셋 버튼 등으로 state.transform이 코드에서 바뀌었을 때, 화면에 떠 있는 슬라이더와
+  // 값 표시(span)를 그 값에 맞춰 다시 맞춰준다(슬라이더를 직접 드래그한 경우는 각 슬라이더의
+  // input 리스너가 이미 state를 갱신했으므로 이 함수를 부를 필요가 없다).
+  function syncTransformControls(key){
+    var t = state.transform[key];
+    ['x','y','scale','rot'].forEach(function(axis){
+      var input = document.getElementById('parts-tf-'+key+'-'+axis);
+      var valSpan = document.getElementById('parts-tf-'+key+'-'+axis+'-val');
+      if(input) input.value = t[axis];
+      if(valSpan) valSpan.textContent = transformValText(axis, t[axis]);
+    });
+  }
+
+  function buildTransformControls(cat){
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);';
+    var title = document.createElement('div');
+    title.style.cssText = 'font-size:11px;color:var(--sub);margin-bottom:6px;';
+    title.textContent = '위치·크기·기울기 조정';
+    wrap.appendChild(title);
+
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;';
+
+    var specs = [
+      {axis:'x', label:'X', min:-600, max:600, step:1},
+      {axis:'y', label:'Y', min:-600, max:600, step:1},
+      {axis:'scale', label:'크기', min:0.5, max:2, step:0.01},
+      {axis:'rot', label:'기울기', min:-45, max:45, step:0.5}
+    ];
+    var t = state.transform[cat.key];
+    specs.forEach(function(spec){
+      var box = document.createElement('label');
+      box.style.cssText = 'display:flex;flex-direction:column;gap:2px;font-size:11px;color:var(--sub);';
+      var top = document.createElement('span');
+      top.textContent = spec.label+' ';
+      var valSpan = document.createElement('span');
+      valSpan.id = 'parts-tf-'+cat.key+'-'+spec.axis+'-val';
+      valSpan.textContent = transformValText(spec.axis, t[spec.axis]);
+      top.appendChild(valSpan);
+      box.appendChild(top);
+      var input = document.createElement('input');
+      input.type = 'range'; input.min = spec.min; input.max = spec.max; input.step = spec.step; input.value = t[spec.axis];
+      input.id = 'parts-tf-'+cat.key+'-'+spec.axis;
+      input.style.width = '90px';
+      input.setAttribute('aria-label', cat.label+' '+spec.label+' 조정');
+      input.addEventListener('input', function(){
+        var v = parseFloat(input.value);
+        state.transform[cat.key][spec.axis] = v;
+        valSpan.textContent = transformValText(spec.axis, v);
+        updateAll();
+      });
+      box.appendChild(input);
+      row.appendChild(box);
+    });
+
+    var resetBtn = document.createElement('button');
+    resetBtn.type = 'button'; resetBtn.className = 'btn ghost';
+    resetBtn.textContent = '초기화'; resetBtn.style.cssText = 'padding:4px 10px;font-size:11px;';
+    resetBtn.setAttribute('aria-label', cat.label+' 위치·크기·기울기 초기화');
+    resetBtn.addEventListener('click', function(){
+      state.transform[cat.key] = identityTransform();
+      syncTransformControls(cat.key);
+      updateAll();
+    });
+    row.appendChild(resetBtn);
+
+    wrap.appendChild(row);
+    return wrap;
   }
 
   function makeThumb(item, label, active, onClick, onRemove){
@@ -23592,6 +23703,8 @@ var TabLog = (function(){
       gallery.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;';
       box.appendChild(gallery);
 
+      box.appendChild(buildTransformControls(cat));
+
       wrap.appendChild(box);
       setupMultiDrop('parts-drop-'+cat.key, 'parts-file-'+cat.key, function(files){ loadPartFiles(cat.key, files); });
       renderGallery(cat.key);
@@ -23601,8 +23714,8 @@ var TabLog = (function(){
   updateAll();
 
   $('#parts-clear').addEventListener('click', function(){
-    if(!confirm('업로드한 모든 파츠를 지울까요?')) return;
-    PART_CATEGORIES.forEach(function(c){ state.parts[c.key] = []; state.selected[c.key] = c.required ? null : -1; });
+    if(!confirm('업로드한 모든 파츠를 지울까요? (위치·크기·기울기 조정값도 함께 초기화됩니다)')) return;
+    PART_CATEGORIES.forEach(function(c){ state.parts[c.key] = []; state.selected[c.key] = c.required ? null : -1; state.transform[c.key] = identityTransform(); });
     buildCatUI();
     updateAll();
     hideInfo();
@@ -23676,7 +23789,7 @@ var TabLog = (function(){
     // 공유하고 있어서 나중 조합이 이전 조합을 덮어써버린 뒤에야 콜백이 도는 경우가
     // 생긴다). 그래서 배치 처리를 위한 Promise.all 패턴 대신 순차 await로 처리한다.
     for(var i=0;i<combos.length;i++){
-      drawCombo(ctx, size.w, size.h, combos[i]);
+      drawCombo(ctx, size.w, size.h, combos[i], state.transform);
       var blob = await new Promise(function(res){ canvasToBlobOrNull(canvas, res); });
       if(blob) zip.file(uniqueZipName(usedNames, (comboLabel(combos[i])||('combo_'+(i+1)))+'.png'), blob);
       if(btn) btn.textContent = '조합 렌더링 중... ('+(i+1)+'/'+combos.length+')';
@@ -23716,7 +23829,7 @@ var TabLog = (function(){
     canvas.width = size.w; canvas.height = size.h;
     var ctx = canvas.getContext('2d');
     for(var i=0;i<combos.length;i++){
-      drawCombo(ctx, size.w, size.h, combos[i]);
+      drawCombo(ctx, size.w, size.h, combos[i], state.transform);
       var blob = await new Promise(function(res){ canvasToBlobOrNull(canvas, res); });
       if(blob) addToTray(comboLabel(combos[i])||('combo_'+(i+1)), blob);
       if(btn) btn.textContent = '담는 중... ('+(i+1)+'/'+combos.length+')';
@@ -23781,9 +23894,13 @@ var TabLog = (function(){
   registerTabSnapshot('tab-parts', function capturePartsSnapshot(){
     var catFiles = {};
     PART_CATEGORIES.forEach(function(c){ catFiles[c.key] = state.parts[c.key].map(function(it){ return it.file; }); });
-    return { catFiles: catFiles, selected: state.selected, filename: $('#parts-filename').value };
+    return { catFiles: catFiles, selected: state.selected, transform: state.transform, filename: $('#parts-filename').value };
   }, function restorePartsSnapshot(snap){
-    PART_CATEGORIES.forEach(function(c){ state.parts[c.key] = []; state.selected[c.key] = c.required ? null : -1; });
+    PART_CATEGORIES.forEach(function(c){
+      state.parts[c.key] = []; state.selected[c.key] = c.required ? null : -1;
+      var t = snap.transform && snap.transform[c.key];
+      state.transform[c.key] = t ? {x:t.x||0, y:t.y||0, scale:t.scale||1, rot:t.rot||0} : identityTransform();
+    });
     if(snap.filename != null) $('#parts-filename').value = snap.filename;
     var loaders = PART_CATEGORIES.map(function(c){
       var files = (snap.catFiles && snap.catFiles[c.key]) || [];
