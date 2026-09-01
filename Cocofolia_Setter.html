@@ -606,6 +606,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 파츠 조합 스탠딩 메이커(11번) 가시성 개선: 화면을 왼쪽 미리보기(스크롤해도 화면에 고정)·가운데 파츠 업로드·오른쪽 담아둔 조합 3단으로 재배치해 파츠를 고르는 동안에도 결과를 계속 볼 수 있게 함. 담아둔 조합 썸네일 크기를 52px→96px로 키워 여러 조합을 한눈에 구분하기 쉽게 함. 파츠 갤러리의 각 파츠 이름과 담아둔 조합의 파일명을 이름 칸 클릭으로 직접 수정할 수 있게 해서(업로드 파일명 대신 "웃음"처럼 알아보기 쉬운 이름으로), ZIP/다운로드 파일명에도 그대로 반영되게 함</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 파츠 조합 스탠딩 메이커(11번)에 파츠별 위치·크기·기울기 조정 기능 추가: 각 카테고리(몸·눈썹·눈·입·효과) 아래에 X/Y 위치·크기(50~200%)·기울기(±45°) 슬라이더가 생겨서, 미리 정확히 정렬돼 있지 않은 파츠도 미리보기를 보면서 캔버스 중심 기준으로 바로 맞출 수 있음("초기화" 버튼으로 그 파츠만 원상복구). 같은 카테고리의 다른 변형으로 바꿔도 조정값 유지, "전체 조합 ZIP/담아두기"로 만드는 모든 조합에도 동일하게 적용됨. 조정값은 탭 상태 저장/불러오기에도 함께 저장됨</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 파츠 조합 스탠딩 메이커(11번)에 "담아두기" 편의 기능 추가: 마음에 드는 조합이 나올 때마다 "현재 조합 담아두기"로 오른쪽 패널에 하나씩 모아둘 수 있고, "전체 조합 담아두기"를 누르면 기존 "전체 조합 ZIP" 기능이 쓰던 조합 자동 생성 로직을 그대로 재사용해 가능한 모든 조합을 한 번에 오른쪽에 쌓아줌(새 자동 조합 로직을 따로 만들지 않고 결과 출력 방식만 ZIP 즉시 다운로드 대신 담아두기로 바꿈). 담아둔 조합은 썸네일 클릭으로 그것만 바로 다운로드하거나 ×로 개별 삭제할 수 있고, 필요 없는 것만 골라 지운 뒤 "담아둔 조합 일괄 저장(ZIP)"으로 나머지를 한 번에 ZIP으로 받을 수 있음(최대 500개)</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 새 탭 "파츠 조합 스탠딩 메이커" 추가(11번): 몸(베이스)·눈썹·눈·입·효과 파츠 PNG를 각각 올리면 겹쳐서 스탠딩 이미지로 조합. 모든 파츠가 같은 캔버스 크기·위치로 정렬된 투명 배경 PNG라고 가정하고 그대로 겹쳐 그리며(별도 위치·배율 조정 UI 없음), 몸과 크기가 다른 파츠를 고르면 경고 표시. 몸은 필수, 눈썹·눈·입·효과는 카테고리마다 "없음" 포함 한 번에 하나씩만 선택. 파츠 갯수 기준으로 나올 수 있는 전체 조합 개수를 계산해 "전체 조합 ZIP으로 다운로드"로 한 번에 받을 수 있음(브라우저 멈춤 방지를 위해 300개 상한). 이 탭이 새로 끼어들며 기존 컨닝 페이퍼 메이커(11→12)·캐릭터 룸파일 생성기(12→13)·이미지 여백 자동 재단(13→14)·Cocofolia Markdown(14→15)·텍스트 자동 변환기(15→16)·건의함(16→17)·설정(17→18)·결과물 보관함(18→19) 탭 번호가 하나씩 밀림</li>
@@ -1135,39 +1136,41 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <section id="tab-parts" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-parts">
   <div class="card">
     <h2>파츠 조합 스탠딩 메이커</h2>
-    <p class="desc">몸·눈썹·눈·입·효과 파츠 이미지를 각각 올리면 겹쳐서 스탠딩 이미지를 조합합니다. 파츠가 미리 같은 캔버스 크기·위치로 맞춰진 투명 배경 PNG가 아니어도, 각 파츠 아래 "위치·크기·기울기 조정" 슬라이더로 미리보기를 보면서 직접 맞출 수 있습니다. 카테고리마다 한 번에 하나씩만 고를 수 있습니다. 마음에 드는 조합이 나오면 오른쪽 "담아두기"에 모아뒀다가 한 번에 ZIP으로 저장할 수 있고, "전체 조합 담아두기"로 가능한 모든 조합을 자동으로 만들어 오른쪽에 모아둔 뒤 필요 없는 것만 지우고 저장할 수도 있습니다.</p>
+    <p class="desc">몸·눈썹·눈·입·효과 파츠 이미지를 각각 올리면 겹쳐서 스탠딩 이미지를 조합합니다. 파츠가 미리 같은 캔버스 크기·위치로 맞춰진 투명 배경 PNG가 아니어도, 각 파츠 아래 "위치·크기·기울기 조정" 슬라이더로 미리보기를 보면서 직접 맞출 수 있습니다. 카테고리마다 한 번에 하나씩만 고를 수 있습니다. 마음에 드는 조합이 나오면 오른쪽 "담아두기"에 모아뒀다가 한 번에 ZIP으로 저장할 수 있고, "전체 조합 담아두기"로 가능한 모든 조합을 자동으로 만들어 오른쪽에 모아둔 뒤 필요 없는 것만 지우고 저장할 수도 있습니다. 미리보기 왼쪽 썸네일과 담아둔 조합의 파일명은 이름 칸을 클릭해 직접 고칠 수 있습니다.</p>
 
     <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;">
-      <div style="flex:2 1 320px;min-width:280px;">
-        <div id="parts-cats" style="display:flex;flex-direction:column;gap:14px;"></div>
-
+      <div id="parts-preview-col" style="flex:0 1 260px;min-width:240px;position:sticky;top:12px;">
         <div class="info-box hidden" id="parts-info" aria-live="polite"></div>
 
-        <div class="row">
+        <div class="row" style="margin-bottom:10px;">
           <canvas class="preview hidden" id="parts-preview-canvas"></canvas>
         </div>
 
-        <div class="row">
-          <div class="field"><label for="parts-filename">파일명</label><input type="text" id="parts-filename" class="wide" value="standing_combo.png"></div>
+        <div class="field" style="margin-bottom:8px;"><label for="parts-filename">파일명</label><input type="text" id="parts-filename" class="wide" value="standing_combo.png"></div>
+        <div class="row" style="margin-top:-4px;">
           <button class="btn" id="parts-download" disabled>현재 조합 다운로드</button>
-          <button class="btn ghost" id="parts-add-tray" disabled>현재 조합 담아두기 →</button>
+          <button class="btn ghost" id="parts-add-tray" disabled>담아두기 →</button>
         </div>
         <div class="row" style="margin-top:-6px;align-items:center;">
-          <button class="btn ghost" id="parts-zip-all" disabled>전체 조합 ZIP으로 다운로드</button>
-          <button class="btn ghost" id="parts-add-all-tray" disabled>전체 조합 담아두기 →</button>
-          <span id="parts-combo-count" style="font-size:12px;color:var(--sub);"></span>
+          <button class="btn ghost" id="parts-zip-all" disabled>전체 조합 ZIP</button>
+          <button class="btn ghost" id="parts-add-all-tray" disabled>전체 담아두기 →</button>
         </div>
+        <div id="parts-combo-count" style="font-size:12px;color:var(--sub);margin:-4px 0 8px;"></div>
         <div class="row" style="margin-top:-6px;">
           <button class="btn ghost" id="parts-clear" disabled style="color:var(--danger);">전체 지우기</button>
         </div>
       </div>
 
-      <div style="flex:1 1 220px;min-width:220px;border-left:1px solid var(--line);padding-left:16px;">
+      <div style="flex:3 1 300px;min-width:260px;">
+        <div id="parts-cats" style="display:flex;flex-direction:column;gap:14px;"></div>
+      </div>
+
+      <div style="flex:2 1 240px;min-width:220px;border-left:1px solid var(--line);padding-left:16px;">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
           <h3 style="margin:0;font-size:14px;">담아둔 조합<span id="parts-tray-count" style="color:var(--sub);font-weight:400;font-size:12px;"></span></h3>
         </div>
-        <p class="desc" style="margin:6px 0 8px;">"담아두기"로 모은 조합들입니다. 썸네일을 클릭하면 그 조합만 바로 다운로드되고, ×로 하나씩 뺄 수 있습니다.</p>
-        <div id="parts-tray-gallery" style="display:flex;flex-wrap:wrap;gap:8px;min-height:52px;"></div>
+        <p class="desc" style="margin:6px 0 8px;">"담아두기"로 모은 조합들입니다. 썸네일을 클릭하면 그 조합만 바로 다운로드되고, ×로 하나씩 뺄 수 있습니다. 이름 칸을 클릭하면 그 조합만의 파일명을 고칠 수 있습니다.</p>
+        <div id="parts-tray-gallery" style="display:flex;flex-wrap:wrap;gap:10px;min-height:100px;"></div>
         <div class="info-box hidden" id="parts-tray-hint" style="margin-top:8px;">아직 담아둔 조합이 없습니다.</div>
         <div class="row" style="margin-top:10px;">
           <button class="btn" id="parts-tray-save-all" disabled>담아둔 조합 일괄 저장 (ZIP)</button>
@@ -23563,10 +23566,29 @@ var TabLog = (function(){
       tb.textContent = '없음'; tb.style.fontSize='11px'; tb.style.color='var(--sub)';
     }
     box.appendChild(tb);
-    var lab = document.createElement('span');
-    lab.textContent = label;
-    lab.style.cssText = 'font-size:10px;color:var(--sub);max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
-    box.appendChild(lab);
+    if(item){
+      // 파츠 이름은 comboLabel()에서 조합 파일명으로도 그대로 쓰이므로, 이름 칸을
+      // 직접 편집 가능한 <input>으로 두어 업로드 파일명이 아닌 알아보기 쉬운 이름
+      // (예: "웃음", "화남")으로 바로 바꿀 수 있게 한다. 클릭이 box의 select 핸들러로
+      // 버블링되면 매 클릭마다 renderGallery가 다시 그려 포커스가 끊기므로 막아준다.
+      var nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.value = item.name;
+      nameInput.style.cssText = 'font-size:10px;color:var(--sub);width:60px;text-align:center;background:transparent;'+
+        'border:1px solid transparent;border-radius:4px;padding:1px 2px;cursor:text;';
+      nameInput.title = '클릭해서 이 파츠 이름 수정';
+      nameInput.setAttribute('aria-label', (item.name||'파츠')+' 이름 수정');
+      nameInput.addEventListener('click', function(e){ e.stopPropagation(); });
+      nameInput.addEventListener('mousedown', function(e){ e.stopPropagation(); });
+      nameInput.addEventListener('keydown', function(e){ e.stopPropagation(); if(e.key==='Enter') nameInput.blur(); });
+      nameInput.addEventListener('input', function(){ item.name = nameInput.value; updateAll(); });
+      box.appendChild(nameInput);
+    } else {
+      var lab = document.createElement('span');
+      lab.textContent = label;
+      lab.style.cssText = 'font-size:10px;color:var(--sub);max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+      box.appendChild(lab);
+    }
     box.addEventListener('click', onClick);
     if(onRemove){
       var rm = document.createElement('button');
@@ -23579,28 +23601,42 @@ var TabLog = (function(){
     return box;
   }
 
+  var TRAY_THUMB_PX = 96; // 파츠 갤러리 썸네일(52px)보다 눈에 띄게 키운 담아두기 썸네일 크기
+
   function makeTrayThumb(item){
     var box = document.createElement('div');
-    box.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;width:60px;';
+    box.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;width:'+TRAY_THUMB_PX+'px;';
     box.title = '클릭해서 이 조합만 다운로드';
     var tb = document.createElement('div');
-    tb.style.cssText = 'width:52px;height:52px;border-radius:8px;border:2px solid var(--line);overflow:hidden;display:flex;'+
-      'align-items:center;justify-content:center;position:relative;background:var(--bg) repeating-conic-gradient(#8883 0% 25%, transparent 0% 50%) 50%/10px 10px;';
+    tb.style.cssText = 'width:'+TRAY_THUMB_PX+'px;height:'+TRAY_THUMB_PX+'px;border-radius:10px;border:2px solid var(--line);overflow:hidden;display:flex;'+
+      'align-items:center;justify-content:center;position:relative;background:var(--bg) repeating-conic-gradient(#8883 0% 25%, transparent 0% 50%) 50%/12px 12px;';
     var im = document.createElement('img');
     im.src = item.url; im.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;';
     tb.appendChild(im);
     box.appendChild(tb);
-    var lab = document.createElement('span');
-    lab.textContent = item.label || '조합';
-    lab.style.cssText = 'font-size:10px;color:var(--sub);max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
-    box.appendChild(lab);
+    // 조합 파일명(item.label)도 직접 고칠 수 있게 <input>으로 둔다. box 클릭은 "이 조합
+    // 다운로드"로 연결돼 있어서, 이름 칸 클릭이 그리로 버블링되면 편집 중에 매번 다운로드가
+    // 시작돼버리므로 stopPropagation으로 막아준다(makeThumb의 파츠 이름 편집과 동일한 이유).
+    var nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.value = item.label || '';
+    nameInput.placeholder = '조합';
+    nameInput.style.cssText = 'font-size:10.5px;color:var(--sub);width:'+TRAY_THUMB_PX+'px;text-align:center;background:transparent;'+
+      'border:1px solid transparent;border-radius:4px;padding:1px 2px;cursor:text;';
+    nameInput.title = '클릭해서 이 조합 파일명 수정';
+    nameInput.setAttribute('aria-label', (item.label||'조합')+' 파일명 수정');
+    nameInput.addEventListener('click', function(e){ e.stopPropagation(); });
+    nameInput.addEventListener('mousedown', function(e){ e.stopPropagation(); });
+    nameInput.addEventListener('keydown', function(e){ e.stopPropagation(); if(e.key==='Enter') nameInput.blur(); });
+    nameInput.addEventListener('input', function(){ item.label = nameInput.value; });
+    box.appendChild(nameInput);
     box.addEventListener('click', function(){
-      downloadBlob(item.blob, ensureExtension((item.label||'standing_combo')+'.png', 'png'));
+      downloadBlob(item.blob, ensureExtension(sanitizeFilename(item.label||'standing_combo')+'.png', 'png'));
     });
     var rm = document.createElement('button');
     rm.type='button'; rm.textContent='×'; rm.title='담아둔 조합에서 빼기';
     rm.setAttribute('aria-label', (item.label||'조합')+' 빼기');
-    rm.style.cssText = 'position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;border:none;background:var(--danger);color:#fff;font-size:12px;line-height:1;cursor:pointer;padding:0;';
+    rm.style.cssText = 'position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:none;background:var(--danger);color:#fff;font-size:13px;line-height:1;cursor:pointer;padding:0;';
     rm.addEventListener('click', function(e){ e.stopPropagation(); removeFromTray(item.id); });
     tb.appendChild(rm);
     return box;
@@ -23768,7 +23804,7 @@ var TabLog = (function(){
       var idx = sel[c.key];
       if(idx==null || idx<0) return null;
       var item = state.parts[c.key][idx];
-      return item ? item.name : null;
+      return item ? sanitizeFilename(item.name) : null;
     }).filter(Boolean);
     return parts.join('_');
   }
@@ -23851,7 +23887,7 @@ var TabLog = (function(){
     var zip = new JSZip();
     var usedNames = new Set();
     tray.forEach(function(item, i){
-      zip.file(uniqueZipName(usedNames, (item.label||('combo_'+(i+1)))+'.png'), item.blob);
+      zip.file(uniqueZipName(usedNames, sanitizeFilename(item.label||('combo_'+(i+1)))+'.png'), item.blob);
     });
     return zip.generateAsync({type:'blob'}, function(meta){
       if(btn) btn.textContent = '압축 중... '+Math.round(meta.percent)+'%';
