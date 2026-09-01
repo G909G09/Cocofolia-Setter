@@ -606,6 +606,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 파츠 조합 스탠딩 메이커(11번): 업로드·선택·삭제·이름 변경·손잡이로 위치/크기/기울기 조정·전체 지우기에 Ctrl+Z(되돌리기)·Ctrl+X(다시하기) 지원 추가(텍스트 입력 중이거나 다른 탭을 보고 있을 때는 반응하지 않음, 담아두기는 대상 아님). 여백을 자동 재단한 파츠는 손잡이(편집 범위)도 캔버스 전체가 아니라 잘라낸 범위에 맞게 표시되도록 수정(이전엔 재단된 파츠를 골라도 손잡이가 캔버스 전체 크기로 떠서 실제 그림과 동떨어져 보였음)</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 파츠 조합 스탠딩 메이커(11번): 파츠 업로드 시 여백(투명 영역)이 캔버스의 절반을 넘으면 자동으로 실제 그림 부분만 재단해 미리보기에 반영(원래 위치는 그대로 유지 — 예: 정중앙에 그려져 있던 파츠는 재단 후에도 정중앙). 저장/렌더링에 쓰이는 픽셀 데이터가 줄어 큰 여백을 가진 파츠의 썸네일도 실제 그림이 잘 보이게 됨. 상단 설명글도 간결하게 정리</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 파츠 조합 스탠딩 메이커(11번) 담아둔 조합 큰 미리보기 추가: 썸네일을 클릭하면 그 조합 하나만 화면 가운데에 크게 띄워 볼 수 있음(다운로드·삭제 버튼도 모달 안에 함께 있어 닫지 않고 바로 처리 가능, 닫기 버튼·바깥 클릭·Esc로 닫힘). 기존엔 썸네일 클릭이 곧 다운로드였는데, 이제 다운로드는 각 썸네일의 개별 ⬇ 버튼으로 따로 분리됨(큰 미리보기를 열지 않고도 바로 받을 수 있음). 이름 칸 편집·× 삭제는 기존과 동일</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 파츠 조합 스탠딩 메이커(11번) 대개편: (1) 효과 레이어를 여러 장 동시에 겹쳐 쓸 수 있게 함(다른 카테고리는 라디오처럼 하나만, 효과만 체크박스처럼 토글 — 켠 효과마다 각자 다른 위치/크기/기울기를 가질 수 있음, 조합 개수 계산도 부분집합 방식(2^n)으로 변경). (2) 위치·크기·기울기 조정을 슬라이더 대신 미리보기 위에 뜨는 변형 손잡이(테두리 박스+모서리 4개+회전 손잡이)로 직접 드래그해서 하도록 변경 — 파츠를 고르면 그 파츠가 편집 대상이 되고, 박스를 끌면 이동·모서리를 끌면 확대축소·위쪽 손잡이를 끌면 회전. (3) 미리보기를 약 2배로 확대(최대 640px)하고 레이아웃을 왼쪽 미리보기+오른쪽 담아두기, 그 아래 파츠 업로드로 재배치. 탭 상태 저장/불러오기에도 효과별 개별 조정값이 함께 저장됨</li>
@@ -1139,7 +1140,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <section id="tab-parts" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-parts">
   <div class="card">
     <h2>파츠 조합 스탠딩 메이커</h2>
-    <p class="desc">몸·눈썹·눈·입·효과 파츠를 올려 겹쳐서 스탠딩 이미지를 조합합니다. 미리보기에서 파츠를 직접 드래그해 위치·크기·기울기를 맞출 수 있고, 효과는 여러 장을 동시에 겹쳐 쓸 수 있습니다. 여백이 넓은 파츠는 위치를 그대로 둔 채 자동 재단되어 미리보기에 반영됩니다. 마음에 드는 조합은 오른쪽 "담아두기"에 모아 ZIP으로 저장하세요.</p>
+    <p class="desc">몸·눈썹·눈·입·효과 파츠를 올려 겹쳐서 스탠딩 이미지를 조합합니다. 미리보기에서 파츠를 직접 드래그해 위치·크기·기울기를 맞출 수 있고(Ctrl+Z 되돌리기·Ctrl+X 다시하기 지원), 효과는 여러 장을 동시에 겹쳐 쓸 수 있습니다. 여백이 넓은 파츠는 위치를 그대로 둔 채 자동 재단되어 미리보기에 반영됩니다. 마음에 드는 조합은 오른쪽 "담아두기"에 모아 ZIP으로 저장하세요.</p>
 
     <div id="parts-top-row" style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;">
       <div id="parts-preview-col" style="flex:1 1 520px;min-width:360px;">
@@ -23372,7 +23373,14 @@ var TabLog = (function(){
    자리에 그대로 그려 넣는다(drawLayer가 (0,0) 대신 이 offset에 그림) — 화면상
    위치는 그대로 유지한 채 저장/렌더링에 쓰이는 실제 픽셀 데이터만 줄어든다.
    이 때문에 몸 카테고리의 캔버스 크기는 항상 item.canvasW/H(원본 크기)를
-   쓰고 item.img의 실제 크기(잘렸을 수 있음)는 쓰지 않는다.
+   쓰고 item.img의 실제 크기(잘렸을 수 있음)는 쓰지 않는다. 손잡이(gizmo)
+   박스도 캔버스 전체가 아니라 item.img의 실제 크기·offsetX/Y를 기준으로
+   계산해서(activeLayerBoxGeometry), 재단된 파츠는 손잡이가 그 잘린 범위에
+   딱 맞게 뜬다. Ctrl+Z(undoPartsAction)/Ctrl+X(redoPartsAction)로 업로드·
+   선택·삭제·이름 변경·손잡이 조정·전체 지우기를 되돌리거나 다시 할 수 있다
+   (pushUndo가 동작 직전에 상태를 스냅샷으로 쌓아둔다 — 담아두기(tray)는
+   대상이 아님). 텍스트 입력칸에 포커스가 있을 때나 이 탭이 활성 상태가
+   아닐 때는 이 단축키가 끼어들지 않는다.
 ================================================================ */
 (function(){
   var PART_CATEGORIES = [
@@ -23472,6 +23480,63 @@ var TabLog = (function(){
     });
     state.effectTransforms = {};
     state.activeLayer = null;
+  }
+
+  // 되돌리기(Ctrl+Z)/다시하기(Ctrl+X): 파츠 업로드·선택·삭제·이름 변경·손잡이로 위치/크기/
+  // 기울기 조정·"전체 지우기"를 대상으로 한다(오른쪽 "담아두기"는 결과물 보관함에 가까운
+  // 별도 개념이라 대상에서 뺐다). 스냅샷은 IndexedDB로 안 가고 메모리에만 두므로 이미지를
+  // 다시 디코드할 필요 없이 얕은 복제만 하면 되지만, item.name이나 transform의 x/y/scale/rot
+  // 처럼 같은 객체를 나중에 제자리에서 고치는(in-place mutate) 필드가 있어 배열/객체 자체는
+  // 반드시 복제해야 한다(안 그러면 "이전 상태"로 쌓아둔 스냅샷이 이후 수정에 같이 바뀌어버림).
+  var undoStack = [], redoStack = [];
+  var MAX_UNDO = 50;
+  function snapshotState(){
+    var parts={}, selected={}, transform={}, effectTransforms={};
+    PART_CATEGORIES.forEach(function(c){
+      parts[c.key] = state.parts[c.key].map(function(it){ return Object.assign({}, it); });
+      selected[c.key] = c.multi ? state.selected[c.key].slice() : state.selected[c.key];
+      transform[c.key] = Object.assign({}, state.transform[c.key]);
+    });
+    Object.keys(state.effectTransforms).forEach(function(uid){
+      effectTransforms[uid] = Object.assign({}, state.effectTransforms[uid]);
+    });
+    return {
+      parts:parts, selected:selected, transform:transform, effectTransforms:effectTransforms,
+      activeLayer: state.activeLayer ? Object.assign({}, state.activeLayer) : null,
+      filename: $('#parts-filename').value
+    };
+  }
+  function restoreState(snap){
+    PART_CATEGORIES.forEach(function(c){
+      state.parts[c.key] = snap.parts[c.key].map(function(it){ return Object.assign({}, it); });
+      state.selected[c.key] = c.multi ? snap.selected[c.key].slice() : snap.selected[c.key];
+      state.transform[c.key] = Object.assign({}, snap.transform[c.key]);
+    });
+    state.effectTransforms = {};
+    Object.keys(snap.effectTransforms).forEach(function(uid){
+      state.effectTransforms[uid] = Object.assign({}, snap.effectTransforms[uid]);
+    });
+    state.activeLayer = snap.activeLayer ? Object.assign({}, snap.activeLayer) : null;
+    if(snap.filename != null) $('#parts-filename').value = snap.filename;
+    buildCatUI();
+    updateAll();
+  }
+  // 실제로 상태를 바꾸는 동작 직전에 불러서 "그 동작 이전" 상태를 되돌리기 스택에 쌓는다.
+  // 새 동작을 하면 다시하기 스택은 비운다(가지치기 없이 단순한 선형 되돌리기/다시하기).
+  function pushUndo(){
+    undoStack.push(snapshotState());
+    if(undoStack.length > MAX_UNDO) undoStack.shift();
+    redoStack.length = 0;
+  }
+  function undoPartsAction(){
+    if(!undoStack.length) return;
+    redoStack.push(snapshotState());
+    restoreState(undoStack.pop());
+  }
+  function redoPartsAction(){
+    if(!redoStack.length) return;
+    undoStack.push(snapshotState());
+    restoreState(redoStack.pop());
   }
 
   var MAX_COMBOS = 300; // 조합 폭주(카테고리마다 변형이 많으면 곱으로 커짐, 효과는 부분집합이라 2^n)로 탭이 멈추는 것을 막는 상한
@@ -23644,6 +23709,7 @@ var TabLog = (function(){
     var size = currentCanvasSize();
     if(!t || !size) return;
     e.preventDefault();
+    pushUndo(); // 드래그가 진행되는 동안(mousemove마다) 계속 쌓지 않고, 드래그 시작 시점에 한 번만 쌓는다
     var startPt = pageToCanvasPoint(e.clientX, e.clientY);
     var centerCanvas = { x: size.w/2 + (t.x||0), y: size.h/2 + (t.y||0) };
     var start = { x:t.x||0, y:t.y||0, scale:t.scale||1, rot:t.rot||0 };
@@ -23704,13 +23770,36 @@ var TabLog = (function(){
     gizmo.appendChild(rotHandle);
   }
 
+  // 여백 자동 재단으로 파츠 이미지 자체가 실제 그림 영역만큼만 작아진 경우, 손잡이(gizmo)
+  // 박스도 캔버스 전체가 아니라 그 잘린 범위에 맞춰야 손잡이가 그림과 동떨어져 보이지
+  // 않는다. drawLayer가 그리는 순서(중심 기준 이동→회전→확대축소, 그 뒤 (offsetX,offsetY)에
+  // drawImage)를 거꾸로 따라가, 이미지 자신의 중심점이 캔버스 좌표계에서 최종적으로 어디에
+  // 놓이는지 계산한다(재단되지 않은 파츠는 offsetX/Y가 0이고 이미지가 캔버스 전체 크기라서
+  // 이 계산이 그대로 기존의 "캔버스 중심 + t.x/y" 결과와 같아진다).
+  function activeLayerBoxGeometry(item, t, size){
+    var cx = size.w/2, cy = size.h/2;
+    var imgW = item.img.naturalWidth||item.img.width, imgH = item.img.naturalHeight||item.img.height;
+    var localDX = (item.offsetX||0) + imgW/2 - cx;
+    var localDY = (item.offsetY||0) + imgH/2 - cy;
+    var scale = t.scale||1;
+    var rad = (t.rot||0) * Math.PI/180;
+    var cos = Math.cos(rad), sin = Math.sin(rad);
+    var sx = localDX*scale, sy = localDY*scale;
+    return {
+      w: imgW*scale, h: imgH*scale,
+      centerX: cx + (t.x||0) + (sx*cos - sy*sin),
+      centerY: cy + (t.y||0) + (sx*sin + sy*cos)
+    };
+  }
+
   function renderGizmo(){
     buildGizmoDom();
     var gizmo = $('#parts-gizmo');
     var box = $('#parts-active-layer-box');
     var size = currentCanvasSize();
     var t = activeLayerTransform();
-    if(!size || !t || !activeLayerIncluded()){
+    var item = activeLayerItem();
+    if(!size || !t || !item || !activeLayerIncluded()){
       gizmo.classList.add('hidden');
       box.classList.add('hidden');
       return;
@@ -23719,10 +23808,11 @@ var TabLog = (function(){
     var rect = canvas.getBoundingClientRect();
     var wrapRect = $('#parts-canvas-wrap').getBoundingClientRect();
     var dispScale = (rect.width || size.w) / size.w;
-    var boxW = size.w * (t.scale||1) * dispScale;
-    var boxH = size.h * (t.scale||1) * dispScale;
-    var centerX = (rect.left - wrapRect.left) + (size.w/2 + (t.x||0)) * dispScale;
-    var centerY = (rect.top - wrapRect.top) + (size.h/2 + (t.y||0)) * dispScale;
+    var geo = activeLayerBoxGeometry(item, t, size);
+    var boxW = geo.w * dispScale;
+    var boxH = geo.h * dispScale;
+    var centerX = (rect.left - wrapRect.left) + geo.centerX * dispScale;
+    var centerY = (rect.top - wrapRect.top) + geo.centerY * dispScale;
     gizmo.classList.remove('hidden');
     gizmo.style.width = boxW+'px';
     gizmo.style.height = boxH+'px';
@@ -23730,7 +23820,6 @@ var TabLog = (function(){
     gizmo.style.top = (centerY - boxH/2)+'px';
     gizmo.style.transform = 'rotate('+(t.rot||0)+'deg)';
 
-    var item = activeLayerItem();
     box.classList.remove('hidden');
     box.innerHTML = '';
     var head = document.createElement('div');
@@ -23746,6 +23835,7 @@ var TabLog = (function(){
     resetBtn.textContent = '이 레이어 위치 초기화';
     resetBtn.style.cssText = 'margin-top:6px;padding:4px 10px;font-size:11px;';
     resetBtn.addEventListener('click', function(){
+      pushUndo();
       var t2 = activeLayerTransform();
       t2.x = 0; t2.y = 0; t2.scale = 1; t2.rot = 0;
       updateAll();
@@ -23787,7 +23877,16 @@ var TabLog = (function(){
       nameInput.addEventListener('click', function(e){ e.stopPropagation(); });
       nameInput.addEventListener('mousedown', function(e){ e.stopPropagation(); });
       nameInput.addEventListener('keydown', function(e){ e.stopPropagation(); if(e.key==='Enter') nameInput.blur(); });
-      nameInput.addEventListener('input', function(){ item.name = nameInput.value; updateAll(); });
+      // 한 번의 편집 세션(포커스~블러) 동안 키를 누를 때마다 되돌리기를 쌓으면 스택이
+      // 금방 다 차버리므로, 그 세션의 첫 입력에서만 편집 시작 전 상태를 한 번 쌓는다.
+      var nameEditStarted = false;
+      nameInput.addEventListener('focus', function(){ nameEditStarted = false; });
+      nameInput.addEventListener('blur', function(){ nameEditStarted = false; });
+      nameInput.addEventListener('input', function(){
+        if(!nameEditStarted){ pushUndo(); nameEditStarted = true; }
+        item.name = nameInput.value;
+        updateAll();
+      });
       box.appendChild(nameInput);
     } else {
       var lab = document.createElement('span');
@@ -23919,6 +24018,8 @@ var TabLog = (function(){
   }
 
   function selectPart(catKey, idx){
+    if(state.selected[catKey]===idx) return; // 이미 선택된 걸 다시 클릭한 경우 — 되돌리기 스택에 무의미한 항목을 쌓지 않는다
+    pushUndo();
     state.selected[catKey] = idx;
     if(idx>=0){
       var item = state.parts[catKey][idx];
@@ -23933,6 +24034,7 @@ var TabLog = (function(){
   // 효과는 라디오가 아니라 체크박스처럼 동작한다 — 여러 장을 동시에 켜서 겹쳐 그릴 수
   // 있고, 켠 항목이 바로 손잡이 편집 대상이 된다(꺼면 그게 활성 레이어였을 때만 해제).
   function toggleEffect(idx){
+    pushUndo();
     var arr = state.selected.effect;
     var pos = arr.indexOf(idx);
     var item = state.parts.effect[idx];
@@ -23948,6 +24050,7 @@ var TabLog = (function(){
   }
 
   function removePart(catKey, idx){
+    pushUndo();
     var cat = PART_BY_KEY[catKey];
     var removedItem = state.parts[catKey][idx];
     state.parts[catKey].splice(idx, 1);
@@ -24008,6 +24111,7 @@ var TabLog = (function(){
     var pngFiles = files.filter(function(f){ return /\.png$/i.test(f.name); });
     var skippedExt = files.length - pngFiles.length;
     loadImagesTolerant(pngFiles, function(f, img){ return buildPartItem(f, img, ++uidSeq); }).then(function(res){
+      if(res.loaded.length) pushUndo();
       state.parts[catKey] = state.parts[catKey].concat(res.loaded);
       var cat = PART_BY_KEY[catKey];
       if(cat.required && state.selected[catKey]==null && state.parts[catKey].length){
@@ -24061,6 +24165,7 @@ var TabLog = (function(){
 
   $('#parts-clear').addEventListener('click', function(){
     if(!confirm('업로드한 모든 파츠를 지울까요? (위치·크기·기울기 조정값도 함께 초기화됩니다)')) return;
+    pushUndo();
     resetPartsState();
     buildCatUI();
     updateAll();
@@ -24265,6 +24370,20 @@ var TabLog = (function(){
   });
   document.addEventListener('keydown', function(e){
     if(e.key === 'Escape' && !$('#parts-preview-modal').classList.contains('hidden')) closeTrayPreview();
+  });
+
+  // Ctrl+Z(뒤로가기)/Ctrl+X(되돌리기) — 텍스트 칸(파일명·파츠 이름 등)에 포커스가 가 있을
+  // 때는 원래의 잘라내기/실행취소 동작을 가로채지 않도록 건드리지 않고, 이 탭이 화면에 떠
+  // 있을 때만 반응한다(다른 탭을 보고 있을 때 이 탭의 되돌리기가 끼어들지 않게).
+  document.addEventListener('keydown', function(e){
+    if(!(e.ctrlKey || e.metaKey)) return;
+    var key = e.key.toLowerCase();
+    if(key!=='z' && key!=='x') return;
+    var activeTag = document.activeElement && document.activeElement.tagName;
+    if(activeTag==='INPUT' || activeTag==='TEXTAREA' || (document.activeElement && document.activeElement.isContentEditable)) return;
+    if(!document.getElementById('tab-parts').classList.contains('active')) return;
+    e.preventDefault();
+    if(key==='z') undoPartsAction(); else redoPartsAction();
   });
 
   // 업로드했던 카테고리별 원본 파일들과 현재 선택 상태를 저장해뒀다가, 되돌릴 때
