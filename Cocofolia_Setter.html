@@ -606,6 +606,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 파츠 조합 스탠딩 메이커(11번) 담아둔 조합 큰 미리보기 추가: 썸네일을 클릭하면 그 조합 하나만 화면 가운데에 크게 띄워 볼 수 있음(다운로드·삭제 버튼도 모달 안에 함께 있어 닫지 않고 바로 처리 가능, 닫기 버튼·바깥 클릭·Esc로 닫힘). 기존엔 썸네일 클릭이 곧 다운로드였는데, 이제 다운로드는 각 썸네일의 개별 ⬇ 버튼으로 따로 분리됨(큰 미리보기를 열지 않고도 바로 받을 수 있음). 이름 칸 편집·× 삭제는 기존과 동일</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 파츠 조합 스탠딩 메이커(11번) 대개편: (1) 효과 레이어를 여러 장 동시에 겹쳐 쓸 수 있게 함(다른 카테고리는 라디오처럼 하나만, 효과만 체크박스처럼 토글 — 켠 효과마다 각자 다른 위치/크기/기울기를 가질 수 있음, 조합 개수 계산도 부분집합 방식(2^n)으로 변경). (2) 위치·크기·기울기 조정을 슬라이더 대신 미리보기 위에 뜨는 변형 손잡이(테두리 박스+모서리 4개+회전 손잡이)로 직접 드래그해서 하도록 변경 — 파츠를 고르면 그 파츠가 편집 대상이 되고, 박스를 끌면 이동·모서리를 끌면 확대축소·위쪽 손잡이를 끌면 회전. (3) 미리보기를 약 2배로 확대(최대 640px)하고 레이아웃을 왼쪽 미리보기+오른쪽 담아두기, 그 아래 파츠 업로드로 재배치. 탭 상태 저장/불러오기에도 효과별 개별 조정값이 함께 저장됨</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 파츠 조합 스탠딩 메이커(11번) 가시성 개선: 화면을 왼쪽 미리보기(스크롤해도 화면에 고정)·가운데 파츠 업로드·오른쪽 담아둔 조합 3단으로 재배치해 파츠를 고르는 동안에도 결과를 계속 볼 수 있게 함. 담아둔 조합 썸네일 크기를 52px→96px로 키워 여러 조합을 한눈에 구분하기 쉽게 함. 파츠 갤러리의 각 파츠 이름과 담아둔 조합의 파일명을 이름 칸 클릭으로 직접 수정할 수 있게 해서(업로드 파일명 대신 "웃음"처럼 알아보기 쉬운 이름으로), ZIP/다운로드 파일명에도 그대로 반영되게 함</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 파츠 조합 스탠딩 메이커(11번)에 파츠별 위치·크기·기울기 조정 기능 추가: 각 카테고리(몸·눈썹·눈·입·효과) 아래에 X/Y 위치·크기(50~200%)·기울기(±45°) 슬라이더가 생겨서, 미리 정확히 정렬돼 있지 않은 파츠도 미리보기를 보면서 캔버스 중심 기준으로 바로 맞출 수 있음("초기화" 버튼으로 그 파츠만 원상복구). 같은 카테고리의 다른 변형으로 바꿔도 조정값 유지, "전체 조합 ZIP/담아두기"로 만드는 모든 조합에도 동일하게 적용됨. 조정값은 탭 상태 저장/불러오기에도 함께 저장됨</li>
@@ -1169,7 +1170,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
           <h3 style="margin:0;font-size:14px;">담아둔 조합<span id="parts-tray-count" style="color:var(--sub);font-weight:400;font-size:12px;"></span></h3>
         </div>
-        <p class="desc" style="margin:6px 0 8px;">"담아두기"로 모은 조합들입니다. 썸네일을 클릭하면 그 조합만 바로 다운로드되고, ×로 하나씩 뺄 수 있습니다. 이름 칸을 클릭하면 그 조합만의 파일명을 고칠 수 있습니다.</p>
+        <p class="desc" style="margin:6px 0 8px;">"담아두기"로 모은 조합들입니다. 썸네일을 클릭하면 크게 미리볼 수 있고, ⬇ 버튼으로 그 조합만 바로 다운로드하거나 ×로 뺄 수 있습니다. 이름 칸을 클릭하면 그 조합만의 파일명을 고칠 수 있습니다.</p>
         <div id="parts-tray-gallery" style="display:flex;flex-wrap:wrap;gap:10px;min-height:100px;max-height:520px;overflow-y:auto;padding-right:2px;"></div>
         <div class="info-box hidden" id="parts-tray-hint" style="margin-top:8px;">아직 담아둔 조합이 없습니다.</div>
         <div class="row" style="margin-top:10px;">
@@ -1182,6 +1183,20 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     </div>
 
     <div id="parts-cats" style="display:flex;flex-wrap:wrap;gap:14px;margin-top:20px;"></div>
+
+    <div id="parts-preview-modal" class="hidden" style="position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(20,20,20,.55);padding:20px;">
+      <div style="background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;max-width:min(92vw,640px);max-height:90vh;display:flex;flex-direction:column;gap:12px;overflow:auto;box-shadow:var(--shadow-md);">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <div id="parts-preview-modal-title" style="font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+          <button type="button" id="parts-preview-modal-close" class="btn ghost" style="padding:4px 12px;flex-shrink:0;">닫기</button>
+        </div>
+        <img id="parts-preview-modal-img" alt="담아둔 조합 크게 보기" style="max-width:100%;max-height:65vh;object-fit:contain;border-radius:8px;align-self:center;background:repeating-conic-gradient(#8883 0% 25%, transparent 0% 50%) 50%/16px 16px;">
+        <div class="row" style="margin:0;">
+          <button type="button" id="parts-preview-modal-download" class="btn">이 조합 다운로드</button>
+          <button type="button" id="parts-preview-modal-remove" class="btn ghost" style="color:var(--danger);">담아두기에서 빼기</button>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -23729,20 +23744,47 @@ var TabLog = (function(){
 
   var TRAY_THUMB_PX = 96; // 파츠 갤러리 썸네일(52px)보다 눈에 띄게 키운 담아두기 썸네일 크기
 
+  // previewedTrayId: 지금 "크게 보기" 모달에 떠 있는 담아둔 조합의 id(없으면 null).
+  // 썸네일 목록에서 그 항목에만 테두리 강조를 준다(makeThumb의 "지금 조정 중" 표시와 같은 목적).
+  var previewedTrayId = null;
+
+  function openTrayPreview(item){
+    previewedTrayId = item.id;
+    $('#parts-preview-modal-title').textContent = item.label || '조합';
+    $('#parts-preview-modal-img').src = item.url;
+    $('#parts-preview-modal-download').onclick = function(){
+      downloadBlob(item.blob, ensureExtension(sanitizeFilename(item.label||'standing_combo')+'.png', 'png'));
+    };
+    // 모달이 화면 전체를 덮어 배경의 작은 썸네일(개별 ×)에 손이 닿지 않으므로, 크게 보는
+    // 동안에도 바로 뺄 수 있게 모달 안에도 같은 기능을 둔다. removeFromTray가 previewedTrayId와
+    // 일치하면 알아서 closeTrayPreview()까지 호출해준다.
+    $('#parts-preview-modal-remove').onclick = function(){ removeFromTray(item.id); };
+    $('#parts-preview-modal').classList.remove('hidden');
+    renderTrayGallery();
+  }
+  function closeTrayPreview(){
+    if(previewedTrayId==null) return;
+    previewedTrayId = null;
+    $('#parts-preview-modal').classList.add('hidden');
+    renderTrayGallery();
+  }
+
   function makeTrayThumb(item){
+    var previewing = item.id === previewedTrayId;
     var box = document.createElement('div');
     box.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;width:'+TRAY_THUMB_PX+'px;';
-    box.title = '클릭해서 이 조합만 다운로드';
+    box.title = '클릭해서 크게 보기';
     var tb = document.createElement('div');
-    tb.style.cssText = 'width:'+TRAY_THUMB_PX+'px;height:'+TRAY_THUMB_PX+'px;border-radius:10px;border:2px solid var(--line);overflow:hidden;display:flex;'+
-      'align-items:center;justify-content:center;position:relative;background:var(--bg) repeating-conic-gradient(#8883 0% 25%, transparent 0% 50%) 50%/12px 12px;';
+    tb.style.cssText = 'width:'+TRAY_THUMB_PX+'px;height:'+TRAY_THUMB_PX+'px;border-radius:10px;border:2px solid '+(previewing?'var(--accent)':'var(--line)')+
+      ';overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative;'+
+      'background:var(--bg) repeating-conic-gradient(#8883 0% 25%, transparent 0% 50%) 50%/12px 12px;';
     var im = document.createElement('img');
     im.src = item.url; im.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;';
     tb.appendChild(im);
     box.appendChild(tb);
-    // 조합 파일명(item.label)도 직접 고칠 수 있게 <input>으로 둔다. box 클릭은 "이 조합
-    // 다운로드"로 연결돼 있어서, 이름 칸 클릭이 그리로 버블링되면 편집 중에 매번 다운로드가
-    // 시작돼버리므로 stopPropagation으로 막아준다(makeThumb의 파츠 이름 편집과 동일한 이유).
+    // 조합 파일명(item.label)도 직접 고칠 수 있게 <input>으로 둔다. box 클릭은 "크게 보기"로
+    // 연결돼 있어서, 이름 칸 클릭이 그리로 버블링되면 편집을 시작할 때마다 모달이 열려버리므로
+    // stopPropagation으로 막아준다(makeThumb의 파츠 이름 편집과 동일한 이유).
     var nameInput = document.createElement('input');
     nameInput.type = 'text';
     nameInput.value = item.label || '';
@@ -23754,11 +23796,25 @@ var TabLog = (function(){
     nameInput.addEventListener('click', function(e){ e.stopPropagation(); });
     nameInput.addEventListener('mousedown', function(e){ e.stopPropagation(); });
     nameInput.addEventListener('keydown', function(e){ e.stopPropagation(); if(e.key==='Enter') nameInput.blur(); });
-    nameInput.addEventListener('input', function(){ item.label = nameInput.value; });
+    nameInput.addEventListener('input', function(){
+      item.label = nameInput.value;
+      if(previewing) $('#parts-preview-modal-title').textContent = item.label;
+    });
     box.appendChild(nameInput);
-    box.addEventListener('click', function(){
+    box.addEventListener('click', function(){ openTrayPreview(item); });
+
+    // 다운로드는 "크게 보기"와 별개인 개별 버튼으로 뺀다 — 삭제(×, 우상단)와 대칭되도록
+    // 좌하단에 둔다.
+    var dl = document.createElement('button');
+    dl.type='button'; dl.textContent='⬇'; dl.title='이 조합 다운로드';
+    dl.setAttribute('aria-label', (item.label||'조합')+' 다운로드');
+    dl.style.cssText = 'position:absolute;bottom:-6px;left:-6px;width:20px;height:20px;border-radius:50%;border:none;background:var(--accent);color:#fff;font-size:11px;line-height:1;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;';
+    dl.addEventListener('click', function(e){
+      e.stopPropagation();
       downloadBlob(item.blob, ensureExtension(sanitizeFilename(item.label||'standing_combo')+'.png', 'png'));
     });
+    tb.appendChild(dl);
+
     var rm = document.createElement('button');
     rm.type='button'; rm.textContent='×'; rm.title='담아둔 조합에서 빼기';
     rm.setAttribute('aria-label', (item.label||'조합')+' 빼기');
@@ -23791,6 +23847,7 @@ var TabLog = (function(){
   function removeFromTray(id){
     var idx = tray.findIndex(function(it){ return it.id===id; });
     if(idx<0) return;
+    if(id===previewedTrayId) closeTrayPreview();
     URL.revokeObjectURL(tray[idx].url);
     tray.splice(idx, 1);
     renderTrayGallery();
@@ -24127,11 +24184,20 @@ var TabLog = (function(){
   $('#parts-tray-clear').addEventListener('click', function(){
     if(!tray.length) return;
     if(!confirm('담아둔 조합 '+tray.length+'개를 전부 뺄까요?')) return;
+    closeTrayPreview();
     tray.forEach(function(item){ URL.revokeObjectURL(item.url); });
     tray = [];
     renderTrayGallery();
   });
   renderTrayGallery();
+
+  $('#parts-preview-modal-close').addEventListener('click', closeTrayPreview);
+  $('#parts-preview-modal').addEventListener('click', function(e){
+    if(e.target.id === 'parts-preview-modal') closeTrayPreview();
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && !$('#parts-preview-modal').classList.contains('hidden')) closeTrayPreview();
+  });
 
   // 업로드했던 카테고리별 원본 파일들과 현재 선택 상태를 저장해뒀다가, 되돌릴 때
   // 같은 업로드 경로(loadPartFiles와 동일한 loadImagesTolerant)로 다시 불러온 뒤
