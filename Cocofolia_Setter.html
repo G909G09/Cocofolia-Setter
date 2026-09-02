@@ -606,6 +606,8 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-02</b> — 코코포리아 캐릭터 룸파일 생성기(13번): "캐릭터 생성"/"임시저장" 클릭 시 라벨 중복·"@" 누락·빈 라벨·해석 안 되는 스테이터스 JSON처럼 코코포리아에서 표정이 조용히 사라지거나 가져오기가 어긋날 수 있는 항목을 미리 점검해, 있으면 실제 생성을 막고 문제 목록 팝업을 띄움. 각 항목을 "이동"으로 직접 고치거나 "자동 고치기"(항목별/전체)로 사이트 안에서 바로 해결한 뒤 "계속 생성"으로 이어서 만들 수 있음</li>
+      <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-02</b> — 파츠 조합 스탠딩 메이커(11번): 카테고리별 갤러리에 체크박스를 추가해 여러 파츠를 표시해둔 뒤 "선택 삭제"로 한 번에 지울 수 있게 함. ×로 하나씩 지우는 기존 방식과 결과는 같지만 되돌리기 스택에는 한 번만 쌓여, Ctrl+Z 한 번으로 지운 여러 파츠가 전부 되돌아오고 Ctrl+X 한 번으로 다시 전부 지워짐</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 파츠 조합 스탠딩 메이커(11번): 업로드·선택·삭제·이름 변경·손잡이로 위치/크기/기울기 조정·전체 지우기에 Ctrl+Z(되돌리기)·Ctrl+X(다시하기) 지원 추가(텍스트 입력 중이거나 다른 탭을 보고 있을 때는 반응하지 않음, 담아두기는 대상 아님). 여백을 자동 재단한 파츠는 손잡이(편집 범위)도 캔버스 전체가 아니라 잘라낸 범위에 맞게 표시되도록 수정(이전엔 재단된 파츠를 골라도 손잡이가 캔버스 전체 크기로 떠서 실제 그림과 동떨어져 보였음)</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 파츠 조합 스탠딩 메이커(11번): 파츠 업로드 시 여백(투명 영역)이 캔버스의 절반을 넘으면 자동으로 실제 그림 부분만 재단해 미리보기에 반영(원래 위치는 그대로 유지 — 예: 정중앙에 그려져 있던 파츠는 재단 후에도 정중앙). 저장/렌더링에 쓰이는 픽셀 데이터가 줄어 큰 여백을 가진 파츠의 썸네일도 실제 그림이 잘 보이게 됨. 상단 설명글도 간결하게 정리</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 파츠 조합 스탠딩 메이커(11번) 담아둔 조합 큰 미리보기 추가: 썸네일을 클릭하면 그 조합 하나만 화면 가운데에 크게 띄워 볼 수 있음(다운로드·삭제 버튼도 모달 안에 함께 있어 닫지 않고 바로 처리 가능, 닫기 버튼·바깥 클릭·Esc로 닫힘). 기존엔 썸네일 클릭이 곧 다운로드였는데, 이제 다운로드는 각 썸네일의 개별 ⬇ 버튼으로 따로 분리됨(큰 미리보기를 열지 않고도 바로 받을 수 있음). 이름 칸 편집·× 삭제는 기존과 동일</li>
@@ -1323,6 +1325,20 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <button class="btn ghost" id="cf-clear" disabled style="color:var(--danger);">전체 지우기</button>
     </div>
     <div class="info-box hidden" id="cf-result-info" aria-live="polite"></div>
+  </div>
+  <div id="cf-validate-modal" class="hidden" style="position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(20,20,20,.55);padding:20px;">
+    <div style="background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;max-width:min(92vw,560px);max-height:85vh;display:flex;flex-direction:column;gap:12px;overflow:auto;box-shadow:var(--shadow-md);">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+        <div style="font-weight:700;font-size:14px;">생성 전 확인 — 코코포리아에서 문제가 될 수 있는 항목</div>
+        <button type="button" id="cf-validate-modal-close" class="btn ghost" style="padding:4px 12px;flex-shrink:0;">닫기</button>
+      </div>
+      <p class="footnote" style="margin:0;">아래 항목은 그대로 생성하면 코코포리아에서 표정이 사라지거나 인식되지 않을 수 있습니다. "자동 고치기"로 바로 고치거나, "이동"으로 해당 칸에서 직접 수정하세요.</p>
+      <div id="cf-validate-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+      <div class="row" style="margin:0;">
+        <button type="button" id="cf-validate-fixall" class="btn">전체 자동 고치기</button>
+        <button type="button" id="cf-validate-continue" class="btn hidden">문제 없음 — 계속 생성</button>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -23393,6 +23409,12 @@ var TabLog = (function(){
   var PART_BY_KEY = {};
   PART_CATEGORIES.forEach(function(c){ PART_BY_KEY[c.key] = c; });
 
+  // 카테고리별로 "선택 삭제"용으로 체크된 파츠의 uid 집합 — 갤러리를 다시 그려도(인덱스가
+  // 바뀌어도) uid는 안 바뀌므로 이걸로 추적한다. 이 표시 자체는 되돌리기 대상이 아니고
+  // (담아두기 선택과 같은 성격의 임시 UI 상태), 실제로 지울 때만 pushUndo()가 한 번 쌓인다.
+  var batchMarked = {};
+  PART_CATEGORIES.forEach(function(c){ batchMarked[c.key] = new Set(); });
+
   function identityTransform(){ return {x:0, y:0, scale:1, rot:0}; }
 
   var uidSeq = 0; // 업로드된 파츠마다 부여하는 고유 id — 배열 인덱스는 삭제/재정렬로 바뀌지만
@@ -23477,6 +23499,7 @@ var TabLog = (function(){
       state.parts[c.key] = [];
       state.selected[c.key] = c.multi ? [] : (c.required ? null : -1);
       state.transform[c.key] = identityTransform();
+      batchMarked[c.key].clear();
     });
     state.effectTransforms = {};
     state.activeLayer = null;
@@ -23843,7 +23866,7 @@ var TabLog = (function(){
     box.appendChild(resetBtn);
   }
 
-  function makeThumb(item, label, selected, onClick, onRemove, editing){
+  function makeThumb(item, label, selected, onClick, onRemove, editing, marked, onToggleMark){
     var box = document.createElement('div');
     box.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;width:60px;';
     var tb = document.createElement('div');
@@ -23902,6 +23925,16 @@ var TabLog = (function(){
       rm.style.cssText = 'position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;border:none;background:var(--danger);color:#fff;font-size:12px;line-height:1;cursor:pointer;padding:0;';
       rm.addEventListener('click', function(e){ e.stopPropagation(); onRemove(); });
       tb.appendChild(rm);
+    }
+    if(item && onToggleMark){
+      var mark = document.createElement('input');
+      mark.type = 'checkbox'; mark.checked = !!marked;
+      mark.title = '여러 개 선택해서 한 번에 삭제하려면 체크';
+      mark.setAttribute('aria-label', (label||'파츠')+' 선택 삭제용 표시');
+      mark.style.cssText = 'position:absolute;top:-6px;left:-6px;width:16px;height:16px;margin:0;cursor:pointer;accent-color:var(--danger);';
+      mark.addEventListener('click', function(e){ e.stopPropagation(); });
+      mark.addEventListener('change', function(){ onToggleMark(mark.checked); });
+      tb.appendChild(mark);
     }
     return box;
   }
@@ -24051,9 +24084,85 @@ var TabLog = (function(){
 
   function removePart(catKey, idx){
     pushUndo();
+    removePartInternal(catKey, idx);
+    renderGallery(catKey);
+    updateAll();
+  }
+
+  // 체크박스로 표시해둔 여러 파츠를 한 번에 지운다 — 낱개 × 버튼을 여러 번 누르는 것과
+  // 결과는 같지만, 되돌리기 스택에는 pushUndo()가 한 번만 쌓여 Ctrl+Z 한 번으로 전부
+  // 되돌아온다. 인덱스가 삭제할 때마다 당겨지므로 큰 인덱스부터 지워야 나머지 인덱스가
+  // 안 흔들린다.
+  function removePartsBatch(catKey){
+    var uids = Array.from(batchMarked[catKey]);
+    if(!uids.length) return;
+    pushUndo();
+    var idxs = uids.map(function(uid){
+      return state.parts[catKey].findIndex(function(it){ return it.uid===uid; });
+    }).filter(function(i){ return i>=0; }).sort(function(a,b){ return b-a; });
+    idxs.forEach(function(idx){ removePartInternal(catKey, idx); });
+    batchMarked[catKey].clear();
+    renderGallery(catKey);
+    updateAll();
+  }
+
+  function renderGallery(catKey){
+    var cat = PART_BY_KEY[catKey];
+    var gallery = $('#parts-gallery-'+catKey);
+    gallery.innerHTML = '';
+    function isEditing(uid){
+      return !!(state.activeLayer && state.activeLayer.cat===catKey && state.activeLayer.uid===uid);
+    }
+    function onToggleMark(uid){
+      return function(checked){
+        if(checked) batchMarked[catKey].add(uid); else batchMarked[catKey].delete(uid);
+        syncBatchDeleteBtn(catKey);
+      };
+    }
+    if(cat.multi){
+      state.parts[catKey].forEach(function(item, idx){
+        var included = state.selected[catKey].indexOf(idx) >= 0;
+        gallery.appendChild(makeThumb(item, item.name, included,
+          function(){ toggleEffect(idx); },
+          function(){ removePart(catKey, idx); },
+          isEditing(item.uid), batchMarked[catKey].has(item.uid), onToggleMark(item.uid)));
+      });
+      syncBatchDeleteBtn(catKey);
+      return;
+    }
+    if(!cat.required){
+      gallery.appendChild(makeThumb(null, '없음', state.selected[catKey]===-1, function(){ selectPart(catKey, -1); }));
+    }
+    state.parts[catKey].forEach(function(item, idx){
+      gallery.appendChild(makeThumb(item, item.name, state.selected[catKey]===idx,
+        function(){ selectPart(catKey, idx); },
+        function(){ removePart(catKey, idx); },
+        isEditing(item.uid), batchMarked[catKey].has(item.uid), onToggleMark(item.uid)));
+    });
+    syncBatchDeleteBtn(catKey);
+  }
+
+  // 체크된 파츠 개수에 맞춰 "선택 삭제(N개)" 버튼을 보이거나 숨긴다. 갤러리를 다시 그릴
+  // 때마다(삭제·업로드·되돌리기 등) 호출해 표시가 실제 상태와 어긋나지 않게 한다.
+  function syncBatchDeleteBtn(catKey){
+    var btn = $('#parts-batchdel-'+catKey);
+    if(!btn) return;
+    var n = batchMarked[catKey].size;
+    if(n>0){
+      btn.classList.remove('hidden');
+      btn.textContent = '선택 삭제 ('+n+'개)';
+    } else {
+      btn.classList.add('hidden');
+    }
+  }
+
+  function removePartInternal(catKey, idx){
     var cat = PART_BY_KEY[catKey];
     var removedItem = state.parts[catKey][idx];
     state.parts[catKey].splice(idx, 1);
+    // 낱개 ×로 지운 항목이 마침 "선택 삭제"용으로 체크돼 있었다면, 이제 존재하지 않는
+    // 항목이 계속 개수에 잡혀 있지 않도록 표시도 같이 지운다.
+    if(removedItem) batchMarked[catKey].delete(removedItem.uid);
     if(cat.multi){
       var arr = state.selected[catKey];
       var pos = arr.indexOf(idx);
@@ -24075,36 +24184,6 @@ var TabLog = (function(){
         }
       } else if(cur!=null && cur > idx) state.selected[catKey] = cur-1;
     }
-    renderGallery(catKey);
-    updateAll();
-  }
-
-  function renderGallery(catKey){
-    var cat = PART_BY_KEY[catKey];
-    var gallery = $('#parts-gallery-'+catKey);
-    gallery.innerHTML = '';
-    function isEditing(uid){
-      return !!(state.activeLayer && state.activeLayer.cat===catKey && state.activeLayer.uid===uid);
-    }
-    if(cat.multi){
-      state.parts[catKey].forEach(function(item, idx){
-        var included = state.selected[catKey].indexOf(idx) >= 0;
-        gallery.appendChild(makeThumb(item, item.name, included,
-          function(){ toggleEffect(idx); },
-          function(){ removePart(catKey, idx); },
-          isEditing(item.uid)));
-      });
-      return;
-    }
-    if(!cat.required){
-      gallery.appendChild(makeThumb(null, '없음', state.selected[catKey]===-1, function(){ selectPart(catKey, -1); }));
-    }
-    state.parts[catKey].forEach(function(item, idx){
-      gallery.appendChild(makeThumb(item, item.name, state.selected[catKey]===idx,
-        function(){ selectPart(catKey, idx); },
-        function(){ removePart(catKey, idx); },
-        isEditing(item.uid)));
-    });
   }
 
   function loadPartFiles(catKey, files){
@@ -24154,6 +24233,13 @@ var TabLog = (function(){
       gallery.id = 'parts-gallery-'+cat.key;
       gallery.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;';
       box.appendChild(gallery);
+
+      var batchBtn = document.createElement('button');
+      batchBtn.type = 'button'; batchBtn.id = 'parts-batchdel-'+cat.key;
+      batchBtn.className = 'btn ghost hidden';
+      batchBtn.style.cssText = 'margin-top:6px;padding:3px 10px;font-size:11px;color:var(--danger);';
+      batchBtn.addEventListener('click', function(){ removePartsBatch(cat.key); });
+      box.appendChild(batchBtn);
 
       wrap.appendChild(box);
       setupMultiDrop('parts-drop-'+cat.key, 'parts-file-'+cat.key, function(files){ loadPartFiles(cat.key, files); });
@@ -25775,17 +25861,150 @@ var TabLog = (function(){
   // "스테이터스 JSON 불러오기" 버튼을 안 눌렀어도 textarea 내용이 반영되도록 생성 시점에
   // 다시 확인한다. 내용이 있는데 해석에 실패했으면 스탯이 조용히 기본값(HP 0/0)으로 빠지지
   // 않도록 여기서 막는다. 다운로드·임시저장 버튼이 이 검증을 공유한다.
+  // JSON 해석 실패는 더 이상 여기서 alert로 막지 않는다 — 아래 validateCfIssues()/생성 전
+  // 확인 팝업이 같은 조건을 검사해 사이트 안에서 바로 고칠 수 있는 형태로 대신 안내한다.
   function checkCfStatusReady(){
     if(cfItems.length===0) return false;
     refreshCfStatusData();
-    if($('#cf-status-json').value.trim() && !cfStatusData){
-      alert('스테이터스 JSON을 해석하지 못했습니다. 내용을 확인해주세요(비워두면 스탠딩만 있는 캐릭터로 만들어집니다).');
-      return false;
-    }
     return true;
   }
-  $('#cf-build').addEventListener('click', function(){
-    if(!checkCfStatusReady()) return;
+  // 생성 버튼을 누르는 시점에 라벨 중복·"@" 누락·빈 라벨·해석 안 되는 스테이터스 JSON처럼
+  // 코코포리아 가져오기에서 표정이 조용히 사라지거나 인식되지 않는 원인이 될 항목을 미리
+  // 점검한다. 문제가 있으면 실제 zip 생성을 막고, 각 항목을 사이트 안에서 바로 고치거나
+  // (자동 고치기) 해당 입력칸으로 이동해 직접 고칠 수 있는 팝업을 띄운다.
+  function focusCfLabelInput(idx){
+    var wrap = $('#cf-labels');
+    var group = wrap.children[idx];
+    var inp = group && group.querySelector('input');
+    if(inp){ inp.scrollIntoView({behavior:'smooth', block:'center'}); inp.focus(); inp.select(); }
+  }
+  function validateCfIssues(){
+    var issues = [];
+    cfItems.forEach(function(it, idx){
+      var v = (it.label||'').trim();
+      if(!v){
+        issues.push({
+          message: (idx+1)+'번째 이미지의 라벨이 비어 있습니다.',
+          fix: function(){
+            var used = cfItems.filter(function(x){ return x!==it; }).map(function(x){ return x.label; });
+            it.label = uniqueCfLabel('@이미지'+(idx+1), used);
+            buildCfLabelInputs();
+          },
+          focus: function(){ focusCfLabelInput(idx); }
+        });
+      } else if(v.charAt(0) !== '@'){
+        issues.push({
+          message: '"'+v+'" 라벨이 "@"로 시작하지 않습니다(코코포리아가 표정으로 인식하지 못합니다).',
+          fix: function(){ it.label = '@'+v; buildCfLabelInputs(); },
+          focus: function(){ focusCfLabelInput(idx); }
+        });
+      }
+    });
+    var seen = {};
+    cfItems.forEach(function(it, idx){
+      var v = (it.label||'').trim();
+      if(!v) return;
+      (seen[v] = seen[v] || []).push(idx);
+    });
+    Object.keys(seen).forEach(function(label){
+      var idxs = seen[label];
+      if(idxs.length<2) return;
+      issues.push({
+        message: '라벨 "'+label+'"이(가) '+idxs.length+'개 이미지에서 중복됩니다(하나만 남고 나머지 표정은 코코포리아에서 사라집니다).',
+        fix: function(){
+          var used = cfItems.map(function(x){ return x.label; });
+          idxs.slice(1).forEach(function(i){
+            used.splice(used.indexOf(cfItems[i].label), 1);
+            cfItems[i].label = uniqueCfLabel(cfItems[i].label, used);
+          });
+          buildCfLabelInputs();
+        },
+        focus: function(){ focusCfLabelInput(idxs[0]); }
+      });
+    });
+    var rawStatus = $('#cf-status-json').value;
+    if(rawStatus.trim() && !parseStatusJson(rawStatus)){
+      issues.push({
+        message: '붙여넣은 스테이터스 JSON을 해석하지 못했습니다. 형식을 확인하거나 비워두세요(비워두면 스탠딩만 있는 캐릭터로 만들어집니다).',
+        fix: function(){ $('#cf-status-json').value = ''; refreshCfStatusData(); },
+        focus: function(){ var ta = $('#cf-status-json'); ta.scrollIntoView({behavior:'smooth', block:'center'}); ta.focus(); }
+      });
+    }
+    return issues;
+  }
+  var cfValidatePendingProceed = null;
+  function closeCfValidateModal(){
+    $('#cf-validate-modal').classList.add('hidden');
+    cfValidatePendingProceed = null;
+  }
+  function renderCfValidateModal(){
+    var issues = validateCfIssues();
+    var list = $('#cf-validate-list');
+    list.innerHTML = '';
+    var fixAllBtn = $('#cf-validate-fixall'), continueBtn = $('#cf-validate-continue');
+    if(issues.length===0){
+      var ok = document.createElement('div');
+      ok.className = 'info-box';
+      ok.textContent = '문제가 모두 해결되었습니다.';
+      list.appendChild(ok);
+      fixAllBtn.classList.add('hidden');
+      continueBtn.classList.remove('hidden');
+      return;
+    }
+    fixAllBtn.classList.remove('hidden');
+    continueBtn.classList.add('hidden');
+    issues.forEach(function(issue){
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:8px;justify-content:space-between;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);';
+      var msg = document.createElement('div');
+      msg.style.cssText = 'font-size:12.5px;flex:1;';
+      msg.textContent = issue.message;
+      row.appendChild(msg);
+      var btnWrap = document.createElement('div');
+      btnWrap.style.cssText = 'display:flex;gap:6px;flex-shrink:0;';
+      var gotoBtn = document.createElement('button');
+      gotoBtn.type = 'button'; gotoBtn.className = 'btn ghost'; gotoBtn.textContent = '이동';
+      gotoBtn.style.cssText = 'padding:3px 8px;font-size:11px;';
+      gotoBtn.addEventListener('click', function(){ closeCfValidateModal(); issue.focus(); });
+      btnWrap.appendChild(gotoBtn);
+      var fixBtn = document.createElement('button');
+      fixBtn.type = 'button'; fixBtn.className = 'btn'; fixBtn.textContent = '자동 고치기';
+      fixBtn.style.cssText = 'padding:3px 8px;font-size:11px;';
+      fixBtn.addEventListener('click', function(){ issue.fix(); renderCfValidateModal(); });
+      btnWrap.appendChild(fixBtn);
+      row.appendChild(btnWrap);
+      list.appendChild(row);
+    });
+  }
+  function openCfValidateModal(proceedFn){
+    cfValidatePendingProceed = proceedFn;
+    renderCfValidateModal();
+    $('#cf-validate-modal').classList.remove('hidden');
+  }
+  $('#cf-validate-modal-close').addEventListener('click', closeCfValidateModal);
+  $('#cf-validate-modal').addEventListener('click', function(e){
+    if(e.target.id === 'cf-validate-modal') closeCfValidateModal();
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && !$('#cf-validate-modal').classList.contains('hidden')) closeCfValidateModal();
+  });
+  $('#cf-validate-fixall').addEventListener('click', function(){
+    // 라벨 하나를 고치면(예: "@" 보정) 다른 항목과 새로 겹칠 수 있어, 더 이상 새 문제가
+    // 생기지 않을 때까지 여러 번 다시 검사하며 고친다(사용자가 버튼을 반복해서 누르지 않도록).
+    for(var i=0;i<10;i++){
+      var issues = validateCfIssues();
+      if(!issues.length) break;
+      issues.forEach(function(issue){ issue.fix(); });
+    }
+    renderCfValidateModal();
+  });
+  $('#cf-validate-continue').addEventListener('click', function(){
+    var fn = cfValidatePendingProceed;
+    closeCfValidateModal();
+    if(fn) fn();
+  });
+
+  function proceedCfBuild(){
     var btn = $('#cf-build');
     btn.disabled = true; btn.textContent = '생성 중...';
     buildCharfileZip().then(function(res){
@@ -25797,9 +26016,13 @@ var TabLog = (function(){
     }).then(function(){
       btn.disabled = false; btn.textContent = '캐릭터 룸파일(zip) 생성';
     });
+  }
+  $('#cf-build').addEventListener('click', function(){
+    if(!checkCfStatusReady()) return;
+    if(validateCfIssues().length){ openCfValidateModal(proceedCfBuild); return; }
+    proceedCfBuild();
   });
-  var cfSaveBtn = insertQuickSaveButton($('#cf-build'), function(){
-    if(!checkCfStatusReady()) return false;
+  function proceedCfQuickSave(){
     var oldText = cfSaveBtn.textContent;
     cfSaveBtn.disabled = true; cfSaveBtn.textContent = '생성 중...';
     return buildCharfileZip().then(function(res){
@@ -25812,6 +26035,15 @@ var TabLog = (function(){
       cfSaveBtn.disabled = false; cfSaveBtn.textContent = oldText;
       return ok;
     });
+  }
+  var cfSaveBtn = insertQuickSaveButton($('#cf-build'), function(){
+    if(!checkCfStatusReady()) return false;
+    if(validateCfIssues().length){
+      return new Promise(function(resolve){
+        openCfValidateModal(function(){ proceedCfQuickSave().then(resolve); });
+      });
+    }
+    return proceedCfQuickSave();
   });
   // cf-build와 마찬가지로 이미지가 없으면 저장할 결과물도 없다. 다른 탭(10번 스탠딩 재단)에서
   // 넘어온 이미지가 이미 있는 상태로 이 스크립트가 실행됐을 수 있으니 실제 개수 기준으로 맞춘다.
