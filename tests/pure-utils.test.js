@@ -145,3 +145,92 @@ test('uniqueCfLabel: 라벨이 겹치면 _2, _3...을 붙여 구분한다', () =
   assert.equal(sandbox2.uniqueCfLabel('face', used), 'face_3');
   assert.equal(sandbox2.uniqueCfLabel('other', used), 'other');
 });
+
+const sandbox3 = loadFunctionsFromHtml(HTML_PATH, [
+  'isDice',
+  // isJudge는 같은 스코프의 isDice를 호출하므로 함께 로드한다.
+  'isJudge',
+  'isSanity',
+  'outputMime',
+  'outputExt',
+  'movAgePenalty',
+  'deriveStatus',
+  'parseStatusJson',
+  'isApngBuffer',
+]);
+
+test('isDice: 굴림 결과(다이스 표기 + ＞) 문구만 판별한다', () => {
+  assert.equal(sandbox3.isDice('(1D100)＞50'), true);
+  assert.equal(sandbox3.isDice('(1D100<=50)＞50'), true);
+  assert.equal(sandbox3.isDice('그냥 서술 텍스트'), false);
+  assert.equal(sandbox3.isDice('(1D100)50'), false); // ＞ 없음
+});
+
+test('isJudge: "OO 판정" 계열 문구를 표기 차이와 무관하게 판별하고, 굴림 결과/긴 문장은 제외한다', () => {
+  assert.equal(sandbox3.isJudge('이성 판정'), true);
+  assert.equal(sandbox3.isJudge('이성 판정.'), true);
+  assert.equal(sandbox3.isJudge('이성판정!'), true);
+  assert.equal(sandbox3.isJudge('회피 또는 크툴루신화판정.'), true);
+  assert.equal(sandbox3.isJudge('이성 판정(1D10/1D100)'), true);
+  assert.equal(sandbox3.isJudge('이성 판정 5/10'), true);
+  assert.equal(sandbox3.isJudge('(1D100)＞50'), false); // 판정 문구가 아니라 굴림 결과
+  assert.equal(sandbox3.isJudge('그냥 서술 텍스트'), false);
+  assert.equal(sandbox3.isJudge('아주 긴 서술문 뒤에 우연히 판정이라는 단어가 붙어있는 경우'), false); // 30자 초과
+});
+
+test('isSanity: "N/M" 형태(SAN 체크 증감치)만 판별한다', () => {
+  assert.equal(sandbox3.isSanity('5/10'), true);
+  assert.equal(sandbox3.isSanity('0/1D6'), true);
+  assert.equal(sandbox3.isSanity('5 / 10'), true);
+  assert.equal(sandbox3.isSanity('abc'), false);
+  assert.equal(sandbox3.isSanity('abc/10'), false);
+});
+
+test('outputMime/outputExt: 확장자↔MIME 매핑이 서로를 왕복한다', () => {
+  assert.equal(sandbox3.outputMime({name:'a.jpg'}), 'image/jpeg');
+  assert.equal(sandbox3.outputMime({name:'a.JPEG'}), 'image/jpeg');
+  assert.equal(sandbox3.outputMime({name:'a.webp'}), 'image/webp');
+  assert.equal(sandbox3.outputMime({name:'a.png'}), 'image/png');
+  assert.equal(sandbox3.outputMime({name:'a.bmp'}), 'image/png'); // 알 수 없는 확장자는 PNG로 대체
+  assert.equal(sandbox3.outputExt('image/jpeg'), '.jpg');
+  assert.equal(sandbox3.outputExt('image/webp'), '.webp');
+  assert.equal(sandbox3.outputExt('image/png'), '.png');
+});
+
+test('movAgePenalty: CoC 7판 노화 규칙에 따른 10년 단위 MOV 감소치 경계값', () => {
+  assert.equal(sandbox3.movAgePenalty(0), 0);
+  assert.equal(sandbox3.movAgePenalty(39), 0);
+  assert.equal(sandbox3.movAgePenalty(40), 1);
+  assert.equal(sandbox3.movAgePenalty(49), 1);
+  assert.equal(sandbox3.movAgePenalty(50), 2);
+  assert.equal(sandbox3.movAgePenalty(69), 3);
+  assert.equal(sandbox3.movAgePenalty(70), 4);
+  assert.equal(sandbox3.movAgePenalty(79), 4);
+  assert.equal(sandbox3.movAgePenalty(80), 5);
+  assert.equal(sandbox3.movAgePenalty(120), 5);
+});
+
+test('deriveStatus: GitHub 이슈 상태·라벨을 건의함 배지 문구로 옮긴다', () => {
+  assert.deepEqual(toHostRealm(sandbox3.deriveStatus({state:'open', labels:[]})), {text:'접수됨', status:'open'});
+  assert.deepEqual(toHostRealm(sandbox3.deriveStatus({state:'open', labels:['진행중']})), {text:'수정중', status:'progress'});
+  assert.deepEqual(toHostRealm(sandbox3.deriveStatus({state:'closed', labels:[]})), {text:'반영됨', status:'done'});
+  assert.deepEqual(toHostRealm(sandbox3.deriveStatus({state:'closed', labels:['보류']})), {text:'반영 안 됨', status:'declined'});
+  // 라벨이 문자열 배열이 아니라 GitHub API의 {name} 객체 배열로 올 수도 있다
+  assert.deepEqual(toHostRealm(sandbox3.deriveStatus({state:'open', labels:[{name:'진행중'}]})), {text:'수정중', status:'progress'});
+});
+
+test('parseStatusJson: 순수 JSON과 CSV류 이중따옴표 이스케이프(""→") 둘 다 해석하고, 실패하면 null', () => {
+  assert.deepEqual(toHostRealm(sandbox3.parseStatusJson('{"kind":"character","data":{"name":"설이"}}')), {kind:'character', data:{name:'설이'}});
+  assert.deepEqual(toHostRealm(sandbox3.parseStatusJson('"{""kind"":""character""}"')), {kind:'character'});
+  assert.equal(sandbox3.parseStatusJson(''), null);
+  assert.equal(sandbox3.parseStatusJson('이건 JSON이 아님'), null);
+});
+
+test('isApngBuffer: acTL 청크 마커가 버퍼 맨 끝 4바이트에 걸쳐 있어도 놓치지 않는다', () => {
+  // 'acTL' = 0x61 0x63 0x54 0x4C. 이 4바이트가 버퍼의 마지막 4바이트(경계 케이스)일 때도
+  // 스캔 루프가 검사해야 한다.
+  const tailMarker = new Uint8Array([0x00, 0x00, 0x61, 0x63, 0x54, 0x4C]).buffer;
+  assert.equal(sandbox3.isApngBuffer(tailMarker), true);
+  const noMarker = new Uint8Array([0x00, 0x00, 0x00, 0x00]).buffer;
+  assert.equal(sandbox3.isApngBuffer(noMarker), false);
+});

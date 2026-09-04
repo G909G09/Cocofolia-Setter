@@ -19584,7 +19584,7 @@ function encodeApng(frames, delays, colorCount){
 
 function isApngBuffer(buf){
   var bytes = new Uint8Array(buf);
-  for(var i=0;i<bytes.length-4;i++){
+  for(var i=0;i<=bytes.length-4;i++){
     if(bytes[i]===0x61 && bytes[i+1]===0x63 && bytes[i+2]===0x54 && bytes[i+3]===0x4C) return true; // 'acTL'
   }
   return false;
@@ -23881,6 +23881,11 @@ var TabLog = (function(){
   function makeThumb(item, label, selected, onClick, onRemove, editing){
     var box = document.createElement('div');
     box.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;width:60px;';
+    box.tabIndex = 0;
+    box.setAttribute('role', 'button');
+    box.setAttribute('aria-label', (item ? item.name : label) + ' 선택');
+    box.setAttribute('aria-pressed', selected ? 'true' : 'false');
+    box.addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); onClick(); } });
     var tb = document.createElement('div');
     tb.style.cssText = 'width:52px;height:52px;border-radius:8px;border:2px solid '+(selected?'var(--accent)':'var(--line)')+
       ';overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative;'+
@@ -23973,6 +23978,10 @@ var TabLog = (function(){
     var box = document.createElement('div');
     box.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;width:'+TRAY_THUMB_PX+'px;';
     box.title = '클릭해서 크게 보기';
+    box.tabIndex = 0;
+    box.setAttribute('role', 'button');
+    box.setAttribute('aria-label', (item.label||'조합')+' 크게 보기');
+    box.addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openTrayPreview(item); } });
     var tb = document.createElement('div');
     tb.style.cssText = 'width:'+TRAY_THUMB_PX+'px;height:'+TRAY_THUMB_PX+'px;border-radius:10px;border:2px solid '+(previewing?'var(--accent)':'var(--line)')+
       ';overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative;'+
