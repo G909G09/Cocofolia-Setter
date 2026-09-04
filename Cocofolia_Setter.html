@@ -23768,6 +23768,41 @@ var TabLog = (function(){
       'background:#fff;border:2px solid var(--accent);box-shadow:0 1px 3px rgba(0,0,0,.35);cursor:grab;touch-action:none;';
     rotHandle.addEventListener('pointerdown', function(e){ e.stopPropagation(); startGizmoDrag('rotate', e); });
     gizmo.appendChild(rotHandle);
+
+    // 키보드 전용/스크린리더 사용자를 위한 조작: 방향키로 이동(Shift+방향키는 더 큰 폭),
+    // +/-로 확대·축소, [/]로 회전. 12번 탭 크롭 박스의 키보드 조작 패턴과 동일하게, 눌릴
+    // 때마다 한 번씩만 pushUndo()를 쌓아 Ctrl+Z 한 번으로 그 조작 하나를 되돌릴 수 있게 한다.
+    gizmo.setAttribute('tabindex', '0');
+    gizmo.setAttribute('role', 'group');
+    gizmo.setAttribute('aria-label', '파츠 위치·크기·기울기 조정 손잡이 (방향키: 이동, +/-: 확대·축소, [/]: 회전)');
+    gizmo.addEventListener('keydown', function(e){
+      var t = activeLayerTransform();
+      if(!t) return;
+      var dir = {ArrowLeft:[-1,0], ArrowRight:[1,0], ArrowUp:[0,-1], ArrowDown:[0,1]}[e.key];
+      if(dir){
+        e.preventDefault();
+        pushUndo();
+        var step = e.shiftKey ? 20 : 4;
+        t.x = (t.x||0) + dir[0]*step;
+        t.y = (t.y||0) + dir[1]*step;
+        updateAll();
+      } else if(e.key==='+' || e.key==='='){
+        e.preventDefault();
+        pushUndo();
+        t.scale = Math.min(4, Math.max(0.2, (t.scale||1) * 1.05));
+        updateAll();
+      } else if(e.key==='-' || e.key==='_'){
+        e.preventDefault();
+        pushUndo();
+        t.scale = Math.min(4, Math.max(0.2, (t.scale||1) * 0.95));
+        updateAll();
+      } else if(e.key==='[' || e.key===']'){
+        e.preventDefault();
+        pushUndo();
+        t.rot = (t.rot||0) + (e.key===']' ? 5 : -5);
+        updateAll();
+      }
+    });
   }
 
   // 여백 자동 재단으로 파츠 이미지 자체가 실제 그림 영역만큼만 작아진 경우, 손잡이(gizmo)
