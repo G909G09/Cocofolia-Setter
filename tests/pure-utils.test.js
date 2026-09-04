@@ -208,6 +208,9 @@ test('movAgePenalty: CoC 7판 노화 규칙에 따른 10년 단위 MOV 감소치
   assert.equal(sandbox3.movAgePenalty(79), 4);
   assert.equal(sandbox3.movAgePenalty(80), 5);
   assert.equal(sandbox3.movAgePenalty(120), 5);
+  // 나이를 입력하지 않았거나 falsy한 값이면 감점 없음
+  assert.equal(sandbox3.movAgePenalty(null), 0);
+  assert.equal(sandbox3.movAgePenalty(undefined), 0);
 });
 
 test('deriveStatus: GitHub 이슈 상태·라벨을 건의함 배지 문구로 옮긴다', () => {
@@ -215,8 +218,10 @@ test('deriveStatus: GitHub 이슈 상태·라벨을 건의함 배지 문구로 �
   assert.deepEqual(toHostRealm(sandbox3.deriveStatus({state:'open', labels:['진행중']})), {text:'수정중', status:'progress'});
   assert.deepEqual(toHostRealm(sandbox3.deriveStatus({state:'closed', labels:[]})), {text:'반영됨', status:'done'});
   assert.deepEqual(toHostRealm(sandbox3.deriveStatus({state:'closed', labels:['보류']})), {text:'반영 안 됨', status:'declined'});
-  // 라벨이 문자열 배열이 아니라 GitHub API의 {name} 객체 배열로 올 수도 있다
+  // 라벨이 문자열 배열이 아니라 GitHub API의 {name} 객체 배열로도 올 수 있다
   assert.deepEqual(toHostRealm(sandbox3.deriveStatus({state:'open', labels:[{name:'진행중'}]})), {text:'수정중', status:'progress'});
+  // 진행중이 아닌 라벨은 접수됨으로 취급
+  assert.deepEqual(toHostRealm(sandbox3.deriveStatus({state:'open', labels:['안내']})), {text:'접수됨', status:'open'});
 });
 
 test('parseStatusJson: 순수 JSON과 CSV류 이중따옴표 이스케이프(""→") 둘 다 해석하고, 실패하면 null', () => {
