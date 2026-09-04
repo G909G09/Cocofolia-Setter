@@ -307,3 +307,23 @@ test('isApngBuffer: acTL 청크 마커가 버퍼 맨 끝 4바이트에 걸쳐 �
   const noMarker = new Uint8Array([0x00, 0x00, 0x00, 0x00]).buffer;
   assert.equal(sandbox3.isApngBuffer(noMarker), false);
 });
+
+const sandbox4 = loadFunctionsFromHtml(HTML_PATH, [
+  // statTierText는 같은 스코프의 STAT_TIERS를 참조하므로 함께 로드한다.
+  { type: 'var', name: 'STAT_TIERS' },
+  'statTierText',
+]);
+
+test('statTierText: 특성치 구간 경계값마다 올바른 설명 문구로 갈린다(6구간, <= 경계)', () => {
+  // STR 기준 구간: 25/40/59/74/89/Infinity
+  assert.equal(sandbox4.statTierText('STR', 0), '매우 약함');
+  assert.equal(sandbox4.statTierText('STR', 25), '매우 약함'); // 경계값은 낮은 쪽 구간에 포함(<=)
+  assert.equal(sandbox4.statTierText('STR', 26), '평균 이하');
+  assert.equal(sandbox4.statTierText('STR', 59), '평균적인 성인');
+  assert.equal(sandbox4.statTierText('STR', 89), '매우 강함(운동선수급)');
+  assert.equal(sandbox4.statTierText('STR', 90), '인간 한계에 가까운 괴력');
+  assert.equal(sandbox4.statTierText('STR', 99), '인간 한계에 가까운 괴력'); // 최댓값도 마지막 구간
+  // 특성치마다 다른 문구 사전을 쓴다
+  assert.equal(sandbox4.statTierText('APP', 59), '평균적인 외모');
+  assert.equal(sandbox4.statTierText('EDU', 90), '해당 분야 최고 권위자급');
+});
