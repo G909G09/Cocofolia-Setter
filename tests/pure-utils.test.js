@@ -13,6 +13,7 @@ const HTML_PATH = path.join(__dirname, '..', 'Cocofolia_Setter.html');
 
 const sandbox = loadFunctionsFromHtml(HTML_PATH, [
   'clampInt',
+  'hexToRgb',
   'baseName',
   'fmtSec',
   'escHtml',
@@ -29,6 +30,13 @@ test('clampInt: 범위 안/밖 값을 올바르게 자른다', () => {
   assert.equal(sandbox.clampInt(5, 0, 10), 5);
   assert.equal(sandbox.clampInt(-1, 0, 10), 0);
   assert.equal(sandbox.clampInt(11, 0, 10), 10);
+});
+
+test('hexToRgb: #rrggbb를 {r,g,b}로 바꾸고, 비어있거나 형식이 안 맞으면 fallbackHex를 대신 쓴다', () => {
+  assert.deepEqual(toHostRealm(sandbox.hexToRgb('#00ff00', '#ff0000')), { r: 0, g: 255, b: 0 });
+  assert.deepEqual(toHostRealm(sandbox.hexToRgb('0000ff', '#ff0000')), { r: 0, g: 0, b: 255 }); // 앞의 # 은 있어도 없어도 된다
+  assert.deepEqual(toHostRealm(sandbox.hexToRgb('', '#ff0000')), { r: 255, g: 0, b: 0 }); // 빈 값이면 fallbackHex
+  assert.deepEqual(toHostRealm(sandbox.hexToRgb('안녕', '#ff0000')), { r: 255, g: 0, b: 0 }); // 형식이 안 맞아도 fallbackHex
 });
 
 test('baseName: 확장자를 제거하고, 확장자가 없으면 그대로 돌려준다', () => {
@@ -194,6 +202,13 @@ function makeRgba4x4(pixels) {
   }
   return data;
 }
+
+test('sampleCorner: (x,y) 픽셀의 RGBA 값을 읽는다', () => {
+  const data = makeRgba4x4({ 0: { 0: [10, 20, 30, 40] }, 2: { 3: [50, 60, 70, 80] } });
+  assert.deepEqual(toHostRealm(sandbox3.sampleCorner(data, 4, 0, 0)), { r: 10, g: 20, b: 30, a: 40 });
+  assert.deepEqual(toHostRealm(sandbox3.sampleCorner(data, 4, 3, 2)), { r: 50, g: 60, b: 70, a: 80 });
+  assert.deepEqual(toHostRealm(sandbox3.sampleCorner(data, 4, 1, 1)), { r: 255, g: 255, b: 255, a: 255 }); // 지정 안 한 픽셀은 흰 배경
+});
 
 test('detectBackground: 모서리 4개 중 절반 이상이 거의 투명하면 투명 배경으로, 아니면 모서리 평균 색으로 판정한다', () => {
   const whiteData = makeRgba4x4();
