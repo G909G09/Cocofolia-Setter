@@ -146,6 +146,168 @@ test('uniqueCfLabel: 라벨이 겹치면 _2, _3...을 붙여 구분한다', () =
   assert.equal(sandbox2.uniqueCfLabel('other', used), 'other');
 });
 
+const sandbox3 = loadFunctionsFromHtml(HTML_PATH, [
+  'clampInt',
+  'computeCrop',
+  'sampleCorner',
+  'detectBackground',
+  'detectBBox',
+  'isDice',
+  // isJudge는 같은 스코프의 isDice를 호출하므로 함께 로드한다.
+  'isJudge',
+  'isSanity',
+  'outputMime',
+  'outputExt',
+  'movAgePenalty',
+  'deriveStatus',
+  'parseStatusJson',
+  'isApngBuffer',
+]);
+
+test('computeCrop: 가로가 더 넓은 이미지는 좌우를, 세로가 더 긴 이미지는 상하를 offsetFrac 비율로 잘라낸다', () => {
+  // 가로가 긴 이미지(가로:세로 2:1)를 정사각형(1:1)으로: 세로는 그대로, 가로만 잘라낸다.
+  const wideImg = { width: 200, height: 100 };
+  assert.deepEqual(toHostRealm(sandbox3.computeCrop(wideImg, 1, 1, 0)), { sx: 0, sy: 0, sw: 100, sh: 100 });
+  assert.deepEqual(toHostRealm(sandbox3.computeCrop(wideImg, 1, 1, 1)), { sx: 100, sy: 0, sw: 100, sh: 100 });
+  assert.deepEqual(toHostRealm(sandbox3.computeCrop(wideImg, 1, 1, 0.5)), { sx: 50, sy: 0, sw: 100, sh: 100 });
+
+  // 세로가 긴 이미지(가로:세로 1:2)를 정사각형으로: 가로는 그대로, 세로만 잘라낸다.
+  const tallImg = { width: 100, height: 200 };
+  assert.deepEqual(toHostRealm(sandbox3.computeCrop(tallImg, 1, 1, 0)), { sx: 0, sy: 0, sw: 100, sh: 100 });
+  assert.deepEqual(toHostRealm(sandbox3.computeCrop(tallImg, 1, 1, 1)), { sx: 0, sy: 100, sw: 100, sh: 100 });
+
+  // offsetFrac이 범위를 벗어나도(음수/1 초과) 잘라낼 위치가 이미지 밖으로 나가지 않게 클램프된다.
+  assert.deepEqual(toHostRealm(sandbox3.computeCrop(wideImg, 1, 1, -1)), { sx: 0, sy: 0, sw: 100, sh: 100 });
+  assert.deepEqual(toHostRealm(sandbox3.computeCrop(wideImg, 1, 1, 2)), { sx: 100, sy: 0, sw: 100, sh: 100 });
+});
+
+// 픽셀 (x,y)에 RGBA를 쓰는 4x4 RGBA 버퍼를 만든다. 지정하지 않은 픽셀은 흰 배경(255,255,255,255).
+function makeRgba4x4(pixels) {
+  const w = 4, h = 4;
+  const data = new Array(w * h * 4).fill(0);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const i = (y * w + x) * 4;
+      const [r, g, b, a] = (pixels && pixels[y] && pixels[y][x]) || [255, 255, 255, 255];
+      data[i] = r; data[i + 1] = g; data[i + 2] = b; data[i + 3] = a;
+    }
+  }
+  return data;
+}
+
+test('detectBackground: 모서리 4개 중 절반 이상이 거의 투명하면 투명 배경으로, 아니면 모서리 평균 색으로 판정한다', () => {
+  const whiteData = makeRgba4x4();
+  assert.deepEqual(toHostRealm(sandbox3.detectBackground(whiteData, 4, 4)), { transparent: false, r: 255, g: 255, b: 255, a: 255 });
+
+  // 모서리 4개 중 절반(경계값 2개)이 거의 투명하면, 나머지 모서리가 불투명해도 투명 배경으로 판정한다.
+  const transparentCorners = makeRgba4x4({
+    0: { 0: [10, 20, 30, 0] },
+    3: { 3: [10, 20, 30, 8] },
+  });
+  assert.deepEqual(toHostRealm(sandbox3.detectBackground(transparentCorners, 4, 4)), { transparent: true, r: 0, g: 0, b: 0, a: 0 });
+});
+
+test('detectBBox: 배경과 다른 픽셀들을 감싸는 최소 사각형을 찾고, 배경뿐이면 null을 돌려준다', () => {
+  const bg = { transparent: false, r: 255, g: 255, b: 255, a: 255 };
+
+  // 배경만 있는 4x4 이미지: 전경이 없으므로 null.
+  assert.equal(sandbox3.detectBBox(makeRgba4x4(), 4, 4, bg, 5), null);
+
+  // (1,1)~(2,2) 2x2 검은 사각형이 흰 배경 위에 있는 경우.
+  const withBox = makeRgba4x4({
+    1: { 1: [0, 0, 0, 255], 2: [0, 0, 0, 255] },
+    2: { 1: [0, 0, 0, 255], 2: [0, 0, 0, 255] },
+  });
+  assert.deepEqual(toHostRealm(sandbox3.detectBBox(withBox, 4, 4, bg, 5)), { x: 1, y: 1, w: 2, h: 2 });
+
+  // 투명 배경(bg.transparent=true)일 때는 알파값만으로 전경을 판별한다.
+  const transparentBg = { transparent: true, r: 0, g: 0, b: 0, a: 0 };
+  const opaqueDot = new Array(4 * 4 * 4).fill(0);
+  opaqueDot[(0 * 4 + 3) * 4 + 3] = 255; // (3,0) 픽셀만 불투명
+  assert.deepEqual(toHostRealm(sandbox3.detectBBox(opaqueDot, 4, 4, transparentBg, 5)), { x: 3, y: 0, w: 1, h: 1 });
+});
+
+test('isDice: 굴림 결과(다이스 표기 + ＞) 문구만 판별한다', () => {
+  assert.equal(sandbox3.isDice('(1D100)＞50'), true);
+  assert.equal(sandbox3.isDice('(1D100<=50)＞50'), true);
+  assert.equal(sandbox3.isDice('그냥 서술 텍스트'), false);
+  assert.equal(sandbox3.isDice('(1D100)50'), false); // ＞ 없음
+});
+
+test('isJudge: "OO 판정" 계열 문구를 표기 차이와 무관하게 판별하고, 굴림 결과/긴 문장은 제외한다', () => {
+  assert.equal(sandbox3.isJudge('이성 판정'), true);
+  assert.equal(sandbox3.isJudge('이성 판정.'), true);
+  assert.equal(sandbox3.isJudge('이성판정!'), true);
+  assert.equal(sandbox3.isJudge('회피 또는 크툴루신화판정.'), true);
+  assert.equal(sandbox3.isJudge('이성 판정(1D10/1D100)'), true);
+  assert.equal(sandbox3.isJudge('이성 판정 5/10'), true);
+  assert.equal(sandbox3.isJudge('(1D100)＞50'), false); // 판정 문구가 아니라 굴림 결과
+  assert.equal(sandbox3.isJudge('그냥 서술 텍스트'), false);
+  assert.equal(sandbox3.isJudge('아주 긴 서술문 뒤에 우연히 판정이라는 단어가 붙어있는 경우'), false); // 30자 초과
+});
+
+test('isSanity: "N/M" 형태(SAN 체크 증감치)만 판별한다', () => {
+  assert.equal(sandbox3.isSanity('5/10'), true);
+  assert.equal(sandbox3.isSanity('0/1D6'), true);
+  assert.equal(sandbox3.isSanity('5 / 10'), true);
+  assert.equal(sandbox3.isSanity('abc'), false);
+  assert.equal(sandbox3.isSanity('abc/10'), false);
+});
+
+test('outputMime/outputExt: 확장자↔MIME 매핑이 서로를 왕복한다', () => {
+  assert.equal(sandbox3.outputMime({name:'a.jpg'}), 'image/jpeg');
+  assert.equal(sandbox3.outputMime({name:'a.JPEG'}), 'image/jpeg');
+  assert.equal(sandbox3.outputMime({name:'a.webp'}), 'image/webp');
+  assert.equal(sandbox3.outputMime({name:'a.png'}), 'image/png');
+  assert.equal(sandbox3.outputMime({name:'a.bmp'}), 'image/png'); // 알 수 없는 확장자는 PNG로 대체
+  assert.equal(sandbox3.outputExt('image/jpeg'), '.jpg');
+  assert.equal(sandbox3.outputExt('image/webp'), '.webp');
+  assert.equal(sandbox3.outputExt('image/png'), '.png');
+});
+
+test('movAgePenalty: CoC 7판 노화 규칙에 따른 10년 단위 MOV 감소치 경계값', () => {
+  assert.equal(sandbox3.movAgePenalty(0), 0);
+  assert.equal(sandbox3.movAgePenalty(39), 0);
+  assert.equal(sandbox3.movAgePenalty(40), 1);
+  assert.equal(sandbox3.movAgePenalty(49), 1);
+  assert.equal(sandbox3.movAgePenalty(50), 2);
+  assert.equal(sandbox3.movAgePenalty(69), 3);
+  assert.equal(sandbox3.movAgePenalty(70), 4);
+  assert.equal(sandbox3.movAgePenalty(79), 4);
+  assert.equal(sandbox3.movAgePenalty(80), 5);
+  assert.equal(sandbox3.movAgePenalty(120), 5);
+  // 나이를 입력하지 않았거나 falsy한 값이면 감점 없음
+  assert.equal(sandbox3.movAgePenalty(null), 0);
+  assert.equal(sandbox3.movAgePenalty(undefined), 0);
+});
+
+test('deriveStatus: GitHub 이슈 상태·라벨을 건의함 배지 문구로 옮긴다', () => {
+  assert.deepEqual(toHostRealm(sandbox3.deriveStatus({state:'open', labels:[]})), {text:'접수됨', status:'open'});
+  assert.deepEqual(toHostRealm(sandbox3.deriveStatus({state:'open', labels:['진행중']})), {text:'수정중', status:'progress'});
+  assert.deepEqual(toHostRealm(sandbox3.deriveStatus({state:'closed', labels:[]})), {text:'반영됨', status:'done'});
+  assert.deepEqual(toHostRealm(sandbox3.deriveStatus({state:'closed', labels:['보류']})), {text:'반영 안 됨', status:'declined'});
+  // 라벨이 문자열 배열이 아니라 GitHub API의 {name} 객체 배열로도 올 수 있다
+  assert.deepEqual(toHostRealm(sandbox3.deriveStatus({state:'open', labels:[{name:'진행중'}]})), {text:'수정중', status:'progress'});
+  // 진행중이 아닌 라벨은 접수됨으로 취급
+  assert.deepEqual(toHostRealm(sandbox3.deriveStatus({state:'open', labels:['안내']})), {text:'접수됨', status:'open'});
+});
+
+test('parseStatusJson: 순수 JSON과 CSV류 이중따옴표 이스케이프(""→") 둘 다 해석하고, 실패하면 null', () => {
+  assert.deepEqual(toHostRealm(sandbox3.parseStatusJson('{"kind":"character","data":{"name":"설이"}}')), {kind:'character', data:{name:'설이'}});
+  assert.deepEqual(toHostRealm(sandbox3.parseStatusJson('"{""kind"":""character""}"')), {kind:'character'});
+  assert.equal(sandbox3.parseStatusJson(''), null);
+  assert.equal(sandbox3.parseStatusJson('이건 JSON이 아님'), null);
+});
+
+test('isApngBuffer: acTL 청크 마커가 버퍼 맨 끝 4바이트에 걸쳐 있어도 놓치지 않는다', () => {
+  // 'acTL' = 0x61 0x63 0x54 0x4C. 이 4바이트가 버퍼의 마지막 4바이트(경계 케이스)일 때도
+  // 스캔 루프가 검사해야 한다.
+  const tailMarker = new Uint8Array([0x00, 0x00, 0x61, 0x63, 0x54, 0x4C]).buffer;
+  assert.equal(sandbox3.isApngBuffer(tailMarker), true);
+  const noMarker = new Uint8Array([0x00, 0x00, 0x00, 0x00]).buffer;
+  assert.equal(sandbox3.isApngBuffer(noMarker), false);
+});
+
 const sandbox4 = loadFunctionsFromHtml(HTML_PATH, [
   // statTierText는 같은 스코프의 STAT_TIERS를 참조하므로 함께 로드한다.
   { type: 'var', name: 'STAT_TIERS' },
