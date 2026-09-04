@@ -987,7 +987,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 14 ===================== -->
+<!-- ===================== TAB 9 ===================== -->
 <section id="tab-charsheet" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-charsheet">
   <div class="card">
     <h2>CoC 캐릭터 시트 메이커</h2>
@@ -1091,7 +1091,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 9 ===================== -->
+<!-- ===================== TAB 10 ===================== -->
 <section id="tab-standing" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-standing">
   <div class="card">
     <h2>스탠딩 이미지 일괄 재단</h2>
@@ -1202,7 +1202,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 10 ===================== -->
+<!-- ===================== TAB 12 ===================== -->
 <section id="tab-cheatsheet" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-cheatsheet">
   <div class="card">
     <h2>표정 카탈로그 컨닝 페이퍼 메이커</h2>
@@ -1297,7 +1297,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 12 ===================== -->
+<!-- ===================== TAB 13 ===================== -->
 <section id="tab-charfile" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-charfile">
   <div class="card">
     <h2>코코포리아 캐릭터 룸파일 생성기</h2>
@@ -19616,7 +19616,7 @@ function loadImageElement(file){
   });
 }
 
-// 여러 이미지를 한꺼번에 업로드하는 탭(10/12/13번)에서 공용으로 쓰는 헬퍼. Promise.all은 하나만
+// 여러 이미지를 한꺼번에 업로드하는 탭들에서 공용으로 쓰는 헬퍼. Promise.all은 하나만
 // 실패해도 전체가 그대로 reject되어 나머지 정상 파일까지 조용히 무시되므로(콘솔에만 에러가
 // 남고 화면은 아무 반응 없음), 파일별로 성공/실패를 따로 모아서 성공한 것만 쓰고 실패 목록은
 // 호출부가 안내할 수 있게 한다.
@@ -23929,7 +23929,21 @@ var TabLog = (function(){
       lab.style.cssText = 'font-size:10px;color:var(--sub);max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
       box.appendChild(lab);
     }
+    // 클릭만으로 선택하던 파츠/효과 썸네일은 마우스 없이는(Tab으로 포커스는 가능해도
+    // Enter/Space로 고를 수 없어) 사실상 접근 불가능했다. 화자 필터 칩·손잡이(gizmo)와
+    // 동일한 패턴으로 버튼 역할을 명시하고 키보드로도 선택할 수 있게 한다.
+    box.setAttribute('tabindex', '0');
+    box.setAttribute('role', 'button');
+    box.setAttribute('aria-label', (item ? (item.name||label) : label) + (selected ? ' (선택됨)' : ''));
     box.addEventListener('click', onClick);
+    box.addEventListener('keydown', function(e){
+      // e.target !== box: 이름 입력칸이나 삭제(×) 버튼에 포커스가 있는 동안의
+      // Enter/Space까지 여기서 또 선택 처리하면 안 되므로(입력칸은 자체 keydown에서
+      // 이미 stopPropagation하지만, 삭제 버튼은 네이티브 클릭도 같이 발생하므로) box 자신에
+      // 포커스가 있을 때만 반응한다.
+      if(e.target !== box) return;
+      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); onClick(); }
+    });
     if(onRemove){
       var rm = document.createElement('button');
       rm.type='button'; rm.textContent='×'; rm.title='이 파츠 삭제';
@@ -24166,6 +24180,11 @@ var TabLog = (function(){
 
   function buildCatUI(){
     var wrap = $('#parts-cats');
+    // 지우고 다시 그리기 전에 이전 드롭존들을 dropPasteHandlers에서 지워야 한다.
+    // 안 지우면 Map이 떨어져나간(detached) 옛 드롭존 엘리먼트와 그 클로저를 계속
+    // 강하게 붙들고 있어, 이 함수가 호출될 때마다(전체 지우기·Ctrl+Z/X 되돌리기마다)
+    // 메모리가 누적된다.
+    $all('.drop', wrap).forEach(function(oldDrop){ dropPasteHandlers.delete(oldDrop); });
     wrap.innerHTML = '';
     PART_CATEGORIES.forEach(function(cat){
       var box = document.createElement('div');
