@@ -147,6 +147,11 @@ test('uniqueCfLabel: 라벨이 겹치면 _2, _3...을 붙여 구분한다', () =
 });
 
 const sandbox3 = loadFunctionsFromHtml(HTML_PATH, [
+  'clampInt',
+  'computeCrop',
+  'sampleCorner',
+  'detectBackground',
+  'detectBBox',
   'isDice',
   // isJudge는 같은 스코프의 isDice를 호출하므로 함께 로드한다.
   'isJudge',
@@ -158,6 +163,69 @@ const sandbox3 = loadFunctionsFromHtml(HTML_PATH, [
   'parseStatusJson',
   'isApngBuffer',
 ]);
+
+test('computeCrop: 가로가 더 넓은 이미지는 좌우를, 세로가 더 긴 이미지는 상하를 offsetFrac 비율로 잘라낸다', () => {
+  // 가로가 긴 이미지(가로:세로 2:1)를 정사각형(1:1)으로: 세로는 그대로, 가로만 잘라낸다.
+  const wideImg = { width: 200, height: 100 };
+  assert.deepEqual(toHostRealm(sandbox3.computeCrop(wideImg, 1, 1, 0)), { sx: 0, sy: 0, sw: 100, sh: 100 });
+  assert.deepEqual(toHostRealm(sandbox3.computeCrop(wideImg, 1, 1, 1)), { sx: 100, sy: 0, sw: 100, sh: 100 });
+  assert.deepEqual(toHostRealm(sandbox3.computeCrop(wideImg, 1, 1, 0.5)), { sx: 50, sy: 0, sw: 100, sh: 100 });
+
+  // 세로가 긴 이미지(가로:세로 1:2)를 정사각형으로: 가로는 그대로, 세로만 잘라낸다.
+  const tallImg = { width: 100, height: 200 };
+  assert.deepEqual(toHostRealm(sandbox3.computeCrop(tallImg, 1, 1, 0)), { sx: 0, sy: 0, sw: 100, sh: 100 });
+  assert.deepEqual(toHostRealm(sandbox3.computeCrop(tallImg, 1, 1, 1)), { sx: 0, sy: 100, sw: 100, sh: 100 });
+
+  // offsetFrac이 범위를 벗어나도(음수/1 초과) 잘라낼 위치가 이미지 밖으로 나가지 않게 클램프된다.
+  assert.deepEqual(toHostRealm(sandbox3.computeCrop(wideImg, 1, 1, -1)), { sx: 0, sy: 0, sw: 100, sh: 100 });
+  assert.deepEqual(toHostRealm(sandbox3.computeCrop(wideImg, 1, 1, 2)), { sx: 100, sy: 0, sw: 100, sh: 100 });
+});
+
+// 픽셀 (x,y)에 RGBA를 쓰는 4x4 RGBA 버퍼를 만든다. 지정하지 않은 픽셀은 흰 배경(255,255,255,255).
+function makeRgba4x4(pixels) {
+  const w = 4, h = 4;
+  const data = new Array(w * h * 4).fill(0);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const i = (y * w + x) * 4;
+      const [r, g, b, a] = (pixels && pixels[y] && pixels[y][x]) || [255, 255, 255, 255];
+      data[i] = r; data[i + 1] = g; data[i + 2] = b; data[i + 3] = a;
+    }
+  }
+  return data;
+}
+
+test('detectBackground: 모서리 4개 중 절반 이상이 거의 투명하면 투명 배경으로, 아니면 모서리 평균 색으로 판정한다', () => {
+  const whiteData = makeRgba4x4();
+  assert.deepEqual(toHostRealm(sandbox3.detectBackground(whiteData, 4, 4)), { transparent: false, r: 255, g: 255, b: 255, a: 255 });
+
+  // 모서리 4개 중 절반(경계값 2개)이 거의 투명하면, 나머지 모서리가 불투명해도 투명 배경으로 판정한다.
+  const transparentCorners = makeRgba4x4({
+    0: { 0: [10, 20, 30, 0] },
+    3: { 3: [10, 20, 30, 8] },
+  });
+  assert.deepEqual(toHostRealm(sandbox3.detectBackground(transparentCorners, 4, 4)), { transparent: true, r: 0, g: 0, b: 0, a: 0 });
+});
+
+test('detectBBox: 배경과 다른 픽셀들을 감싸는 최소 사각형을 찾고, 배경뿐이면 null을 돌려준다', () => {
+  const bg = { transparent: false, r: 255, g: 255, b: 255, a: 255 };
+
+  // 배경만 있는 4x4 이미지: 전경이 없으므로 null.
+  assert.equal(sandbox3.detectBBox(makeRgba4x4(), 4, 4, bg, 5), null);
+
+  // (1,1)~(2,2) 2x2 검은 사각형이 흰 배경 위에 있는 경우.
+  const withBox = makeRgba4x4({
+    1: { 1: [0, 0, 0, 255], 2: [0, 0, 0, 255] },
+    2: { 1: [0, 0, 0, 255], 2: [0, 0, 0, 255] },
+  });
+  assert.deepEqual(toHostRealm(sandbox3.detectBBox(withBox, 4, 4, bg, 5)), { x: 1, y: 1, w: 2, h: 2 });
+
+  // 투명 배경(bg.transparent=true)일 때는 알파값만으로 전경을 판별한다.
+  const transparentBg = { transparent: true, r: 0, g: 0, b: 0, a: 0 };
+  const opaqueDot = new Array(4 * 4 * 4).fill(0);
+  opaqueDot[(0 * 4 + 3) * 4 + 3] = 255; // (3,0) 픽셀만 불투명
+  assert.deepEqual(toHostRealm(sandbox3.detectBBox(opaqueDot, 4, 4, transparentBg, 5)), { x: 3, y: 0, w: 1, h: 1 });
+});
 
 test('isDice: 굴림 결과(다이스 표기 + ＞) 문구만 판별한다', () => {
   assert.equal(sandbox3.isDice('(1D100)＞50'), true);

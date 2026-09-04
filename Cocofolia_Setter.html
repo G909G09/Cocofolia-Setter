@@ -19992,6 +19992,7 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     var scale = Math.min(1, COCOFOLIA_MAX_DIM/Math.max(vw,vh));
     var w = Math.max(1, Math.round(vw*scale)), h = Math.max(1, Math.round(vh*scale));
     var start = Math.max(0, opts.start||0);
+    if(start >= video.duration) throw new Error('시작 시간('+start+'초)이 동영상 길이('+fmtSec(video.duration*1000)+')보다 깁니다.');
     var dur = (opts.duration!=null && opts.duration>0) ? opts.duration : (video.duration-start);
     dur = Math.max(0.05, Math.min(dur, video.duration-start));
     var fps = clampInt(opts.fps||15, 4, 30);
@@ -23100,15 +23101,14 @@ var TabLog = (function(){
     if(imgRatio > targetRatio){
       sh = img.height; sw = sh*targetRatio; sy = 0;
       var slack = img.width-sw;
-      sx = clampNum(slack*offsetFrac, 0, slack);
+      sx = clampInt(slack*offsetFrac, 0, slack);
     } else {
       sw = img.width; sh = sw/targetRatio; sx = 0;
       var slackY = img.height-sh;
-      sy = clampNum(slackY*offsetFrac, 0, slackY);
+      sy = clampInt(slackY*offsetFrac, 0, slackY);
     }
     return {sx:sx, sy:sy, sw:sw, sh:sh};
   }
-  function clampNum(v,min,max){ return v<min?min:(v>max?max:v); }
 
   function renderItem(it){
     // 비율(가로:세로)·출력 폭 칸은 HTML에 min/max(비율 1-100, 출력 폭 16-8000px)가 있지만
@@ -23116,8 +23116,8 @@ var TabLog = (function(){
     // 범위 안이어도 서로 극단적으로 벌어지면(예: 1:100) outW를 기준으로 계산한 outH가
     // 여전히 범위를 크게 벗어날 수 있으므로, 계산된 outH도 별도로 다시 클램프해 실제
     // 캔버스 크기(및 ZIP에 담기는 각 이미지 크기)가 항상 안전한 범위 안에 있도록 한다.
-    var rw = clampNum(parseFloat($('#st-ratio-w').value)||1, 1, 100);
-    var rh = clampNum(parseFloat($('#st-ratio-h').value)||1, 1, 100);
+    var rw = clampInt(parseFloat($('#st-ratio-w').value)||1, 1, 100);
+    var rh = clampInt(parseFloat($('#st-ratio-h').value)||1, 1, 100);
     var outW = clampInt(parseInt($('#st-outwidth').value,10)||480, 16, 8000);
     var outH = clampInt(Math.round(outW * rh/rw), 16, 8000);
     var mode = $('#st-mode').value;
@@ -23134,7 +23134,7 @@ var TabLog = (function(){
       var dw = it.img.width*scale, dh = it.img.height*scale;
       var dx = (outW-dw)/2;
       var slackY = outH-dh;
-      var dy = clampNum(slackY*offsetFrac, 0, slackY);
+      var dy = clampInt(slackY*offsetFrac, 0, slackY);
       ctx.drawImage(it.img, 0,0,it.img.width,it.img.height, dx,dy,dw,dh);
     } else {
       var c = computeCrop(it.img, outW, outH, offsetFrac);
@@ -25114,7 +25114,7 @@ var TabLog = (function(){
     var nat = cropImgNaturalWH();
     var maxSidePx = Math.min((1-cropRect.x)*nat.w, (1-cropRect.y)*nat.h);
     var minSidePx = 0.03*Math.min(nat.w, nat.h);
-    var sidePx = clamp01(cropRect.w*nat.w, minSidePx, maxSidePx);
+    var sidePx = clampInt(cropRect.w*nat.w, minSidePx, maxSidePx);
     cropRect.w = sidePx/nat.w;
     cropRect.h = sidePx/nat.h;
   }
@@ -25131,11 +25131,11 @@ var TabLog = (function(){
     if(!w || !h) return;
     var dx = (x-dragStart.x)/w, dy = (y-dragStart.y)/h;
     if(dragMode==='move'){
-      cropRect.x = clamp01(rectStart.x+dx, 0, 1-cropRect.w);
-      cropRect.y = clamp01(rectStart.y+dy, 0, 1-cropRect.h);
+      cropRect.x = clampInt(rectStart.x+dx, 0, 1-cropRect.w);
+      cropRect.y = clampInt(rectStart.y+dy, 0, 1-cropRect.h);
     } else {
       // 정사각형 유지를 위해 가로 드래그(dx)만 크기 기준으로 쓰고, 세로 크기는 이미지 비율로 계산한다
-      cropRect.w = clamp01(rectStart.w+dx, 0.03, 1-cropRect.x);
+      cropRect.w = clampInt(rectStart.w+dx, 0.03, 1-cropRect.x);
       squareifyCropRect();
     }
     syncCropBoxDom();
@@ -25164,15 +25164,14 @@ var TabLog = (function(){
     if(!dir) return;
     e.preventDefault();
     if(e.shiftKey){
-      cropRect.w = clamp01(cropRect.w+dir[0]*STEP, 0.03, 1-cropRect.x);
+      cropRect.w = clampInt(cropRect.w+dir[0]*STEP, 0.03, 1-cropRect.x);
       squareifyCropRect();
     } else {
-      cropRect.x = clamp01(cropRect.x+dir[0]*STEP, 0, 1-cropRect.w);
-      cropRect.y = clamp01(cropRect.y+dir[1]*STEP, 0, 1-cropRect.h);
+      cropRect.x = clampInt(cropRect.x+dir[0]*STEP, 0, 1-cropRect.w);
+      cropRect.y = clampInt(cropRect.y+dir[1]*STEP, 0, 1-cropRect.h);
     }
     syncCropBoxDom();
   });
-  function clamp01(v,min,max){ return v<min?min:(v>max?max:v); }
 
   // 위쪽 크롭 박스 미리보기는 items[0](첫 번째 카드) 기준으로 그려진다. 카드를 드래그해 순서를
   // 바꾸거나 맨 앞 이미지를 "삭제"로 지우면 items[0]이 다른 이미지로 바뀔 수 있는데, 예전에는
