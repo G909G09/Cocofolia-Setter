@@ -18543,8 +18543,9 @@ function yieldToBrowser(){ return new Promise(function(res){ setTimeout(res, 0);
 // 파일명에 경로 구분자(/,\)가 섞여 있으면 일부 브라우저(예: Chrome)가 다운로드 폴더 안에
 // 그 이름으로 하위 폴더를 만들어버려 결과물을 찾기 어려워진다. 사용자가 직접 입력하는
 // 파일명 칸(mp3/g2a/fx 등)은 검증 없이 그대로 넘어오므로, 여기서 한 번에 걸러낸다.
-function sanitizeFilename(name){
-  return String(name||'').replace(/[\\/:*?"<>|]/g, '_').trim() || 'download';
+function sanitizeFilename(name, fallback){
+  var safe = String(name||'').replace(/[\\/:*?"<>|]/g, '_').trim();
+  return safe || (fallback !== undefined ? fallback : 'download');
 }
 
 // 다운로드 파일명 칸(mp3/g2a/fx 등)은 자유 텍스트라 사용자가 확장자를 지우거나 다른 것으로
@@ -25412,7 +25413,7 @@ var TabLog = (function(){
 
   function csResultFilename(){
     var nameVal = $('#cs-name').value.trim();
-    var safeName = nameVal.replace(/[\\/:*?"<>|]/g, '_');
+    var safeName = sanitizeFilename(nameVal, '');
     return (safeName ? safeName+'_' : '')+'expression_cheatsheet.png';
   }
   $('#cs-download').addEventListener('click', function(){
@@ -25783,7 +25784,7 @@ var TabLog = (function(){
     zip.file('.token', '0.'+tokenHex);
 
     var blob = await zip.generateAsync({type:'blob'});
-    var safeName = name.replace(/[\\/:*?"<>|]/g, '_') || 'character';
+    var safeName = sanitizeFilename(name, 'character');
     return {blob: blob, filename: safeName+'_room.zip', name: name, faces: faces};
   }
   // "스테이터스 JSON 불러오기" 버튼을 안 눌렀어도 textarea 내용이 반영되도록 생성 시점에
