@@ -363,3 +363,27 @@ test('컨닝 페이퍼 메이커 세로쓰기: computeVerticalNameSize는 글자
   assert.equal(sandbox5.computeVerticalNameSize('가', 13), 14); // 최소 크기(VNAME_MIN_PX) 밑으로는 내려가지 않는다(공간이 부족해도)
   assert.equal(sandbox5.computeVerticalNameSize('가나다', 90), 27); // 글자 수가 늘면 같은 높이에서 더 작은 크기로 맞춘다
 });
+
+const sandbox6 = loadFunctionsFromHtml(HTML_PATH, [
+  'fmtSize',
+  { type: 'var', name: 'PART_TRIM_AREA_RATIO' },
+  'shouldAutoTrim',
+]);
+
+test('fmtSize: 바이트 수를 B/KB/MB 단위 경계값에서 올바르게 전환한다', () => {
+  assert.equal(sandbox6.fmtSize(0), '0 B');
+  assert.equal(sandbox6.fmtSize(1023), '1023 B');
+  assert.equal(sandbox6.fmtSize(1024), '1.0 KB');
+  assert.equal(sandbox6.fmtSize(1536), '1.5 KB');
+  assert.equal(sandbox6.fmtSize(1024 * 1024 - 1), '1024.0 KB');
+  assert.equal(sandbox6.fmtSize(1024 * 1024), '1.0 MB');
+});
+
+test('shouldAutoTrim: bbox가 없으면 재단하지 않고, 그림 영역이 캔버스의 절반 미만이면 자동 재단한다', () => {
+  assert.equal(sandbox6.shouldAutoTrim(null), false);
+  // 정확히 절반이면 재단하지 않는다(< 비교이므로 경계값은 포함되지 않음).
+  assert.equal(sandbox6.shouldAutoTrim({ w: 50, h: 100, canvasW: 100, canvasH: 100 }), false);
+  // 절반보다 조금이라도 작으면 재단한다.
+  assert.equal(sandbox6.shouldAutoTrim({ w: 49, h: 100, canvasW: 100, canvasH: 100 }), true);
+  assert.equal(sandbox6.shouldAutoTrim({ w: 100, h: 100, canvasW: 100, canvasH: 100 }), false);
+});
