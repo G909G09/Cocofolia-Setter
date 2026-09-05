@@ -18523,6 +18523,10 @@ function escHtml(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'
 // 사용자가 입력한 문자열을 정규식 리터럴 안에 그대로 끼워 넣어야 할 때(용어 변환기 등)
 // 정규식 특수문자를 이스케이프해준다. 탭별로 각자 만들어 쓰던 것을 공통 유틸로 모았다.
 function escapeRegExp(s){ return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+// 배열에서 처음으로 두 번 이상 등장하는 값(첫 등장이 아닌 자리에서 발견된 값)을 찾는다.
+// falsy 값은 무시한다. 용어 사전/캐릭터 카드 라벨 등 여러 탭에서 "중복 값 감지"용으로
+// 각자 만들어 쓰던 로직을 공통 유틸로 모았다.
+function findDuplicateValue(arr){ return arr.find(function(v, i){ return v && arr.indexOf(v) !== i; }); }
 
 // CSS 색상 문자열 유효성 검사: <option>.style.color에 대입해보고 파싱 성공 여부를 확인한다
 // (Canvas2D의 ctx.fillStyle이나 style.color에 잘못된 값을 대입해도 예외 없이 조용히 무시되기
@@ -22130,7 +22134,7 @@ var TabLog = (function(){
   // 감지해 #gl-dict-warn에 알려준다.
   function checkDictDup(){
     var jps = dict.map(function(d){ return d.jp; });
-    var dup = jps.find(function(v, i){ return v && jps.indexOf(v) !== i; });
+    var dup = findDuplicateValue(jps);
     $('#gl-dict-warn').textContent = dup ? '원어가 중복되었습니다 ('+dup+') — 변환 시 먼저 등록된 항목만 적용되고 나머지는 무시되니, 서로 다르게 고쳐주세요.' : '';
   }
 
@@ -25591,7 +25595,7 @@ var TabLog = (function(){
   // 라벨 입력칸이 바뀔 때마다 중복 여부를 확인해 있으면 알려준다.
   function checkCfLabelDup(){
     var labels = cfItems.map(function(x){ return x.label; });
-    var dup = labels.find(function(l, i){ return l && labels.indexOf(l) !== i; });
+    var dup = findDuplicateValue(labels);
     if(dup) $('#cf-info').textContent = '라벨이 중복되었습니다 ('+dup+') — 코코포리아는 같은 라벨의 표정 중 하나만 인식하므로, 서로 다르게 고쳐주세요.';
   }
 
