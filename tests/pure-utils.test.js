@@ -474,3 +474,53 @@ test('clampFieldIfOutOfRange: 범위를 벗어난 값만 칸을 되돌리고, �
   sandbox8.clampFieldIfOutOfRange(customRange, 0, 20); // "나이" 칸처럼 0-99가 아닌 범위도 매개변수로 넘길 수 있다
   assert.equal(customRange.value, 20);
 });
+
+// computeTitleBar는 이름/캐치프레이즈 글자 크기를 fitFontSize/measureMixedText로 줄여가며
+// 타이틀 바 높이까지 계산하는 순수 함수라, fakeMeasureCtx로 실제 canvas 없이 검증할 수 있다.
+const sandbox9 = loadFunctionsFromHtml(
+  HTML_PATH,
+  [
+    { type: 'var', name: 'FONT_KR' },
+    { type: 'var', name: 'FONT_JP' },
+    'isJPChar',
+    'splitRuns',
+    'fontStr',
+    'measureMixedText',
+    'fitFontSize',
+    { type: 'var', name: 'TITLE_BASE_PX' },
+    { type: 'var', name: 'SUBTITLE_BASE_PX' },
+    'computeTitleBar',
+  ],
+  {
+    document: { documentElement: {} },
+    getComputedStyle: () => ({
+      getPropertyValue: (prop) => (prop === '--sans-jp' ? 'JPFont' : 'KRFont'),
+    }),
+  }
+);
+
+test('computeTitleBar: 이름·캐치프레이즈가 둘 다 없으면 높이 0을 돌려준다', () => {
+  assert.deepEqual(toHostRealm(sandbox9.computeTitleBar(fakeMeasureCtx(), '', '', 200, 'left', null, null)), { h: 0, namePx: 0, catchPx: 0 });
+});
+
+test('computeTitleBar: nameAlign이 vertical이면 이름은 타이틀 바에서 빠지고 캐치프레이즈만 남는다', () => {
+  const withName = sandbox9.computeTitleBar(fakeMeasureCtx(), '홍길동', '부제', 200, 'vertical', null, null);
+  assert.equal(withName.namePx, 0); // 이름은 대표 이미지 옆(세로쓰기)으로 빠져 타이틀 바 크기 계산에서 제외된다
+  assert.ok(withName.catchPx > 0);
+  assert.ok(withName.h > 0);
+});
+
+test('computeTitleBar: 폭이 좁으면 이름 크기를 최솟값(TITLE_MIN_PX=18)까지 줄인다', () => {
+  // fakeMeasureCtx 기준 폭=px*len이므로, 아주 긴 이름은 기본 40px로 못 들어가 18px까지 줄어든다.
+  const r = sandbox9.computeTitleBar(fakeMeasureCtx(), '아주아주아주아주긴이름입니다', '', 60, 'left', null, null);
+  assert.equal(r.namePx, 18);
+});
+
+test('computeTitleBar: 높이는 패딩(TITLE_PAD_Y*2=32) + 이름/캐치프레이즈 크기(+간격)의 합이다', () => {
+  const r = sandbox9.computeTitleBar(fakeMeasureCtx(), '이름', '', 500, 'left', null, null);
+  assert.equal(r.h, 32 + r.namePx); // 캐치프레이즈가 없으면 SUBTITLE_GAP도 더해지지 않는다
+  assert.equal(r.namePx, 40); // 충분히 넓으면 기본 크기(TITLE_BASE_PX=40) 그대로 쓴다
+
+  const r2 = sandbox9.computeTitleBar(fakeMeasureCtx(), '이름', '캐치프레이즈', 500, 'left', null, null);
+  assert.equal(r2.h, 32 + r2.namePx + r2.catchPx + 6); // SUBTITLE_GAP=6
+});
