@@ -22125,7 +22125,7 @@ var TabLog = (function(){
 
   // 행 추가나 JSON 불러오기로 같은 원어(jp)가 두 번 이상 등록되면, 변환 시 첫 항목만
   // 살아남고(#gl-run의 jpToKr는 첫 등록만 채택) 나머지는 아무 경고 없이 조용히 무시된다.
-  // 캐릭터 룸파일 생성기(탭 12)의 checkCfLabelDup()과 같은 방식으로, 원어 중복을
+  // 캐릭터 룸파일 생성기(탭 13)의 checkCfLabelDup()과 같은 방식으로, 원어 중복을
   // 감지해 #gl-dict-warn에 알려준다.
   function checkDictDup(){
     var jps = dict.map(function(d){ return d.jp; });
@@ -25595,10 +25595,16 @@ var TabLog = (function(){
   // 직접 고쳐 두 항목의 라벨이 같아지는 경우는 검사하지 않았다. 코코포리아 룸파일은 라벨로
   // 표정을 구분하므로, 라벨이 겹치면 한쪽 표정 이미지가 룸파일에서 조용히 사라진다(경고 없음).
   // 라벨 입력칸이 바뀔 때마다 중복 여부를 확인해 있으면 알려준다.
+  function cfLabelDupMessage(itemCount, dup){
+    return dup
+      ? '라벨이 중복되었습니다 ('+dup+') — 코코포리아는 같은 라벨의 표정 중 하나만 인식하므로, 서로 다르게 고쳐주세요.'
+      : itemCount+'장 로드됨. 라벨을 확인하고, 메인 아이콘으로 쓸 이미지를 골라주세요.';
+  }
+
   function checkCfLabelDup(){
     var labels = cfItems.map(function(x){ return x.label; });
     var dup = findDuplicateValue(labels);
-    if(dup) $('#cf-info').textContent = '라벨이 중복되었습니다 ('+dup+') — 코코포리아는 같은 라벨의 표정 중 하나만 인식하므로, 서로 다르게 고쳐주세요.';
+    $('#cf-info').textContent = cfLabelDupMessage(cfItems.length, dup);
   }
 
   function uniqueCfLabel(label, usedLabels){
