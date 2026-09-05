@@ -621,3 +621,10 @@ test('showWarningBanner: 일정 시간 뒤 배너를 스스로 제거한다', ()
   scheduled();
   assert.equal(created[0].removed, true);
 });
+
+test('cfLabelDupMessage: 중복이 없으면 로드 개수 안내로 되돌아가고, 중복이 있으면 경고 문구를 보여준다', () => {
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, ['cfLabelDupMessage']);
+  // 라벨을 고쳐서 중복이 해소된 뒤에도 이전 "라벨이 중복되었습니다" 경고가 남아있으면 안 된다.
+  assert.equal(sandbox.cfLabelDupMessage(3, undefined), '3장 로드됨. 라벨을 확인하고, 메인 아이콘으로 쓸 이미지를 골라주세요.');
+  assert.equal(sandbox.cfLabelDupMessage(2, '@웃음'), '라벨이 중복되었습니다 (@웃음) — 코코포리아는 같은 라벨의 표정 중 하나만 인식하므로, 서로 다르게 고쳐주세요.');
+});
