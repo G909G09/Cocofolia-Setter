@@ -342,3 +342,24 @@ test('statTierText: 특성치 구간 경계값마다 올바른 설명 문구로 
   assert.equal(sandbox4.statTierText('APP', 59), '평균적인 외모');
   assert.equal(sandbox4.statTierText('EDU', 90), '해당 분야 최고 권위자급');
 });
+
+const sandbox5 = loadFunctionsFromHtml(HTML_PATH, [
+  'extOf',
+  { type: 'var', name: 'VNAME_BASE_PX' }, // computeVerticalNameSize가 참조하는 VNAME_BASE_PX/VNAME_MIN_PX/VNAME_CHAR_GAP을 한 문장으로 함께 선언한다
+  'computeVerticalNameSize',
+]);
+
+test('extOf: 파일명 확장자를 우선하고, 없으면 MIME으로 추측하며, 둘 다 모르면 .bin으로 대체한다', () => {
+  assert.equal(sandbox5.extOf('cutin.PNG', 'image/png'), '.png'); // 파일명 확장자가 있으면 소문자로 바꿔 그대로 쓴다
+  assert.equal(sandbox5.extOf('노확장자', 'image/gif'), '.gif'); // 확장자가 없으면 MIME으로 추측
+  assert.equal(sandbox5.extOf('노확장자', 'image/jpeg'), '.jpeg');
+  assert.equal(sandbox5.extOf('노확장자', 'image/webp'), '.webp');
+  assert.equal(sandbox5.extOf('노확장자', 'application/octet-stream'), '.bin'); // 둘 다 모르면 중립 확장자
+});
+
+test('컨닝 페이퍼 메이커 세로쓰기: computeVerticalNameSize는 글자 수·최대 높이에 맞춰 폰트 크기를 줄이되 최솟값 밑으로는 내려가지 않는다', () => {
+  assert.equal(sandbox5.computeVerticalNameSize('가', 1000), 28); // 공간이 충분하면 기본 크기(VNAME_BASE_PX) 그대로
+  assert.equal(sandbox5.computeVerticalNameSize('가', 27), 27); // 한 글자씩만 넘겨도 딱 그만큼 줄어든다
+  assert.equal(sandbox5.computeVerticalNameSize('가', 13), 14); // 최소 크기(VNAME_MIN_PX) 밑으로는 내려가지 않는다(공간이 부족해도)
+  assert.equal(sandbox5.computeVerticalNameSize('가나다', 90), 27); // 글자 수가 늘면 같은 높이에서 더 작은 크기로 맞춘다
+});
