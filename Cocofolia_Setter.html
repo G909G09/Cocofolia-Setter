@@ -18901,6 +18901,39 @@ function canvasToBlobOrNull(canvas, cb){
   canvas.toBlob(function(blob){ cb(blob); });
 }
 
+// 재단된 이미지를 다운로드→재업로드하지 않고 바로 다른 탭으로 넘기는 통로(10번 스탠딩
+// 일괄 재단·14번 이미지 여백 자동 재단 두 탭에서 동일한 구현을 그대로 썼던 것을 하나로
+// 합쳤다). window.__ccSend는 각 탭이 자기 업로드 처리 함수를 등록해두는 전역 브릿지.
+function itemsToFiles(items){
+  // 다운로드용 파일명(_cut 접미사)과 달리, 다른 탭으로 넘길 때는 라벨 자동 생성에 그대로
+  // 쓰이므로 접미사 없이 원래 이름을 유지한다.
+  // canvasToBlobOrNull() 사용 이유는 buildStandingZip()/buildTrimZip()과 동일 — 한 장이
+  // 실패해도 Promise.all()이 멈추지 않게 한다.
+  var failed = [];
+  return Promise.all(items.map(function(it){
+    return new Promise(function(res){
+      canvasToBlobOrNull(it.canvas, function(blob){
+        if(!blob) failed.push(it.file.name);
+        res(blob ? new File([blob], baseName(it.file.name)+'.png', {type:'image/png'}) : null);
+      });
+    });
+  })).then(function(files){
+    if(failed.length) alert('다음 이미지는 변환에 실패해 전달되지 않았습니다: '+failed.join(', '));
+    return files.filter(Boolean);
+  });
+}
+function sendItemsTo(items, loaderKey, targetTabId, btnId){
+  if(items.length===0) return;
+  var btn = $('#'+btnId);
+  btn.disabled = true;
+  itemsToFiles(items).then(function(files){
+    if(window.__ccSend && window.__ccSend[loaderKey]) window.__ccSend[loaderKey](files);
+    var tabBtn = document.querySelector('.tab-btn[data-target="'+targetTabId+'"]');
+    if(tabBtn) tabBtn.click();
+    btn.disabled = items.length===0;
+  });
+}
+
 // 오프라인용 파일 다운로드: fetch로 원본 소스를 그대로 받아오는 게 가장 정확하지만,
 // 이 파일을 서버 없이 file://로 직접 열어둔 상태라면 브라우저가 fetch(자기 자신)를 막는다.
 // 그럴 땐 현재 DOM을 직렬화해 대체 소스로 쓴다(상호작용으로 바뀐 값은 반영되지 않지만
@@ -23268,39 +23301,8 @@ var TabLog = (function(){
   });
   stZipSaveBtn.disabled = true; // st-zip과 마찬가지로 이미지가 없으면 저장할 결과물도 없다
 
-  // 재단된 이미지를 다운로드→재업로드하지 않고 바로 12번/13번 탭으로 넘기는 통로.
-  // window.__ccSend는 각 탭이 자기 업로드 처리 함수를 등록해두는 전역 브릿지.
-  function itemsToFiles(){
-    // 다운로드용 파일명(_cut 접미사)과 달리, 다른 탭으로 넘길 때는 라벨 자동 생성에 그대로
-    // 쓰이므로 접미사 없이 원래 이름을 유지한다.
-    // canvasToBlobOrNull() 사용 이유는 buildStandingZip()과 동일 — 한 장이 실패해도
-    // Promise.all()이 멈추지 않게 한다.
-    var failed = [];
-    return Promise.all(items.map(function(it){
-      return new Promise(function(res){
-        canvasToBlobOrNull(it.canvas, function(blob){
-          if(!blob) failed.push(it.file.name);
-          res(blob ? new File([blob], baseName(it.file.name)+'.png', {type:'image/png'}) : null);
-        });
-      });
-    })).then(function(files){
-      if(failed.length) alert('다음 이미지는 변환에 실패해 전달되지 않았습니다: '+failed.join(', '));
-      return files.filter(Boolean);
-    });
-  }
-  function sendTo(loaderKey, targetTabId, btnId){
-    if(items.length===0) return;
-    var btn = $('#'+btnId);
-    btn.disabled = true;
-    itemsToFiles().then(function(files){
-      if(window.__ccSend && window.__ccSend[loaderKey]) window.__ccSend[loaderKey](files);
-      var tabBtn = document.querySelector('.tab-btn[data-target="'+targetTabId+'"]');
-      if(tabBtn) tabBtn.click();
-      btn.disabled = items.length===0;
-    });
-  }
-  $('#st-send-cs').addEventListener('click', function(){ sendTo('toCheatsheet', 'tab-cheatsheet', 'st-send-cs'); });
-  $('#st-send-cf').addEventListener('click', function(){ sendTo('toCharfile', 'tab-charfile', 'st-send-cf'); });
+  $('#st-send-cs').addEventListener('click', function(){ sendItemsTo(items, 'toCheatsheet', 'tab-cheatsheet', 'st-send-cs'); });
+  $('#st-send-cf').addEventListener('click', function(){ sendItemsTo(items, 'toCharfile', 'tab-charfile', 'st-send-cf'); });
 
   // 업로드했던 이미지 파일들(과 순서·세로 위치 미세조정 값)·목표 비율·처리 방식·앵커·여백
   // 색상·출력 폭을 저장해뒀다가, 되돌릴 때 같은 업로드 경로(loadImagesTolerant)로 다시
@@ -24696,37 +24698,9 @@ var TabLog = (function(){
   });
   trimZipSaveBtn.disabled = true;
 
-  // 잘라낸 이미지를 다운로드→재업로드하지 않고 바로 10/12/13번 탭으로 넘기는 통로.
-  // canvasToBlobOrNull() 사용 이유는 위 buildTrimZip()과 동일 — 한 장이 실패해도
-  // Promise.all()이 멈추지 않게 한다.
-  function itemsToFiles(){
-    var failed = [];
-    return Promise.all(items.map(function(it){
-      return new Promise(function(res){
-        canvasToBlobOrNull(it.canvas, function(blob){
-          if(!blob) failed.push(it.file.name);
-          res(blob ? new File([blob], baseName(it.file.name)+'.png', {type:'image/png'}) : null);
-        });
-      });
-    })).then(function(files){
-      if(failed.length) alert('다음 이미지는 변환에 실패해 전달되지 않았습니다: '+failed.join(', '));
-      return files.filter(Boolean);
-    });
-  }
-  function sendTo(loaderKey, targetTabId, btnId){
-    if(items.length===0) return;
-    var btn = $('#'+btnId);
-    btn.disabled = true;
-    itemsToFiles().then(function(files){
-      if(window.__ccSend && window.__ccSend[loaderKey]) window.__ccSend[loaderKey](files);
-      var tabBtn = document.querySelector('.tab-btn[data-target="'+targetTabId+'"]');
-      if(tabBtn) tabBtn.click();
-      btn.disabled = items.length===0;
-    });
-  }
-  $('#trim-send-st').addEventListener('click', function(){ sendTo('toStanding', 'tab-standing', 'trim-send-st'); });
-  $('#trim-send-cs').addEventListener('click', function(){ sendTo('toCheatsheet', 'tab-cheatsheet', 'trim-send-cs'); });
-  $('#trim-send-cf').addEventListener('click', function(){ sendTo('toCharfile', 'tab-charfile', 'trim-send-cf'); });
+  $('#trim-send-st').addEventListener('click', function(){ sendItemsTo(items, 'toStanding', 'tab-standing', 'trim-send-st'); });
+  $('#trim-send-cs').addEventListener('click', function(){ sendItemsTo(items, 'toCheatsheet', 'tab-cheatsheet', 'trim-send-cs'); });
+  $('#trim-send-cf').addEventListener('click', function(){ sendItemsTo(items, 'toCharfile', 'tab-charfile', 'trim-send-cf'); });
 
   // 업로드했던 이미지 파일들·허용 오차·여백 여유를 저장해뒀다가, 되돌릴 때 같은 업로드
   // 경로(loadImagesTolerant)로 다시 불러온 뒤 renderAll()로 재단 결과까지 재현한다.
