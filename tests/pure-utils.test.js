@@ -387,3 +387,90 @@ test('shouldAutoTrim: bbox가 없으면 재단하지 않고, 그림 영역이 �
   assert.equal(sandbox6.shouldAutoTrim({ w: 49, h: 100, canvasW: 100, canvasH: 100 }), true);
   assert.equal(sandbox6.shouldAutoTrim({ w: 100, h: 100, canvasW: 100, canvasH: 100 }), false);
 });
+
+// fontStr/measureMixedText/fitFontSize는 캔버스 텍스트를 실제로 그리기 전에 폰트 문자열을
+// 만들고 너비를 재는 순수 로직이지만, 진짜 canvas 2D context 대신 폰트 문자열에서 px 값을
+// 그대로 읽어 너비로 돌려주는 가짜 ctx로도 동작을 검증할 수 있다(실제 CSS 변수 대신
+// getComputedStyle을 스텁해 한/일 폰트를 구분되는 이름으로 고정).
+function fakeMeasureCtx() {
+  return {
+    font: '',
+    measureText(text) {
+      const m = /^(?:\S+\s+)?(\d+(?:\.\d+)?)px/.exec(this.font);
+      const px = m ? parseFloat(m[1]) : 16;
+      return { width: px * text.length };
+    },
+  };
+}
+
+const sandbox7 = loadFunctionsFromHtml(
+  HTML_PATH,
+  [
+    { type: 'var', name: 'FONT_KR' },
+    { type: 'var', name: 'FONT_JP' },
+    'isJPChar',
+    'splitRuns',
+    'fontStr',
+    'measureMixedText',
+    'fitFontSize',
+  ],
+  {
+    document: { documentElement: {} },
+    getComputedStyle: () => ({
+      getPropertyValue: (prop) => (prop === '--sans-jp' ? 'JPFont' : 'KRFont'),
+    }),
+  }
+);
+
+test('fontStr: weight·일본어 여부·customFont에 따라 canvas font 문자열을 올바르게 만든다', () => {
+  assert.equal(sandbox7.fontStr(20, '600', false), '600 20px KRFont');
+  assert.equal(sandbox7.fontStr(20, null, false), '20px KRFont'); // weight가 없으면 그 부분을 생략
+  assert.equal(sandbox7.fontStr(20, '600', true), '600 20px JPFont'); // 일본어 런은 customFont 지정 여부와 무관하게 항상 FONT_JP
+  assert.equal(sandbox7.fontStr(20, '600', false, 'CustomKR'), '600 20px CustomKR'); // 한국어 런에만 customFont가 적용된다
+  assert.equal(sandbox7.fontStr(20, '600', true, 'CustomKR'), '600 20px JPFont');
+});
+
+test('measureMixedText: 한/일 혼용 텍스트를 런별로 나눠 각 런의 폭을 합산한다', () => {
+  const ctx = fakeMeasureCtx();
+  // "abc"(비일본어, 3자) + "ひらがな"(일본어, 4자) 두 런으로 나뉘어 각각 px*len만큼 더해진다.
+  assert.equal(sandbox7.measureMixedText(ctx, 'abcひらがな', 10), 10 * 3 + 10 * 4);
+  assert.equal(sandbox7.measureMixedText(ctx, '', 10), 0);
+});
+
+test('fitFontSize: 너비가 넘칠 때만 최솟값까지 1px씩 줄이고, 이미 들어가면 basePx를 그대로 쓴다', () => {
+  const ctx = fakeMeasureCtx();
+  // fakeMeasureCtx 기준 "abcde"(5자)의 폭은 px*5이므로, maxWidth=40이면 px<=8일 때 들어간다.
+  assert.equal(sandbox7.fitFontSize(ctx, 'abcde', 40, 20, null, 5), 8);
+  // 처음부터 들어가면 줄일 필요가 없다.
+  assert.equal(sandbox7.fitFontSize(ctx, 'abcde', 100, 20, null, 5), 20);
+  // 최솟값까지 줄여도 안 들어가면 minPx에서 멈춘다.
+  assert.equal(sandbox7.fitFontSize(ctx, 'abcde', 1, 20, null, 5), 5);
+});
+
+const sandbox8 = loadFunctionsFromHtml(HTML_PATH, ['clampFieldIfOutOfRange', 'clampInt']);
+
+test('clampFieldIfOutOfRange: 범위를 벗어난 값만 칸을 되돌리고, 빈 값·입력 중인 값은 그대로 둔다', () => {
+  const overMax = { type: 'text', value: '150' };
+  sandbox8.clampFieldIfOutOfRange(overMax, 0, 99);
+  assert.equal(overMax.value, 99); // 기본 범위(0-99)를 넘으면 클램프된 값으로 되돌린다
+
+  const underMin = { type: 'number', value: '-5' };
+  sandbox8.clampFieldIfOutOfRange(underMin);
+  assert.equal(underMin.value, 0);
+
+  const inRange = { type: 'text', value: '42' };
+  sandbox8.clampFieldIfOutOfRange(inRange);
+  assert.equal(inRange.value, '42'); // 범위 안이면 손대지 않는다(문자열 그대로 유지)
+
+  const empty = { type: 'text', value: '' };
+  sandbox8.clampFieldIfOutOfRange(empty);
+  assert.equal(empty.value, ''); // 빈 칸은 건드리지 않는다(입력 중일 수 있음)
+
+  const nonDigits = { type: 'text', value: '1a2b' };
+  sandbox8.clampFieldIfOutOfRange(nonDigits, 0, 30);
+  assert.equal(nonDigits.value, '12'); // 숫자가 아닌 문자는 지우고, 남은 값이 범위 안이면 그걸로 끝
+
+  const customRange = { type: 'text', value: '25' };
+  sandbox8.clampFieldIfOutOfRange(customRange, 0, 20); // "나이" 칸처럼 0-99가 아닌 범위도 매개변수로 넘길 수 있다
+  assert.equal(customRange.value, 20);
+});
