@@ -18586,6 +18586,22 @@ function uniqueZipName(usedNames, name){
    사용자는 "왜 다음에 열었을 때 안 남아있지"만 겪고 원인을 알 방법이 없었다. 매번 알림을
    띄우면 시끄러우니 세션당 한 번만, 눈에 띄는 배너로 안내한다(다운로드 자체는 이 문제와
    무관하게 항상 정상 동작한다는 점도 함께 알려준다). */
+// 세션당 한 번, 화면 하단에 눈에 띄는 배너를 잠깐 띄운다(다른 기능은 막지 않음).
+// safeLocalStorageSet()의 저장 실패 안내와 warnHistorySaveFailed()가 공용으로 쓴다.
+function showWarningBanner(text){
+  try{
+    var box = document.createElement('div');
+    box.setAttribute('role', 'alert');
+    box.setAttribute('aria-live', 'assertive');
+    box.textContent = text;
+    box.style.cssText = 'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:99999;'
+      + 'max-width:min(92vw,540px);padding:10px 16px;border-radius:10px;'
+      + 'background:#3a2323;color:#ffd7d7;border:1px solid #a33;'
+      + 'box-shadow:0 4px 16px rgba(0,0,0,.35);font-size:13px;line-height:1.5;text-align:center;';
+    document.body.appendChild(box);
+    setTimeout(function(){ box.remove(); }, 8000);
+  }catch(e2){}
+}
 var storageWarningShown = false;
 function safeLocalStorageSet(key, value){
   try{
@@ -18594,18 +18610,7 @@ function safeLocalStorageSet(key, value){
   }catch(e){
     if(!storageWarningShown){
       storageWarningShown = true;
-      try{
-        var box = document.createElement('div');
-        box.setAttribute('role', 'alert');
-        box.setAttribute('aria-live', 'assertive');
-        box.textContent = '이 브라우저에서는 설정/사전 값을 저장할 수 없어 다음에 열 때 유지되지 않습니다 (사파리 프라이빗 모드 등에서 흔함). 다운로드 기능 자체는 정상 동작합니다.';
-        box.style.cssText = 'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:99999;'
-          + 'max-width:min(92vw,540px);padding:10px 16px;border-radius:10px;'
-          + 'background:#3a2323;color:#ffd7d7;border:1px solid #a33;'
-          + 'box-shadow:0 4px 16px rgba(0,0,0,.35);font-size:13px;line-height:1.5;text-align:center;';
-        document.body.appendChild(box);
-        setTimeout(function(){ box.remove(); }, 8000);
-      }catch(e2){}
+      showWarningBanner('이 브라우저에서는 설정/사전 값을 저장할 수 없어 다음에 열 때 유지되지 않습니다 (사파리 프라이빗 모드 등에서 흔함). 다운로드 기능 자체는 정상 동작합니다.');
     }
     return false;
   }
@@ -18673,18 +18678,7 @@ var historyWarningShown = false;
 function warnHistorySaveFailed(){
   if(historyWarningShown) return;
   historyWarningShown = true;
-  try{
-    var box = document.createElement('div');
-    box.setAttribute('role', 'alert');
-    box.setAttribute('aria-live', 'assertive');
-    box.textContent = '이 브라우저에서는 결과물 보관함에 저장할 수 없습니다 (사파리 프라이빗 모드나 저장 공간 부족 등에서 흔함). "임시저장"을 눌러도 목록에 남지 않을 수 있으니, 결과물은 "다운로드" 버튼으로 직접 받아주세요.';
-    box.style.cssText = 'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:99999;'
-      + 'max-width:min(92vw,540px);padding:10px 16px;border-radius:10px;'
-      + 'background:#3a2323;color:#ffd7d7;border:1px solid #a33;'
-      + 'box-shadow:0 4px 16px rgba(0,0,0,.35);font-size:13px;line-height:1.5;text-align:center;';
-    document.body.appendChild(box);
-    setTimeout(function(){ box.remove(); }, 8000);
-  }catch(e2){}
+  showWarningBanner('이 브라우저에서는 결과물 보관함에 저장할 수 없습니다 (사파리 프라이빗 모드나 저장 공간 부족 등에서 흔함). "임시저장"을 눌러도 목록에 남지 않을 수 있으니, 결과물은 "다운로드" 버튼으로 직접 받아주세요.');
 }
 function saveResultToHistory(tabLabel, filename, blob){
   var tabId = currentTabId();
@@ -23881,7 +23875,9 @@ var TabLog = (function(){
     box.setAttribute('role', 'button');
     box.setAttribute('aria-label', (item ? item.name : label) + ' 선택');
     box.setAttribute('aria-pressed', selected ? 'true' : 'false');
-    box.addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); onClick(); } });
+    // e.target !== box: 이름 입력칸은 자체 keydown에서 stopPropagation하지만, 삭제(×)
+    // 버튼은 네이티브 클릭도 같이 발생하므로 box 자신에 포커스가 있을 때만 반응한다.
+    box.addEventListener('keydown', function(e){ if(e.target !== box) return; if(e.key==='Enter' || e.key===' '){ e.preventDefault(); onClick(); } });
     var tb = document.createElement('div');
     tb.style.cssText = 'width:52px;height:52px;border-radius:8px;border:2px solid '+(selected?'var(--accent)':'var(--line)')+
       ';overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative;'+
@@ -23930,21 +23926,7 @@ var TabLog = (function(){
       lab.style.cssText = 'font-size:10px;color:var(--sub);max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
       box.appendChild(lab);
     }
-    // 클릭만으로 선택하던 파츠/효과 썸네일은 마우스 없이는(Tab으로 포커스는 가능해도
-    // Enter/Space로 고를 수 없어) 사실상 접근 불가능했다. 화자 필터 칩·손잡이(gizmo)와
-    // 동일한 패턴으로 버튼 역할을 명시하고 키보드로도 선택할 수 있게 한다.
-    box.setAttribute('tabindex', '0');
-    box.setAttribute('role', 'button');
-    box.setAttribute('aria-label', (item ? (item.name||label) : label) + (selected ? ' (선택됨)' : ''));
     box.addEventListener('click', onClick);
-    box.addEventListener('keydown', function(e){
-      // e.target !== box: 이름 입력칸이나 삭제(×) 버튼에 포커스가 있는 동안의
-      // Enter/Space까지 여기서 또 선택 처리하면 안 되므로(입력칸은 자체 keydown에서
-      // 이미 stopPropagation하지만, 삭제 버튼은 네이티브 클릭도 같이 발생하므로) box 자신에
-      // 포커스가 있을 때만 반응한다.
-      if(e.target !== box) return;
-      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); onClick(); }
-    });
     if(onRemove){
       var rm = document.createElement('button');
       rm.type='button'; rm.textContent='×'; rm.title='이 파츠 삭제';
