@@ -21,6 +21,7 @@ const sandbox = loadFunctionsFromHtml(HTML_PATH, [
   'sanitizeFilename',
   'ensureExtension',
   'uniqueZipName',
+  'findDuplicateValue',
   // guessGmName은 최상위 상수 GM_NAME_ALIASES를 참조하므로 그 선언도 함께 로드한다.
   { type: 'var', name: 'GM_NAME_ALIASES' },
   'guessGmName',
@@ -83,6 +84,13 @@ test('uniqueZipName: ZIP 안에서 파일명이 겹치면 (2), (3)... 을 붙여
   assert.equal(sandbox.uniqueZipName(used, 'a.png'), 'a (2).png');
   assert.equal(sandbox.uniqueZipName(used, 'a.png'), 'a (3).png');
   assert.equal(sandbox.uniqueZipName(used, 'b.png'), 'b.png');
+});
+
+test('findDuplicateValue: 배열에서 처음으로 두 번 이상 등장하는 값을 찾고, falsy 값은 무시한다', () => {
+  assert.equal(sandbox.findDuplicateValue(['a', 'b', 'a']), 'a');
+  assert.equal(sandbox.findDuplicateValue(['a', 'b', 'c']), undefined);
+  assert.equal(sandbox.findDuplicateValue(['', '', 'a']), undefined); // 빈 문자열은 무시
+  assert.equal(sandbox.findDuplicateValue([]), undefined);
 });
 
 test('guessGmName: GM 지칭 표기가 있으면 그 이름을, 없으면 빈도 1위를 고른다', () => {
@@ -523,4 +531,19 @@ test('computeTitleBar: 높이는 패딩(TITLE_PAD_Y*2=32) + 이름/캐치프레�
 
   const r2 = sandbox9.computeTitleBar(fakeMeasureCtx(), '이름', '캐치프레이즈', 500, 'left', null, null);
   assert.equal(r2.h, 32 + r2.namePx + r2.catchPx + 6); // SUBTITLE_GAP=6
+});
+
+const sandbox10 = loadFunctionsFromHtml(HTML_PATH, ['clampInt', 'skillTotal']);
+
+test('skillTotal: 기본치+할당치를 더하되 0-99 범위를 벗어나면 클램프한다', () => {
+  assert.equal(sandbox10.skillTotal({ baseInput: { value: '40' }, allocInput: { value: '30' } }), 70);
+  assert.equal(sandbox10.skillTotal({ baseInput: { value: '90' }, allocInput: { value: '50' } }), 99); // 합이 99를 넘으면 클램프
+  assert.equal(sandbox10.skillTotal({ baseInput: { value: '' }, allocInput: { value: '' } }), 0); // 빈 칸은 0으로 취급
+});
+
+const sandbox11 = loadFunctionsFromHtml(HTML_PATH, [{ type: 'var', name: 'MK' }, 'diceBreak']);
+
+test('diceBreak: 굴림 결과 바로 뒤에 "보너스"가 이어지면 그 사이에 구분 마커(@@BR@@)를 끼워 넣는다', () => {
+  assert.equal(sandbox11.diceBreak('(1D100) 보너스 주사위'), '(1D100)@@BR@@보너스 주사위');
+  assert.equal(sandbox11.diceBreak('아무 상관 없는 문장'), '아무 상관 없는 문장'); // 매칭 없으면 원본 그대로
 });
