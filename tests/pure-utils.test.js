@@ -387,3 +387,39 @@ test('shouldAutoTrim: bbox가 없으면 재단하지 않고, 그림 영역이 �
   assert.equal(sandbox6.shouldAutoTrim({ w: 49, h: 100, canvasW: 100, canvasH: 100 }), true);
   assert.equal(sandbox6.shouldAutoTrim({ w: 100, h: 100, canvasW: 100, canvasH: 100 }), false);
 });
+
+const sandbox7 = loadFunctionsFromHtml(HTML_PATH, [
+  'pad2',
+  'mulberry32',
+  'styleColor',
+]);
+
+test('pad2: 10 미만인 한 자리 수 앞에 0을 붙인다(날짜/시간 표시용)', () => {
+  assert.equal(sandbox7.pad2(0), '00');
+  assert.equal(sandbox7.pad2(9), '09');
+  assert.equal(sandbox7.pad2(10), '10');
+  assert.equal(sandbox7.pad2(23), '23');
+});
+
+test('mulberry32: 같은 시드는 항상 같은 수열을, [0,1) 범위의 값을 낸다', () => {
+  const seq = (seed, n) => {
+    const rand = sandbox7.mulberry32(seed);
+    return Array.from({ length: n }, () => rand());
+  };
+  assert.deepEqual(seq(1, 5), seq(1, 5));
+  assert.notDeepEqual(seq(1, 5), seq(2, 5));
+  seq(42, 20).forEach((v) => {
+    assert.ok(v >= 0 && v < 1);
+  });
+});
+
+test('styleColor: inline style에서 color만 골라내고, background-color/border-color 같은 접두된 속성은 무시한다', () => {
+  const el = (style) => ({ getAttribute: (name) => (name === 'style' ? style : null) });
+  assert.equal(sandbox7.styleColor(el('color: blue; font-weight:bold')), 'blue');
+  // "background-color"만 있고 순수 "color"는 없으면 매치하지 않아야 한다.
+  assert.equal(sandbox7.styleColor(el('background-color: red')), null);
+  // "color"보다 "background-color"가 먼저 나와도 진짜 color를 찾아야 한다.
+  assert.equal(sandbox7.styleColor(el('background-color:red;color:blue')), 'blue');
+  assert.equal(sandbox7.styleColor(el(null)), null);
+  assert.equal(sandbox7.styleColor(null), null);
+});

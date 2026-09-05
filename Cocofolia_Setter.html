@@ -18518,6 +18518,7 @@ function hexToRgb(hex, fallbackHex){
   return {r:parseInt(m[1],16), g:parseInt(m[2],16), b:parseInt(m[3],16)};
 }
 function baseName(name){ var i = name.lastIndexOf('.'); return i>=0? name.slice(0,i): name; }
+function pad2(n){ return (n<10?'0':'')+n; }
 function fmtSec(ms){ return (ms/1000).toFixed(2)+'초'; }
 function escHtml(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 // 사용자가 입력한 문자열을 정규식 리터럴 안에 그대로 끼워 넣어야 할 때(용어 변환기 등)
@@ -19255,8 +19256,7 @@ $('#settings-reset').addEventListener('click', function(){
   }
   function fmtDate(ts){
     var d = new Date(ts);
-    function pad(n){ return (n<10?'0':'')+n; }
-    return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+    return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate())+' '+pad2(d.getHours())+':'+pad2(d.getMinutes());
   }
   // 최대 100개까지 쌓이는 결과물이 11개 탭에서 뒤섞여 들어오다 보니, 특정 파일 하나를
   // 찾으려면 목록을 끝까지 훑어야 했다. 파일명 검색 + 출처 탭 필터를 추가한다.
@@ -19411,10 +19411,12 @@ $all('.cat-btn').forEach(function(btn){
     var card = document.createElement('div');
     card.className = 'home-feature-card';
     card.tabIndex = 0;
+    card.setAttribute('role', 'button');
+    card.setAttribute('aria-label', name + ' 바로가기');
     card.dataset.searchText = (name + ' ' + desc).toLowerCase();
     card.innerHTML =
       '<div class="home-feature-name">'+name+'</div>'+
-      '<div class="home-feature-overlay"><div class="home-feature-overlay-inner"><div class="home-feature-thumb" data-cat="'+(btn.dataset.cat||'')+'" aria-hidden="true">'+num+'</div><p>'+desc+'</p><button type="button">바로가기 →</button></div></div>';
+      '<div class="home-feature-overlay"><div class="home-feature-overlay-inner"><div class="home-feature-thumb" data-cat="'+(btn.dataset.cat||'')+'" aria-hidden="true">'+num+'</div><p>'+desc+'</p><button type="button" tabindex="-1">바로가기 →</button></div></div>';
     card.addEventListener('click', function(){ btn.click(); });
     card.addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); btn.click(); } });
     card.querySelector('button').addEventListener('click', function(e){ e.stopPropagation(); btn.click(); });
@@ -19513,8 +19515,7 @@ function renderHomeRecent(){
     grid.innerHTML = '';
     items.slice(0, HOME_RECENT_COUNT).forEach(function(item){
       var d = new Date(item.createdAt);
-      function pad(n){ return (n<10?'0':'')+n; }
-      var dateStr = pad(d.getMonth()+1)+'/'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+      var dateStr = pad2(d.getMonth()+1)+'/'+pad2(d.getDate())+' '+pad2(d.getHours())+':'+pad2(d.getMinutes());
       var canRestore = !!(item.tabId && item.snapshot && TAB_SNAPSHOT_RESTORERS[item.tabId]);
       var el = document.createElement('div');
       el.className = 'home-recent-card';
@@ -21102,7 +21103,7 @@ var LogParser = (function(){
     if(!el) return null;
     var inline = el.getAttribute && el.getAttribute('style');
     if(inline){
-      var m = inline.match(/color\s*:\s*([^;]+)/i);
+      var m = inline.match(/(?:^|;)\s*color\s*:\s*([^;]+)/i);
       if(m) return m[1].trim();
     }
     return null;
@@ -22285,13 +22286,11 @@ var TabLog = (function(){
   row.addEventListener('input', recomputeStats);
   recomputeStats();
 
-  function esc(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-
   $('#ed-text-run').addEventListener('click', function(){
     var text = $('#ed-text-input').value;
     var matches = [];
     STATS.forEach(function(s){
-      var aliases = s.aliases.slice().sort(function(a,b){ return b.length-a.length; }).map(esc).join('|');
+      var aliases = s.aliases.slice().sort(function(a,b){ return b.length-a.length; }).map(escapeRegExp).join('|');
       var re = new RegExp('(?<![A-Za-z0-9가-힣])('+aliases+')(\\s*[:=]?\\s*)(\\d{1,2})(?!\\d)', 'g');
       text = text.replace(re, function(m, label, sep, num){
         var n = parseInt(num, 10);
