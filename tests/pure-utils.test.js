@@ -583,3 +583,41 @@ test('styleColor: inline style에서 color만 골라내고, background-color/bor
   assert.equal(sandbox12.styleColor(el(null)), null);
   assert.equal(sandbox12.styleColor(null), null);
 });
+
+function fakeDomForBanner() {
+  const created = [];
+  const document = {
+    createElement: () => {
+      const el = { attrs: {}, style: {}, setAttribute(name, v) { this.attrs[name] = v; }, remove() { el.removed = true; } };
+      created.push(el);
+      return el;
+    },
+    body: { appendChild: (el) => { el.appended = true; } },
+  };
+  return { document, created };
+}
+
+test('showWarningBanner: role=alert/aria-live 배너를 body에 붙이고 텍스트를 그대로 담는다', () => {
+  const { document, created } = fakeDomForBanner();
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, ['showWarningBanner'], { document, setTimeout: () => {} });
+  sandbox.showWarningBanner('저장 실패 안내');
+  assert.equal(created.length, 1);
+  const banner = created[0];
+  assert.equal(banner.attrs.role, 'alert');
+  assert.equal(banner.attrs['aria-live'], 'assertive');
+  assert.equal(banner.textContent, '저장 실패 안내');
+  assert.equal(banner.appended, true);
+});
+
+test('showWarningBanner: 일정 시간 뒤 배너를 스스로 제거한다', () => {
+  const { document, created } = fakeDomForBanner();
+  let scheduled = null;
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, ['showWarningBanner'], {
+    document,
+    setTimeout: (fn) => { scheduled = fn; },
+  });
+  sandbox.showWarningBanner('x');
+  assert.equal(created[0].removed, undefined);
+  scheduled();
+  assert.equal(created[0].removed, true);
+});
