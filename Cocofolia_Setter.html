@@ -24845,8 +24845,7 @@ var TabLog = (function(){
     }
     var catchPx = 0;
     if(catchVal){
-      catchPx = SUBTITLE_BASE_PX;
-      while(catchPx > SUBTITLE_MIN_PX && measureMixedText(ctx, catchVal, catchPx, '600') > avail) catchPx -= 1;
+      catchPx = fitFontSize(ctx, catchVal, avail, SUBTITLE_BASE_PX, '600', SUBTITLE_MIN_PX);
     }
     var h = TITLE_PAD_Y*2 + (catchVal ? catchPx + SUBTITLE_GAP : 0) + (showNameHere ? namePx : 0);
     return {h:h, namePx:namePx, catchPx:catchPx};
