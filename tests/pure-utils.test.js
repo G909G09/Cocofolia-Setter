@@ -628,3 +628,41 @@ test('cfLabelDupMessage: 중복이 없으면 로드 개수 안내로 되돌아�
   assert.equal(sandbox.cfLabelDupMessage(3, undefined), '3장 로드됨. 라벨을 확인하고, 메인 아이콘으로 쓸 이미지를 골라주세요.');
   assert.equal(sandbox.cfLabelDupMessage(2, '@웃음'), '라벨이 중복되었습니다 (@웃음) — 코코포리아는 같은 라벨의 표정 중 하나만 인식하므로, 서로 다르게 고쳐주세요.');
 });
+
+// comboLabel/allComboSelections는 파츠 조합 스탠딩 메이커의 모듈 스코프 변수 state/
+// PART_CATEGORIES를 참조하므로(순수 함수는 아님), 실제 파일의 PART_CATEGORIES 선언을
+// 그대로 로드해 카테고리 구성(어떤 게 필수/다중인지)이 테스트와 어긋나지 않게 하고,
+// state는 빈 틀만 만들어둔 뒤 각 테스트에서 필요한 파츠만 채워 넣는다.
+const sandbox13 = loadFunctionsFromHtml(HTML_PATH, [
+  'sanitizeFilename',
+  'powerSetIndices',
+  { type: 'var', name: 'PART_CATEGORIES' },
+  'allComboSelections',
+  'comboLabel',
+], { state: { parts: {} } });
+
+function resetParts13(){
+  sandbox13.PART_CATEGORIES.forEach(function(c){ sandbox13.state.parts[c.key] = []; });
+}
+
+test('comboLabel: 고르지 않은(-1/빈 배열) 카테고리는 건너뛰고, 다중 선택(효과)은 +로 이어 붙인다', () => {
+  resetParts13();
+  sandbox13.state.parts.body = [{ name: '몸A' }];
+  sandbox13.state.parts.eyebrow = [{ name: '눈썹A' }];
+  sandbox13.state.parts.effect = [{ name: '효과A' }, { name: '효과B' }];
+
+  assert.equal(sandbox13.comboLabel({ body: 0, eyebrow: -1, eye: -1, mouth: -1, effect: [] }), '몸A');
+  assert.equal(sandbox13.comboLabel({ body: 0, eyebrow: 0, eye: -1, mouth: -1, effect: [0, 1] }), '몸A_눈썹A_효과A+효과B');
+});
+
+test('allComboSelections: 필수 파츠는 매번 하나를 고르고, 선택 파츠는 미선택을 포함하며, 다중 파츠는 부분집합 수만큼 조합이 늘어난다', () => {
+  resetParts13();
+  sandbox13.state.parts.body = [{ name: '몸A' }, { name: '몸B' }]; // required: 2가지 중 하나(미선택 없음)
+  sandbox13.state.parts.effect = [{ name: '효과A' }]; // multi: 부분집합 2개(공집합/효과A)
+  // eyebrow/eye/mouth: 업로드 없음 → 미선택(-1) 1가지뿐
+
+  const combos = sandbox13.allComboSelections();
+  assert.equal(combos.length, 2 * 2); // body(2) x effect 부분집합(2), 나머지는 각 1가지
+  assert.deepEqual(new Set(combos.map(function(s){ return s.body; })), new Set([0, 1]));
+  assert.ok(combos.every(function(s){ return s.eyebrow === -1 && s.eye === -1 && s.mouth === -1; }));
+});
