@@ -19297,6 +19297,7 @@ $('#settings-reset').addEventListener('click', function(){
   function render(){
     listHistory().then(function(items){
       listEl.innerHTML = '';
+      openSwipeRows.clear();
       if(!items.length){
         infoEl.textContent = '아직 저장된 결과물이 없습니다. 각 탭에서 결과물을 다운로드하면 여기에도 자동으로 모입니다.';
         tabFilterEl.innerHTML = '<option value="">전체</option>';
@@ -21661,6 +21662,8 @@ var TabLog = (function(){
       render();
     }catch(e){
       alert('로그 파싱 실패: '+e.message);
+      $('#log-rawwrap').classList.add('hidden');
+      hideReveal($('#log-controls'));
     }
   });
 
@@ -21826,12 +21829,14 @@ var TabLog = (function(){
         $('#bk-loadinfo').classList.remove('hidden');
         $('#bk-loadinfo').textContent = '분석 실패: '+e.message+' (코코포리아 "로그 출력" 기능으로 받은 html 파일이 맞는지 확인해주세요.)';
         hideReveal($('#bk-cfgPanel'));
+        hideReveal($('#bk-outPanel'));
         return;
       }
       $('#bk-loadinfo').classList.remove('hidden');
       if(rowsData.length===0){
         $('#bk-loadinfo').textContent = '불러옴: '+file.name+' — 인식된 문단이 없습니다. 코코포리아 "로그 출력" 기능으로 받은 html 파일이 맞는지 확인해주세요.';
         hideReveal($('#bk-cfgPanel'));
+        hideReveal($('#bk-outPanel'));
         return;
       }
       $('#bk-loadinfo').textContent = '불러옴: '+file.name+' ('+rowsData.length+'개 문단 인식)';
@@ -21842,6 +21847,7 @@ var TabLog = (function(){
       $('#bk-loadinfo').classList.remove('hidden');
       $('#bk-loadinfo').textContent = '파일을 읽지 못했습니다: '+file.name;
       hideReveal($('#bk-cfgPanel'));
+      hideReveal($('#bk-outPanel'));
     };
     r.readAsText(file, 'utf-8');
   });
