@@ -809,7 +809,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 
     <div class="row" style="margin-top:14px;">
       <button class="btn" id="fx-render" disabled>미리보기 렌더링</button>
-      <button class="btn ghost hidden" id="fx-preview-toggle">재생/정지</button>
+      <button class="btn ghost hidden" id="fx-preview-toggle" aria-pressed="false">재생/정지</button>
     </div>
     <canvas class="preview hidden" id="fx-preview-canvas"></canvas>
     <div class="info-box" id="fx-info" aria-live="polite">이미지를 선택하고 렌더링을 눌러주세요.</div>
@@ -20429,6 +20429,7 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     hideReveal($('#fx-result-row'));
     previewCanvas.classList.add('hidden');
     previewToggle.classList.add('hidden');
+    previewToggle.setAttribute('aria-pressed', 'false');
     try{
       state.img = await loadImageElement(file);
       info.textContent = '이미지 로드됨: '+state.img.width+'x'+state.img.height+'. 옵션을 조정하고 렌더링을 눌러주세요.';
@@ -21039,6 +21040,7 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
         previewCanvas.classList.remove('hidden');
         previewToggle.classList.remove('hidden');
         startPreview();
+        previewToggle.setAttribute('aria-pressed', 'true');
         info.textContent = '프레임 '+result.frames.length+'개 렌더링 완료. APNG로 인코딩하려면 다운로드를 눌러주세요.'
           + (wasDurationClamped ? ' (길이가 너무 커서 '+FX_MAX_DURATION_SEC+'초로 제한됨)' : '');
         showReveal($('#fx-result-row'));
@@ -21052,6 +21054,7 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
 
   previewToggle.addEventListener('click', function(){
     if(state.playTimer) stopPreview(); else startPreview();
+    previewToggle.setAttribute('aria-pressed', state.playTimer ? 'true' : 'false');
   });
 
   // 다운로드·임시저장 버튼이 공유하는 "결과물 준비" 단계 — 아직 인코딩 전이면(렌더링만 하고
@@ -23778,9 +23781,11 @@ var TabLog = (function(){
     function onUp(){
       document.removeEventListener('pointermove', onMove);
       document.removeEventListener('pointerup', onUp);
+      document.removeEventListener('pointercancel', onUp);
     }
     document.addEventListener('pointermove', onMove);
     document.addEventListener('pointerup', onUp);
+    document.addEventListener('pointercancel', onUp);
   }
 
   var gizmoBuilt = false;
@@ -25184,6 +25189,7 @@ var TabLog = (function(){
     e.preventDefault();
   }, {passive:false});
   window.addEventListener('touchend', function(){ dragMode = null; });
+  window.addEventListener('touchcancel', function(){ dragMode = null; });
   // 키보드 전용/스크린리더 사용자를 위한 방향키 조작: 방향키로 이동, Shift+방향키로 크기 조절(정사각형 유지)
   cropBox.addEventListener('keydown', function(e){
     var STEP = 0.02;
