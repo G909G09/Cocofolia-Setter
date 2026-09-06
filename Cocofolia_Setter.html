@@ -600,7 +600,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       </div>
     </div>
     <div id="home-feature-cats"></div>
-    <p class="footnote" id="home-search-empty" style="display:none;">일치하는 기능이 없습니다.</p>
+    <p class="footnote" id="home-search-empty" style="display:none;" aria-live="polite">일치하는 기능이 없습니다.</p>
   </div>
 
   <details class="home-changelog-details">
@@ -18775,6 +18775,15 @@ function runZipAction(buildFn, btn, whenDone, errPrefix){
   });
 }
 
+// 이미지 용량 최적화/스탠딩 일괄 재단/이미지 여백 자동 재단 3개 탭 모두, 업로드 직후에는
+// "N장 로드됨/처리 완료." 안내를 보여주지만 낱개 "제거" 버튼으로 하나씩 뺄 때는 그 안내를
+// 갱신하지 않아 5장을 올리고 3장을 지워도 문구는 여전히 "5장"이라고 말한 채 남아있었다
+// ("전체 지우기"로 한꺼번에 비울 때만 안내를 감췄다). 남은 개수를 반영한 안내 문구를
+// 만들어주는 헬퍼 — count가 0이면 null을 돌려주니, 호출부는 안내 상자를 감추면 된다.
+function remainingItemsMessage(count){
+  return count > 0 ? (count+'장 남음.') : null;
+}
+
 // 입력을 마치면 다음 기능이 나타나는 지점(파일 업로드 후 크롭 UI, 효과를 고르면 세부
 // 옵션이 뜨는 것 등)에서 display:none/block으로 뚝 끊기지 않고 부드럽게 슬라이드+페이드로
 // 열리게 하는 헬퍼. 대상 엘리먼트는 CSS의 .reveal-wrap(바깥) > .reveal-inner(안쪽, 실제
@@ -21310,7 +21319,12 @@ function guessGmName(namesSortedByFreqDesc){
     rm.className = 'btn ghost'; rm.textContent = '제거'; rm.style.cssText='padding:6px 10px;font-size:12px;color:var(--danger);';
     rm.addEventListener('click', function(){
       var i = items.indexOf(it);
-      if(i>=0){ items.splice(i,1); if(it.previewUrl) URL.revokeObjectURL(it.previewUrl); renderAll(); }
+      if(i>=0){
+        items.splice(i,1); if(it.previewUrl) URL.revokeObjectURL(it.previewUrl); renderAll();
+        var msg = remainingItemsMessage(items.length);
+        var info = $('#imgopt-info');
+        if(msg){ info.textContent = msg; info.classList.remove('hidden'); } else { info.classList.add('hidden'); }
+      }
     });
     btnRow.appendChild(dl); btnRow.appendChild(rm);
     box.appendChild(img); box.appendChild(name); box.appendChild(sizeInfo); box.appendChild(btnRow);
@@ -23208,7 +23222,12 @@ var TabLog = (function(){
       rm.className = 'btn ghost'; rm.textContent = '제거'; rm.style.cssText='padding:6px 10px;font-size:12px;color:var(--danger);';
       rm.addEventListener('click', function(){
         var i = items.indexOf(it);
-        if(i>=0){ items.splice(i,1); renderAll(); }
+        if(i>=0){
+          items.splice(i,1); renderAll();
+          var msg = remainingItemsMessage(items.length);
+          var info = $('#st-info');
+          if(msg){ info.textContent = msg; info.classList.remove('hidden'); } else { info.classList.add('hidden'); }
+        }
       });
       btnRow.appendChild(dl); btnRow.appendChild(rm);
       box.appendChild(img); box.appendChild(name); box.appendChild(slider); box.appendChild(btnRow);
@@ -23977,7 +23996,11 @@ var TabLog = (function(){
     box.tabIndex = 0;
     box.setAttribute('role', 'button');
     box.setAttribute('aria-label', (item.label||'조합')+' 크게 보기');
-    box.addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openTrayPreview(item); } });
+    // e.target !== box: makeThumb()과 동일한 이유 — 다운로드(⬇)/삭제(×) 버튼이 box의
+    // DOM 자식이라, 그 버튼에 포커스를 두고 Enter/Space를 누르면 keydown이 box까지
+    // 버블링돼 버튼 자신의 클릭 대신 "크게 보기"가 열려버린다. box 자신에 포커스가
+    // 있을 때만 반응해야 버튼들이 키보드로도 제대로 눌린다.
+    box.addEventListener('keydown', function(e){ if(e.target !== box) return; if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openTrayPreview(item); } });
     var tb = document.createElement('div');
     tb.style.cssText = 'width:'+TRAY_THUMB_PX+'px;height:'+TRAY_THUMB_PX+'px;border-radius:10px;border:2px solid '+(previewing?'var(--accent)':'var(--line)')+
       ';overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative;'+
@@ -24590,7 +24613,12 @@ var TabLog = (function(){
       rm.className = 'btn ghost'; rm.textContent = '제거'; rm.style.cssText='padding:6px 10px;font-size:12px;color:var(--danger);';
       rm.addEventListener('click', function(){
         var i = items.indexOf(it);
-        if(i>=0){ items.splice(i,1); renderAll(); }
+        if(i>=0){
+          items.splice(i,1); renderAll();
+          var msg = remainingItemsMessage(items.length);
+          var info = $('#trim-info');
+          if(msg){ info.textContent = msg; info.classList.remove('hidden'); } else { info.classList.add('hidden'); }
+        }
       });
       btnRow.appendChild(dl); btnRow.appendChild(rm);
       box.appendChild(img); box.appendChild(name); box.appendChild(sizeInfo); box.appendChild(btnRow);

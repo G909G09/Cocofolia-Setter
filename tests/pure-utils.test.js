@@ -22,6 +22,7 @@ const sandbox = loadFunctionsFromHtml(HTML_PATH, [
   'ensureExtension',
   'uniqueZipName',
   'findDuplicateValue',
+  'remainingItemsMessage',
   // guessGmName은 최상위 상수 GM_NAME_ALIASES를 참조하므로 그 선언도 함께 로드한다.
   { type: 'var', name: 'GM_NAME_ALIASES' },
   'guessGmName',
@@ -91,6 +92,12 @@ test('findDuplicateValue: 배열에서 처음으로 두 번 이상 등장하는 
   assert.equal(sandbox.findDuplicateValue(['a', 'b', 'c']), undefined);
   assert.equal(sandbox.findDuplicateValue(['', '', 'a']), undefined); // 빈 문자열은 무시
   assert.equal(sandbox.findDuplicateValue([]), undefined);
+});
+
+test('remainingItemsMessage: 남은 개수가 있으면 안내 문구를, 0이면 null을 돌려준다(호출부가 안내 상자를 감추는 신호)', () => {
+  assert.equal(sandbox.remainingItemsMessage(5), '5장 남음.');
+  assert.equal(sandbox.remainingItemsMessage(1), '1장 남음.');
+  assert.equal(sandbox.remainingItemsMessage(0), null);
 });
 
 test('guessGmName: GM 지칭 표기가 있으면 그 이름을, 없으면 빈도 1위를 고른다', () => {
