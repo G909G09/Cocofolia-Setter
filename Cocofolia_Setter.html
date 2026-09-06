@@ -23915,12 +23915,17 @@ var TabLog = (function(){
     box.appendChild(resetBtn);
   }
 
+  function partThumbAriaLabels(name, fallbackLabel){
+    var n = name || fallbackLabel;
+    return { select: n + ' 선택', rename: (name || '파츠') + ' 이름 수정' };
+  }
+
   function makeThumb(item, label, selected, onClick, onRemove, editing){
     var box = document.createElement('div');
     box.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;width:60px;';
     box.tabIndex = 0;
     box.setAttribute('role', 'button');
-    box.setAttribute('aria-label', (item ? item.name : label) + ' 선택');
+    box.setAttribute('aria-label', partThumbAriaLabels(item ? item.name : null, label).select);
     box.setAttribute('aria-pressed', selected ? 'true' : 'false');
     // e.target !== box: 이름 입력칸은 자체 keydown에서 stopPropagation하지만, 삭제(×)
     // 버튼은 네이티브 클릭도 같이 발생하므로 box 자신에 포커스가 있을 때만 반응한다.
@@ -23952,7 +23957,7 @@ var TabLog = (function(){
       nameInput.style.cssText = 'font-size:10px;color:var(--sub);width:60px;text-align:center;background:transparent;'+
         'border:1px solid transparent;border-radius:4px;padding:1px 2px;cursor:text;';
       nameInput.title = '클릭해서 이 파츠 이름 수정';
-      nameInput.setAttribute('aria-label', (item.name||'파츠')+' 이름 수정');
+      nameInput.setAttribute('aria-label', partThumbAriaLabels(item.name, label).rename);
       nameInput.addEventListener('click', function(e){ e.stopPropagation(); });
       nameInput.addEventListener('mousedown', function(e){ e.stopPropagation(); });
       nameInput.addEventListener('keydown', function(e){ e.stopPropagation(); if(e.key==='Enter') nameInput.blur(); });
@@ -23964,6 +23969,9 @@ var TabLog = (function(){
       nameInput.addEventListener('input', function(){
         if(!nameEditStarted){ pushUndo(); nameEditStarted = true; }
         item.name = nameInput.value;
+        var labels = partThumbAriaLabels(item.name, label);
+        box.setAttribute('aria-label', labels.select);
+        nameInput.setAttribute('aria-label', labels.rename);
         updateAll();
       });
       box.appendChild(nameInput);
@@ -24019,6 +24027,11 @@ var TabLog = (function(){
     renderTrayGallery();
   }
 
+  function trayThumbAriaLabels(label){
+    var n = label || '조합';
+    return { view: n+' 크게 보기', rename: n+' 파일명 수정', download: n+' 다운로드', remove: n+' 빼기' };
+  }
+
   function makeTrayThumb(item){
     var previewing = item.id === previewedTrayId;
     var box = document.createElement('div');
@@ -24026,7 +24039,7 @@ var TabLog = (function(){
     box.title = '클릭해서 크게 보기';
     box.tabIndex = 0;
     box.setAttribute('role', 'button');
-    box.setAttribute('aria-label', (item.label||'조합')+' 크게 보기');
+    box.setAttribute('aria-label', trayThumbAriaLabels(item.label).view);
     // e.target !== box: makeThumb()과 동일한 이유 — 다운로드(⬇)/삭제(×) 버튼이 box의
     // DOM 자식이라, 그 버튼에 포커스를 두고 Enter/Space를 누르면 keydown이 box까지
     // 버블링돼 버튼 자신의 클릭 대신 "크게 보기"가 열려버린다. box 자신에 포커스가
@@ -24050,13 +24063,18 @@ var TabLog = (function(){
     nameInput.style.cssText = 'font-size:10.5px;color:var(--sub);width:'+TRAY_THUMB_PX+'px;text-align:center;background:transparent;'+
       'border:1px solid transparent;border-radius:4px;padding:1px 2px;cursor:text;';
     nameInput.title = '클릭해서 이 조합 파일명 수정';
-    nameInput.setAttribute('aria-label', (item.label||'조합')+' 파일명 수정');
+    nameInput.setAttribute('aria-label', trayThumbAriaLabels(item.label).rename);
     nameInput.addEventListener('click', function(e){ e.stopPropagation(); });
     nameInput.addEventListener('mousedown', function(e){ e.stopPropagation(); });
     nameInput.addEventListener('keydown', function(e){ e.stopPropagation(); if(e.key==='Enter') nameInput.blur(); });
     nameInput.addEventListener('input', function(){
       item.label = nameInput.value;
       if(previewing) $('#parts-preview-modal-title').textContent = item.label;
+      var labels = trayThumbAriaLabels(item.label);
+      box.setAttribute('aria-label', labels.view);
+      nameInput.setAttribute('aria-label', labels.rename);
+      dl.setAttribute('aria-label', labels.download);
+      rm.setAttribute('aria-label', labels.remove);
     });
     box.appendChild(nameInput);
     box.addEventListener('click', function(){ openTrayPreview(item); });
@@ -24065,7 +24083,7 @@ var TabLog = (function(){
     // 좌하단에 둔다.
     var dl = document.createElement('button');
     dl.type='button'; dl.textContent='⬇'; dl.title='이 조합 다운로드';
-    dl.setAttribute('aria-label', (item.label||'조합')+' 다운로드');
+    dl.setAttribute('aria-label', trayThumbAriaLabels(item.label).download);
     dl.style.cssText = 'position:absolute;bottom:-6px;left:-6px;width:20px;height:20px;border-radius:50%;border:none;background:var(--accent);color:#fff;font-size:11px;line-height:1;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;';
     dl.addEventListener('click', function(e){
       e.stopPropagation();
@@ -24075,7 +24093,7 @@ var TabLog = (function(){
 
     var rm = document.createElement('button');
     rm.type='button'; rm.textContent='×'; rm.title='담아둔 조합에서 빼기';
-    rm.setAttribute('aria-label', (item.label||'조합')+' 빼기');
+    rm.setAttribute('aria-label', trayThumbAriaLabels(item.label).remove);
     rm.style.cssText = 'position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:none;background:var(--danger);color:#fff;font-size:13px;line-height:1;cursor:pointer;padding:0;';
     rm.addEventListener('click', function(e){ e.stopPropagation(); removeFromTray(item.id); });
     tb.appendChild(rm);

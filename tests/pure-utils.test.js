@@ -721,6 +721,26 @@ test('skillFieldAriaLabels: 기능명을 넣어 "기본치"/"분배 점수" 등 
   });
 });
 
+test('partThumbAriaLabels: 파츠 이름으로 "선택"/"이름 수정" 문구를 만들고, 이름이 없으면 대체 라벨을 대신 쓴다', () => {
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, ['partThumbAriaLabels']);
+  assert.deepEqual(toHostRealm(sandbox.partThumbAriaLabels('웃음', '눈')), {
+    select: '웃음 선택', rename: '웃음 이름 수정',
+  });
+  assert.deepEqual(toHostRealm(sandbox.partThumbAriaLabels('', '눈')), {
+    select: '눈 선택', rename: '파츠 이름 수정',
+  });
+});
+
+test('trayThumbAriaLabels: 담아둔 조합 이름으로 "크게 보기"/"파일명 수정"/"다운로드"/"빼기" 문구를 만들고, 이름이 없으면 "조합"으로 대신한다', () => {
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, ['trayThumbAriaLabels']);
+  assert.deepEqual(toHostRealm(sandbox.trayThumbAriaLabels('설이_1')), {
+    view: '설이_1 크게 보기', rename: '설이_1 파일명 수정', download: '설이_1 다운로드', remove: '설이_1 빼기',
+  });
+  assert.deepEqual(toHostRealm(sandbox.trayThumbAriaLabels('')), {
+    view: '조합 크게 보기', rename: '조합 파일명 수정', download: '조합 다운로드', remove: '조합 빼기',
+  });
+});
+
 test('fmtSavedPct: 절감이면 -N%, 오히려 늘었으면 +N%, 변화 없으면 안내 문구를 돌려준다', () => {
   const sandbox = loadFunctionsFromHtml(HTML_PATH, ['fmtSavedPct']);
   assert.equal(sandbox.fmtSavedPct(37), '-37%');
