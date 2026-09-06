@@ -507,7 +507,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <button class="sidebar-toggle no-print" id="sidebarToggle" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="appSidebar"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
 <div class="sidebar-backdrop no-print" id="sidebarBackdrop"></div>
 <aside class="app-sidebar no-print" id="appSidebar">
-  <h1 id="homeLogo" style="cursor:pointer;" title="홈으로">코코세터</h1>
+  <h1 id="homeLogo" style="cursor:pointer;" title="홈으로" tabindex="0" role="button" aria-label="홈으로">코코세터</h1>
   <nav class="sidebar-nav" id="sidebarNav" role="tablist">
     <button class="home-btn active" id="homeBtn" role="tab" aria-selected="true" aria-controls="tab-home"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9h12v-9"/></svg>홈</button>
     <div class="sidebar-group" data-cat="image">
@@ -600,7 +600,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       </div>
     </div>
     <div id="home-feature-cats"></div>
-    <p class="footnote" id="home-search-empty" style="display:none;">일치하는 기능이 없습니다.</p>
+    <p class="footnote" id="home-search-empty" style="display:none;" aria-live="polite">일치하는 기능이 없습니다.</p>
   </div>
 
   <details class="home-changelog-details">
@@ -987,7 +987,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 14 ===================== -->
+<!-- ===================== TAB 9 ===================== -->
 <section id="tab-charsheet" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-charsheet">
   <div class="card">
     <h2>CoC 캐릭터 시트 메이커</h2>
@@ -1091,7 +1091,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 9 ===================== -->
+<!-- ===================== TAB 10 ===================== -->
 <section id="tab-standing" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-standing">
   <div class="card">
     <h2>스탠딩 이미지 일괄 재단</h2>
@@ -1186,7 +1186,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 
     <div id="parts-cats" style="display:flex;flex-wrap:wrap;gap:14px;margin-top:20px;"></div>
 
-    <div id="parts-preview-modal" class="hidden" style="position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(20,20,20,.55);padding:20px;">
+    <div id="parts-preview-modal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="parts-preview-modal-title" style="position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(20,20,20,.55);padding:20px;">
       <div style="background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;max-width:min(92vw,640px);max-height:90vh;display:flex;flex-direction:column;gap:12px;overflow:auto;box-shadow:var(--shadow-md);">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
           <div id="parts-preview-modal-title" style="font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
@@ -1202,7 +1202,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 10 ===================== -->
+<!-- ===================== TAB 12 ===================== -->
 <section id="tab-cheatsheet" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-cheatsheet">
   <div class="card">
     <h2>표정 카탈로그 컨닝 페이퍼 메이커</h2>
@@ -1297,7 +1297,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   </div>
 </section>
 
-<!-- ===================== TAB 12 ===================== -->
+<!-- ===================== TAB 13 ===================== -->
 <section id="tab-charfile" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-charfile">
   <div class="card">
     <h2>코코포리아 캐릭터 룸파일 생성기</h2>
@@ -18510,18 +18510,47 @@ Ly8gPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
 function $(sel, root){ return (root||document).querySelector(sel); }
 function $all(sel, root){ return Array.from((root||document).querySelectorAll(sel)); }
 function clampInt(v,min,max){ return v<min?min:(v>max?max:v); }
+// #rrggbb(또는 rrggbb)를 {r,g,b}로 바꾼다. hex가 비어있거나 형식이 안 맞으면 fallbackHex를 대신 쓴다.
+// 탭별로 각자 만들어 쓰던 것을 공통 유틸로 모았다(호출부마다 다른 기본색을 fallbackHex로 넘긴다).
+function hexToRgb(hex, fallbackHex){
+  var re = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i;
+  var m = re.exec(hex||fallbackHex) || re.exec(fallbackHex);
+  return {r:parseInt(m[1],16), g:parseInt(m[2],16), b:parseInt(m[3],16)};
+}
 function baseName(name){ var i = name.lastIndexOf('.'); return i>=0? name.slice(0,i): name; }
+function pad2(n){ return (n<10?'0':'')+n; }
 function fmtSec(ms){ return (ms/1000).toFixed(2)+'초'; }
 function escHtml(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 // 사용자가 입력한 문자열을 정규식 리터럴 안에 그대로 끼워 넣어야 할 때(용어 변환기 등)
 // 정규식 특수문자를 이스케이프해준다. 탭별로 각자 만들어 쓰던 것을 공통 유틸로 모았다.
 function escapeRegExp(s){ return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+// 배열에서 처음으로 두 번 이상 등장하는 값(첫 등장이 아닌 자리에서 발견된 값)을 찾는다.
+// falsy 값은 무시한다. 용어 사전/캐릭터 카드 라벨 등 여러 탭에서 "중복 값 감지"용으로
+// 각자 만들어 쓰던 로직을 공통 유틸로 모았다.
+function findDuplicateValue(arr){ return arr.find(function(v, i){ return v && arr.indexOf(v) !== i; }); }
+
+// CSS 색상 문자열 유효성 검사: <option>.style.color에 대입해보고 파싱 성공 여부를 확인한다
+// (Canvas2D의 ctx.fillStyle이나 style.color에 잘못된 값을 대입해도 예외 없이 조용히 무시되기
+// 때문에, 반영 전에 이 함수로 미리 걸러내지 않으면 사용자가 눈치채지 못한 채 엉뚱한 색으로
+// 출력/반영될 수 있다). 탭별로 각자 만들어 쓰던 것을 공통 유틸로 모았다.
+function isValidCssColor(str){
+  if(!str) return false;
+  var opt = document.createElement('option');
+  opt.style.color = '';
+  opt.style.color = str;
+  return opt.style.color !== '';
+}
+
+// 다음 이벤트 루프 틱까지 양보한다(무거운 동기 루프 중간에 넣어 화면이 멈춘 것처럼 보이지
+// 않게 함). 탭별로 각자 만들어 쓰던 것을 공통 유틸로 모았다.
+function yieldToBrowser(){ return new Promise(function(res){ setTimeout(res, 0); }); }
 
 // 파일명에 경로 구분자(/,\)가 섞여 있으면 일부 브라우저(예: Chrome)가 다운로드 폴더 안에
 // 그 이름으로 하위 폴더를 만들어버려 결과물을 찾기 어려워진다. 사용자가 직접 입력하는
 // 파일명 칸(mp3/g2a/fx 등)은 검증 없이 그대로 넘어오므로, 여기서 한 번에 걸러낸다.
-function sanitizeFilename(name){
-  return String(name||'').replace(/[\\/:*?"<>|]/g, '_').trim() || 'download';
+function sanitizeFilename(name, fallback){
+  var safe = String(name||'').replace(/[\\/:*?"<>|]/g, '_').trim();
+  return safe || (fallback !== undefined ? fallback : 'download');
 }
 
 // 다운로드 파일명 칸(mp3/g2a/fx 등)은 자유 텍스트라 사용자가 확장자를 지우거나 다른 것으로
@@ -18557,6 +18586,22 @@ function uniqueZipName(usedNames, name){
    사용자는 "왜 다음에 열었을 때 안 남아있지"만 겪고 원인을 알 방법이 없었다. 매번 알림을
    띄우면 시끄러우니 세션당 한 번만, 눈에 띄는 배너로 안내한다(다운로드 자체는 이 문제와
    무관하게 항상 정상 동작한다는 점도 함께 알려준다). */
+// 세션당 한 번, 화면 하단에 눈에 띄는 배너를 잠깐 띄운다(다른 기능은 막지 않음).
+// safeLocalStorageSet()의 저장 실패 안내와 warnHistorySaveFailed()가 공용으로 쓴다.
+function showWarningBanner(text){
+  try{
+    var box = document.createElement('div');
+    box.setAttribute('role', 'alert');
+    box.setAttribute('aria-live', 'assertive');
+    box.textContent = text;
+    box.style.cssText = 'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:99999;'
+      + 'max-width:min(92vw,540px);padding:10px 16px;border-radius:10px;'
+      + 'background:#3a2323;color:#ffd7d7;border:1px solid #a33;'
+      + 'box-shadow:0 4px 16px rgba(0,0,0,.35);font-size:13px;line-height:1.5;text-align:center;';
+    document.body.appendChild(box);
+    setTimeout(function(){ box.remove(); }, 8000);
+  }catch(e2){}
+}
 var storageWarningShown = false;
 function safeLocalStorageSet(key, value){
   try{
@@ -18565,18 +18610,7 @@ function safeLocalStorageSet(key, value){
   }catch(e){
     if(!storageWarningShown){
       storageWarningShown = true;
-      try{
-        var box = document.createElement('div');
-        box.setAttribute('role', 'alert');
-        box.setAttribute('aria-live', 'assertive');
-        box.textContent = '이 브라우저에서는 설정/사전 값을 저장할 수 없어 다음에 열 때 유지되지 않습니다 (사파리 프라이빗 모드 등에서 흔함). 다운로드 기능 자체는 정상 동작합니다.';
-        box.style.cssText = 'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:99999;'
-          + 'max-width:min(92vw,540px);padding:10px 16px;border-radius:10px;'
-          + 'background:#3a2323;color:#ffd7d7;border:1px solid #a33;'
-          + 'box-shadow:0 4px 16px rgba(0,0,0,.35);font-size:13px;line-height:1.5;text-align:center;';
-        document.body.appendChild(box);
-        setTimeout(function(){ box.remove(); }, 8000);
-      }catch(e2){}
+      showWarningBanner('이 브라우저에서는 설정/사전 값을 저장할 수 없어 다음에 열 때 유지되지 않습니다 (사파리 프라이빗 모드 등에서 흔함). 다운로드 기능 자체는 정상 동작합니다.');
     }
     return false;
   }
@@ -18644,18 +18678,7 @@ var historyWarningShown = false;
 function warnHistorySaveFailed(){
   if(historyWarningShown) return;
   historyWarningShown = true;
-  try{
-    var box = document.createElement('div');
-    box.setAttribute('role', 'alert');
-    box.setAttribute('aria-live', 'assertive');
-    box.textContent = '이 브라우저에서는 결과물 보관함에 저장할 수 없습니다 (사파리 프라이빗 모드나 저장 공간 부족 등에서 흔함). "임시저장"을 눌러도 목록에 남지 않을 수 있으니, 결과물은 "다운로드" 버튼으로 직접 받아주세요.';
-    box.style.cssText = 'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:99999;'
-      + 'max-width:min(92vw,540px);padding:10px 16px;border-radius:10px;'
-      + 'background:#3a2323;color:#ffd7d7;border:1px solid #a33;'
-      + 'box-shadow:0 4px 16px rgba(0,0,0,.35);font-size:13px;line-height:1.5;text-align:center;';
-    document.body.appendChild(box);
-    setTimeout(function(){ box.remove(); }, 8000);
-  }catch(e2){}
+  showWarningBanner('이 브라우저에서는 결과물 보관함에 저장할 수 없습니다 (사파리 프라이빗 모드나 저장 공간 부족 등에서 흔함). "임시저장"을 눌러도 목록에 남지 않을 수 있으니, 결과물은 "다운로드" 버튼으로 직접 받아주세요.');
 }
 function saveResultToHistory(tabLabel, filename, blob){
   var tabId = currentTabId();
@@ -18733,6 +18756,32 @@ function downloadBlob(blob, filename, opts){
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(function(){ URL.revokeObjectURL(url); }, 15000);
   if(!(opts && opts.skipHistory)) saveResultToHistory(currentTabLabel(), sanitizeFilename(filename), blob);
+}
+
+// 여러 탭(이미지 용량 최적화/스탠딩 재단/파츠 조합/컨닝 트레이/여백 재단)의 "ZIP 만들기"
+// 버튼이 전부 "버튼 비활성화 → 빌드 함수 실행 → 성공 시 콜백, 실패 시 알림 → 버튼 복구"라는
+// 같은 흐름을 각자 복제하고 있었다. 빌드 함수와 실패 메시지 접두어만 다르므로 하나로 묶는다.
+function runZipAction(buildFn, btn, whenDone, errPrefix){
+  var oldText = btn.textContent;
+  btn.disabled = true;
+  return buildFn(btn).then(function(blob){
+    whenDone(blob);
+    btn.disabled = false; btn.textContent = oldText;
+    return true;
+  }).catch(function(e){
+    alert((errPrefix||'ZIP 생성 실패: ')+e.message);
+    btn.disabled = false; btn.textContent = oldText;
+    return false;
+  });
+}
+
+// 이미지 용량 최적화/스탠딩 일괄 재단/이미지 여백 자동 재단 3개 탭 모두, 업로드 직후에는
+// "N장 로드됨/처리 완료." 안내를 보여주지만 낱개 "제거" 버튼으로 하나씩 뺄 때는 그 안내를
+// 갱신하지 않아 5장을 올리고 3장을 지워도 문구는 여전히 "5장"이라고 말한 채 남아있었다
+// ("전체 지우기"로 한꺼번에 비울 때만 안내를 감췄다). 남은 개수를 반영한 안내 문구를
+// 만들어주는 헬퍼 — count가 0이면 null을 돌려주니, 호출부는 안내 상자를 감추면 된다.
+function remainingItemsMessage(count){
+  return count > 0 ? (count+'장 남음.') : null;
 }
 
 // 입력을 마치면 다음 기능이 나타나는 지점(파일 업로드 후 크롭 UI, 효과를 고르면 세부
@@ -18876,6 +18925,39 @@ function canvasToBlob(canvas, cb){
 // 진행할 수 있게 한다(null 여부 판단과 사용자 안내는 호출한 쪽이 맡는다).
 function canvasToBlobOrNull(canvas, cb){
   canvas.toBlob(function(blob){ cb(blob); });
+}
+
+// 재단된 이미지를 다운로드→재업로드하지 않고 바로 다른 탭으로 넘기는 통로(10번 스탠딩
+// 일괄 재단·14번 이미지 여백 자동 재단 두 탭에서 동일한 구현을 그대로 썼던 것을 하나로
+// 합쳤다). window.__ccSend는 각 탭이 자기 업로드 처리 함수를 등록해두는 전역 브릿지.
+function itemsToFiles(items){
+  // 다운로드용 파일명(_cut 접미사)과 달리, 다른 탭으로 넘길 때는 라벨 자동 생성에 그대로
+  // 쓰이므로 접미사 없이 원래 이름을 유지한다.
+  // canvasToBlobOrNull() 사용 이유는 buildStandingZip()/buildTrimZip()과 동일 — 한 장이
+  // 실패해도 Promise.all()이 멈추지 않게 한다.
+  var failed = [];
+  return Promise.all(items.map(function(it){
+    return new Promise(function(res){
+      canvasToBlobOrNull(it.canvas, function(blob){
+        if(!blob) failed.push(it.file.name);
+        res(blob ? new File([blob], baseName(it.file.name)+'.png', {type:'image/png'}) : null);
+      });
+    });
+  })).then(function(files){
+    if(failed.length) alert('다음 이미지는 변환에 실패해 전달되지 않았습니다: '+failed.join(', '));
+    return files.filter(Boolean);
+  });
+}
+function sendItemsTo(items, loaderKey, targetTabId, btnId){
+  if(items.length===0) return;
+  var btn = $('#'+btnId);
+  btn.disabled = true;
+  itemsToFiles(items).then(function(files){
+    if(window.__ccSend && window.__ccSend[loaderKey]) window.__ccSend[loaderKey](files);
+    var tabBtn = document.querySelector('.tab-btn[data-target="'+targetTabId+'"]');
+    if(tabBtn) tabBtn.click();
+    btn.disabled = items.length===0;
+  });
 }
 
 // 오프라인용 파일 다운로드: fetch로 원본 소스를 그대로 받아오는 게 가장 정확하지만,
@@ -19090,6 +19172,11 @@ function goHome(){
 }
 $('#homeBtn').addEventListener('click', goHome);
 $('#homeLogo').addEventListener('click', goHome);
+// "홈" 버튼과 달리 <h1>은 원래 Tab으로 포커스조차 되지 않는 비인터랙티브 요소라
+// 마우스 없이는 클릭해서 홈으로 이동할 방법이 아예 없었다. buildFeatureCard의 카드,
+// 크롭 박스 등 다른 클릭형 커스텀 컨트롤과 같은 패턴(tabindex + role=button + 키보드
+// 핸들러)으로 키보드 조작을 추가한다.
+$('#homeLogo').addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); goHome(); } });
 
 // 큰 카테고리(이미지·애니메이션 등) 버튼을 클릭하면 그 카테고리를 소개하는 설명 페이지로 이동한다.
 function showCategoryPage(catId){
@@ -19195,8 +19282,7 @@ $('#settings-reset').addEventListener('click', function(){
   }
   function fmtDate(ts){
     var d = new Date(ts);
-    function pad(n){ return (n<10?'0':'')+n; }
-    return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+    return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate())+' '+pad2(d.getHours())+':'+pad2(d.getMinutes());
   }
   // 최대 100개까지 쌓이는 결과물이 11개 탭에서 뒤섞여 들어오다 보니, 특정 파일 하나를
   // 찾으려면 목록을 끝까지 훑어야 했다. 파일명 검색 + 출처 탭 필터를 추가한다.
@@ -19351,10 +19437,12 @@ $all('.cat-btn').forEach(function(btn){
     var card = document.createElement('div');
     card.className = 'home-feature-card';
     card.tabIndex = 0;
+    card.setAttribute('role', 'button');
+    card.setAttribute('aria-label', name + ' 바로가기');
     card.dataset.searchText = (name + ' ' + desc).toLowerCase();
     card.innerHTML =
       '<div class="home-feature-name">'+name+'</div>'+
-      '<div class="home-feature-overlay"><div class="home-feature-overlay-inner"><div class="home-feature-thumb" data-cat="'+(btn.dataset.cat||'')+'" aria-hidden="true">'+num+'</div><p>'+desc+'</p><button type="button">바로가기 →</button></div></div>';
+      '<div class="home-feature-overlay"><div class="home-feature-overlay-inner"><div class="home-feature-thumb" data-cat="'+(btn.dataset.cat||'')+'" aria-hidden="true">'+num+'</div><p>'+desc+'</p><button type="button" tabindex="-1">바로가기 →</button></div></div>';
     card.addEventListener('click', function(){ btn.click(); });
     card.addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); btn.click(); } });
     card.querySelector('button').addEventListener('click', function(e){ e.stopPropagation(); btn.click(); });
@@ -19409,14 +19497,26 @@ $all('.cat-btn').forEach(function(btn){
     });
     emptyMsg.style.display = anyVisible ? 'none' : '';
   }
+  // 알약 버튼은 토글식 단일 선택(라디오처럼 하나만 켜짐)이라 스크린리더에도 지금 어떤
+  // 카테고리가 선택돼 있는지 알려야 하는데, 지금까지는 .active 클래스만 바뀌고
+  // aria-pressed는 마크업에 아예 없어 시각적으로만 구분됐다(다른 토글 버튼들 —
+  // 화자 필터 칩·파츠 갤러리 선택 박스 —는 이미 aria-pressed를 갱신함). 클릭한 알약만
+  // aria-pressed="true"로, 나머지는 "false"로 맞춘다.
+  function setActiveFilterPill(pills, activeCat){
+    pills.forEach(function(p){
+      var isActive = p.dataset.cat === activeCat;
+      p.classList.toggle('active', isActive);
+      p.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+  }
   filterPills.forEach(function(pill){
     pill.addEventListener('click', function(){
-      filterPills.forEach(function(p){ p.classList.remove('active'); });
-      pill.classList.add('active');
       activeCat = pill.dataset.cat;
+      setActiveFilterPill(filterPills, activeCat);
       applyHomeFilter();
     });
   });
+  setActiveFilterPill(filterPills, activeCat); // 마크업의 기본 활성 알약("전체")에도 초기 aria-pressed를 맞춘다
   searchInput.addEventListener('input', applyHomeFilter);
 
   // 큰 카테고리 버튼을 클릭했을 때 보여주는 카테고리 설명 페이지: 제목·설명 문구를 채우고,
@@ -19453,8 +19553,7 @@ function renderHomeRecent(){
     grid.innerHTML = '';
     items.slice(0, HOME_RECENT_COUNT).forEach(function(item){
       var d = new Date(item.createdAt);
-      function pad(n){ return (n<10?'0':'')+n; }
-      var dateStr = pad(d.getMonth()+1)+'/'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+      var dateStr = pad2(d.getMonth()+1)+'/'+pad2(d.getDate())+' '+pad2(d.getHours())+':'+pad2(d.getMinutes());
       var canRestore = !!(item.tabId && item.snapshot && TAB_SNAPSHOT_RESTORERS[item.tabId]);
       var el = document.createElement('div');
       el.className = 'home-recent-card';
@@ -19618,7 +19717,7 @@ function loadImageElement(file){
   });
 }
 
-// 여러 이미지를 한꺼번에 업로드하는 탭(10/12/13번)에서 공용으로 쓰는 헬퍼. Promise.all은 하나만
+// 여러 이미지를 한꺼번에 업로드하는 탭들에서 공용으로 쓰는 헬퍼. Promise.all은 하나만
 // 실패해도 전체가 그대로 reject되어 나머지 정상 파일까지 조용히 무시되므로(콘솔에만 에러가
 // 남고 화면은 아무 반응 없음), 파일별로 성공/실패를 따로 모아서 성공한 것만 쓰고 실패 목록은
 // 호출부가 안내할 수 있게 한다.
@@ -19894,11 +19993,6 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
   var COCOFOLIA_TARGET_BYTES = 0.95*1024*1024;
   var COCOFOLIA_MAX_DIM = 1200;
 
-  function hexToRgbG2A(hex){
-    var m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex||'#00ff00');
-    return m ? {r:parseInt(m[1],16), g:parseInt(m[2],16), b:parseInt(m[3],16)} : {r:0,g:255,b:0};
-  }
-
   function applyChromaKeyG2A(imageData, cr, cg, cb, tolerancePct){
     var d = imageData.data;
     var maxDist = Math.sqrt(3*255*255);
@@ -19994,6 +20088,7 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     var scale = Math.min(1, COCOFOLIA_MAX_DIM/Math.max(vw,vh));
     var w = Math.max(1, Math.round(vw*scale)), h = Math.max(1, Math.round(vh*scale));
     var start = Math.max(0, opts.start||0);
+    if(start >= video.duration) throw new Error('시작 시간('+start+'초)이 동영상 길이('+fmtSec(video.duration*1000)+')보다 깁니다.');
     var dur = (opts.duration!=null && opts.duration>0) ? opts.duration : (video.duration-start);
     dur = Math.max(0.05, Math.min(dur, video.duration-start));
     var fps = clampInt(opts.fps||15, 4, 30);
@@ -20002,7 +20097,7 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     var targetTimes = [];
     for(var i=0;i<frameCount;i++) targetTimes.push(start + dur*(frameCount>1 ? i/frameCount : 0));
     var chroma = opts.chroma;
-    var cc = chroma && chroma.on ? hexToRgbG2A(chroma.color) : null;
+    var cc = chroma && chroma.on ? hexToRgb(chroma.color, '#00ff00') : null;
 
     var frames;
     if(typeof video.requestVideoFrameCallback === 'function'){
@@ -20027,10 +20122,6 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
       dctx.drawImage(scaleCanvas, 0, 0, nw, nh);
       return dctx.getImageData(0,0,nw,nh);
     });
-  }
-
-  function yieldToBrowser(){
-    return new Promise(function(res){ setTimeout(res, 0); });
   }
 
   // 얼마나 줄여야 할지 매번 조금씩 시도하는 대신, 직전 결과 용량으로부터 필요한 축소 비율을
@@ -20705,15 +20796,10 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     return data;
   }
 
-  function hexToRgb(hex){
-    var m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex||'#ff0000');
-    return m ? {r:parseInt(m[1],16), g:parseInt(m[2],16), b:parseInt(m[3],16)} : {r:255,g:0,b:0};
-  }
-
   function applyTint(data, amount, hexColor){
     if(!amount) return data;
     var d = data.data, a = amount/100;
-    var c = hexToRgb(hexColor);
+    var c = hexToRgb(hexColor, '#ff0000');
     for(var i=0;i<d.length;i+=4){
       d[i]   = d[i]*(1-a) + c.r*a;
       d[i+1] = d[i+1]*(1-a) + c.g*a;
@@ -21055,7 +21141,7 @@ var LogParser = (function(){
     if(!el) return null;
     var inline = el.getAttribute && el.getAttribute('style');
     if(inline){
-      var m = inline.match(/color\s*:\s*([^;]+)/i);
+      var m = inline.match(/(?:^|;)\s*color\s*:\s*([^;]+)/i);
       if(m) return m[1].trim();
     }
     return null;
@@ -21212,6 +21298,14 @@ function guessGmName(namesSortedByFreqDesc){
   }
 
   function fmtKB(bytes){ return (bytes/1024).toFixed(1)+'KB'; }
+  // 압축 결과가 원본보다 오히려 커지는 경우(이미 고압축된 파일을 재인코딩하는 등)에도
+  // 절감률(savedPct)이 0 이하라는 이유로 카드/전체 요약 둘 다 그냥 "변화 없음"이라고만
+  // 말해, 실제로는 용량이 늘었다는 사실이 조용히 숨겨졌다. 늘어난 경우는 "+N%"로 알려준다.
+  function fmtSavedPct(savedPct){
+    if(savedPct > 0) return '-'+savedPct+'%';
+    if(savedPct < 0) return '+'+(-savedPct)+'%';
+    return '변화 없음';
+  }
 
   function renderRow(it){
     var box = document.createElement('div');
@@ -21236,7 +21330,7 @@ function guessGmName(namesSortedByFreqDesc){
     sizeInfo.style.cssText = 'font-size:11px;color:var(--sub);margin-top:2px;';
     var savedPct = it.origBytes>0 ? Math.round((1 - it.blob.size/it.origBytes)*100) : 0;
     sizeInfo.textContent = it.resized
-      ? (it.origW+'×'+it.origH+' '+fmtKB(it.origBytes)+' → '+it.w+'×'+it.h+' '+fmtKB(it.blob.size)+' ('+(savedPct>0?'-'+savedPct+'%':'변화 없음')+')')
+      ? (it.origW+'×'+it.origH+' '+fmtKB(it.origBytes)+' → '+it.w+'×'+it.h+' '+fmtKB(it.blob.size)+' ('+fmtSavedPct(savedPct)+')')
       : '이미 기준 이내 — 원본 그대로 ('+fmtKB(it.blob.size)+')';
     var btnRow = document.createElement('div');
     btnRow.style.cssText = 'display:flex;gap:4px;margin-top:6px;';
@@ -21247,7 +21341,12 @@ function guessGmName(namesSortedByFreqDesc){
     rm.className = 'btn ghost'; rm.textContent = '제거'; rm.style.cssText='padding:6px 10px;font-size:12px;color:var(--danger);';
     rm.addEventListener('click', function(){
       var i = items.indexOf(it);
-      if(i>=0){ items.splice(i,1); if(it.previewUrl) URL.revokeObjectURL(it.previewUrl); renderAll(); }
+      if(i>=0){
+        items.splice(i,1); if(it.previewUrl) URL.revokeObjectURL(it.previewUrl); renderAll();
+        var msg = remainingItemsMessage(items.length);
+        var info = $('#imgopt-info');
+        if(msg){ info.textContent = msg; info.classList.remove('hidden'); } else { info.classList.add('hidden'); }
+      }
     });
     btnRow.appendChild(dl); btnRow.appendChild(rm);
     box.appendChild(img); box.appendChild(name); box.appendChild(sizeInfo); box.appendChild(btnRow);
@@ -21262,7 +21361,7 @@ function guessGmName(namesSortedByFreqDesc){
     var totalOrig = 0, totalOut = 0;
     items.forEach(function(it){ totalOrig += it.origBytes; totalOut += it.blob.size; });
     var savedPct = totalOrig>0 ? Math.round((1 - totalOut/totalOrig)*100) : 0;
-    summary.textContent = '전체 '+items.length+'장 · '+fmtKB(totalOrig)+' → '+fmtKB(totalOut)+' ('+(savedPct>0?'-'+savedPct+'%':'변화 없음')+')';
+    summary.textContent = '전체 '+items.length+'장 · '+fmtKB(totalOrig)+' → '+fmtKB(totalOut)+' ('+fmtSavedPct(savedPct)+')';
     summary.classList.remove('hidden');
   }
 
@@ -21335,17 +21434,7 @@ function guessGmName(namesSortedByFreqDesc){
     });
   }
   function runImgoptZipAction(btn, whenDone){
-    var oldText = btn.textContent;
-    btn.disabled = true;
-    return buildImgoptZip(btn).then(function(blob){
-      whenDone(blob);
-      btn.disabled = false; btn.textContent = oldText;
-      return true;
-    }).catch(function(e){
-      alert('ZIP 생성 실패: '+e.message);
-      btn.disabled = false; btn.textContent = oldText;
-      return false;
-    });
+    return runZipAction(buildImgoptZip, btn, whenDone);
   }
   $('#imgopt-zip').addEventListener('click', function(){
     runImgoptZipAction($('#imgopt-zip'), function(blob){ downloadBlob(blob, 'imgopt_batch.zip'); });
@@ -21413,17 +21502,6 @@ var TabLog = (function(){
       : { bg:'#ffffff', ink:'#1e2430', sub:'#6b7280' };
   }
 
-  // <option>.style.color에 대입해보고 파싱 성공 여부를 확인하는 방식(탭9 스탠딩 재단의
-  // isValidCssColor와 동일한 기법) — 업로드된 로그 파일 안의 색상 문자열은 사용자가 직접 쓴
-  // 게 아니라 다른 도구가 생성한 값이라 형식이 깨져 있을 수 있어, 그대로 style에 꽂기 전에
-  // 걸러낸다.
-  function isValidLogColor(str){
-    if(!str) return false;
-    var opt = document.createElement('option');
-    opt.style.color = '';
-    opt.style.color = str;
-    return opt.style.color !== '';
-  }
   // 코코포리아가 주사위 굴림 결과 텍스트에 쓰는 전각 화살표(＞)는 일반 대사에는 거의 등장하지
   // 않는 문자라, 이 문자가 있는지만으로도 "이 줄은 주사위 굴림 결과다"를 꽤 정확히 판별할 수
   // 있다(정교한 다이스 문법 파싱 없이 가벼운 휴리스틱으로 처리).
@@ -21482,7 +21560,7 @@ var TabLog = (function(){
       if(!isSystem && !isGm){
         var nameEl = document.createElement('div');
         nameEl.className = 'log-name'; nameEl.textContent = m.name;
-        if(reflectColor && isValidLogColor(m.color)) nameEl.style.color = m.color;
+        if(reflectColor && isValidCssColor(m.color)) nameEl.style.color = m.color;
         row.appendChild(nameEl);
       }
       var textEl = document.createElement('div');
@@ -21626,7 +21704,7 @@ var TabLog = (function(){
       var isGm = !isSystem && m.name===gmName;
       var cls = isSystem?'system':(isGm?'gm':'pl');
       var avatarHtml = (cocoback && !isSystem && !isGm && m.icon) ? '<div class="avatar" style="background-image:url(&quot;'+esc(m.icon)+'&quot;)"></div>' : '';
-      var colorAttr = (reflectColor && isValidLogColor(m.color)) ? ' style="color:'+esc(m.color)+'"' : '';
+      var colorAttr = (reflectColor && isValidCssColor(m.color)) ? ' style="color:'+esc(m.color)+'"' : '';
       var nameHtml = (!isSystem && !isGm) ? '<div class="name"'+colorAttr+'>'+esc(m.name)+'</div>' : '';
       var textInner = esc(m.text).replace(/\n/g,'<br>');
       if(cocoback && looksLikeDiceLine(m.text)) textInner = '<span class="dice-pill">'+textInner+'</span>';
@@ -22090,11 +22168,11 @@ var TabLog = (function(){
 
   // 행 추가나 JSON 불러오기로 같은 원어(jp)가 두 번 이상 등록되면, 변환 시 첫 항목만
   // 살아남고(#gl-run의 jpToKr는 첫 등록만 채택) 나머지는 아무 경고 없이 조용히 무시된다.
-  // 캐릭터 룸파일 생성기(탭 12)의 checkCfLabelDup()과 같은 방식으로, 원어 중복을
+  // 캐릭터 룸파일 생성기(탭 13)의 checkCfLabelDup()과 같은 방식으로, 원어 중복을
   // 감지해 #gl-dict-warn에 알려준다.
   function checkDictDup(){
     var jps = dict.map(function(d){ return d.jp; });
-    var dup = jps.find(function(v, i){ return v && jps.indexOf(v) !== i; });
+    var dup = findDuplicateValue(jps);
     $('#gl-dict-warn').textContent = dup ? '원어가 중복되었습니다 ('+dup+') — 변환 시 먼저 등록된 항목만 적용되고 나머지는 무시되니, 서로 다르게 고쳐주세요.' : '';
   }
 
@@ -22478,6 +22556,10 @@ var TabLog = (function(){
     });
     refreshPointsInfo();
   }
+  function skillFieldAriaLabels(name){
+    var label = name || '기능';
+    return { check: label+' 성장 체크', base: label+' 기본치', alloc: label+' 분배 점수' };
+  }
   // cat: 카테고리별 보기에서 이 기능이 속할 구역 이름(직접 추가한 기능은 null → "기타"로 감).
   // DOM에 바로 붙이지 않고 객체만 만들어 skillRows에 쌓아두면, renderSkillTable()이 현재
   // 보기 방식(카테고리별/전체 목록)에 맞춰 실제 배치를 담당한다 — 입력해둔 값은 그대로 두고
@@ -22504,10 +22586,13 @@ var TabLog = (function(){
     // 구분되지만, 기능명은 사용자가 직접 고칠 수 있는 텍스트라 innerHTML 문자열에 그대로
     // 이어붙이면 따옴표 등으로 속성을 깨는 XSS로 이어질 수 있다. setAttribute는 값을 HTML로
     // 파싱하지 않으므로 안전하다.
-    var label = name || '기능';
-    checkboxInput.setAttribute('aria-label', label+' 성장 체크');
-    baseInput.setAttribute('aria-label', label+' 기본치');
-    allocInput.setAttribute('aria-label', label+' 분배 점수');
+    function applySkillFieldLabels(n){
+      var labels = skillFieldAriaLabels(n);
+      checkboxInput.setAttribute('aria-label', labels.check);
+      baseInput.setAttribute('aria-label', labels.base);
+      allocInput.setAttribute('aria-label', labels.alloc);
+    }
+    applySkillFieldLabels(name);
     nameInput.value = name;
     baseInput.value = base;
     if(formula){ baseInput.readOnly = true; baseInput.classList.add('chs-field-locked'); }
@@ -22517,6 +22602,10 @@ var TabLog = (function(){
       halfCell:halfCell, fifthCell:fifthCell, formula:formula||null, tr:tr,
       cat: cat||null, flatOrder: flatIdx>=0 ? flatIdx : null
     };
+    // 기능명을 직접 고쳐 쓴(홈브류 기능 추가 등) 뒤에도 "기본치"/"분배 점수" 입력칸의
+    // aria-label이 옛 이름에 그대로 머물러 있어, 스크린리더로는 이름을 바꾼 뒤에도
+    // 어떤 기능의 입력칸인지 계속 예전 이름으로만 안내됐다. 이름 칸이 바뀔 때마다 같이 갱신한다.
+    nameInput.addEventListener('input', function(){ applySkillFieldLabels(nameInput.value); });
     baseInput.addEventListener('input', refreshSkillTotals);
     allocInput.addEventListener('input', refreshSkillTotals);
     tr.querySelector('button').addEventListener('click', function(){
@@ -23051,17 +23140,6 @@ var TabLog = (function(){
 (function(){
   var items = [];
 
-  // CSS 색상 문자열 유효성 검사: <option>.style.color에 대입해보고 파싱 성공 여부를 확인한다
-  // (Canvas2D의 ctx.fillStyle은 잘못된 값을 대입해도 예외 없이 조용히 무시하기 때문에,
-  // 렌더링 직전에 이 함수로 미리 걸러내지 않으면 사용자가 눈치채지 못한 채 엉뚱한 배경색으로 출력된다).
-  function isValidCssColor(str){
-    if(!str) return false;
-    var opt = document.createElement('option');
-    opt.style.color = '';
-    opt.style.color = str;
-    return opt.style.color !== '';
-  }
-
   // 여백 색상: 색상 피커 + "투명" 버튼으로 고르되, #st-bgcolor(text) 값을 그대로 두어
   // 기존 저장/렌더 로직(persistFormField, renderItem의 bg 읽기)은 그대로 재사용한다.
   (function(){
@@ -23100,15 +23178,14 @@ var TabLog = (function(){
     if(imgRatio > targetRatio){
       sh = img.height; sw = sh*targetRatio; sy = 0;
       var slack = img.width-sw;
-      sx = clampNum(slack*offsetFrac, 0, slack);
+      sx = clampInt(slack*offsetFrac, 0, slack);
     } else {
       sw = img.width; sh = sw/targetRatio; sx = 0;
       var slackY = img.height-sh;
-      sy = clampNum(slackY*offsetFrac, 0, slackY);
+      sy = clampInt(slackY*offsetFrac, 0, slackY);
     }
     return {sx:sx, sy:sy, sw:sw, sh:sh};
   }
-  function clampNum(v,min,max){ return v<min?min:(v>max?max:v); }
 
   function renderItem(it){
     // 비율(가로:세로)·출력 폭 칸은 HTML에 min/max(비율 1-100, 출력 폭 16-8000px)가 있지만
@@ -23116,8 +23193,8 @@ var TabLog = (function(){
     // 범위 안이어도 서로 극단적으로 벌어지면(예: 1:100) outW를 기준으로 계산한 outH가
     // 여전히 범위를 크게 벗어날 수 있으므로, 계산된 outH도 별도로 다시 클램프해 실제
     // 캔버스 크기(및 ZIP에 담기는 각 이미지 크기)가 항상 안전한 범위 안에 있도록 한다.
-    var rw = clampNum(parseFloat($('#st-ratio-w').value)||1, 1, 100);
-    var rh = clampNum(parseFloat($('#st-ratio-h').value)||1, 1, 100);
+    var rw = clampInt(parseFloat($('#st-ratio-w').value)||1, 1, 100);
+    var rh = clampInt(parseFloat($('#st-ratio-h').value)||1, 1, 100);
     var outW = clampInt(parseInt($('#st-outwidth').value,10)||480, 16, 8000);
     var outH = clampInt(Math.round(outW * rh/rw), 16, 8000);
     var mode = $('#st-mode').value;
@@ -23134,7 +23211,7 @@ var TabLog = (function(){
       var dw = it.img.width*scale, dh = it.img.height*scale;
       var dx = (outW-dw)/2;
       var slackY = outH-dh;
-      var dy = clampNum(slackY*offsetFrac, 0, slackY);
+      var dy = clampInt(slackY*offsetFrac, 0, slackY);
       ctx.drawImage(it.img, 0,0,it.img.width,it.img.height, dx,dy,dw,dh);
     } else {
       var c = computeCrop(it.img, outW, outH, offsetFrac);
@@ -23178,7 +23255,12 @@ var TabLog = (function(){
       rm.className = 'btn ghost'; rm.textContent = '제거'; rm.style.cssText='padding:6px 10px;font-size:12px;color:var(--danger);';
       rm.addEventListener('click', function(){
         var i = items.indexOf(it);
-        if(i>=0){ items.splice(i,1); renderAll(); }
+        if(i>=0){
+          items.splice(i,1); renderAll();
+          var msg = remainingItemsMessage(items.length);
+          var info = $('#st-info');
+          if(msg){ info.textContent = msg; info.classList.remove('hidden'); } else { info.classList.add('hidden'); }
+        }
       });
       btnRow.appendChild(dl); btnRow.appendChild(rm);
       box.appendChild(img); box.appendChild(name); box.appendChild(slider); box.appendChild(btnRow);
@@ -23255,17 +23337,7 @@ var TabLog = (function(){
     });
   }
   function runStandingZipAction(btn, whenDone){
-    var oldText = btn.textContent;
-    btn.disabled = true;
-    return buildStandingZip(btn).then(function(blob){
-      whenDone(blob);
-      btn.disabled = false; btn.textContent = oldText;
-      return true;
-    }).catch(function(e){
-      alert('ZIP 생성 실패: '+e.message);
-      btn.disabled = false; btn.textContent = oldText;
-      return false;
-    });
+    return runZipAction(buildStandingZip, btn, whenDone);
   }
   $('#st-zip').addEventListener('click', function(){
     runStandingZipAction($('#st-zip'), function(blob){ downloadBlob(blob, 'standing_cut_batch.zip'); });
@@ -23276,39 +23348,8 @@ var TabLog = (function(){
   });
   stZipSaveBtn.disabled = true; // st-zip과 마찬가지로 이미지가 없으면 저장할 결과물도 없다
 
-  // 재단된 이미지를 다운로드→재업로드하지 않고 바로 12번/13번 탭으로 넘기는 통로.
-  // window.__ccSend는 각 탭이 자기 업로드 처리 함수를 등록해두는 전역 브릿지.
-  function itemsToFiles(){
-    // 다운로드용 파일명(_cut 접미사)과 달리, 다른 탭으로 넘길 때는 라벨 자동 생성에 그대로
-    // 쓰이므로 접미사 없이 원래 이름을 유지한다.
-    // canvasToBlobOrNull() 사용 이유는 buildStandingZip()과 동일 — 한 장이 실패해도
-    // Promise.all()이 멈추지 않게 한다.
-    var failed = [];
-    return Promise.all(items.map(function(it){
-      return new Promise(function(res){
-        canvasToBlobOrNull(it.canvas, function(blob){
-          if(!blob) failed.push(it.file.name);
-          res(blob ? new File([blob], baseName(it.file.name)+'.png', {type:'image/png'}) : null);
-        });
-      });
-    })).then(function(files){
-      if(failed.length) alert('다음 이미지는 변환에 실패해 전달되지 않았습니다: '+failed.join(', '));
-      return files.filter(Boolean);
-    });
-  }
-  function sendTo(loaderKey, targetTabId, btnId){
-    if(items.length===0) return;
-    var btn = $('#'+btnId);
-    btn.disabled = true;
-    itemsToFiles().then(function(files){
-      if(window.__ccSend && window.__ccSend[loaderKey]) window.__ccSend[loaderKey](files);
-      var tabBtn = document.querySelector('.tab-btn[data-target="'+targetTabId+'"]');
-      if(tabBtn) tabBtn.click();
-      btn.disabled = items.length===0;
-    });
-  }
-  $('#st-send-cs').addEventListener('click', function(){ sendTo('toCheatsheet', 'tab-cheatsheet', 'st-send-cs'); });
-  $('#st-send-cf').addEventListener('click', function(){ sendTo('toCharfile', 'tab-charfile', 'st-send-cf'); });
+  $('#st-send-cs').addEventListener('click', function(){ sendItemsTo(items, 'toCheatsheet', 'tab-cheatsheet', 'st-send-cs'); });
+  $('#st-send-cf').addEventListener('click', function(){ sendItemsTo(items, 'toCharfile', 'tab-charfile', 'st-send-cf'); });
 
   // 업로드했던 이미지 파일들(과 순서·세로 위치 미세조정 값)·목표 비율·처리 방식·앵커·여백
   // 색상·출력 폭을 저장해뒀다가, 되돌릴 때 같은 업로드 경로(loadImagesTolerant)로 다시
@@ -23549,8 +23590,6 @@ var TabLog = (function(){
   var trayIdSeq = 0;
   var MAX_TRAY = 500; // 담아두기 폭주 방지 상한
 
-  function yieldToBrowser(){ return new Promise(function(res){ setTimeout(res, 0); }); }
-
   function currentCanvasSize(){
     var idx = state.selected.body;
     var item = idx!=null ? state.parts.body[idx] : null;
@@ -23768,6 +23807,41 @@ var TabLog = (function(){
       'background:#fff;border:2px solid var(--accent);box-shadow:0 1px 3px rgba(0,0,0,.35);cursor:grab;touch-action:none;';
     rotHandle.addEventListener('pointerdown', function(e){ e.stopPropagation(); startGizmoDrag('rotate', e); });
     gizmo.appendChild(rotHandle);
+
+    // 키보드 전용/스크린리더 사용자를 위한 조작: 방향키로 이동(Shift+방향키는 더 큰 폭),
+    // +/-로 확대·축소, [/]로 회전. 12번 탭 크롭 박스의 키보드 조작 패턴과 동일하게, 눌릴
+    // 때마다 한 번씩만 pushUndo()를 쌓아 Ctrl+Z 한 번으로 그 조작 하나를 되돌릴 수 있게 한다.
+    gizmo.setAttribute('tabindex', '0');
+    gizmo.setAttribute('role', 'group');
+    gizmo.setAttribute('aria-label', '파츠 위치·크기·기울기 조정 손잡이 (방향키: 이동, +/-: 확대·축소, [/]: 회전)');
+    gizmo.addEventListener('keydown', function(e){
+      var t = activeLayerTransform();
+      if(!t) return;
+      var dir = {ArrowLeft:[-1,0], ArrowRight:[1,0], ArrowUp:[0,-1], ArrowDown:[0,1]}[e.key];
+      if(dir){
+        e.preventDefault();
+        pushUndo();
+        var step = e.shiftKey ? 20 : 4;
+        t.x = (t.x||0) + dir[0]*step;
+        t.y = (t.y||0) + dir[1]*step;
+        updateAll();
+      } else if(e.key==='+' || e.key==='='){
+        e.preventDefault();
+        pushUndo();
+        t.scale = Math.min(4, Math.max(0.2, (t.scale||1) * 1.05));
+        updateAll();
+      } else if(e.key==='-' || e.key==='_'){
+        e.preventDefault();
+        pushUndo();
+        t.scale = Math.min(4, Math.max(0.2, (t.scale||1) * 0.95));
+        updateAll();
+      } else if(e.key==='[' || e.key===']'){
+        e.preventDefault();
+        pushUndo();
+        t.rot = (t.rot||0) + (e.key===']' ? 5 : -5);
+        updateAll();
+      }
+    });
   }
 
   // 여백 자동 재단으로 파츠 이미지 자체가 실제 그림 영역만큼만 작아진 경우, 손잡이(gizmo)
@@ -23843,9 +23917,21 @@ var TabLog = (function(){
     box.appendChild(resetBtn);
   }
 
+  function partThumbAriaLabels(name, fallbackLabel){
+    var n = name || fallbackLabel;
+    return { select: n + ' 선택', rename: (name || '파츠') + ' 이름 수정' };
+  }
+
   function makeThumb(item, label, selected, onClick, onRemove, editing){
     var box = document.createElement('div');
     box.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;width:60px;';
+    box.tabIndex = 0;
+    box.setAttribute('role', 'button');
+    box.setAttribute('aria-label', partThumbAriaLabels(item ? item.name : null, label).select);
+    box.setAttribute('aria-pressed', selected ? 'true' : 'false');
+    // e.target !== box: 이름 입력칸은 자체 keydown에서 stopPropagation하지만, 삭제(×)
+    // 버튼은 네이티브 클릭도 같이 발생하므로 box 자신에 포커스가 있을 때만 반응한다.
+    box.addEventListener('keydown', function(e){ if(e.target !== box) return; if(e.key==='Enter' || e.key===' '){ e.preventDefault(); onClick(); } });
     var tb = document.createElement('div');
     tb.style.cssText = 'width:52px;height:52px;border-radius:8px;border:2px solid '+(selected?'var(--accent)':'var(--line)')+
       ';overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative;'+
@@ -23873,7 +23959,7 @@ var TabLog = (function(){
       nameInput.style.cssText = 'font-size:10px;color:var(--sub);width:60px;text-align:center;background:transparent;'+
         'border:1px solid transparent;border-radius:4px;padding:1px 2px;cursor:text;';
       nameInput.title = '클릭해서 이 파츠 이름 수정';
-      nameInput.setAttribute('aria-label', (item.name||'파츠')+' 이름 수정');
+      nameInput.setAttribute('aria-label', partThumbAriaLabels(item.name, label).rename);
       nameInput.addEventListener('click', function(e){ e.stopPropagation(); });
       nameInput.addEventListener('mousedown', function(e){ e.stopPropagation(); });
       nameInput.addEventListener('keydown', function(e){ e.stopPropagation(); if(e.key==='Enter') nameInput.blur(); });
@@ -23885,6 +23971,9 @@ var TabLog = (function(){
       nameInput.addEventListener('input', function(){
         if(!nameEditStarted){ pushUndo(); nameEditStarted = true; }
         item.name = nameInput.value;
+        var labels = partThumbAriaLabels(item.name, label);
+        box.setAttribute('aria-label', labels.select);
+        nameInput.setAttribute('aria-label', labels.rename);
         updateAll();
       });
       box.appendChild(nameInput);
@@ -23911,9 +24000,13 @@ var TabLog = (function(){
   // previewedTrayId: 지금 "크게 보기" 모달에 떠 있는 담아둔 조합의 id(없으면 null).
   // 썸네일 목록에서 그 항목에만 테두리 강조를 준다(makeThumb의 "지금 조정 중" 표시와 같은 목적).
   var previewedTrayId = null;
+  // 모달을 열기 직전 포커스를 갖고 있던 요소(보통 클릭/Enter로 연 썸네일) — 닫을 때 여기로
+  // 포커스를 되돌려야 키보드 사용자가 목록에서 위치를 잃지 않는다.
+  var trayPreviewOpener = null;
 
   function openTrayPreview(item){
     previewedTrayId = item.id;
+    trayPreviewOpener = document.activeElement;
     $('#parts-preview-modal-title').textContent = item.label || '조합';
     $('#parts-preview-modal-img').src = item.url;
     $('#parts-preview-modal-download').onclick = function(){
@@ -23924,13 +24017,21 @@ var TabLog = (function(){
     // 일치하면 알아서 closeTrayPreview()까지 호출해준다.
     $('#parts-preview-modal-remove').onclick = function(){ removeFromTray(item.id); };
     $('#parts-preview-modal').classList.remove('hidden');
+    $('#parts-preview-modal-close').focus();
     renderTrayGallery();
   }
   function closeTrayPreview(){
     if(previewedTrayId==null) return;
     previewedTrayId = null;
     $('#parts-preview-modal').classList.add('hidden');
+    if(trayPreviewOpener && document.contains(trayPreviewOpener)) trayPreviewOpener.focus();
+    trayPreviewOpener = null;
     renderTrayGallery();
+  }
+
+  function trayThumbAriaLabels(label){
+    var n = label || '조합';
+    return { view: n+' 크게 보기', rename: n+' 파일명 수정', download: n+' 다운로드', remove: n+' 빼기' };
   }
 
   function makeTrayThumb(item){
@@ -23938,12 +24039,20 @@ var TabLog = (function(){
     var box = document.createElement('div');
     box.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;width:'+TRAY_THUMB_PX+'px;';
     box.title = '클릭해서 크게 보기';
+    box.tabIndex = 0;
+    box.setAttribute('role', 'button');
+    box.setAttribute('aria-label', trayThumbAriaLabels(item.label).view);
+    // e.target !== box: makeThumb()과 동일한 이유 — 다운로드(⬇)/삭제(×) 버튼이 box의
+    // DOM 자식이라, 그 버튼에 포커스를 두고 Enter/Space를 누르면 keydown이 box까지
+    // 버블링돼 버튼 자신의 클릭 대신 "크게 보기"가 열려버린다. box 자신에 포커스가
+    // 있을 때만 반응해야 버튼들이 키보드로도 제대로 눌린다.
+    box.addEventListener('keydown', function(e){ if(e.target !== box) return; if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openTrayPreview(item); } });
     var tb = document.createElement('div');
     tb.style.cssText = 'width:'+TRAY_THUMB_PX+'px;height:'+TRAY_THUMB_PX+'px;border-radius:10px;border:2px solid '+(previewing?'var(--accent)':'var(--line)')+
       ';overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative;'+
       'background:var(--bg) repeating-conic-gradient(#8883 0% 25%, transparent 0% 50%) 50%/12px 12px;';
     var im = document.createElement('img');
-    im.src = item.url; im.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;';
+    im.src = item.url; im.alt = (item.label||'조합')+' 미리보기'; im.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;';
     tb.appendChild(im);
     box.appendChild(tb);
     // 조합 파일명(item.label)도 직접 고칠 수 있게 <input>으로 둔다. box 클릭은 "크게 보기"로
@@ -23956,13 +24065,18 @@ var TabLog = (function(){
     nameInput.style.cssText = 'font-size:10.5px;color:var(--sub);width:'+TRAY_THUMB_PX+'px;text-align:center;background:transparent;'+
       'border:1px solid transparent;border-radius:4px;padding:1px 2px;cursor:text;';
     nameInput.title = '클릭해서 이 조합 파일명 수정';
-    nameInput.setAttribute('aria-label', (item.label||'조합')+' 파일명 수정');
+    nameInput.setAttribute('aria-label', trayThumbAriaLabels(item.label).rename);
     nameInput.addEventListener('click', function(e){ e.stopPropagation(); });
     nameInput.addEventListener('mousedown', function(e){ e.stopPropagation(); });
     nameInput.addEventListener('keydown', function(e){ e.stopPropagation(); if(e.key==='Enter') nameInput.blur(); });
     nameInput.addEventListener('input', function(){
       item.label = nameInput.value;
       if(previewing) $('#parts-preview-modal-title').textContent = item.label;
+      var labels = trayThumbAriaLabels(item.label);
+      box.setAttribute('aria-label', labels.view);
+      nameInput.setAttribute('aria-label', labels.rename);
+      dl.setAttribute('aria-label', labels.download);
+      rm.setAttribute('aria-label', labels.remove);
     });
     box.appendChild(nameInput);
     box.addEventListener('click', function(){ openTrayPreview(item); });
@@ -23971,7 +24085,7 @@ var TabLog = (function(){
     // 좌하단에 둔다.
     var dl = document.createElement('button');
     dl.type='button'; dl.textContent='⬇'; dl.title='이 조합 다운로드';
-    dl.setAttribute('aria-label', (item.label||'조합')+' 다운로드');
+    dl.setAttribute('aria-label', trayThumbAriaLabels(item.label).download);
     dl.style.cssText = 'position:absolute;bottom:-6px;left:-6px;width:20px;height:20px;border-radius:50%;border:none;background:var(--accent);color:#fff;font-size:11px;line-height:1;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;';
     dl.addEventListener('click', function(e){
       e.stopPropagation();
@@ -23981,7 +24095,7 @@ var TabLog = (function(){
 
     var rm = document.createElement('button');
     rm.type='button'; rm.textContent='×'; rm.title='담아둔 조합에서 빼기';
-    rm.setAttribute('aria-label', (item.label||'조합')+' 빼기');
+    rm.setAttribute('aria-label', trayThumbAriaLabels(item.label).remove);
     rm.style.cssText = 'position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:none;background:var(--danger);color:#fff;font-size:13px;line-height:1;cursor:pointer;padding:0;';
     rm.addEventListener('click', function(e){ e.stopPropagation(); removeFromTray(item.id); });
     tb.appendChild(rm);
@@ -24131,6 +24245,11 @@ var TabLog = (function(){
 
   function buildCatUI(){
     var wrap = $('#parts-cats');
+    // 지우고 다시 그리기 전에 이전 드롭존들을 dropPasteHandlers에서 지워야 한다.
+    // 안 지우면 Map이 떨어져나간(detached) 옛 드롭존 엘리먼트와 그 클로저를 계속
+    // 강하게 붙들고 있어, 이 함수가 호출될 때마다(전체 지우기·Ctrl+Z/X 되돌리기마다)
+    // 메모리가 누적된다.
+    $all('.drop', wrap).forEach(function(oldDrop){ dropPasteHandlers.delete(oldDrop); });
     wrap.innerHTML = '';
     PART_CATEGORIES.forEach(function(cat){
       var box = document.createElement('div');
@@ -24275,17 +24394,7 @@ var TabLog = (function(){
     });
   }
   function runAllCombosZip(btn, whenDone){
-    var oldText = btn.textContent;
-    btn.disabled = true;
-    return buildAllCombosZip(btn).then(function(blob){
-      whenDone(blob);
-      btn.disabled = false; btn.textContent = oldText;
-      return true;
-    }).catch(function(e){
-      alert('전체 조합 ZIP 생성 실패: '+e.message);
-      btn.disabled = false; btn.textContent = oldText;
-      return false;
-    });
+    return runZipAction(buildAllCombosZip, btn, whenDone, '전체 조합 ZIP 생성 실패: ');
   }
   $('#parts-zip-all').addEventListener('click', function(){
     runAllCombosZip($('#parts-zip-all'), function(blob){ downloadBlob(blob, 'standing_combo_all.zip'); });
@@ -24333,17 +24442,7 @@ var TabLog = (function(){
     });
   }
   function runTrayZipAction(btn, whenDone){
-    var oldText = btn.textContent;
-    btn.disabled = true;
-    return buildTrayZip(btn).then(function(blob){
-      whenDone(blob);
-      btn.disabled = false; btn.textContent = oldText;
-      return true;
-    }).catch(function(e){
-      alert('담아둔 조합 저장 실패: '+e.message);
-      btn.disabled = false; btn.textContent = oldText;
-      return false;
-    });
+    return runZipAction(buildTrayZip, btn, whenDone, '담아둔 조합 저장 실패: ');
   }
   $('#parts-tray-save-all').addEventListener('click', function(){
     runTrayZipAction($('#parts-tray-save-all'), function(blob){ downloadBlob(blob, 'standing_combo_tray.zip'); });
@@ -24565,7 +24664,12 @@ var TabLog = (function(){
       rm.className = 'btn ghost'; rm.textContent = '제거'; rm.style.cssText='padding:6px 10px;font-size:12px;color:var(--danger);';
       rm.addEventListener('click', function(){
         var i = items.indexOf(it);
-        if(i>=0){ items.splice(i,1); renderAll(); }
+        if(i>=0){
+          items.splice(i,1); renderAll();
+          var msg = remainingItemsMessage(items.length);
+          var info = $('#trim-info');
+          if(msg){ info.textContent = msg; info.classList.remove('hidden'); } else { info.classList.add('hidden'); }
+        }
       });
       btnRow.appendChild(dl); btnRow.appendChild(rm);
       box.appendChild(img); box.appendChild(name); box.appendChild(sizeInfo); box.appendChild(btnRow);
@@ -24634,17 +24738,7 @@ var TabLog = (function(){
     });
   }
   function runTrimZipAction(btn, whenDone){
-    var oldText = btn.textContent;
-    btn.disabled = true;
-    return buildTrimZip(btn).then(function(blob){
-      whenDone(blob);
-      btn.disabled = false; btn.textContent = oldText;
-      return true;
-    }).catch(function(e){
-      alert('ZIP 생성 실패: '+e.message);
-      btn.disabled = false; btn.textContent = oldText;
-      return false;
-    });
+    return runZipAction(buildTrimZip, btn, whenDone);
   }
   $('#trim-zip').addEventListener('click', function(){
     runTrimZipAction($('#trim-zip'), function(blob){ downloadBlob(blob, 'trim_batch.zip'); });
@@ -24655,37 +24749,9 @@ var TabLog = (function(){
   });
   trimZipSaveBtn.disabled = true;
 
-  // 잘라낸 이미지를 다운로드→재업로드하지 않고 바로 10/12/13번 탭으로 넘기는 통로.
-  // canvasToBlobOrNull() 사용 이유는 위 buildTrimZip()과 동일 — 한 장이 실패해도
-  // Promise.all()이 멈추지 않게 한다.
-  function itemsToFiles(){
-    var failed = [];
-    return Promise.all(items.map(function(it){
-      return new Promise(function(res){
-        canvasToBlobOrNull(it.canvas, function(blob){
-          if(!blob) failed.push(it.file.name);
-          res(blob ? new File([blob], baseName(it.file.name)+'.png', {type:'image/png'}) : null);
-        });
-      });
-    })).then(function(files){
-      if(failed.length) alert('다음 이미지는 변환에 실패해 전달되지 않았습니다: '+failed.join(', '));
-      return files.filter(Boolean);
-    });
-  }
-  function sendTo(loaderKey, targetTabId, btnId){
-    if(items.length===0) return;
-    var btn = $('#'+btnId);
-    btn.disabled = true;
-    itemsToFiles().then(function(files){
-      if(window.__ccSend && window.__ccSend[loaderKey]) window.__ccSend[loaderKey](files);
-      var tabBtn = document.querySelector('.tab-btn[data-target="'+targetTabId+'"]');
-      if(tabBtn) tabBtn.click();
-      btn.disabled = items.length===0;
-    });
-  }
-  $('#trim-send-st').addEventListener('click', function(){ sendTo('toStanding', 'tab-standing', 'trim-send-st'); });
-  $('#trim-send-cs').addEventListener('click', function(){ sendTo('toCheatsheet', 'tab-cheatsheet', 'trim-send-cs'); });
-  $('#trim-send-cf').addEventListener('click', function(){ sendTo('toCharfile', 'tab-charfile', 'trim-send-cf'); });
+  $('#trim-send-st').addEventListener('click', function(){ sendItemsTo(items, 'toStanding', 'tab-standing', 'trim-send-st'); });
+  $('#trim-send-cs').addEventListener('click', function(){ sendItemsTo(items, 'toCheatsheet', 'tab-cheatsheet', 'trim-send-cs'); });
+  $('#trim-send-cf').addEventListener('click', function(){ sendItemsTo(items, 'toCharfile', 'tab-charfile', 'trim-send-cf'); });
 
   // 업로드했던 이미지 파일들·허용 오차·여백 여유를 저장해뒀다가, 되돌릴 때 같은 업로드
   // 경로(loadImagesTolerant)로 다시 불러온 뒤 renderAll()로 재단 결과까지 재현한다.
@@ -24829,8 +24895,7 @@ var TabLog = (function(){
     }
     var catchPx = 0;
     if(catchVal){
-      catchPx = SUBTITLE_BASE_PX;
-      while(catchPx > SUBTITLE_MIN_PX && measureMixedText(ctx, catchVal, catchPx, '600') > avail) catchPx -= 1;
+      catchPx = fitFontSize(ctx, catchVal, avail, SUBTITLE_BASE_PX, '600', SUBTITLE_MIN_PX);
     }
     var h = TITLE_PAD_Y*2 + (catchVal ? catchPx + SUBTITLE_GAP : 0) + (showNameHere ? namePx : 0);
     return {h:h, namePx:namePx, catchPx:catchPx};
@@ -25070,7 +25135,7 @@ var TabLog = (function(){
     var nat = cropImgNaturalWH();
     var maxSidePx = Math.min((1-cropRect.x)*nat.w, (1-cropRect.y)*nat.h);
     var minSidePx = 0.03*Math.min(nat.w, nat.h);
-    var sidePx = clamp01(cropRect.w*nat.w, minSidePx, maxSidePx);
+    var sidePx = clampInt(cropRect.w*nat.w, minSidePx, maxSidePx);
     cropRect.w = sidePx/nat.w;
     cropRect.h = sidePx/nat.h;
   }
@@ -25087,11 +25152,11 @@ var TabLog = (function(){
     if(!w || !h) return;
     var dx = (x-dragStart.x)/w, dy = (y-dragStart.y)/h;
     if(dragMode==='move'){
-      cropRect.x = clamp01(rectStart.x+dx, 0, 1-cropRect.w);
-      cropRect.y = clamp01(rectStart.y+dy, 0, 1-cropRect.h);
+      cropRect.x = clampInt(rectStart.x+dx, 0, 1-cropRect.w);
+      cropRect.y = clampInt(rectStart.y+dy, 0, 1-cropRect.h);
     } else {
       // 정사각형 유지를 위해 가로 드래그(dx)만 크기 기준으로 쓰고, 세로 크기는 이미지 비율로 계산한다
-      cropRect.w = clamp01(rectStart.w+dx, 0.03, 1-cropRect.x);
+      cropRect.w = clampInt(rectStart.w+dx, 0.03, 1-cropRect.x);
       squareifyCropRect();
     }
     syncCropBoxDom();
@@ -25120,15 +25185,14 @@ var TabLog = (function(){
     if(!dir) return;
     e.preventDefault();
     if(e.shiftKey){
-      cropRect.w = clamp01(cropRect.w+dir[0]*STEP, 0.03, 1-cropRect.x);
+      cropRect.w = clampInt(cropRect.w+dir[0]*STEP, 0.03, 1-cropRect.x);
       squareifyCropRect();
     } else {
-      cropRect.x = clamp01(cropRect.x+dir[0]*STEP, 0, 1-cropRect.w);
-      cropRect.y = clamp01(cropRect.y+dir[1]*STEP, 0, 1-cropRect.h);
+      cropRect.x = clampInt(cropRect.x+dir[0]*STEP, 0, 1-cropRect.w);
+      cropRect.y = clampInt(cropRect.y+dir[1]*STEP, 0, 1-cropRect.h);
     }
     syncCropBoxDom();
   });
-  function clamp01(v,min,max){ return v<min?min:(v>max?max:v); }
 
   // 위쪽 크롭 박스 미리보기는 items[0](첫 번째 카드) 기준으로 그려진다. 카드를 드래그해 순서를
   // 바꾸거나 맨 앞 이미지를 "삭제"로 지우면 items[0]이 다른 이미지로 바뀔 수 있는데, 예전에는
@@ -25398,7 +25462,7 @@ var TabLog = (function(){
 
   function csResultFilename(){
     var nameVal = $('#cs-name').value.trim();
-    var safeName = nameVal.replace(/[\\/:*?"<>|]/g, '_');
+    var safeName = sanitizeFilename(nameVal, '');
     return (safeName ? safeName+'_' : '')+'expression_cheatsheet.png';
   }
   $('#cs-download').addEventListener('click', function(){
@@ -25566,6 +25630,7 @@ var TabLog = (function(){
         if(it.isMain && cfItems.length) cfItems[0].isMain = true;
         buildCfLabelInputs();
         syncCfButtons();
+        checkCfLabelDup();
       });
       f.appendChild(delBtn);
 
@@ -25577,10 +25642,16 @@ var TabLog = (function(){
   // 직접 고쳐 두 항목의 라벨이 같아지는 경우는 검사하지 않았다. 코코포리아 룸파일은 라벨로
   // 표정을 구분하므로, 라벨이 겹치면 한쪽 표정 이미지가 룸파일에서 조용히 사라진다(경고 없음).
   // 라벨 입력칸이 바뀔 때마다 중복 여부를 확인해 있으면 알려준다.
+  function cfLabelDupMessage(itemCount, dup){
+    return dup
+      ? '라벨이 중복되었습니다 ('+dup+') — 코코포리아는 같은 라벨의 표정 중 하나만 인식하므로, 서로 다르게 고쳐주세요.'
+      : itemCount+'장 로드됨. 라벨을 확인하고, 메인 아이콘으로 쓸 이미지를 골라주세요.';
+  }
+
   function checkCfLabelDup(){
     var labels = cfItems.map(function(x){ return x.label; });
-    var dup = labels.find(function(l, i){ return l && labels.indexOf(l) !== i; });
-    if(dup) $('#cf-info').textContent = '라벨이 중복되었습니다 ('+dup+') — 코코포리아는 같은 라벨의 표정 중 하나만 인식하므로, 서로 다르게 고쳐주세요.';
+    var dup = findDuplicateValue(labels);
+    $('#cf-info').textContent = cfLabelDupMessage(cfItems.length, dup);
   }
 
   function uniqueCfLabel(label, usedLabels){
@@ -25769,7 +25840,7 @@ var TabLog = (function(){
     zip.file('.token', '0.'+tokenHex);
 
     var blob = await zip.generateAsync({type:'blob'});
-    var safeName = name.replace(/[\\/:*?"<>|]/g, '_') || 'character';
+    var safeName = sanitizeFilename(name, 'character');
     return {blob: blob, filename: safeName+'_room.zip', name: name, faces: faces};
   }
   // "스테이터스 JSON 불러오기" 버튼을 안 눌렀어도 textarea 내용이 반영되도록 생성 시점에

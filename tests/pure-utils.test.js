@@ -13,6 +13,7 @@ const HTML_PATH = path.join(__dirname, '..', 'Cocofolia_Setter.html');
 
 const sandbox = loadFunctionsFromHtml(HTML_PATH, [
   'clampInt',
+  'hexToRgb',
   'baseName',
   'fmtSec',
   'escHtml',
@@ -20,17 +21,24 @@ const sandbox = loadFunctionsFromHtml(HTML_PATH, [
   'sanitizeFilename',
   'ensureExtension',
   'uniqueZipName',
+  'findDuplicateValue',
+  'remainingItemsMessage',
   // guessGmName은 최상위 상수 GM_NAME_ALIASES를 참조하므로 그 선언도 함께 로드한다.
   { type: 'var', name: 'GM_NAME_ALIASES' },
   'guessGmName',
-  'movAgePenalty',
-  'isApngBuffer',
 ]);
 
 test('clampInt: 범위 안/밖 값을 올바르게 자른다', () => {
   assert.equal(sandbox.clampInt(5, 0, 10), 5);
   assert.equal(sandbox.clampInt(-1, 0, 10), 0);
   assert.equal(sandbox.clampInt(11, 0, 10), 10);
+});
+
+test('hexToRgb: #rrggbb를 {r,g,b}로 바꾸고, 비어있거나 형식이 안 맞으면 fallbackHex를 대신 쓴다', () => {
+  assert.deepEqual(toHostRealm(sandbox.hexToRgb('#00ff00', '#ff0000')), { r: 0, g: 255, b: 0 });
+  assert.deepEqual(toHostRealm(sandbox.hexToRgb('0000ff', '#ff0000')), { r: 0, g: 0, b: 255 }); // 앞의 # 은 있어도 없어도 된다
+  assert.deepEqual(toHostRealm(sandbox.hexToRgb('', '#ff0000')), { r: 255, g: 0, b: 0 }); // 빈 값이면 fallbackHex
+  assert.deepEqual(toHostRealm(sandbox.hexToRgb('안녕', '#ff0000')), { r: 255, g: 0, b: 0 }); // 형식이 안 맞아도 fallbackHex
 });
 
 test('baseName: 확장자를 제거하고, 확장자가 없으면 그대로 돌려준다', () => {
@@ -79,31 +87,663 @@ test('uniqueZipName: ZIP 안에서 파일명이 겹치면 (2), (3)... 을 붙여
   assert.equal(sandbox.uniqueZipName(used, 'b.png'), 'b.png');
 });
 
+test('findDuplicateValue: 배열에서 처음으로 두 번 이상 등장하는 값을 찾고, falsy 값은 무시한다', () => {
+  assert.equal(sandbox.findDuplicateValue(['a', 'b', 'a']), 'a');
+  assert.equal(sandbox.findDuplicateValue(['a', 'b', 'c']), undefined);
+  assert.equal(sandbox.findDuplicateValue(['', '', 'a']), undefined); // 빈 문자열은 무시
+  assert.equal(sandbox.findDuplicateValue([]), undefined);
+});
+
+test('remainingItemsMessage: 남은 개수가 있으면 안내 문구를, 0이면 null을 돌려준다(호출부가 안내 상자를 감추는 신호)', () => {
+  assert.equal(sandbox.remainingItemsMessage(5), '5장 남음.');
+  assert.equal(sandbox.remainingItemsMessage(1), '1장 남음.');
+  assert.equal(sandbox.remainingItemsMessage(0), null);
+});
+
 test('guessGmName: GM 지칭 표기가 있으면 그 이름을, 없으면 빈도 1위를 고른다', () => {
   assert.equal(sandbox.guessGmName(['플레이어A', '키퍼', '플레이어B']), '키퍼');
   assert.equal(sandbox.guessGmName(['플레이어A', '플레이어B']), '플레이어A');
   assert.equal(sandbox.guessGmName([]), null);
 });
 
-test('movAgePenalty: CoC 7판 노화 규칙에 따라 10년 단위로 이동력 감소분을 계산한다', () => {
-  assert.equal(sandbox.movAgePenalty(0), 0);
-  assert.equal(sandbox.movAgePenalty(null), 0);
-  assert.equal(sandbox.movAgePenalty(39), 0);
-  assert.equal(sandbox.movAgePenalty(40), 1);
-  assert.equal(sandbox.movAgePenalty(49), 1);
-  assert.equal(sandbox.movAgePenalty(50), 2);
-  assert.equal(sandbox.movAgePenalty(59), 2);
-  assert.equal(sandbox.movAgePenalty(60), 3);
-  assert.equal(sandbox.movAgePenalty(69), 3);
-  assert.equal(sandbox.movAgePenalty(70), 4);
-  assert.equal(sandbox.movAgePenalty(79), 4);
-  assert.equal(sandbox.movAgePenalty(80), 5);
-  assert.equal(sandbox.movAgePenalty(200), 5);
+const sandbox2 = loadFunctionsFromHtml(HTML_PATH, [
+  'deriveLogBaseName',
+  'officialDbBuild',
+  'powerSetIndices',
+  'isJPChar',
+  // splitRuns는 같은 스코프의 isJPChar를 호출하므로 함께 로드한다.
+  'splitRuns',
+  'uniqueCfLabel',
+]);
+
+test('deriveLogBaseName: 확장자와 [all]/[main]/_main 표시를 떼어내고, 빈 값은 "로그"로 대체한다', () => {
+  assert.equal(sandbox2.deriveLogBaseName('저주받은 저택[all].html'), '저주받은 저택');
+  assert.equal(sandbox2.deriveLogBaseName('제목_main.html'), '제목');
+  assert.equal(sandbox2.deriveLogBaseName('제목[main].html'), '제목');
+  assert.equal(sandbox2.deriveLogBaseName(''), '로그');
+  assert.equal(sandbox2.deriveLogBaseName(undefined), '로그');
 });
 
-test('isApngBuffer: acTL 마커가 버퍼 맨 끝 4바이트에 걸쳐 있어도 감지한다', () => {
-  const withMarkerAtEnd = new Uint8Array([0x00, 0x00, 0x61, 0x63, 0x54, 0x4C]).buffer;
-  assert.equal(sandbox.isApngBuffer(withMarkerAtEnd), true);
-  const withoutMarker = new Uint8Array([0x00, 0x00, 0x00, 0x00, 0x00, 0x00]).buffer;
-  assert.equal(sandbox.isApngBuffer(withoutMarker), false);
+// sandbox2는 별도의 vm 컨텍스트(realm)라서 그 안에서 만든 객체/배열은 Object/Array
+// 프로토타입이 이 파일의 것과 달라 assert.deepEqual(strict)이 "구조는 같지만 참조가
+// 다르다"며 실패한다. JSON 왕복으로 이 파일의 realm에 속한 순수 객체로 옮긴 뒤 비교한다.
+const toHostRealm = (v) => JSON.parse(JSON.stringify(v));
+
+test('officialDbBuild: CoC 7판 공식 Damage Bonus/Build 표 경계값을 정확히 찾는다', () => {
+  assert.deepEqual(toHostRealm(sandbox2.officialDbBuild(64)), {db:'-2', build:'-2'});
+  assert.deepEqual(toHostRealm(sandbox2.officialDbBuild(65)), {db:'-1', build:'-1'});
+  assert.deepEqual(toHostRealm(sandbox2.officialDbBuild(124)), {db:'0', build:'0'});
+  assert.deepEqual(toHostRealm(sandbox2.officialDbBuild(125)), {db:'+1D4', build:'1'});
+  assert.deepEqual(toHostRealm(sandbox2.officialDbBuild(444)), {db:'+4D6', build:'5'});
+  // 표 범위(~444)를 넘어서면 80씩 늘어날 때마다 주사위 개수/체구가 1씩 오른다
+  assert.deepEqual(toHostRealm(sandbox2.officialDbBuild(445)), {db:'+5D6', build:'6'});
+  assert.deepEqual(toHostRealm(sandbox2.officialDbBuild(524)), {db:'+5D6', build:'6'});
+  assert.deepEqual(toHostRealm(sandbox2.officialDbBuild(525)), {db:'+6D6', build:'7'});
+});
+
+test('powerSetIndices: n개 인덱스의 부분집합을 중복/누락 없이 2^n개 만든다', () => {
+  const setOf = (subsets) => toHostRealm(subsets).map((s) => s.slice().sort().join(',')).sort();
+  assert.deepEqual(setOf(sandbox2.powerSetIndices(0)), ['']);
+  assert.deepEqual(setOf(sandbox2.powerSetIndices(2)), ['', '0', '0,1', '1']);
+  assert.equal(sandbox2.powerSetIndices(3).length, 8);
+});
+
+test('isJPChar/splitRuns: 가나(히라가나/가타카나)·한자는 일본어, 한글·영문은 아니다로 판별하고 구간을 나눈다', () => {
+  assert.equal(sandbox2.isJPChar('가'), false);
+  assert.equal(sandbox2.isJPChar('あ'), true);
+  assert.equal(sandbox2.isJPChar('ア'), true);
+  assert.equal(sandbox2.isJPChar('a'), false);
+  assert.deepEqual(toHostRealm(sandbox2.splitRuns('한글あ한글')), [
+    {text:'한글', jp:false},
+    {text:'あ', jp:true},
+    {text:'한글', jp:false},
+  ]);
+  assert.deepEqual(toHostRealm(sandbox2.splitRuns('')), []);
+});
+
+test('uniqueCfLabel: 라벨이 겹치면 _2, _3...을 붙여 구분한다', () => {
+  const used = [];
+  assert.equal(sandbox2.uniqueCfLabel('face', used), 'face');
+  assert.equal(sandbox2.uniqueCfLabel('face', used), 'face_2');
+  assert.equal(sandbox2.uniqueCfLabel('face', used), 'face_3');
+  assert.equal(sandbox2.uniqueCfLabel('other', used), 'other');
+});
+
+const sandbox3 = loadFunctionsFromHtml(HTML_PATH, [
+  'clampInt',
+  'computeCrop',
+  'sampleCorner',
+  'detectBackground',
+  'detectBBox',
+  'isDice',
+  // isJudge는 같은 스코프의 isDice를 호출하므로 함께 로드한다.
+  'isJudge',
+  'isSanity',
+  'outputMime',
+  'outputExt',
+  'movAgePenalty',
+  'deriveStatus',
+  'parseStatusJson',
+  'isApngBuffer',
+]);
+
+test('computeCrop: 가로가 더 넓은 이미지는 좌우를, 세로가 더 긴 이미지는 상하를 offsetFrac 비율로 잘라낸다', () => {
+  // 가로가 긴 이미지(가로:세로 2:1)를 정사각형(1:1)으로: 세로는 그대로, 가로만 잘라낸다.
+  const wideImg = { width: 200, height: 100 };
+  assert.deepEqual(toHostRealm(sandbox3.computeCrop(wideImg, 1, 1, 0)), { sx: 0, sy: 0, sw: 100, sh: 100 });
+  assert.deepEqual(toHostRealm(sandbox3.computeCrop(wideImg, 1, 1, 1)), { sx: 100, sy: 0, sw: 100, sh: 100 });
+  assert.deepEqual(toHostRealm(sandbox3.computeCrop(wideImg, 1, 1, 0.5)), { sx: 50, sy: 0, sw: 100, sh: 100 });
+
+  // 세로가 긴 이미지(가로:세로 1:2)를 정사각형으로: 가로는 그대로, 세로만 잘라낸다.
+  const tallImg = { width: 100, height: 200 };
+  assert.deepEqual(toHostRealm(sandbox3.computeCrop(tallImg, 1, 1, 0)), { sx: 0, sy: 0, sw: 100, sh: 100 });
+  assert.deepEqual(toHostRealm(sandbox3.computeCrop(tallImg, 1, 1, 1)), { sx: 0, sy: 100, sw: 100, sh: 100 });
+
+  // offsetFrac이 범위를 벗어나도(음수/1 초과) 잘라낼 위치가 이미지 밖으로 나가지 않게 클램프된다.
+  assert.deepEqual(toHostRealm(sandbox3.computeCrop(wideImg, 1, 1, -1)), { sx: 0, sy: 0, sw: 100, sh: 100 });
+  assert.deepEqual(toHostRealm(sandbox3.computeCrop(wideImg, 1, 1, 2)), { sx: 100, sy: 0, sw: 100, sh: 100 });
+});
+
+// 픽셀 (x,y)에 RGBA를 쓰는 4x4 RGBA 버퍼를 만든다. 지정하지 않은 픽셀은 흰 배경(255,255,255,255).
+function makeRgba4x4(pixels) {
+  const w = 4, h = 4;
+  const data = new Array(w * h * 4).fill(0);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const i = (y * w + x) * 4;
+      const [r, g, b, a] = (pixels && pixels[y] && pixels[y][x]) || [255, 255, 255, 255];
+      data[i] = r; data[i + 1] = g; data[i + 2] = b; data[i + 3] = a;
+    }
+  }
+  return data;
+}
+
+test('sampleCorner: (x,y) 픽셀의 RGBA 값을 읽는다', () => {
+  const data = makeRgba4x4({ 0: { 0: [10, 20, 30, 40] }, 2: { 3: [50, 60, 70, 80] } });
+  assert.deepEqual(toHostRealm(sandbox3.sampleCorner(data, 4, 0, 0)), { r: 10, g: 20, b: 30, a: 40 });
+  assert.deepEqual(toHostRealm(sandbox3.sampleCorner(data, 4, 3, 2)), { r: 50, g: 60, b: 70, a: 80 });
+  assert.deepEqual(toHostRealm(sandbox3.sampleCorner(data, 4, 1, 1)), { r: 255, g: 255, b: 255, a: 255 }); // 지정 안 한 픽셀은 흰 배경
+});
+
+test('detectBackground: 모서리 4개 중 절반 이상이 거의 투명하면 투명 배경으로, 아니면 모서리 평균 색으로 판정한다', () => {
+  const whiteData = makeRgba4x4();
+  assert.deepEqual(toHostRealm(sandbox3.detectBackground(whiteData, 4, 4)), { transparent: false, r: 255, g: 255, b: 255, a: 255 });
+
+  // 모서리 4개 중 절반(경계값 2개)이 거의 투명하면, 나머지 모서리가 불투명해도 투명 배경으로 판정한다.
+  const transparentCorners = makeRgba4x4({
+    0: { 0: [10, 20, 30, 0] },
+    3: { 3: [10, 20, 30, 8] },
+  });
+  assert.deepEqual(toHostRealm(sandbox3.detectBackground(transparentCorners, 4, 4)), { transparent: true, r: 0, g: 0, b: 0, a: 0 });
+});
+
+test('detectBBox: 배경과 다른 픽셀들을 감싸는 최소 사각형을 찾고, 배경뿐이면 null을 돌려준다', () => {
+  const bg = { transparent: false, r: 255, g: 255, b: 255, a: 255 };
+
+  // 배경만 있는 4x4 이미지: 전경이 없으므로 null.
+  assert.equal(sandbox3.detectBBox(makeRgba4x4(), 4, 4, bg, 5), null);
+
+  // (1,1)~(2,2) 2x2 검은 사각형이 흰 배경 위에 있는 경우.
+  const withBox = makeRgba4x4({
+    1: { 1: [0, 0, 0, 255], 2: [0, 0, 0, 255] },
+    2: { 1: [0, 0, 0, 255], 2: [0, 0, 0, 255] },
+  });
+  assert.deepEqual(toHostRealm(sandbox3.detectBBox(withBox, 4, 4, bg, 5)), { x: 1, y: 1, w: 2, h: 2 });
+
+  // 투명 배경(bg.transparent=true)일 때는 알파값만으로 전경을 판별한다.
+  const transparentBg = { transparent: true, r: 0, g: 0, b: 0, a: 0 };
+  const opaqueDot = new Array(4 * 4 * 4).fill(0);
+  opaqueDot[(0 * 4 + 3) * 4 + 3] = 255; // (3,0) 픽셀만 불투명
+  assert.deepEqual(toHostRealm(sandbox3.detectBBox(opaqueDot, 4, 4, transparentBg, 5)), { x: 3, y: 0, w: 1, h: 1 });
+});
+
+test('isDice: 굴림 결과(다이스 표기 + ＞) 문구만 판별한다', () => {
+  assert.equal(sandbox3.isDice('(1D100)＞50'), true);
+  assert.equal(sandbox3.isDice('(1D100<=50)＞50'), true);
+  assert.equal(sandbox3.isDice('그냥 서술 텍스트'), false);
+  assert.equal(sandbox3.isDice('(1D100)50'), false); // ＞ 없음
+});
+
+test('isJudge: "OO 판정" 계열 문구를 표기 차이와 무관하게 판별하고, 굴림 결과/긴 문장은 제외한다', () => {
+  assert.equal(sandbox3.isJudge('이성 판정'), true);
+  assert.equal(sandbox3.isJudge('이성 판정.'), true);
+  assert.equal(sandbox3.isJudge('이성판정!'), true);
+  assert.equal(sandbox3.isJudge('회피 또는 크툴루신화판정.'), true);
+  assert.equal(sandbox3.isJudge('이성 판정(1D10/1D100)'), true);
+  assert.equal(sandbox3.isJudge('이성 판정 5/10'), true);
+  assert.equal(sandbox3.isJudge('(1D100)＞50'), false); // 판정 문구가 아니라 굴림 결과
+  assert.equal(sandbox3.isJudge('그냥 서술 텍스트'), false);
+  assert.equal(sandbox3.isJudge('아주 긴 서술문 뒤에 우연히 판정이라는 단어가 붙어있는 경우'), false); // 30자 초과
+});
+
+test('isSanity: "N/M" 형태(SAN 체크 증감치)만 판별한다', () => {
+  assert.equal(sandbox3.isSanity('5/10'), true);
+  assert.equal(sandbox3.isSanity('0/1D6'), true);
+  assert.equal(sandbox3.isSanity('5 / 10'), true);
+  assert.equal(sandbox3.isSanity('abc'), false);
+  assert.equal(sandbox3.isSanity('abc/10'), false);
+});
+
+test('outputMime/outputExt: 확장자↔MIME 매핑이 서로를 왕복한다', () => {
+  assert.equal(sandbox3.outputMime({name:'a.jpg'}), 'image/jpeg');
+  assert.equal(sandbox3.outputMime({name:'a.JPEG'}), 'image/jpeg');
+  assert.equal(sandbox3.outputMime({name:'a.webp'}), 'image/webp');
+  assert.equal(sandbox3.outputMime({name:'a.png'}), 'image/png');
+  assert.equal(sandbox3.outputMime({name:'a.bmp'}), 'image/png'); // 알 수 없는 확장자는 PNG로 대체
+  assert.equal(sandbox3.outputExt('image/jpeg'), '.jpg');
+  assert.equal(sandbox3.outputExt('image/webp'), '.webp');
+  assert.equal(sandbox3.outputExt('image/png'), '.png');
+});
+
+test('movAgePenalty: CoC 7판 노화 규칙에 따른 10년 단위 MOV 감소치 경계값', () => {
+  assert.equal(sandbox3.movAgePenalty(0), 0);
+  assert.equal(sandbox3.movAgePenalty(39), 0);
+  assert.equal(sandbox3.movAgePenalty(40), 1);
+  assert.equal(sandbox3.movAgePenalty(49), 1);
+  assert.equal(sandbox3.movAgePenalty(50), 2);
+  assert.equal(sandbox3.movAgePenalty(69), 3);
+  assert.equal(sandbox3.movAgePenalty(70), 4);
+  assert.equal(sandbox3.movAgePenalty(79), 4);
+  assert.equal(sandbox3.movAgePenalty(80), 5);
+  assert.equal(sandbox3.movAgePenalty(120), 5);
+  // 나이를 입력하지 않았거나 falsy한 값이면 감점 없음
+  assert.equal(sandbox3.movAgePenalty(null), 0);
+  assert.equal(sandbox3.movAgePenalty(undefined), 0);
+});
+
+test('deriveStatus: GitHub 이슈 상태·라벨을 건의함 배지 문구로 옮긴다', () => {
+  assert.deepEqual(toHostRealm(sandbox3.deriveStatus({state:'open', labels:[]})), {text:'접수됨', status:'open'});
+  assert.deepEqual(toHostRealm(sandbox3.deriveStatus({state:'open', labels:['진행중']})), {text:'수정중', status:'progress'});
+  assert.deepEqual(toHostRealm(sandbox3.deriveStatus({state:'closed', labels:[]})), {text:'반영됨', status:'done'});
+  assert.deepEqual(toHostRealm(sandbox3.deriveStatus({state:'closed', labels:['보류']})), {text:'반영 안 됨', status:'declined'});
+  // 라벨이 문자열 배열이 아니라 GitHub API의 {name} 객체 배열로도 올 수 있다
+  assert.deepEqual(toHostRealm(sandbox3.deriveStatus({state:'open', labels:[{name:'진행중'}]})), {text:'수정중', status:'progress'});
+  // 진행중이 아닌 라벨은 접수됨으로 취급
+  assert.deepEqual(toHostRealm(sandbox3.deriveStatus({state:'open', labels:['안내']})), {text:'접수됨', status:'open'});
+});
+
+test('parseStatusJson: 순수 JSON과 CSV류 이중따옴표 이스케이프(""→") 둘 다 해석하고, 실패하면 null', () => {
+  assert.deepEqual(toHostRealm(sandbox3.parseStatusJson('{"kind":"character","data":{"name":"설이"}}')), {kind:'character', data:{name:'설이'}});
+  assert.deepEqual(toHostRealm(sandbox3.parseStatusJson('"{""kind"":""character""}"')), {kind:'character'});
+  assert.equal(sandbox3.parseStatusJson(''), null);
+  assert.equal(sandbox3.parseStatusJson('이건 JSON이 아님'), null);
+});
+
+test('isApngBuffer: acTL 청크 마커가 버퍼 맨 끝 4바이트에 걸쳐 있어도 놓치지 않는다', () => {
+  // 'acTL' = 0x61 0x63 0x54 0x4C. 이 4바이트가 버퍼의 마지막 4바이트(경계 케이스)일 때도
+  // 스캔 루프가 검사해야 한다.
+  const tailMarker = new Uint8Array([0x00, 0x00, 0x61, 0x63, 0x54, 0x4C]).buffer;
+  assert.equal(sandbox3.isApngBuffer(tailMarker), true);
+  const noMarker = new Uint8Array([0x00, 0x00, 0x00, 0x00]).buffer;
+  assert.equal(sandbox3.isApngBuffer(noMarker), false);
+});
+
+const sandbox4 = loadFunctionsFromHtml(HTML_PATH, [
+  // statTierText는 같은 스코프의 STAT_TIERS를 참조하므로 함께 로드한다.
+  { type: 'var', name: 'STAT_TIERS' },
+  'statTierText',
+]);
+
+test('statTierText: 특성치 구간 경계값마다 올바른 설명 문구로 갈린다(6구간, <= 경계)', () => {
+  // STR 기준 구간: 25/40/59/74/89/Infinity
+  assert.equal(sandbox4.statTierText('STR', 0), '매우 약함');
+  assert.equal(sandbox4.statTierText('STR', 25), '매우 약함'); // 경계값은 낮은 쪽 구간에 포함(<=)
+  assert.equal(sandbox4.statTierText('STR', 26), '평균 이하');
+  assert.equal(sandbox4.statTierText('STR', 59), '평균적인 성인');
+  assert.equal(sandbox4.statTierText('STR', 89), '매우 강함(운동선수급)');
+  assert.equal(sandbox4.statTierText('STR', 90), '인간 한계에 가까운 괴력');
+  assert.equal(sandbox4.statTierText('STR', 99), '인간 한계에 가까운 괴력'); // 최댓값도 마지막 구간
+  // 특성치마다 다른 문구 사전을 쓴다
+  assert.equal(sandbox4.statTierText('APP', 59), '평균적인 외모');
+  assert.equal(sandbox4.statTierText('EDU', 90), '해당 분야 최고 권위자급');
+});
+
+const sandbox5 = loadFunctionsFromHtml(HTML_PATH, [
+  'extOf',
+  { type: 'var', name: 'VNAME_BASE_PX' }, // computeVerticalNameSize가 참조하는 VNAME_BASE_PX/VNAME_MIN_PX/VNAME_CHAR_GAP을 한 문장으로 함께 선언한다
+  'computeVerticalNameSize',
+]);
+
+test('extOf: 파일명 확장자를 우선하고, 없으면 MIME으로 추측하며, 둘 다 모르면 .bin으로 대체한다', () => {
+  assert.equal(sandbox5.extOf('cutin.PNG', 'image/png'), '.png'); // 파일명 확장자가 있으면 소문자로 바꿔 그대로 쓴다
+  assert.equal(sandbox5.extOf('노확장자', 'image/gif'), '.gif'); // 확장자가 없으면 MIME으로 추측
+  assert.equal(sandbox5.extOf('노확장자', 'image/jpeg'), '.jpeg');
+  assert.equal(sandbox5.extOf('노확장자', 'image/webp'), '.webp');
+  assert.equal(sandbox5.extOf('노확장자', 'application/octet-stream'), '.bin'); // 둘 다 모르면 중립 확장자
+});
+
+test('컨닝 페이퍼 메이커 세로쓰기: computeVerticalNameSize는 글자 수·최대 높이에 맞춰 폰트 크기를 줄이되 최솟값 밑으로는 내려가지 않는다', () => {
+  assert.equal(sandbox5.computeVerticalNameSize('가', 1000), 28); // 공간이 충분하면 기본 크기(VNAME_BASE_PX) 그대로
+  assert.equal(sandbox5.computeVerticalNameSize('가', 27), 27); // 한 글자씩만 넘겨도 딱 그만큼 줄어든다
+  assert.equal(sandbox5.computeVerticalNameSize('가', 13), 14); // 최소 크기(VNAME_MIN_PX) 밑으로는 내려가지 않는다(공간이 부족해도)
+  assert.equal(sandbox5.computeVerticalNameSize('가나다', 90), 27); // 글자 수가 늘면 같은 높이에서 더 작은 크기로 맞춘다
+});
+
+const sandbox6 = loadFunctionsFromHtml(HTML_PATH, [
+  'fmtSize',
+  { type: 'var', name: 'PART_TRIM_AREA_RATIO' },
+  'shouldAutoTrim',
+]);
+
+test('fmtSize: 바이트 수를 B/KB/MB 단위 경계값에서 올바르게 전환한다', () => {
+  assert.equal(sandbox6.fmtSize(0), '0 B');
+  assert.equal(sandbox6.fmtSize(1023), '1023 B');
+  assert.equal(sandbox6.fmtSize(1024), '1.0 KB');
+  assert.equal(sandbox6.fmtSize(1536), '1.5 KB');
+  assert.equal(sandbox6.fmtSize(1024 * 1024 - 1), '1024.0 KB');
+  assert.equal(sandbox6.fmtSize(1024 * 1024), '1.0 MB');
+});
+
+test('shouldAutoTrim: bbox가 없으면 재단하지 않고, 그림 영역이 캔버스의 절반 미만이면 자동 재단한다', () => {
+  assert.equal(sandbox6.shouldAutoTrim(null), false);
+  // 정확히 절반이면 재단하지 않는다(< 비교이므로 경계값은 포함되지 않음).
+  assert.equal(sandbox6.shouldAutoTrim({ w: 50, h: 100, canvasW: 100, canvasH: 100 }), false);
+  // 절반보다 조금이라도 작으면 재단한다.
+  assert.equal(sandbox6.shouldAutoTrim({ w: 49, h: 100, canvasW: 100, canvasH: 100 }), true);
+  assert.equal(sandbox6.shouldAutoTrim({ w: 100, h: 100, canvasW: 100, canvasH: 100 }), false);
+});
+
+// fontStr/measureMixedText/fitFontSize는 캔버스 텍스트를 실제로 그리기 전에 폰트 문자열을
+// 만들고 너비를 재는 순수 로직이지만, 진짜 canvas 2D context 대신 폰트 문자열에서 px 값을
+// 그대로 읽어 너비로 돌려주는 가짜 ctx로도 동작을 검증할 수 있다(실제 CSS 변수 대신
+// getComputedStyle을 스텁해 한/일 폰트를 구분되는 이름으로 고정).
+function fakeMeasureCtx() {
+  return {
+    font: '',
+    measureText(text) {
+      const m = /^(?:\S+\s+)?(\d+(?:\.\d+)?)px/.exec(this.font);
+      const px = m ? parseFloat(m[1]) : 16;
+      return { width: px * text.length };
+    },
+  };
+}
+
+const sandbox7 = loadFunctionsFromHtml(
+  HTML_PATH,
+  [
+    { type: 'var', name: 'FONT_KR' },
+    { type: 'var', name: 'FONT_JP' },
+    'isJPChar',
+    'splitRuns',
+    'fontStr',
+    'measureMixedText',
+    'fitFontSize',
+  ],
+  {
+    document: { documentElement: {} },
+    getComputedStyle: () => ({
+      getPropertyValue: (prop) => (prop === '--sans-jp' ? 'JPFont' : 'KRFont'),
+    }),
+  }
+);
+
+test('fontStr: weight·일본어 여부·customFont에 따라 canvas font 문자열을 올바르게 만든다', () => {
+  assert.equal(sandbox7.fontStr(20, '600', false), '600 20px KRFont');
+  assert.equal(sandbox7.fontStr(20, null, false), '20px KRFont'); // weight가 없으면 그 부분을 생략
+  assert.equal(sandbox7.fontStr(20, '600', true), '600 20px JPFont'); // 일본어 런은 customFont 지정 여부와 무관하게 항상 FONT_JP
+  assert.equal(sandbox7.fontStr(20, '600', false, 'CustomKR'), '600 20px CustomKR'); // 한국어 런에만 customFont가 적용된다
+  assert.equal(sandbox7.fontStr(20, '600', true, 'CustomKR'), '600 20px JPFont');
+});
+
+test('measureMixedText: 한/일 혼용 텍스트를 런별로 나눠 각 런의 폭을 합산한다', () => {
+  const ctx = fakeMeasureCtx();
+  // "abc"(비일본어, 3자) + "ひらがな"(일본어, 4자) 두 런으로 나뉘어 각각 px*len만큼 더해진다.
+  assert.equal(sandbox7.measureMixedText(ctx, 'abcひらがな', 10), 10 * 3 + 10 * 4);
+  assert.equal(sandbox7.measureMixedText(ctx, '', 10), 0);
+});
+
+test('fitFontSize: 너비가 넘칠 때만 최솟값까지 1px씩 줄이고, 이미 들어가면 basePx를 그대로 쓴다', () => {
+  const ctx = fakeMeasureCtx();
+  // fakeMeasureCtx 기준 "abcde"(5자)의 폭은 px*5이므로, maxWidth=40이면 px<=8일 때 들어간다.
+  assert.equal(sandbox7.fitFontSize(ctx, 'abcde', 40, 20, null, 5), 8);
+  // 처음부터 들어가면 줄일 필요가 없다.
+  assert.equal(sandbox7.fitFontSize(ctx, 'abcde', 100, 20, null, 5), 20);
+  // 최솟값까지 줄여도 안 들어가면 minPx에서 멈춘다.
+  assert.equal(sandbox7.fitFontSize(ctx, 'abcde', 1, 20, null, 5), 5);
+});
+
+const sandbox8 = loadFunctionsFromHtml(HTML_PATH, ['clampFieldIfOutOfRange', 'clampInt']);
+
+test('clampFieldIfOutOfRange: 범위를 벗어난 값만 칸을 되돌리고, 빈 값·입력 중인 값은 그대로 둔다', () => {
+  const overMax = { type: 'text', value: '150' };
+  sandbox8.clampFieldIfOutOfRange(overMax, 0, 99);
+  assert.equal(overMax.value, 99); // 기본 범위(0-99)를 넘으면 클램프된 값으로 되돌린다
+
+  const underMin = { type: 'number', value: '-5' };
+  sandbox8.clampFieldIfOutOfRange(underMin);
+  assert.equal(underMin.value, 0);
+
+  const inRange = { type: 'text', value: '42' };
+  sandbox8.clampFieldIfOutOfRange(inRange);
+  assert.equal(inRange.value, '42'); // 범위 안이면 손대지 않는다(문자열 그대로 유지)
+
+  const empty = { type: 'text', value: '' };
+  sandbox8.clampFieldIfOutOfRange(empty);
+  assert.equal(empty.value, ''); // 빈 칸은 건드리지 않는다(입력 중일 수 있음)
+
+  const nonDigits = { type: 'text', value: '1a2b' };
+  sandbox8.clampFieldIfOutOfRange(nonDigits, 0, 30);
+  assert.equal(nonDigits.value, '12'); // 숫자가 아닌 문자는 지우고, 남은 값이 범위 안이면 그걸로 끝
+
+  const customRange = { type: 'text', value: '25' };
+  sandbox8.clampFieldIfOutOfRange(customRange, 0, 20); // "나이" 칸처럼 0-99가 아닌 범위도 매개변수로 넘길 수 있다
+  assert.equal(customRange.value, 20);
+});
+
+// computeTitleBar는 이름/캐치프레이즈 글자 크기를 fitFontSize/measureMixedText로 줄여가며
+// 타이틀 바 높이까지 계산하는 순수 함수라, fakeMeasureCtx로 실제 canvas 없이 검증할 수 있다.
+const sandbox9 = loadFunctionsFromHtml(
+  HTML_PATH,
+  [
+    { type: 'var', name: 'FONT_KR' },
+    { type: 'var', name: 'FONT_JP' },
+    'isJPChar',
+    'splitRuns',
+    'fontStr',
+    'measureMixedText',
+    'fitFontSize',
+    { type: 'var', name: 'TITLE_BASE_PX' },
+    { type: 'var', name: 'SUBTITLE_BASE_PX' },
+    'computeTitleBar',
+  ],
+  {
+    document: { documentElement: {} },
+    getComputedStyle: () => ({
+      getPropertyValue: (prop) => (prop === '--sans-jp' ? 'JPFont' : 'KRFont'),
+    }),
+  }
+);
+
+test('computeTitleBar: 이름·캐치프레이즈가 둘 다 없으면 높이 0을 돌려준다', () => {
+  assert.deepEqual(toHostRealm(sandbox9.computeTitleBar(fakeMeasureCtx(), '', '', 200, 'left', null, null)), { h: 0, namePx: 0, catchPx: 0 });
+});
+
+test('computeTitleBar: nameAlign이 vertical이면 이름은 타이틀 바에서 빠지고 캐치프레이즈만 남는다', () => {
+  const withName = sandbox9.computeTitleBar(fakeMeasureCtx(), '홍길동', '부제', 200, 'vertical', null, null);
+  assert.equal(withName.namePx, 0); // 이름은 대표 이미지 옆(세로쓰기)으로 빠져 타이틀 바 크기 계산에서 제외된다
+  assert.ok(withName.catchPx > 0);
+  assert.ok(withName.h > 0);
+});
+
+test('computeTitleBar: 폭이 좁으면 이름 크기를 최솟값(TITLE_MIN_PX=18)까지 줄인다', () => {
+  // fakeMeasureCtx 기준 폭=px*len이므로, 아주 긴 이름은 기본 40px로 못 들어가 18px까지 줄어든다.
+  const r = sandbox9.computeTitleBar(fakeMeasureCtx(), '아주아주아주아주긴이름입니다', '', 60, 'left', null, null);
+  assert.equal(r.namePx, 18);
+});
+
+test('computeTitleBar: 높이는 패딩(TITLE_PAD_Y*2=32) + 이름/캐치프레이즈 크기(+간격)의 합이다', () => {
+  const r = sandbox9.computeTitleBar(fakeMeasureCtx(), '이름', '', 500, 'left', null, null);
+  assert.equal(r.h, 32 + r.namePx); // 캐치프레이즈가 없으면 SUBTITLE_GAP도 더해지지 않는다
+  assert.equal(r.namePx, 40); // 충분히 넓으면 기본 크기(TITLE_BASE_PX=40) 그대로 쓴다
+
+  const r2 = sandbox9.computeTitleBar(fakeMeasureCtx(), '이름', '캐치프레이즈', 500, 'left', null, null);
+  assert.equal(r2.h, 32 + r2.namePx + r2.catchPx + 6); // SUBTITLE_GAP=6
+});
+
+const sandbox10 = loadFunctionsFromHtml(HTML_PATH, ['clampInt', 'skillTotal']);
+
+test('skillTotal: 기본치+할당치를 더하되 0-99 범위를 벗어나면 클램프한다', () => {
+  assert.equal(sandbox10.skillTotal({ baseInput: { value: '40' }, allocInput: { value: '30' } }), 70);
+  assert.equal(sandbox10.skillTotal({ baseInput: { value: '90' }, allocInput: { value: '50' } }), 99); // 합이 99를 넘으면 클램프
+  assert.equal(sandbox10.skillTotal({ baseInput: { value: '' }, allocInput: { value: '' } }), 0); // 빈 칸은 0으로 취급
+});
+
+const sandbox11 = loadFunctionsFromHtml(HTML_PATH, [{ type: 'var', name: 'MK' }, 'diceBreak']);
+
+test('diceBreak: 굴림 결과 바로 뒤에 "보너스"가 이어지면 그 사이에 구분 마커(@@BR@@)를 끼워 넣는다', () => {
+  assert.equal(sandbox11.diceBreak('(1D100) 보너스 주사위'), '(1D100)@@BR@@보너스 주사위');
+  assert.equal(sandbox11.diceBreak('아무 상관 없는 문장'), '아무 상관 없는 문장'); // 매칭 없으면 원본 그대로
+});
+
+const sandbox12 = loadFunctionsFromHtml(HTML_PATH, [
+  'pad2',
+  'mulberry32',
+  'styleColor',
+]);
+
+test('pad2: 10 미만인 한 자리 수 앞에 0을 붙인다(날짜/시간 표시용)', () => {
+  assert.equal(sandbox12.pad2(0), '00');
+  assert.equal(sandbox12.pad2(9), '09');
+  assert.equal(sandbox12.pad2(10), '10');
+  assert.equal(sandbox12.pad2(23), '23');
+});
+
+test('mulberry32: 같은 시드는 항상 같은 수열을, [0,1) 범위의 값을 낸다', () => {
+  const seq = (seed, n) => {
+    const rand = sandbox12.mulberry32(seed);
+    return Array.from({ length: n }, () => rand());
+  };
+  assert.deepEqual(seq(1, 5), seq(1, 5));
+  assert.notDeepEqual(seq(1, 5), seq(2, 5));
+  seq(42, 20).forEach((v) => {
+    assert.ok(v >= 0 && v < 1);
+  });
+});
+
+test('styleColor: inline style에서 color만 골라내고, background-color/border-color 같은 접두된 속성은 무시한다', () => {
+  const el = (style) => ({ getAttribute: (name) => (name === 'style' ? style : null) });
+  assert.equal(sandbox12.styleColor(el('color: blue; font-weight:bold')), 'blue');
+  // "background-color"만 있고 순수 "color"는 없으면 매치하지 않아야 한다.
+  assert.equal(sandbox12.styleColor(el('background-color: red')), null);
+  // "color"보다 "background-color"가 먼저 나와도 진짜 color를 찾아야 한다.
+  assert.equal(sandbox12.styleColor(el('background-color:red;color:blue')), 'blue');
+  assert.equal(sandbox12.styleColor(el(null)), null);
+  assert.equal(sandbox12.styleColor(null), null);
+});
+
+function fakeDomForBanner() {
+  const created = [];
+  const document = {
+    createElement: () => {
+      const el = { attrs: {}, style: {}, setAttribute(name, v) { this.attrs[name] = v; }, remove() { el.removed = true; } };
+      created.push(el);
+      return el;
+    },
+    body: { appendChild: (el) => { el.appended = true; } },
+  };
+  return { document, created };
+}
+
+test('showWarningBanner: role=alert/aria-live 배너를 body에 붙이고 텍스트를 그대로 담는다', () => {
+  const { document, created } = fakeDomForBanner();
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, ['showWarningBanner'], { document, setTimeout: () => {} });
+  sandbox.showWarningBanner('저장 실패 안내');
+  assert.equal(created.length, 1);
+  const banner = created[0];
+  assert.equal(banner.attrs.role, 'alert');
+  assert.equal(banner.attrs['aria-live'], 'assertive');
+  assert.equal(banner.textContent, '저장 실패 안내');
+  assert.equal(banner.appended, true);
+});
+
+test('showWarningBanner: 일정 시간 뒤 배너를 스스로 제거한다', () => {
+  const { document, created } = fakeDomForBanner();
+  let scheduled = null;
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, ['showWarningBanner'], {
+    document,
+    setTimeout: (fn) => { scheduled = fn; },
+  });
+  sandbox.showWarningBanner('x');
+  assert.equal(created[0].removed, undefined);
+  scheduled();
+  assert.equal(created[0].removed, true);
+});
+
+test('cfLabelDupMessage: 중복이 없으면 로드 개수 안내로 되돌아가고, 중복이 있으면 경고 문구를 보여준다', () => {
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, ['cfLabelDupMessage']);
+  // 라벨을 고쳐서 중복이 해소된 뒤에도 이전 "라벨이 중복되었습니다" 경고가 남아있으면 안 된다.
+  assert.equal(sandbox.cfLabelDupMessage(3, undefined), '3장 로드됨. 라벨을 확인하고, 메인 아이콘으로 쓸 이미지를 골라주세요.');
+  assert.equal(sandbox.cfLabelDupMessage(2, '@웃음'), '라벨이 중복되었습니다 (@웃음) — 코코포리아는 같은 라벨의 표정 중 하나만 인식하므로, 서로 다르게 고쳐주세요.');
+});
+
+// comboLabel/allComboSelections는 파츠 조합 스탠딩 메이커의 모듈 스코프 변수 state/
+// PART_CATEGORIES를 참조하므로(순수 함수는 아님), 실제 파일의 PART_CATEGORIES 선언을
+// 그대로 로드해 카테고리 구성(어떤 게 필수/다중인지)이 테스트와 어긋나지 않게 하고,
+// state는 빈 틀만 만들어둔 뒤 각 테스트에서 필요한 파츠만 채워 넣는다.
+const sandbox13 = loadFunctionsFromHtml(HTML_PATH, [
+  'sanitizeFilename',
+  'powerSetIndices',
+  { type: 'var', name: 'PART_CATEGORIES' },
+  'allComboSelections',
+  'comboLabel',
+], { state: { parts: {} } });
+
+function resetParts13(){
+  sandbox13.PART_CATEGORIES.forEach(function(c){ sandbox13.state.parts[c.key] = []; });
+}
+
+test('comboLabel: 고르지 않은(-1/빈 배열) 카테고리는 건너뛰고, 다중 선택(효과)은 +로 이어 붙인다', () => {
+  resetParts13();
+  sandbox13.state.parts.body = [{ name: '몸A' }];
+  sandbox13.state.parts.eyebrow = [{ name: '눈썹A' }];
+  sandbox13.state.parts.effect = [{ name: '효과A' }, { name: '효과B' }];
+
+  assert.equal(sandbox13.comboLabel({ body: 0, eyebrow: -1, eye: -1, mouth: -1, effect: [] }), '몸A');
+  assert.equal(sandbox13.comboLabel({ body: 0, eyebrow: 0, eye: -1, mouth: -1, effect: [0, 1] }), '몸A_눈썹A_효과A+효과B');
+});
+
+test('allComboSelections: 필수 파츠는 매번 하나를 고르고, 선택 파츠는 미선택을 포함하며, 다중 파츠는 부분집합 수만큼 조합이 늘어난다', () => {
+  resetParts13();
+  sandbox13.state.parts.body = [{ name: '몸A' }, { name: '몸B' }]; // required: 2가지 중 하나(미선택 없음)
+  sandbox13.state.parts.effect = [{ name: '효과A' }]; // multi: 부분집합 2개(공집합/효과A)
+  // eyebrow/eye/mouth: 업로드 없음 → 미선택(-1) 1가지뿐
+
+  const combos = sandbox13.allComboSelections();
+  assert.equal(combos.length, 2 * 2); // body(2) x effect 부분집합(2), 나머지는 각 1가지
+  assert.deepEqual(new Set(combos.map(function(s){ return s.body; })), new Set([0, 1]));
+  assert.ok(combos.every(function(s){ return s.eyebrow === -1 && s.eye === -1 && s.mouth === -1; }));
+});
+
+// 홈 화면 카테고리 필터 알약을 흉내내는 가짜 버튼 — classList.toggle과 setAttribute 호출을
+// 기록해, 실제 DOM 없이도 aria-pressed/active 클래스가 올바르게 갱신되는지 확인한다.
+function fakeFilterPill(cat, initiallyActive) {
+  var classes = new Set(['home-filter-pill']);
+  if (initiallyActive) classes.add('active');
+  var attrs = {};
+  return {
+    dataset: { cat: cat },
+    attrs: attrs,
+    classList: {
+      toggle: function (name, force) { if (force) classes.add(name); else classes.delete(name); },
+      contains: function (name) { return classes.has(name); },
+    },
+    setAttribute: function (name, v) { attrs[name] = v; },
+  };
+}
+
+test('setActiveFilterPill: 클릭한(활성) 알약만 active·aria-pressed=true로 표시하고, 나머지는 false로 되돌린다', () => {
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, ['setActiveFilterPill']);
+  const all = fakeFilterPill('', true); // 기본 활성 알약("전체")
+  const image = fakeFilterPill('image', false);
+  const coc = fakeFilterPill('coc', false);
+  const pills = [all, image, coc];
+
+  sandbox.setActiveFilterPill(pills, 'image'); // "이미지·애니메이션" 알약을 클릭한 상황
+  assert.equal(image.classList.contains('active'), true);
+  assert.equal(image.attrs['aria-pressed'], 'true');
+  assert.equal(all.classList.contains('active'), false);
+  assert.equal(all.attrs['aria-pressed'], 'false');
+  assert.equal(coc.classList.contains('active'), false);
+  assert.equal(coc.attrs['aria-pressed'], 'false');
+
+  sandbox.setActiveFilterPill(pills, ''); // 다시 "전체"로 되돌아간 상황
+  assert.equal(all.attrs['aria-pressed'], 'true');
+  assert.equal(image.attrs['aria-pressed'], 'false');
+});
+
+test('skillFieldAriaLabels: 기능명을 넣어 "기본치"/"분배 점수" 등 aria-label 문구를 만들고, 이름이 없으면 "기능"으로 대신한다', () => {
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, ['skillFieldAriaLabels']);
+  assert.deepEqual(toHostRealm(sandbox.skillFieldAriaLabels('회계')), {
+    check: '회계 성장 체크', base: '회계 기본치', alloc: '회계 분배 점수',
+  });
+  assert.deepEqual(toHostRealm(sandbox.skillFieldAriaLabels('')), {
+    check: '기능 성장 체크', base: '기능 기본치', alloc: '기능 분배 점수',
+  });
+});
+
+test('partThumbAriaLabels: 파츠 이름으로 "선택"/"이름 수정" 문구를 만들고, 이름이 없으면 대체 라벨을 대신 쓴다', () => {
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, ['partThumbAriaLabels']);
+  assert.deepEqual(toHostRealm(sandbox.partThumbAriaLabels('웃음', '눈')), {
+    select: '웃음 선택', rename: '웃음 이름 수정',
+  });
+  assert.deepEqual(toHostRealm(sandbox.partThumbAriaLabels('', '눈')), {
+    select: '눈 선택', rename: '파츠 이름 수정',
+  });
+});
+
+test('trayThumbAriaLabels: 담아둔 조합 이름으로 "크게 보기"/"파일명 수정"/"다운로드"/"빼기" 문구를 만들고, 이름이 없으면 "조합"으로 대신한다', () => {
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, ['trayThumbAriaLabels']);
+  assert.deepEqual(toHostRealm(sandbox.trayThumbAriaLabels('설이_1')), {
+    view: '설이_1 크게 보기', rename: '설이_1 파일명 수정', download: '설이_1 다운로드', remove: '설이_1 빼기',
+  });
+  assert.deepEqual(toHostRealm(sandbox.trayThumbAriaLabels('')), {
+    view: '조합 크게 보기', rename: '조합 파일명 수정', download: '조합 다운로드', remove: '조합 빼기',
+  });
+});
+
+test('fmtSavedPct: 절감이면 -N%, 오히려 늘었으면 +N%, 변화 없으면 안내 문구를 돌려준다', () => {
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, ['fmtSavedPct']);
+  assert.equal(sandbox.fmtSavedPct(37), '-37%');
+  assert.equal(sandbox.fmtSavedPct(0), '변화 없음');
+  assert.equal(sandbox.fmtSavedPct(-12), '+12%'); // 재인코딩 결과 원본보다 커진 경우
 });
