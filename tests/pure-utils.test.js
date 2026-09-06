@@ -710,3 +710,20 @@ test('setActiveFilterPill: 클릭한(활성) 알약만 active·aria-pressed=true
   assert.equal(all.attrs['aria-pressed'], 'true');
   assert.equal(image.attrs['aria-pressed'], 'false');
 });
+
+test('skillFieldAriaLabels: 기능명을 넣어 "기본치"/"분배 점수" 등 aria-label 문구를 만들고, 이름이 없으면 "기능"으로 대신한다', () => {
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, ['skillFieldAriaLabels']);
+  assert.deepEqual(toHostRealm(sandbox.skillFieldAriaLabels('회계')), {
+    check: '회계 성장 체크', base: '회계 기본치', alloc: '회계 분배 점수',
+  });
+  assert.deepEqual(toHostRealm(sandbox.skillFieldAriaLabels('')), {
+    check: '기능 성장 체크', base: '기능 기본치', alloc: '기능 분배 점수',
+  });
+});
+
+test('fmtSavedPct: 절감이면 -N%, 오히려 늘었으면 +N%, 변화 없으면 안내 문구를 돌려준다', () => {
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, ['fmtSavedPct']);
+  assert.equal(sandbox.fmtSavedPct(37), '-37%');
+  assert.equal(sandbox.fmtSavedPct(0), '변화 없음');
+  assert.equal(sandbox.fmtSavedPct(-12), '+12%'); // 재인코딩 결과 원본보다 커진 경우
+});
