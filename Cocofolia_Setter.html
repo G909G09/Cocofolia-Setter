@@ -18758,6 +18758,23 @@ function downloadBlob(blob, filename, opts){
   if(!(opts && opts.skipHistory)) saveResultToHistory(currentTabLabel(), sanitizeFilename(filename), blob);
 }
 
+// 여러 탭(이미지 용량 최적화/스탠딩 재단/파츠 조합/컨닝 트레이/여백 재단)의 "ZIP 만들기"
+// 버튼이 전부 "버튼 비활성화 → 빌드 함수 실행 → 성공 시 콜백, 실패 시 알림 → 버튼 복구"라는
+// 같은 흐름을 각자 복제하고 있었다. 빌드 함수와 실패 메시지 접두어만 다르므로 하나로 묶는다.
+function runZipAction(buildFn, btn, whenDone, errPrefix){
+  var oldText = btn.textContent;
+  btn.disabled = true;
+  return buildFn(btn).then(function(blob){
+    whenDone(blob);
+    btn.disabled = false; btn.textContent = oldText;
+    return true;
+  }).catch(function(e){
+    alert((errPrefix||'ZIP 생성 실패: ')+e.message);
+    btn.disabled = false; btn.textContent = oldText;
+    return false;
+  });
+}
+
 // 입력을 마치면 다음 기능이 나타나는 지점(파일 업로드 후 크롭 UI, 효과를 고르면 세부
 // 옵션이 뜨는 것 등)에서 display:none/block으로 뚝 끊기지 않고 부드럽게 슬라이드+페이드로
 // 열리게 하는 헬퍼. 대상 엘리먼트는 CSS의 .reveal-wrap(바깥) > .reveal-inner(안쪽, 실제
@@ -21381,17 +21398,7 @@ function guessGmName(namesSortedByFreqDesc){
     });
   }
   function runImgoptZipAction(btn, whenDone){
-    var oldText = btn.textContent;
-    btn.disabled = true;
-    return buildImgoptZip(btn).then(function(blob){
-      whenDone(blob);
-      btn.disabled = false; btn.textContent = oldText;
-      return true;
-    }).catch(function(e){
-      alert('ZIP 생성 실패: '+e.message);
-      btn.disabled = false; btn.textContent = oldText;
-      return false;
-    });
+    return runZipAction(buildImgoptZip, btn, whenDone);
   }
   $('#imgopt-zip').addEventListener('click', function(){
     runImgoptZipAction($('#imgopt-zip'), function(blob){ downloadBlob(blob, 'imgopt_batch.zip'); });
@@ -23278,17 +23285,7 @@ var TabLog = (function(){
     });
   }
   function runStandingZipAction(btn, whenDone){
-    var oldText = btn.textContent;
-    btn.disabled = true;
-    return buildStandingZip(btn).then(function(blob){
-      whenDone(blob);
-      btn.disabled = false; btn.textContent = oldText;
-      return true;
-    }).catch(function(e){
-      alert('ZIP 생성 실패: '+e.message);
-      btn.disabled = false; btn.textContent = oldText;
-      return false;
-    });
+    return runZipAction(buildStandingZip, btn, whenDone);
   }
   $('#st-zip').addEventListener('click', function(){
     runStandingZipAction($('#st-zip'), function(blob){ downloadBlob(blob, 'standing_cut_batch.zip'); });
@@ -24323,17 +24320,7 @@ var TabLog = (function(){
     });
   }
   function runAllCombosZip(btn, whenDone){
-    var oldText = btn.textContent;
-    btn.disabled = true;
-    return buildAllCombosZip(btn).then(function(blob){
-      whenDone(blob);
-      btn.disabled = false; btn.textContent = oldText;
-      return true;
-    }).catch(function(e){
-      alert('전체 조합 ZIP 생성 실패: '+e.message);
-      btn.disabled = false; btn.textContent = oldText;
-      return false;
-    });
+    return runZipAction(buildAllCombosZip, btn, whenDone, '전체 조합 ZIP 생성 실패: ');
   }
   $('#parts-zip-all').addEventListener('click', function(){
     runAllCombosZip($('#parts-zip-all'), function(blob){ downloadBlob(blob, 'standing_combo_all.zip'); });
@@ -24381,17 +24368,7 @@ var TabLog = (function(){
     });
   }
   function runTrayZipAction(btn, whenDone){
-    var oldText = btn.textContent;
-    btn.disabled = true;
-    return buildTrayZip(btn).then(function(blob){
-      whenDone(blob);
-      btn.disabled = false; btn.textContent = oldText;
-      return true;
-    }).catch(function(e){
-      alert('담아둔 조합 저장 실패: '+e.message);
-      btn.disabled = false; btn.textContent = oldText;
-      return false;
-    });
+    return runZipAction(buildTrayZip, btn, whenDone, '담아둔 조합 저장 실패: ');
   }
   $('#parts-tray-save-all').addEventListener('click', function(){
     runTrayZipAction($('#parts-tray-save-all'), function(blob){ downloadBlob(blob, 'standing_combo_tray.zip'); });
@@ -24682,17 +24659,7 @@ var TabLog = (function(){
     });
   }
   function runTrimZipAction(btn, whenDone){
-    var oldText = btn.textContent;
-    btn.disabled = true;
-    return buildTrimZip(btn).then(function(blob){
-      whenDone(blob);
-      btn.disabled = false; btn.textContent = oldText;
-      return true;
-    }).catch(function(e){
-      alert('ZIP 생성 실패: '+e.message);
-      btn.disabled = false; btn.textContent = oldText;
-      return false;
-    });
+    return runZipAction(buildTrimZip, btn, whenDone);
   }
   $('#trim-zip').addEventListener('click', function(){
     runTrimZipAction($('#trim-zip'), function(blob){ downloadBlob(blob, 'trim_batch.zip'); });
@@ -25584,6 +25551,7 @@ var TabLog = (function(){
         if(it.isMain && cfItems.length) cfItems[0].isMain = true;
         buildCfLabelInputs();
         syncCfButtons();
+        checkCfLabelDup();
       });
       f.appendChild(delBtn);
 
