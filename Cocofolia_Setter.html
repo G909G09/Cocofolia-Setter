@@ -19156,6 +19156,7 @@ function closeSidebarOnMobile(){
   $('#appSidebar').classList.remove('open');
   $('#sidebarBackdrop').classList.remove('open');
   $('#sidebarToggle').setAttribute('aria-expanded', 'false');
+  $('#sidebarToggle').setAttribute('aria-label', '메뉴 열기');
 }
 
 function goHome(){
@@ -19215,6 +19216,7 @@ $all('.tab-btn').forEach(function(btn){
     var open = sidebar.classList.toggle('open');
     backdrop.classList.toggle('open', open);
     toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    toggle.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
   });
   backdrop.addEventListener('click', closeSidebarOnMobile);
 })();
