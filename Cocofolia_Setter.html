@@ -21296,6 +21296,14 @@ function guessGmName(namesSortedByFreqDesc){
   }
 
   function fmtKB(bytes){ return (bytes/1024).toFixed(1)+'KB'; }
+  // 압축 결과가 원본보다 오히려 커지는 경우(이미 고압축된 파일을 재인코딩하는 등)에도
+  // 절감률(savedPct)이 0 이하라는 이유로 카드/전체 요약 둘 다 그냥 "변화 없음"이라고만
+  // 말해, 실제로는 용량이 늘었다는 사실이 조용히 숨겨졌다. 늘어난 경우는 "+N%"로 알려준다.
+  function fmtSavedPct(savedPct){
+    if(savedPct > 0) return '-'+savedPct+'%';
+    if(savedPct < 0) return '+'+(-savedPct)+'%';
+    return '변화 없음';
+  }
 
   function renderRow(it){
     var box = document.createElement('div');
@@ -21320,7 +21328,7 @@ function guessGmName(namesSortedByFreqDesc){
     sizeInfo.style.cssText = 'font-size:11px;color:var(--sub);margin-top:2px;';
     var savedPct = it.origBytes>0 ? Math.round((1 - it.blob.size/it.origBytes)*100) : 0;
     sizeInfo.textContent = it.resized
-      ? (it.origW+'×'+it.origH+' '+fmtKB(it.origBytes)+' → '+it.w+'×'+it.h+' '+fmtKB(it.blob.size)+' ('+(savedPct>0?'-'+savedPct+'%':'변화 없음')+')')
+      ? (it.origW+'×'+it.origH+' '+fmtKB(it.origBytes)+' → '+it.w+'×'+it.h+' '+fmtKB(it.blob.size)+' ('+fmtSavedPct(savedPct)+')')
       : '이미 기준 이내 — 원본 그대로 ('+fmtKB(it.blob.size)+')';
     var btnRow = document.createElement('div');
     btnRow.style.cssText = 'display:flex;gap:4px;margin-top:6px;';
@@ -21351,7 +21359,7 @@ function guessGmName(namesSortedByFreqDesc){
     var totalOrig = 0, totalOut = 0;
     items.forEach(function(it){ totalOrig += it.origBytes; totalOut += it.blob.size; });
     var savedPct = totalOrig>0 ? Math.round((1 - totalOut/totalOrig)*100) : 0;
-    summary.textContent = '전체 '+items.length+'장 · '+fmtKB(totalOrig)+' → '+fmtKB(totalOut)+' ('+(savedPct>0?'-'+savedPct+'%':'변화 없음')+')';
+    summary.textContent = '전체 '+items.length+'장 · '+fmtKB(totalOrig)+' → '+fmtKB(totalOut)+' ('+fmtSavedPct(savedPct)+')';
     summary.classList.remove('hidden');
   }
 
@@ -22546,6 +22554,10 @@ var TabLog = (function(){
     });
     refreshPointsInfo();
   }
+  function skillFieldAriaLabels(name){
+    var label = name || '기능';
+    return { check: label+' 성장 체크', base: label+' 기본치', alloc: label+' 분배 점수' };
+  }
   // cat: 카테고리별 보기에서 이 기능이 속할 구역 이름(직접 추가한 기능은 null → "기타"로 감).
   // DOM에 바로 붙이지 않고 객체만 만들어 skillRows에 쌓아두면, renderSkillTable()이 현재
   // 보기 방식(카테고리별/전체 목록)에 맞춰 실제 배치를 담당한다 — 입력해둔 값은 그대로 두고
@@ -22572,10 +22584,13 @@ var TabLog = (function(){
     // 구분되지만, 기능명은 사용자가 직접 고칠 수 있는 텍스트라 innerHTML 문자열에 그대로
     // 이어붙이면 따옴표 등으로 속성을 깨는 XSS로 이어질 수 있다. setAttribute는 값을 HTML로
     // 파싱하지 않으므로 안전하다.
-    var label = name || '기능';
-    checkboxInput.setAttribute('aria-label', label+' 성장 체크');
-    baseInput.setAttribute('aria-label', label+' 기본치');
-    allocInput.setAttribute('aria-label', label+' 분배 점수');
+    function applySkillFieldLabels(n){
+      var labels = skillFieldAriaLabels(n);
+      checkboxInput.setAttribute('aria-label', labels.check);
+      baseInput.setAttribute('aria-label', labels.base);
+      allocInput.setAttribute('aria-label', labels.alloc);
+    }
+    applySkillFieldLabels(name);
     nameInput.value = name;
     baseInput.value = base;
     if(formula){ baseInput.readOnly = true; baseInput.classList.add('chs-field-locked'); }
@@ -22585,6 +22600,10 @@ var TabLog = (function(){
       halfCell:halfCell, fifthCell:fifthCell, formula:formula||null, tr:tr,
       cat: cat||null, flatOrder: flatIdx>=0 ? flatIdx : null
     };
+    // 기능명을 직접 고쳐 쓴(홈브류 기능 추가 등) 뒤에도 "기본치"/"분배 점수" 입력칸의
+    // aria-label이 옛 이름에 그대로 머물러 있어, 스크린리더로는 이름을 바꾼 뒤에도
+    // 어떤 기능의 입력칸인지 계속 예전 이름으로만 안내됐다. 이름 칸이 바뀔 때마다 같이 갱신한다.
+    nameInput.addEventListener('input', function(){ applySkillFieldLabels(nameInput.value); });
     baseInput.addEventListener('input', refreshSkillTotals);
     allocInput.addEventListener('input', refreshSkillTotals);
     tr.querySelector('button').addEventListener('click', function(){
