@@ -23,6 +23,8 @@ const sandbox = loadFunctionsFromHtml(HTML_PATH, [
   // guessGmName은 최상위 상수 GM_NAME_ALIASES를 참조하므로 그 선언도 함께 로드한다.
   { type: 'var', name: 'GM_NAME_ALIASES' },
   'guessGmName',
+  'movAgePenalty',
+  'isApngBuffer',
 ]);
 
 test('clampInt: 범위 안/밖 값을 올바르게 자른다', () => {
@@ -81,4 +83,27 @@ test('guessGmName: GM 지칭 표기가 있으면 그 이름을, 없으면 빈도
   assert.equal(sandbox.guessGmName(['플레이어A', '키퍼', '플레이어B']), '키퍼');
   assert.equal(sandbox.guessGmName(['플레이어A', '플레이어B']), '플레이어A');
   assert.equal(sandbox.guessGmName([]), null);
+});
+
+test('movAgePenalty: CoC 7판 노화 규칙에 따라 10년 단위로 이동력 감소분을 계산한다', () => {
+  assert.equal(sandbox.movAgePenalty(0), 0);
+  assert.equal(sandbox.movAgePenalty(null), 0);
+  assert.equal(sandbox.movAgePenalty(39), 0);
+  assert.equal(sandbox.movAgePenalty(40), 1);
+  assert.equal(sandbox.movAgePenalty(49), 1);
+  assert.equal(sandbox.movAgePenalty(50), 2);
+  assert.equal(sandbox.movAgePenalty(59), 2);
+  assert.equal(sandbox.movAgePenalty(60), 3);
+  assert.equal(sandbox.movAgePenalty(69), 3);
+  assert.equal(sandbox.movAgePenalty(70), 4);
+  assert.equal(sandbox.movAgePenalty(79), 4);
+  assert.equal(sandbox.movAgePenalty(80), 5);
+  assert.equal(sandbox.movAgePenalty(200), 5);
+});
+
+test('isApngBuffer: acTL 마커가 버퍼 맨 끝 4바이트에 걸쳐 있어도 감지한다', () => {
+  const withMarkerAtEnd = new Uint8Array([0x00, 0x00, 0x61, 0x63, 0x54, 0x4C]).buffer;
+  assert.equal(sandbox.isApngBuffer(withMarkerAtEnd), true);
+  const withoutMarker = new Uint8Array([0x00, 0x00, 0x00, 0x00, 0x00, 0x00]).buffer;
+  assert.equal(sandbox.isApngBuffer(withoutMarker), false);
 });
