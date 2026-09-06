@@ -19495,14 +19495,26 @@ $all('.cat-btn').forEach(function(btn){
     });
     emptyMsg.style.display = anyVisible ? 'none' : '';
   }
+  // 알약 버튼은 토글식 단일 선택(라디오처럼 하나만 켜짐)이라 스크린리더에도 지금 어떤
+  // 카테고리가 선택돼 있는지 알려야 하는데, 지금까지는 .active 클래스만 바뀌고
+  // aria-pressed는 마크업에 아예 없어 시각적으로만 구분됐다(다른 토글 버튼들 —
+  // 화자 필터 칩·파츠 갤러리 선택 박스 —는 이미 aria-pressed를 갱신함). 클릭한 알약만
+  // aria-pressed="true"로, 나머지는 "false"로 맞춘다.
+  function setActiveFilterPill(pills, activeCat){
+    pills.forEach(function(p){
+      var isActive = p.dataset.cat === activeCat;
+      p.classList.toggle('active', isActive);
+      p.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+  }
   filterPills.forEach(function(pill){
     pill.addEventListener('click', function(){
-      filterPills.forEach(function(p){ p.classList.remove('active'); });
-      pill.classList.add('active');
       activeCat = pill.dataset.cat;
+      setActiveFilterPill(filterPills, activeCat);
       applyHomeFilter();
     });
   });
+  setActiveFilterPill(filterPills, activeCat); // 마크업의 기본 활성 알약("전체")에도 초기 aria-pressed를 맞춘다
   searchInput.addEventListener('input', applyHomeFilter);
 
   // 큰 카테고리 버튼을 클릭했을 때 보여주는 카테고리 설명 페이지: 제목·설명 문구를 채우고,

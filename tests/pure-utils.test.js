@@ -673,3 +673,40 @@ test('allComboSelections: 필수 파츠는 매번 하나를 고르고, 선택 �
   assert.deepEqual(new Set(combos.map(function(s){ return s.body; })), new Set([0, 1]));
   assert.ok(combos.every(function(s){ return s.eyebrow === -1 && s.eye === -1 && s.mouth === -1; }));
 });
+
+// 홈 화면 카테고리 필터 알약을 흉내내는 가짜 버튼 — classList.toggle과 setAttribute 호출을
+// 기록해, 실제 DOM 없이도 aria-pressed/active 클래스가 올바르게 갱신되는지 확인한다.
+function fakeFilterPill(cat, initiallyActive) {
+  var classes = new Set(['home-filter-pill']);
+  if (initiallyActive) classes.add('active');
+  var attrs = {};
+  return {
+    dataset: { cat: cat },
+    attrs: attrs,
+    classList: {
+      toggle: function (name, force) { if (force) classes.add(name); else classes.delete(name); },
+      contains: function (name) { return classes.has(name); },
+    },
+    setAttribute: function (name, v) { attrs[name] = v; },
+  };
+}
+
+test('setActiveFilterPill: 클릭한(활성) 알약만 active·aria-pressed=true로 표시하고, 나머지는 false로 되돌린다', () => {
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, ['setActiveFilterPill']);
+  const all = fakeFilterPill('', true); // 기본 활성 알약("전체")
+  const image = fakeFilterPill('image', false);
+  const coc = fakeFilterPill('coc', false);
+  const pills = [all, image, coc];
+
+  sandbox.setActiveFilterPill(pills, 'image'); // "이미지·애니메이션" 알약을 클릭한 상황
+  assert.equal(image.classList.contains('active'), true);
+  assert.equal(image.attrs['aria-pressed'], 'true');
+  assert.equal(all.classList.contains('active'), false);
+  assert.equal(all.attrs['aria-pressed'], 'false');
+  assert.equal(coc.classList.contains('active'), false);
+  assert.equal(coc.attrs['aria-pressed'], 'false');
+
+  sandbox.setActiveFilterPill(pills, ''); // 다시 "전체"로 되돌아간 상황
+  assert.equal(all.attrs['aria-pressed'], 'true');
+  assert.equal(image.attrs['aria-pressed'], 'false');
+});
