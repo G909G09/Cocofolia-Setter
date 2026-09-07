@@ -972,7 +972,11 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <h3 style="font-size:13px;color:var(--sub);margin:0 0 6px;">시나리오 텍스트 일괄 변환</h3>
     <p class="desc">"STR 12", "근력12" 같은 라벨+숫자 표기를 찾아 ×5 값으로 바꿉니다. 인식 못한 표기는 원문 그대로 둡니다.</p>
     <div class="field" style="width:100%;"><label for="ed-text-input">원문</label><textarea id="ed-text-input" rows="8" style="width:100%;" placeholder="시나리오 스탯 블록 텍스트를 붙여넣으세요"></textarea></div>
-    <div class="row"><button class="btn" id="ed-text-run">일괄 변환</button></div>
+    <div class="row">
+      <button class="btn" id="ed-text-run">일괄 변환</button>
+      <button class="btn ghost" id="ed-text-copy">결과 복사</button>
+      <button class="btn ghost" id="ed-text-download">TXT 다운로드</button>
+    </div>
     <div class="field" style="width:100%;"><label for="ed-text-output">변환 결과</label><textarea id="ed-text-output" rows="8" style="width:100%;" readonly></textarea></div>
     <div class="info-box" id="ed-text-matches" aria-live="polite">-</div>
   </div>
@@ -19256,6 +19260,10 @@ $all('.tab-btn').forEach(function(btn){
     toggle.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
   });
   backdrop.addEventListener('click', closeSidebarOnMobile);
+  // 다른 오버레이(예: 파츠 조합 미리보기 모달)는 전부 Esc로 닫히는데 이 서랍만 예외였다.
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && sidebar.classList.contains('open')) closeSidebarOnMobile();
+  });
 })();
 
 // 페이지를 열었을 때, 저장된 마지막 탭이 있으면(그리고 홈이 아니면) 그 탭을 바로 펼친다.
@@ -22426,6 +22434,25 @@ var TabLog = (function(){
     });
     $('#ed-text-output').value = text;
     $('#ed-text-matches').textContent = matches.length ? ('변환됨: '+matches.join(', ')) : '인식된 능력치 표기를 찾지 못했습니다 (라벨+숫자 형태만 인식).';
+  });
+  $('#ed-text-copy').addEventListener('click', function(){
+    var text = $('#ed-text-output').value;
+    if(!text){ alert('먼저 변환을 실행해주세요.'); return; }
+    navigator.clipboard.writeText(text).then(function(){
+      var btn = $('#ed-text-copy'); var orig = btn.textContent;
+      btn.textContent = '복사됨 ✓';
+      setTimeout(function(){ btn.textContent = orig; }, 1500);
+    }).catch(function(){ alert('클립보드 복사에 실패했습니다. 직접 선택해서 복사해주세요.'); });
+  });
+  $('#ed-text-download').addEventListener('click', function(){
+    var text = $('#ed-text-output').value;
+    if(!text){ alert('먼저 변환을 실행해주세요.'); return; }
+    downloadBlob(new Blob(['﻿'+text], {type:'text/plain;charset=utf-8'}), '수치변환_결과.txt');
+  });
+  insertQuickSaveButton($('#ed-text-download'), function(){
+    var text = $('#ed-text-output').value;
+    if(!text){ alert('먼저 변환을 실행해주세요.'); return false; }
+    saveResultToHistory(currentTabLabel(), '수치변환_결과.txt', new Blob(['﻿'+text], {type:'text/plain;charset=utf-8'}));
   });
 
   // 직접 채워둔 Damage Bonus/Build 표도 브라우저에 저장해서 다음에 열 때 유지된다 (이 브라우저/기기에서만).
@@ -25715,14 +25742,15 @@ var TabLog = (function(){
       var inp = document.createElement('input');
       inp.type = 'text'; inp.value = it.label;
       inp.style.cssText = 'width:110px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font-size:12px;text-align:center;';
-      inp.addEventListener('input', function(){ it.label = inp.value; it.img.alt = (it.label||'표정')+' 이미지 미리보기'; checkCfLabelDup(); });
+      inp.setAttribute('aria-label', (it.label||'표정')+' 라벨 수정');
+      inp.addEventListener('input', function(){ it.label = inp.value; it.img.alt = (it.label||'표정')+' 이미지 미리보기'; inp.setAttribute('aria-label', (it.label||'표정')+' 라벨 수정'); checkCfLabelDup(); });
       // 이미지를 올릴 때는 파일명 앞에 '@'가 없으면 자동으로 붙여주지만(코코포리아 표정 라벨
       // 규칙), 사용자가 이 칸을 직접 편집해서 '@'를 지우면 그 상태로 룸파일에 그대로 들어가
       // 코코포리아에서 표정으로 인식되지 않는다. 입력 중에는 건드리지 않다가 포커스를 벗어날
       // 때만 다시 보정한다.
       inp.addEventListener('blur', function(){
         var v = inp.value.trim();
-        if(v && v.charAt(0)!=='@'){ v = '@'+v; inp.value = v; it.label = v; it.img.alt = v+' 이미지 미리보기'; }
+        if(v && v.charAt(0)!=='@'){ v = '@'+v; inp.value = v; it.label = v; it.img.alt = v+' 이미지 미리보기'; inp.setAttribute('aria-label', v+' 라벨 수정'); }
         checkCfLabelDup();
       });
       f.appendChild(inp);
