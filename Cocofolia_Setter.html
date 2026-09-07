@@ -18784,6 +18784,17 @@ function downloadBlob(blob, filename, opts){
   if(!(opts && opts.skipHistory)) saveResultToHistory(currentTabLabel(), sanitizeFilename(filename), blob);
 }
 
+// 사전(gl-import-file)·Damage Bonus/Build 표(ed-db-import-file) JSON 불러오기가 "배열이기만
+// 하면" 형식 검사를 통과시켰다. 두 기능 모두 배열 JSON을 내보내고 탭도 바로 옆이라, 서로의
+// 내보내기 파일을 잘못 불러와도 조용히 통과해 기존 값을 전부 빈 값으로 덮어써버렸다. 배열의
+// 각 항목이 keys 중 하나라도 가진 객체인지까지 확인해 엉뚱한 파일을 걸러낸다.
+function isJsonRowArray(data, keys){
+  return Array.isArray(data) && data.every(function(item){
+    return item && typeof item === 'object' && !Array.isArray(item) &&
+      keys.some(function(k){ return Object.prototype.hasOwnProperty.call(item, k); });
+  });
+}
+
 // 여러 탭(이미지 용량 최적화/스탠딩 재단/파츠 조합/컨닝 트레이/여백 재단)의 "ZIP 만들기"
 // 버튼이 전부 "버튼 비활성화 → 빌드 함수 실행 → 성공 시 콜백, 실패 시 알림 → 버튼 복구"라는
 // 같은 흐름을 각자 복제하고 있었다. 빌드 함수와 실패 메시지 접두어만 다르므로 하나로 묶는다.
@@ -22288,7 +22299,8 @@ var TabLog = (function(){
     f.text().then(function(t){
       try{
         var data = JSON.parse(t);
-        if(Array.isArray(data)){
+        if(isJsonRowArray(data, ['jp','kr'])){
+          if(dict.length && !confirm('사전 파일에 담긴 '+data.length+'개 항목을 지금 사전('+dict.length+'개)에 덮어쓸까요?')) return;
           dict = data.map(function(d){ return {jp:d.jp||'', kr:d.kr||''}; });
           renderDictTable();
           saveGlossary();
@@ -22482,7 +22494,8 @@ var TabLog = (function(){
     f.text().then(function(t){
       try{
         var data = JSON.parse(t);
-        if(Array.isArray(data)){
+        if(isJsonRowArray(data, ['min','max','db','build'])){
+          if(dbRows.length && !confirm('표 파일에 담긴 '+data.length+'개 행을 지금 표('+dbRows.length+'개)에 덮어쓸까요?')) return;
           dbRows = data.map(function(r){ return {min:r.min||'', max:r.max||'', db:r.db||'', build:r.build||''}; });
           renderDbTable();
           saveDbRows();
