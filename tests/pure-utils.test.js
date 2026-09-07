@@ -747,3 +747,19 @@ test('fmtSavedPct: 절감이면 -N%, 오히려 늘었으면 +N%, 변화 없으�
   assert.equal(sandbox.fmtSavedPct(0), '변화 없음');
   assert.equal(sandbox.fmtSavedPct(-12), '+12%'); // 재인코딩 결과 원본보다 커진 경우
 });
+
+test('isJsonRowArray: 사전/표 JSON 불러오기가 서로의 내보내기 파일(둘 다 배열)을 잘못 받아들이지 않도록 항목 모양까지 확인한다', () => {
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, ['isJsonRowArray']);
+  // 사전(jp/kr) 내보내기 파일 → 사전 불러오기에서는 통과해야 한다
+  assert.equal(sandbox.isJsonRowArray([{ jp: 'ダメージ', kr: '피해' }], ['jp', 'kr']), true);
+  // Damage Bonus/Build 표(min/max/db/build) 파일을 사전 불러오기에 잘못 넣은 경우 → 걸러내야 한다
+  assert.equal(sandbox.isJsonRowArray([{ min: '0', max: '64', db: '0', build: '0' }], ['jp', 'kr']), false);
+  // 반대 방향(표 불러오기에 사전 파일)도 걸러내야 한다
+  assert.equal(sandbox.isJsonRowArray([{ jp: 'ダメージ', kr: '피해' }], ['min', 'max', 'db', 'build']), false);
+  // 배열이 아니거나(설정 파일처럼 객체), 항목이 객체가 아닌 경우도 전부 거부한다
+  assert.equal(sandbox.isJsonRowArray({ jp: 'x', kr: 'y' }, ['jp', 'kr']), false);
+  assert.equal(sandbox.isJsonRowArray(['jp', 'kr'], ['jp', 'kr']), false);
+  assert.equal(sandbox.isJsonRowArray([null], ['jp', 'kr']), false);
+  // 빈 배열은 "지울 항목이 없는 불러오기"이므로 형식 검사는 통과시킨다
+  assert.equal(sandbox.isJsonRowArray([], ['jp', 'kr']), true);
+});
