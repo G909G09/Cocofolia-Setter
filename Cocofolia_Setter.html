@@ -606,6 +606,10 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-09-07</b> — 설정 탭에 "설정 내보내기/불러오기(JSON)" 추가: 각 탭에서 기억해둔 입력값과 배색 설정을 파일로 내려받아 다른 브라우저·기기로 옮길 수 있음</li>
+      <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-09-07</b> — CoC 6판→7판 수치 변환기: Damage Bonus/Build 표에 "표 내보내기/불러오기(JSON)" 추가(용어 사전과 동일한 방식) — 직접 고친 표를 다른 브라우저·GM과 공유 가능. CoC 용어 변환기에는 변환 결과 "TXT 다운로드" 버튼 추가(기존엔 클립보드 복사만 가능)</li>
+      <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-07</b> — 스탠딩 일괄 재단(10번)에 자주 쓰는 비율 알약(1:1·3:4·4:3·2:3·3:2·9:16·16:9) 추가 — 눌러서 바로 목표 비율 두 칸을 채울 수 있음</li>
+      <li><span class="chlog-tag" data-cat="image">이미지·애니메이션</span><b>2026-09-07</b> — 컷인 커터(1번): 이미지를 올리면 무음 MP3 파일명이 업로드한 이미지 이름을 따라가도록 개선(2·3번 탭과 동일한 방식, 기존엔 항상 "cutin_silence.mp3" 고정이라 여러 컷인을 만들 때 매번 직접 고쳐야 했음)</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 파츠 조합 스탠딩 메이커(11번): 업로드·선택·삭제·이름 변경·손잡이로 위치/크기/기울기 조정·전체 지우기에 Ctrl+Z(되돌리기)·Ctrl+X(다시하기) 지원 추가(텍스트 입력 중이거나 다른 탭을 보고 있을 때는 반응하지 않음, 담아두기는 대상 아님). 여백을 자동 재단한 파츠는 손잡이(편집 범위)도 캔버스 전체가 아니라 잘라낸 범위에 맞게 표시되도록 수정(이전엔 재단된 파츠를 골라도 손잡이가 캔버스 전체 크기로 떠서 실제 그림과 동떨어져 보였음)</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 파츠 조합 스탠딩 메이커(11번): 파츠 업로드 시 여백(투명 영역)이 캔버스의 절반을 넘으면 자동으로 실제 그림 부분만 재단해 미리보기에 반영(원래 위치는 그대로 유지 — 예: 정중앙에 그려져 있던 파츠는 재단 후에도 정중앙). 저장/렌더링에 쓰이는 픽셀 데이터가 줄어 큰 여백을 가진 파츠의 썸네일도 실제 그림이 잘 보이게 됨. 상단 설명글도 간결하게 정리</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-01</b> — 파츠 조합 스탠딩 메이커(11번) 담아둔 조합 큰 미리보기 추가: 썸네일을 클릭하면 그 조합 하나만 화면 가운데에 크게 띄워 볼 수 있음(다운로드·삭제 버튼도 모달 안에 함께 있어 닫지 않고 바로 처리 가능, 닫기 버튼·바깥 클릭·Esc로 닫힘). 기존엔 썸네일 클릭이 곧 다운로드였는데, 이제 다운로드는 각 썸네일의 개별 ⬇ 버튼으로 따로 분리됨(큰 미리보기를 열지 않고도 바로 받을 수 있음). 이름 칸 편집·× 삭제는 기존과 동일</li>
@@ -931,6 +935,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="row">
       <button class="btn" id="gl-run">용어 변환</button>
       <button class="btn ghost" id="gl-copy">결과 복사</button>
+      <button class="btn ghost" id="gl-download">TXT 다운로드</button>
     </div>
     <div class="field" style="width:100%;"><label for="gl-output">변환 결과</label><textarea id="gl-output" rows="10" style="width:100%;" readonly></textarea></div>
     <div class="info-box" id="gl-matches" aria-live="polite">변환 버튼을 누르면 어떤 용어가 바뀌었는지 여기에 표시됩니다.</div>
@@ -979,7 +984,12 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <thead><tr style="text-align:left;color:var(--sub);"><th style="padding:4px;">STR+SIZ 최소</th><th style="padding:4px;">STR+SIZ 최대</th><th style="padding:4px;">Damage Bonus</th><th style="padding:4px;">Build</th><th></th></tr></thead>
       <tbody id="ed-db-body"></tbody>
     </table>
-    <div class="row"><button class="btn ghost" id="ed-db-add">행 추가</button></div>
+    <div class="row">
+      <button class="btn ghost" id="ed-db-add">행 추가</button>
+      <button class="btn ghost" id="ed-db-export">표 내보내기(JSON)</button>
+      <button class="btn ghost" id="ed-db-import">표 불러오기(JSON)</button>
+      <input type="file" id="ed-db-import-file" accept=".json" class="hidden">
+    </div>
     <div class="row">
       <div class="field"><label for="ed-db-lookup">STR+SIZ 합계로 조회</label><input type="number" id="ed-db-lookup" value=""></div>
       <div class="info-box" id="ed-db-result" aria-live="polite" style="flex:1;">표를 입력한 뒤 조회하세요.</div>
@@ -1104,6 +1114,15 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <div class="field"><label>목표 비율(가로:세로)</label>
         <div style="display:flex;gap:6px;align-items:center;">
           <input type="number" id="st-ratio-w" value="1" min="1" max="100" step="1" style="width:56px;"><span>:</span><input type="number" id="st-ratio-h" value="1" min="1" max="100" step="1" style="width:56px;">
+        </div>
+        <div class="chips" id="st-ratio-presets" style="margin-top:6px;">
+          <button type="button" class="chip" data-w="1" data-h="1">1:1</button>
+          <button type="button" class="chip" data-w="3" data-h="4">3:4</button>
+          <button type="button" class="chip" data-w="4" data-h="3">4:3</button>
+          <button type="button" class="chip" data-w="2" data-h="3">2:3</button>
+          <button type="button" class="chip" data-w="3" data-h="2">3:2</button>
+          <button type="button" class="chip" data-w="9" data-h="16">9:16</button>
+          <button type="button" class="chip" data-w="16" data-h="9">16:9</button>
         </div>
       </div>
       <div class="field"><label for="st-mode">처리 방식</label>
@@ -1430,6 +1449,13 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <label class="row" style="gap:4px;font-weight:normal;"><input type="radio" name="settings-theme" value="system"><span>시스템 설정 따르기</span></label>
       <label class="row" style="gap:4px;font-weight:normal;"><input type="radio" name="settings-theme" value="light"><span>라이트</span></label>
       <label class="row" style="gap:4px;font-weight:normal;"><input type="radio" name="settings-theme" value="dark"><span>다크</span></label>
+    </div>
+    <h3 style="margin:20px 0 8px;font-size:14px;">저장된 값 내보내기/불러오기</h3>
+    <p class="desc" style="margin-bottom:8px;">각 탭에서 기억해둔 입력값과 배색 설정을 파일로 내려받아 다른 브라우저나 기기로 옮길 수 있습니다. 업로드한 이미지 등 작업 중인 내용은 포함되지 않습니다.</p>
+    <div class="row">
+      <button class="btn ghost" id="settings-export">설정 내보내기(JSON)</button>
+      <button class="btn ghost" id="settings-import">설정 불러오기(JSON)</button>
+      <input type="file" id="settings-import-file" accept=".json" class="hidden">
     </div>
     <h3 style="margin:20px 0 8px;font-size:14px;">저장된 값 초기화</h3>
     <p class="desc" style="margin-bottom:8px;">각 탭에서 기억해둔 입력값(비율·크기·서체 등)과 마지막으로 보던 탭, 이 배색 설정까지 이 브라우저에 저장된 모든 값을 지웁니다. 업로드한 이미지 등 작업 중인 내용에는 영향이 없습니다.</p>
@@ -19259,6 +19285,31 @@ var THEME_LS_KEY = 'cocofolia_setter_theme_v1';
   });
 })();
 
+$('#settings-export').addEventListener('click', function(){
+  var data = {};
+  try{
+    Object.keys(localStorage).filter(function(k){ return k.indexOf('cocofolia_setter_') === 0; })
+      .forEach(function(k){ data[k] = localStorage.getItem(k); });
+  }catch(e){}
+  downloadBlob(new Blob([JSON.stringify(data, null, 2)],{type:'application/json'}), 'cocofolia_setter_settings.json', {skipHistory:true});
+});
+$('#settings-import').addEventListener('click', function(){ $('#settings-import-file').click(); });
+$('#settings-import-file').addEventListener('change', function(){
+  var f = this.files[0]; if(!f) return;
+  f.text().then(function(t){
+    try{
+      var data = JSON.parse(t);
+      if(!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('형식이 올바르지 않습니다');
+      var keys = Object.keys(data).filter(function(k){ return k.indexOf('cocofolia_setter_') === 0; });
+      if(!keys.length){ alert('불러올 설정 값이 없습니다.'); return; }
+      if(!confirm('설정 파일에 담긴 '+keys.length+'개 값을 지금 저장된 값에 덮어쓸까요? 페이지가 새로고침됩니다.')) return;
+      keys.forEach(function(k){ safeLocalStorageSet(k, data[k]); });
+      location.reload();
+    }catch(e){ alert('설정 파일을 읽을 수 없습니다: '+e.message); }
+  });
+  this.value = '';
+});
+
 $('#settings-reset').addEventListener('click', function(){
   if(!confirm('저장된 값을 전체 초기화할까요? 이 브라우저에 기억해둔 모든 값이 지워지고 페이지가 새로고침됩니다.')) return;
   try{
@@ -19851,6 +19902,7 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     state.blob = null; state.frames = null; state.delays = null;
     hideReveal($('#mp3-result-row'));
     hideReveal($('#mp3-preview-row'));
+    $('#mp3-filename').value = baseName(file.name)+'.mp3';
     var ext = file.name.split('.').pop().toLowerCase();
     try{
       if(ext==='gif'){
@@ -22285,6 +22337,16 @@ var TabLog = (function(){
       setTimeout(function(){ btn.textContent = orig; }, 1500);
     }).catch(function(){ alert('클립보드 복사에 실패했습니다. 직접 선택해서 복사해주세요.'); });
   });
+  $('#gl-download').addEventListener('click', function(){
+    var text = $('#gl-output').value;
+    if(!text){ alert('먼저 변환을 실행해주세요.'); return; }
+    downloadBlob(new Blob(['﻿'+text], {type:'text/plain;charset=utf-8'}), '용어변환_결과.txt');
+  });
+  insertQuickSaveButton($('#gl-download'), function(){
+    var text = $('#gl-output').value;
+    if(!text){ alert('먼저 변환을 실행해주세요.'); return false; }
+    saveResultToHistory(currentTabLabel(), '용어변환_결과.txt', new Blob(['﻿'+text], {type:'text/plain;charset=utf-8'}));
+  });
 })();
 
 /* ================================================================
@@ -22410,6 +22472,26 @@ var TabLog = (function(){
     dbRows.push({min:'', max:'', db:'', build:''});
     renderDbTable();
     saveDbRows();
+  });
+  $('#ed-db-export').addEventListener('click', function(){
+    downloadBlob(new Blob([JSON.stringify(dbRows, null, 2)],{type:'application/json'}), 'coc_db_build_table.json', {skipHistory:true});
+  });
+  $('#ed-db-import').addEventListener('click', function(){ $('#ed-db-import-file').click(); });
+  $('#ed-db-import-file').addEventListener('change', function(){
+    var f = this.files[0]; if(!f) return;
+    f.text().then(function(t){
+      try{
+        var data = JSON.parse(t);
+        if(Array.isArray(data)){
+          dbRows = data.map(function(r){ return {min:r.min||'', max:r.max||'', db:r.db||'', build:r.build||''}; });
+          renderDbTable();
+          saveDbRows();
+        } else {
+          alert('표 파일 형식이 올바르지 않습니다 (min/max/db/build 항목이 담긴 배열이어야 합니다).');
+        }
+      }catch(e){ alert('표 파일을 읽을 수 없습니다: '+e.message); }
+    });
+    this.value = '';
   });
   $('#ed-db-lookup').addEventListener('input', function(){
     var v = parseFloat(this.value);
@@ -23308,6 +23390,15 @@ var TabLog = (function(){
     items = [];
     renderAll();
     $('#st-info').classList.add('hidden');
+  });
+  $all('#st-ratio-presets .chip').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      $('#st-ratio-w').value = btn.dataset.w;
+      $('#st-ratio-h').value = btn.dataset.h;
+      $('#st-ratio-w').dispatchEvent(new Event('input'));
+      $('#st-ratio-h').dispatchEvent(new Event('input'));
+      $('#st-ratio-h').dispatchEvent(new Event('change'));
+    });
   });
   ['st-ratio-w','st-ratio-h','st-mode','st-anchor','st-bgcolor','st-outwidth'].forEach(function(id){
     $('#'+id).addEventListener('change', function(){
