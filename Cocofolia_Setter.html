@@ -606,6 +606,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-09-07</b> — CoC 6판→7판 수치 변환기(8번) 사용성 보완: 시나리오 텍스트 일괄 변환 결과에 "결과 복사" 버튼 추가(다른 탭인 CoC 용어 변환기엔 있었지만 이 탭엔 없던 기능), Damage Bonus/Build 표에도 (용어 사전 편집과 동일하게) "기본값으로 초기화" 버튼을 추가해 직접 고치다 표가 꼬여도 CoC 7판 공식 수치로 바로 되돌릴 수 있게 함</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-09-07</b> — 설정 탭에 "설정 내보내기/불러오기(JSON)" 추가: 각 탭에서 기억해둔 입력값과 배색 설정을 파일로 내려받아 다른 브라우저·기기로 옮길 수 있음</li>
       <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-09-07</b> — CoC 6판→7판 수치 변환기: Damage Bonus/Build 표에 "표 내보내기/불러오기(JSON)" 추가(용어 사전과 동일한 방식) — 직접 고친 표를 다른 브라우저·GM과 공유 가능. CoC 용어 변환기에는 변환 결과 "TXT 다운로드" 버튼 추가(기존엔 클립보드 복사만 가능)</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-07</b> — 스탠딩 일괄 재단(10번)에 자주 쓰는 비율 알약(1:1·3:4·4:3·2:3·3:2·9:16·16:9) 추가 — 눌러서 바로 목표 비율 두 칸을 채울 수 있음</li>
@@ -972,7 +973,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <h3 style="font-size:13px;color:var(--sub);margin:0 0 6px;">시나리오 텍스트 일괄 변환</h3>
     <p class="desc">"STR 12", "근력12" 같은 라벨+숫자 표기를 찾아 ×5 값으로 바꿉니다. 인식 못한 표기는 원문 그대로 둡니다.</p>
     <div class="field" style="width:100%;"><label for="ed-text-input">원문</label><textarea id="ed-text-input" rows="8" style="width:100%;" placeholder="시나리오 스탯 블록 텍스트를 붙여넣으세요"></textarea></div>
-    <div class="row"><button class="btn" id="ed-text-run">일괄 변환</button></div>
+    <div class="row"><button class="btn" id="ed-text-run">일괄 변환</button><button class="btn ghost" id="ed-text-copy">결과 복사</button></div>
     <div class="field" style="width:100%;"><label for="ed-text-output">변환 결과</label><textarea id="ed-text-output" rows="8" style="width:100%;" readonly></textarea></div>
     <div class="info-box" id="ed-text-matches" aria-live="polite">-</div>
   </div>
@@ -989,6 +990,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <button class="btn ghost" id="ed-db-export">표 내보내기(JSON)</button>
       <button class="btn ghost" id="ed-db-import">표 불러오기(JSON)</button>
       <input type="file" id="ed-db-import-file" accept=".json" class="hidden">
+      <button class="btn ghost" id="ed-db-reset" style="color:var(--danger);">기본값으로 초기화</button>
     </div>
     <div class="row">
       <div class="field"><label for="ed-db-lookup">STR+SIZ 합계로 조회</label><input type="number" id="ed-db-lookup" value=""></div>
@@ -22415,6 +22417,15 @@ var TabLog = (function(){
     $('#ed-text-output').value = text;
     $('#ed-text-matches').textContent = matches.length ? ('변환됨: '+matches.join(', ')) : '인식된 능력치 표기를 찾지 못했습니다 (라벨+숫자 형태만 인식).';
   });
+  $('#ed-text-copy').addEventListener('click', function(){
+    var text = $('#ed-text-output').value;
+    if(!text){ alert('먼저 일괄 변환을 실행해주세요.'); return; }
+    navigator.clipboard.writeText(text).then(function(){
+      var btn = $('#ed-text-copy'); var orig = btn.textContent;
+      btn.textContent = '복사됨 ✓';
+      setTimeout(function(){ btn.textContent = orig; }, 1500);
+    }).catch(function(){ alert('클립보드 복사에 실패했습니다. 직접 선택해서 복사해주세요.'); });
+  });
 
   // 직접 채워둔 Damage Bonus/Build 표도 브라우저에 저장해서 다음에 열 때 유지된다 (이 브라우저/기기에서만).
   var DBTABLE_LS_KEY = 'cocofolia_setter_dbtable_v1';
@@ -22492,6 +22503,12 @@ var TabLog = (function(){
       }catch(e){ alert('표 파일을 읽을 수 없습니다: '+e.message); }
     });
     this.value = '';
+  });
+  $('#ed-db-reset').addEventListener('click', function(){
+    if(!confirm('표를 CoC 7판 공식 수치로 초기화할까요? 직접 추가/수정한 내용은 사라집니다.')) return;
+    dbRows = DEFAULT_DB_ROWS.map(function(r){ return {min:r.min, max:r.max, db:r.db, build:r.build}; });
+    renderDbTable();
+    saveDbRows();
   });
   $('#ed-db-lookup').addEventListener('input', function(){
     var v = parseFloat(this.value);
