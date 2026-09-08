@@ -617,6 +617,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-08</b> — 코코포리아가 로그 출력 형식을 발화 시각·화자별 아바타 이미지가 함께 나오는 새 형식으로 바꾼 것을 지원: 5번(html용 로그 백업)·6번(로그북용 로그 백업) 모두 이 새 형식을 알아보도록 전용 파서를 추가함(예전엔 이름·시각이 본문에 섞여 들어가거나 아바타가 통째로 빠지고, 6번은 아예 "인식된 문단이 없습니다"로 실패했음). 5번 탭엔 "발화 시각 표시" 옵션이 새로 생겨(시각 정보가 있는 로그에서만 나타남) 화면 미리보기·"정리된 로그 HTML로 저장" 결과 모두에 시각이 함께 나오도록 할 수 있고, 판정(다이스) 메시지는 굴림 명령과 결과를 합쳐서 굴림 결과가 유실되지 않게 함</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-02</b> — 코코포리아 캐릭터 룸파일 생성기(13번): "캐릭터 생성"/"임시저장" 클릭 시 라벨 중복·"@" 누락·빈 라벨·해석 안 되는 스테이터스 JSON처럼 코코포리아에서 표정이 조용히 사라지거나 가져오기가 어긋날 수 있는 항목을 미리 점검해, 있으면 실제 생성을 막고 문제 목록 팝업을 띄움. 각 항목을 "이동"으로 직접 고치거나 "자동 고치기"(항목별/전체)로 사이트 안에서 바로 해결한 뒤 "계속 생성"으로 이어서 만들 수 있음</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-02</b> — 파츠 조합 스탠딩 메이커(11번): 카테고리별 갤러리에 체크박스를 추가해 여러 파츠를 표시해둔 뒤 "선택 삭제"로 한 번에 지울 수 있게 함. ×로 하나씩 지우는 기존 방식과 결과는 같지만 되돌리기 스택에는 한 번만 쌓여, Ctrl+Z 한 번으로 지운 여러 파츠가 전부 되돌아오고 Ctrl+X 한 번으로 다시 전부 지워짐</li>
+      <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-09-07</b> — CoC 6판→7판 수치 변환기(8번) 사용성 보완: 시나리오 텍스트 일괄 변환 결과에 "결과 복사" 버튼 추가(다른 탭인 CoC 용어 변환기엔 있었지만 이 탭엔 없던 기능), Damage Bonus/Build 표에도 (용어 사전 편집과 동일하게) "기본값으로 초기화" 버튼을 추가해 직접 고치다 표가 꼬여도 CoC 7판 공식 수치로 바로 되돌릴 수 있게 함</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-09-07</b> — 설정 탭에 "설정 내보내기/불러오기(JSON)" 추가: 각 탭에서 기억해둔 입력값과 배색 설정을 파일로 내려받아 다른 브라우저·기기로 옮길 수 있음</li>
       <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-09-07</b> — CoC 6판→7판 수치 변환기: Damage Bonus/Build 표에 "표 내보내기/불러오기(JSON)" 추가(용어 사전과 동일한 방식) — 직접 고친 표를 다른 브라우저·GM과 공유 가능. CoC 용어 변환기에는 변환 결과 "TXT 다운로드" 버튼 추가(기존엔 클립보드 복사만 가능)</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-07</b> — 스탠딩 일괄 재단(10번)에 자주 쓰는 비율 알약(1:1·3:4·4:3·2:3·3:2·9:16·16:9) 추가 — 눌러서 바로 목표 비율 두 칸을 채울 수 있음</li>
@@ -1007,6 +1008,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <button class="btn ghost" id="ed-db-export">표 내보내기(JSON)</button>
       <button class="btn ghost" id="ed-db-import">표 불러오기(JSON)</button>
       <input type="file" id="ed-db-import-file" accept=".json" class="hidden">
+      <button class="btn ghost" id="ed-db-reset" style="color:var(--danger);">기본값으로 초기화</button>
     </div>
     <div class="row">
       <div class="field"><label for="ed-db-lookup">STR+SIZ 합계로 조회</label><input type="number" id="ed-db-lookup" value=""></div>
@@ -22687,6 +22689,12 @@ var TabLog = (function(){
       }catch(e){ alert('표 파일을 읽을 수 없습니다: '+e.message); }
     });
     this.value = '';
+  });
+  $('#ed-db-reset').addEventListener('click', function(){
+    if(!confirm('표를 CoC 7판 공식 수치로 초기화할까요? 직접 추가/수정한 내용은 사라집니다.')) return;
+    dbRows = DEFAULT_DB_ROWS.map(function(r){ return {min:r.min, max:r.max, db:r.db, build:r.build}; });
+    renderDbTable();
+    saveDbRows();
   });
   $('#ed-db-lookup').addEventListener('input', function(){
     var v = parseFloat(this.value);
