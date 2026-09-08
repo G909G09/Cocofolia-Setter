@@ -215,8 +215,21 @@
   function escUi(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
 
   // ── HTML 파싱 ──────────────────────────────────────────────
+  // 구버전: <p><span>[tag]</span><span>이름</span><span>본문(br 포함)</span></p>
+  // 신버전(아바타 이미지+타임스탬프 로그): <article class="message" data-channel="...">
+  //   [.avatar] .message-content > .message-header(.speaker/.timestamp/.channel-name) + .message-text + [.roll-result]
+  //   시스템 자동 알림은 <article class="message system"> 형태로 화자(.speaker) 없이 .message-text만 존재.
   function parseHtml(src){
     var doc = new DOMParser().parseFromString(src, "text/html");
+    var articles = doc.querySelectorAll("article.message");
+    var rows = articles.length ? parseNewFormat(articles) : parseOldFormat(doc);
+    rowsData = rows;
+    fillConfig(rows);
+    $("cfgPanel").classList.remove("hidden");
+    $("outPanel").classList.add("hidden");
+  }
+
+  function parseOldFormat(doc){
     var ps = doc.querySelectorAll("p");
     var rows = [];
     ps.forEach(function(p){
@@ -228,12 +241,35 @@
       if (TAG_ALIAS[tag]) tag = TAG_ALIAS[tag];
       var name = (spans[1].textContent || "").trim();
       var rawBody = spans[2].innerHTML;                      // <br> 보존
-      rows.push({tag: tag, name: name, raw: rawBody});
+      rows.push({tag: tag, name: name, raw: rawBody, sys: false});
     });
-    rowsData = rows;
-    fillConfig(rows);
-    $("cfgPanel").classList.remove("hidden");
-    $("outPanel").classList.add("hidden");
+    return rows;
+  }
+
+  function escHtml(s){
+    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+  // 신버전 로그의 본문은 실제 줄바꿈 문자를 쓰므로(white-space: pre-wrap),
+  // 구버전 파서가 기대하는 <br> 구분 HTML 형태로 맞춰준다.
+  function textToRaw(text){
+    return String(text).split("\n").map(escHtml).join("<br>");
+  }
+
+  function parseNewFormat(articles){
+    var rows = [];
+    articles.forEach(function(art){
+      var tag = art.getAttribute("data-channel") || "main";
+      var isSys = art.classList.contains("system");
+      var speakerEl = art.querySelector(".speaker");
+      var name = speakerEl ? (speakerEl.textContent || "").trim() : "";
+      var textEl = art.querySelector(".message-text");
+      var rollEl = art.querySelector(".roll-result");
+      // 명령어 에코(.message-text)와 굴림 결과(.roll-result)는 하나의 말풍선(article)에
+      // 함께 담기지만, 구버전에서는 서로 다른 두 문단이었으므로 별개 행으로 분리해 넣는다.
+      if (textEl) rows.push({tag: tag, name: name, raw: textToRaw(textEl.textContent || ""), sys: isSys});
+      if (rollEl) rows.push({tag: tag, name: name, raw: textToRaw(rollEl.textContent || ""), sys: false});
+    });
+    return rows;
   }
 
   function fillConfig(rows){
@@ -330,7 +366,8 @@
     var nOther = 0, nDash = 0, nEmpty = 0;
     rowsData.forEach(function(r){
       if (r.tag === "other" && !includeOther){ nOther++; return; }
-      if (r.tag === "info"){ seq.push({k:"info", name:r.name, raw:r.raw}); return; }
+      // r.sys: 신버전 로그의 화자 없는 시스템 자동 알림(예: 능력치 변동) → 정보 문단과 동일하게 처리
+      if (r.tag === "info" || r.sys){ seq.push({k:"info", name:r.name, raw:r.raw}); return; }
       var b = flat(r.raw);
       if (!b){ nEmpty++; return; }                     // 규칙 2
       if (b === "-"){ nDash++; seq.push({k:"break"}); return; }
@@ -348,10 +385,11 @@
       if (it.k === "break"){ prevDialog = null; i++; continue; }
 
       if (it.k === "info"){                             // 규칙 3·4·5
-        var para = it.name + MK+"BR"+MK + flat(it.raw);
+        // 화자 없는 시스템 알림(it.name === "")은 이름 줄 없이 본문만 넣는다.
+        var para = (it.name ? it.name + MK+"BR"+MK : "") + flat(it.raw);
         var j = i + 1;
         while (j < N && seq[j].k === "info"){
-          para += MK+"BR"+MK + seq[j].name + MK+"BR"+MK + flat(seq[j].raw);
+          para += MK+"BR"+MK + (seq[j].name ? seq[j].name + MK+"BR"+MK : "") + flat(seq[j].raw);
           j++;
         }
         out.push(["system", para]);
