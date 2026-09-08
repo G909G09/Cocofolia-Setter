@@ -24287,7 +24287,21 @@ var TabLog = (function(){
       lab.style.cssText = 'font-size:10px;color:var(--sub);max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
       box.appendChild(lab);
     }
+    // 클릭만으로 선택하던 파츠/효과 썸네일은 마우스 없이는(Tab으로 포커스는 가능해도
+    // Enter/Space로 고를 수 없어) 사실상 접근 불가능했다. 화자 필터 칩·손잡이(gizmo)와
+    // 동일한 패턴으로 버튼 역할을 명시하고 키보드로도 선택할 수 있게 한다.
+    box.setAttribute('tabindex', '0');
+    box.setAttribute('role', 'button');
+    box.setAttribute('aria-label', (item ? (item.name||label) : label) + (selected ? ' (선택됨)' : ''));
     box.addEventListener('click', onClick);
+    box.addEventListener('keydown', function(e){
+      // e.target !== box: 이름 입력칸이나 삭제(×) 버튼에 포커스가 있는 동안의
+      // Enter/Space까지 여기서 또 선택 처리하면 안 되므로(입력칸은 자체 keydown에서
+      // 이미 stopPropagation하지만, 삭제 버튼은 네이티브 클릭도 같이 발생하므로) box 자신에
+      // 포커스가 있을 때만 반응한다.
+      if(e.target !== box) return;
+      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); onClick(); }
+    });
     if(onRemove){
       var rm = document.createElement('button');
       rm.type='button'; rm.textContent='×'; rm.title='이 파츠 삭제';
