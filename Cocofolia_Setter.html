@@ -21273,21 +21273,21 @@ function parseCcfoliaMessageHtml(doc){
       var sysTextEl = article.querySelector('.message-text');
       var sysText = sysTextEl ? sysTextEl.textContent.trim() : '';
       if(!sysText) return;
-      out.push({ name:'', text:sysText, color:null, icon:null, tab:'info', time:null, timeText:null });
+      out.push({ name:'', text:sysText, rollText:null, color:null, icon:null, tab:'info', time:null, timeText:null });
       return;
     }
     var speakerEl = article.querySelector('.speaker');
     var name = speakerEl ? speakerEl.textContent.trim() : '';
     var textEl = article.querySelector('.message-text');
     var text = textEl ? textEl.textContent.trim() : '';
-    // 판정(다이스) 메시지는 굴림 명령(message-text)과 결과(roll-result)가 서로 다른
-    // 형제 요소로 나뉘어 있어, 결과를 합쳐주지 않으면 굴림 결과가 통째로 유실된다.
+    // 판정(다이스) 메시지는 굴림 명령(message-text)과 결과(roll-result)가 서로 다른 형제
+    // 요소로 나뉘어 있다. text에 합쳐버리면 5번 탭(한 말풍선으로 보여주는 뷰어)에는 좋지만,
+    // 6번 탭(매크로 변환기)은 굴림 결과만 dice 스타일로 뽑아 써야 하므로(명령 에코까지 다이스
+    // 박스에 같이 들어가면 원본 Cocofolia_Log_V4.html 매크로 엔진과 결과가 달라진다) 별도
+    // 필드(rollText)로 갈라 보관하고, 화면에 보여줄 때만(5번 탭) 다시 합친다.
     var rollEl = article.querySelector('.roll-result');
-    if(rollEl){
-      var rollText = rollEl.textContent.trim();
-      text = text ? (text + '\n' + rollText) : rollText;
-    }
-    if(!text && !name) return;
+    var rollText = rollEl ? rollEl.textContent.trim() : null;
+    if(!text && !rollText && !name) return;
     var color = speakerColor(speakerEl);
     var icon = null;
     var avatarEl = article.querySelector('.avatar');
@@ -21303,7 +21303,7 @@ function parseCcfoliaMessageHtml(doc){
     var timeText = timeEl ? timeEl.textContent.trim() : null;
     var tag = article.getAttribute('data-channel') || null;
     if(tag && TAG_ALIAS[tag]) tag = TAG_ALIAS[tag];
-    out.push({ name: name || '???', text: text, color: color, icon: icon, tab: tag, time: timeIso, timeText: timeText });
+    out.push({ name: name || '???', text: text, rollText: rollText, color: color, icon: icon, tab: tag, time: timeIso, timeText: timeText });
   });
   return out;
 }
@@ -21696,6 +21696,14 @@ var TabLog = (function(){
   // 있다(정교한 다이스 문법 파싱 없이 가벼운 휴리스틱으로 처리).
   function looksLikeDiceLine(text){ return text.indexOf('＞') !== -1; }
 
+  // parseCcfoliaMessageHtml()은 굴림 명령(text)과 결과(rollText)를 별도 필드로 갈라
+  // 보관한다(6번 탭 매크로 변환기가 결과만 dice 스타일로 뽑아 쓸 수 있도록). 이 뷰어는
+  // 코코포리아 원본처럼 한 말풍선으로 묶어서 보여주므로 표시 직전에 다시 합친다.
+  function messageDisplayText(m){
+    if(!m.rollText) return m.text;
+    return m.text ? (m.text + '\n' + m.rollText) : m.rollText;
+  }
+
   function populateGm(){
     var freq = {};
     state.messages.forEach(function(m){
@@ -21734,7 +21742,8 @@ var TabLog = (function(){
       // 있는 로그(거의 항상)에서는 시스템 행이 화자 필터를 건드리지도 않았는데 통째로 사라졌다.
       // 이름이 있는 메시지만 화자 필터를 적용하도록 한다.
       if(state.activeSpeakers && m.name && !state.activeSpeakers.has(m.name)) return;
-      if(q && m.text.toLowerCase().indexOf(q)===-1) return;
+      var displayText = messageDisplayText(m);
+      if(q && displayText.toLowerCase().indexOf(q)===-1) return;
       var row = document.createElement('div');
       var isSystem = m.tab==='info';
       var isGm = !isSystem && m.name===gmName;
@@ -21770,12 +21779,12 @@ var TabLog = (function(){
       }
       var textEl = document.createElement('div');
       textEl.className = 'log-text';
-      if(theme==='cocoback' && looksLikeDiceLine(m.text)){
+      if(theme==='cocoback' && looksLikeDiceLine(displayText)){
         var pill = document.createElement('span');
-        pill.className = 'dice-pill'; pill.textContent = m.text;
+        pill.className = 'dice-pill'; pill.textContent = displayText;
         textEl.appendChild(pill);
       } else {
-        textEl.textContent = m.text;
+        textEl.textContent = displayText;
       }
       row.appendChild(textEl);
       container.appendChild(row);
@@ -21896,7 +21905,7 @@ var TabLog = (function(){
     var msgs = state.messages.filter(function(m){
       if(excludeOther && m.tab==='other') return false;
       if(state.activeSpeakers && m.name && !state.activeSpeakers.has(m.name)) return false;
-      if(q && m.text.toLowerCase().indexOf(q)===-1) return false;
+      if(q && messageDisplayText(m).toLowerCase().indexOf(q)===-1) return false;
       return true;
     });
     var html = buildStandaloneLogHtml(msgs, $('#log-gm').value, $('#log-theme').value, $('#log-reflect-color').checked, $('#log-dark-mode').checked, $('#log-show-time').checked);
@@ -21925,8 +21934,9 @@ var TabLog = (function(){
       var timeHtml = (showTime && m.timeText) ? '<span class="time">'+esc(m.timeText)+'</span>' : '';
       var gmTimeHtml = (isGm && !isSystem && showTime && m.timeText) ? '<div class="time">'+esc(m.timeText)+'</div>' : '';
       var nameHtml = (!isSystem && !isGm) ? '<div class="header"><div class="name"'+colorAttr+'>'+esc(m.name)+'</div>'+timeHtml+'</div>' : '';
-      var textInner = esc(m.text).replace(/\n/g,'<br>');
-      if(cocoback && looksLikeDiceLine(m.text)) textInner = '<span class="dice-pill">'+textInner+'</span>';
+      var displayText = messageDisplayText(m);
+      var textInner = esc(displayText).replace(/\n/g,'<br>');
+      if(cocoback && looksLikeDiceLine(displayText)) textInner = '<span class="dice-pill">'+textInner+'</span>';
       return '<div class="row '+cls+'">'+avatarHtml+gmTimeHtml+nameHtml+'<div class="text">'+textInner+'</div></div>';
     }).join('\n');
     if(cocoback){
@@ -22095,11 +22105,17 @@ var TabLog = (function(){
     // 예전 <p> 구조가 하나도 안 걸리면(코코포리아가 새로 바꾼 로그 출력 형식), 탭5와
     // 공유하는 parseCcfoliaMessageHtml()로 다시 시도한다 — 이 매크로 변환기는 텍스트만
     // 쓰므로 이미지·시각은 버리고 이름·태그·본문(줄바꿈은 <br>로)만 같은 모양으로 맞춘다.
+    // 굴림 명령(r.text)과 결과(r.rollText)는 하나로 합치지 않고 별개 행으로 넣는다 —
+    // 합치면 명령 에코까지 dice 스타일 박스 안에 들어가버려 Cocofolia_Log_V4.html
+    // 매크로 엔진(굴림 결과만 dice/GMdice로 분류)과 결과가 달라진다.
     if(rows.length < 2){
       var newRows = parseCcfoliaMessageHtml(doc);
       if(newRows.length >= 2){
-        rows = newRows.map(function(r){
-          return { tag: r.tab || 'main', name: r.name, raw: escHtml(r.text).replace(/\n/g, '<br>') };
+        rows = [];
+        newRows.forEach(function(r){
+          var tag = r.tab || 'main';
+          if(r.text) rows.push({ tag: tag, name: r.name, raw: escHtml(r.text).replace(/\n/g, '<br>') });
+          if(r.rollText) rows.push({ tag: tag, name: r.name, raw: escHtml(r.rollText).replace(/\n/g, '<br>') });
         });
       }
     }
