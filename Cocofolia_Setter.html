@@ -18577,6 +18577,10 @@ function hexToRgb(hex, fallbackHex){
   var m = re.exec(hex||fallbackHex) || re.exec(fallbackHex);
   return {r:parseInt(m[1],16), g:parseInt(m[2],16), b:parseInt(m[3],16)};
 }
+// 코코포리아 업로드 기준(긴 변/용량). 여러 탭이 각자 같은 값을 복제해 쓰면 기준이 바뀔 때
+// 일부만 고쳐지고 나머지는 낡은 값으로 남는 문제가 생기므로, 한 곳에서만 선언한다.
+var CCFOLIA_MAX_DIM = 1200;
+var CCFOLIA_TARGET_BYTES = 0.95*1024*1024;
 function baseName(name){ var i = name.lastIndexOf('.'); return i>=0? name.slice(0,i): name; }
 function pad2(n){ return (n<10?'0':'')+n; }
 function fmtSec(ms){ return (ms/1000).toFixed(2)+'초'; }
@@ -18699,6 +18703,9 @@ function openHistoryDB(){
     req.onsuccess = function(){ resolve(req.result); };
     req.onerror = function(){ reject(req.error); };
   });
+  // 실패(사파리 프라이빗 모드의 일시적 제약 등)를 영구히 캐싱하지 않고, 다음 호출에서
+  // 다시 시도할 수 있게 캐시를 비워둔다.
+  historyDbPromise.catch(function(){ historyDbPromise = null; });
   return historyDbPromise;
 }
 function pruneHistory(db){
@@ -20092,8 +20099,8 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
   // 코코포리아는 1MB를 넘는 이미지를 서버에서 자동 압축하는데, 이때 애니메이션 정보가
   // 통째로 사라져 정지 이미지가 돼버린다. 그래서 1MB를 목표 상한으로 삼고, 긴 변을
   // 1200px로 제한한다(코코포리아 자체 리사이징 기준과 동일).
-  var COCOFOLIA_TARGET_BYTES = 0.95*1024*1024;
-  var COCOFOLIA_MAX_DIM = 1200;
+  var COCOFOLIA_TARGET_BYTES = CCFOLIA_TARGET_BYTES;
+  var COCOFOLIA_MAX_DIM = CCFOLIA_MAX_DIM;
 
   function applyChromaKeyG2A(imageData, cr, cg, cb, tolerancePct){
     var d = imageData.data;
@@ -20519,7 +20526,7 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
   // 렌더링 파이프라인(효과별 캔버스 프레임 생성)이 달라 그대로 옮기기 어려우므로, 최소한 2번
   // 탭과 동일한 기준으로 다운로드 시점에 결과 용량을 안내해 사용자가 필요하면 길이/FPS/효과
   // 강도를 낮춰 다시 렌더링하도록 안내한다.
-  var FX_COCOFOLIA_TARGET_BYTES = 0.95*1024*1024;
+  var FX_COCOFOLIA_TARGET_BYTES = CCFOLIA_TARGET_BYTES;
   makeRevealable($('#fx-result-row'));
 
   var fxOnFile = async function(file){
@@ -21420,8 +21427,8 @@ function guessGmName(namesSortedByFreqDesc){
    먼저 화질을 낮추는 편이 육안상 손상이 덜하기 때문이다.
 ================================================================ */
 (function(){
-  var IMGOPT_TARGET_BYTES = 0.95*1024*1024;
-  var IMGOPT_MAX_DIM = 1200;
+  var IMGOPT_TARGET_BYTES = CCFOLIA_TARGET_BYTES;
+  var IMGOPT_MAX_DIM = CCFOLIA_MAX_DIM;
   var items = [];
 
   function outputMime(file){

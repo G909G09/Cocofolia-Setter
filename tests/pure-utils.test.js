@@ -26,6 +26,7 @@ const sandbox = loadFunctionsFromHtml(HTML_PATH, [
   // guessGmName은 최상위 상수 GM_NAME_ALIASES를 참조하므로 그 선언도 함께 로드한다.
   { type: 'var', name: 'GM_NAME_ALIASES' },
   'guessGmName',
+  'fourccToInt',
 ]);
 
 test('clampInt: 범위 안/밖 값을 올바르게 자른다', () => {
@@ -104,6 +105,12 @@ test('guessGmName: GM 지칭 표기가 있으면 그 이름을, 없으면 빈도
   assert.equal(sandbox.guessGmName(['플레이어A', '키퍼', '플레이어B']), '키퍼');
   assert.equal(sandbox.guessGmName(['플레이어A', '플레이어B']), '플레이어A');
   assert.equal(sandbox.guessGmName([]), null);
+});
+
+test('fourccToInt: 4글자 FourCC 문자열을 WAV 헤더 비교에 쓰는 32비트 정수로 바꾼다', () => {
+  assert.equal(sandbox.fourccToInt('RIFF'), 0x52494646);
+  assert.equal(sandbox.fourccToInt('WAVE'), 0x57415645);
+  assert.equal(sandbox.fourccToInt('fmt '), 0x666d7420); // 공백도 그대로 한 글자로 포함된다
 });
 
 const sandbox2 = loadFunctionsFromHtml(HTML_PATH, [
