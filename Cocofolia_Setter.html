@@ -434,8 +434,20 @@ img.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;backgr
    GM 서술(gm)은 이름 표시가 없어 텍스트 위 한 줄로 따로 보여준다. */
 .log-list .log-time{font-size:10.5px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--log-sub);white-space:nowrap;}
 .log-list .log-row.gm .log-time{display:block;margin-bottom:4px;}
-/* "연속 발화 묶기": 한 상자 안에 여러 메시지가 각자 .log-text로 쌓일 때 줄 사이 간격 */
-.log-list .log-row .log-text + .log-text{margin-top:4px;}
+/* "연속 발화 묶기": 한 상자 안에 여러 메시지가 각자 줄로 쌓일 때 줄 사이 간격 */
+.log-list .log-row .log-text-line + .log-text-line{margin-top:4px;}
+/* 내용 박스마다 붙는 수정 버튼 — 평소엔 옅게, 마우스를 올리거나 포커스하면 또렷해진다.
+   인쇄·"정리된 로그 HTML로 저장"에는 안 보여야 하므로 no-print(화면 전용)로 둔다(내보내기는
+   render()를 안 쓰고 buildStandaloneLogHtml()이 별도로 문자열을 만들어서 애초에 이 버튼이
+   섞여 들어갈 일이 없지만, 인쇄는 화면 DOM을 그대로 찍으므로 no-print가 꼭 필요하다). */
+.log-list .log-text-line{display:flex;align-items:flex-start;gap:6px;}
+.log-list .log-text-line .log-text{flex:1 1 auto;min-width:0;}
+.log-edit-btn{flex-shrink:0;border:none;background:transparent;color:var(--log-sub);font-size:12px;line-height:1.4;cursor:pointer;padding:2px 5px;border-radius:5px;opacity:.35;transition:opacity .15s ease,background-color .15s ease;}
+.log-edit-btn:hover,.log-edit-btn:focus-visible{opacity:1;background:color-mix(in srgb, var(--log-ink) 10%, transparent);}
+.log-list .log-text-line.log-editing{display:block;}
+.log-edit-textarea{width:100%;min-height:44px;padding:7px 9px;border:1px solid var(--log-sub);border-radius:8px;background:var(--log-bg);color:var(--log-ink);font-size:13px;line-height:1.5;font-family:inherit;resize:vertical;box-sizing:border-box;}
+.log-edit-textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);}
+.log-edit-actions{display:flex;gap:6px;margin-top:5px;}
 .log-icon,.log-bubble{display:contents;}
 /* 잡담(사담) 탭을 본편 대사와 함께 볼 때 고르는 표시 스타일 — 두 스타일 모두 우측 상단에
    작은 "잡담" 표시 칩을 붙여, 어떤 스타일이든 본편과 구분된다는 걸 바로 알 수 있게 한다.
@@ -450,7 +462,7 @@ img.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;backgr
 .log-list .log-row.chat-bubble{margin:10px 0 10px 56px;}
 .log-list .log-row.chat-bubble .log-header-row{margin-bottom:4px;}
 .log-list .log-row.chat-bubble .log-name{font-size:11px;color:var(--log-sub);text-transform:none;letter-spacing:0;font-weight:600;}
-.log-list .log-row.chat-bubble .log-text{display:inline-block;max-width:88%;background:var(--log-chat-bubble-bg);color:var(--log-ink);padding:8px 14px;border-radius:16px 16px 16px 4px;font-size:13px;line-height:1.5;}
+.log-list .log-row.chat-bubble .log-text{display:inline-block;max-width:88%;background:var(--log-chat-bubble-bg);color:var(--log-ink);padding:8px 14px;border-radius:16px 16px 16px 4px;font-size:13px;line-height:1.5;flex:0 1 auto;}
 /* "고딕" 테마: 코코포리아 인기 팬툴("코백")의 UI에서 모티브를 얻은 대체 스타일 — 세리프체·
    상자 없는 기본 테마와 달리 고딕 계열 폰트·말풍선 상자·화자 아바타·주사위 결과 강조를 쓴다.
    라이트/다크는 .mode-light/.mode-dark 색상 변수만 다시 잡아서 구현한다(구조는 공통). */
@@ -472,7 +484,7 @@ img.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;backgr
 .log-list.theme-cocoback .log-row.pl.chat-subtle .log-name{font-size:10.5px;font-weight:600;color:var(--log-sub);}
 .log-list.theme-cocoback .log-row.pl.chat-subtle .log-text{font-size:12px;line-height:1.4;color:var(--log-sub);}
 .log-list.theme-cocoback .log-row.pl.chat-bubble .log-name{font-size:11px;color:var(--log-sub);}
-.log-list.theme-cocoback .log-row.pl.chat-bubble .log-text{display:inline-block;max-width:88%;background:var(--log-chat-bubble-bg);color:var(--log-ink);padding:8px 14px;border-radius:16px 16px 16px 4px;font-size:13px;line-height:1.5;}
+.log-list.theme-cocoback .log-row.pl.chat-bubble .log-text{display:inline-block;max-width:88%;background:var(--log-chat-bubble-bg);color:var(--log-ink);padding:8px 14px;border-radius:16px 16px 16px 4px;font-size:13px;line-height:1.5;flex:0 1 auto;}
 .log-list.theme-cocoback .log-row.system{color:var(--log-sub);}
 .log-list.theme-cocoback .log-row.system .log-name{display:inline-block;background:#999;color:#fff;border-radius:20px;padding:2px 12px;margin-bottom:6px;font-size:12px;}
 .log-list.theme-cocoback .log-row.system .log-text{color:var(--log-sub);}
@@ -668,6 +680,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-10</b> — html용 로그 백업(5번) 미리보기에서 원본 로그의 오타를 직접 고칠 수 있게 함: 내용 박스마다 옅게 떠 있는 "✎" 버튼을 누르면 그 줄만 제자리에서 편집 칸으로 바뀌어(화면이 다시 스크롤되지 않음) 저장·취소·(한 번이라도 고친 적 있으면) 원본으로 되돌리기를 고를 수 있음. 고친 내용은 검색·"정리된 로그 HTML로 저장"·인쇄 모두에 그대로 반영되고, 수정 버튼 자체는 저장 파일·인쇄물엔 나오지 않고 화면에서만 보임</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-10</b> — html용 로그 백업(5번): 기본(초기) 설정을 고딕 스타일·다크 모드·화자 지정 색상 반영·연속 발화 묶기·스탠딩 표시가 모두 켜진 상태로 변경(테마·다크 모드는 마지막으로 고른 값을 기억해뒀다가 다음에도 그대로 쓰는 기존 방식이라, 이미 다른 값을 골라본 적이 있다면 그 선택이 유지됨). 설정 영역도 "검색·필터"/"테마"/"표시 옵션" 세 구역으로 종류별로 다시 나눠 정리(테마·다크 모드처럼 외형에 관한 설정과, 화자색상·시각·스탠딩·묶기처럼 표시 내용에 관한 설정을 구분)</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-10</b> — html용 로그 백업(5번) 토글 UI 재정비: 꺼짐 상태 스위치 색이 배경과 거의 구분 안 되던 문제를 수정해 켜짐/꺼짐이 뚜렷이 보이도록 하고, 각 토글(과 곁의 정보 아이콘)을 테두리로 둘러싼 하나의 칩으로 묶어 어떤 기능 제목에 딸린 토글인지 한눈에 알아보기 쉽게 함(칩은 토글이 켜지면 테두리·배경도 옅게 강조됨). "스탠딩 표시" 토글을 새로 추가해 화자 두상(아바타) 이미지를 테마와 상관없이 켜고 끌 수 있게 했고, 기존엔 고딕 스타일에서만 보이던 아바타를 대본집 스타일에서도(작은 원형 초상으로) 볼 수 있도록 함(기본값: 켜짐)</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-10</b> — 로그북용 로그 백업(6번)도 GM이 잡담 탭에서 말한 내용은 서술·판정이 아니라 그냥 한 명의 대화 참여자로 보고 일반 캐릭터 발화(대사/대사2/대사3)로 분류하도록 수정(5번 탭과 동일한 기준, 메인 탭의 GM 서술·판정은 그대로 Story/Storydice/GMdice 유지). html용 로그 백업(5번)의 체크박스형 옵션(잡담 제외·다크 모드·화자색상반영·발화시각표시·연속발화묶기)을 스위치 형태로 바꾸고, 길게 늘어져 있던 설명 문구는 작은 정보 아이콘으로 접어 마우스를 올리거나(호버) 포커스했을 때만 말풍선으로 페이드인해 보여주도록 개선(평소엔 UI를 가리지 않음)</li>
@@ -21786,9 +21799,18 @@ var TabLog = (function(){
   // parseCcfoliaMessageHtml()은 굴림 명령(text)과 결과(rollText)를 별도 필드로 갈라
   // 보관한다(6번 탭 매크로 변환기가 결과만 dice 스타일로 뽑아 쓸 수 있도록). 이 뷰어는
   // 코코포리아 원본처럼 한 말풍선으로 묶어서 보여주므로 표시 직전에 다시 합친다.
-  function messageDisplayText(m){
+  function originalDisplayText(m){
     if(!m.rollText) return m.text;
     return m.text ? (m.text + '\n' + m.rollText) : m.rollText;
+  }
+  // 원본 로그에 오타가 있는 경우가 종종 있어, 화면에서 직접 고칠 수 있게 한다. m.edited가
+  // 있으면(사용자가 한 번이라도 저장한 적이 있으면) 그 내용을 우선 보여주고, 없으면 원본
+  // 텍스트 그대로 보여준다. 수정 내용은 state.messages의 메시지 객체 자체에 저장되므로
+  // (별도 사본이 아님) 검색·"잡담 탭 제외" 같은 필터를 바꿔 다시 그려도 그대로 남고,
+  // "정리된 로그 HTML로 저장"도 이 함수를 그대로 쓰므로 수정된 내용이 반영된다. 6번 탭
+  // (로그북용)은 이 탭과 별도로 자기 파일을 다시 파싱하므로 이 수정은 영향을 주지 않는다.
+  function messageDisplayText(m){
+    return m.edited != null ? m.edited : originalDisplayText(m);
   }
 
   function populateGm(){
@@ -21905,6 +21927,8 @@ var TabLog = (function(){
       }
       g.items.forEach(function(m){
         var displayText = messageDisplayText(m);
+        var lineEl = document.createElement('div');
+        lineEl.className = 'log-text-line';
         var textEl = document.createElement('div');
         textEl.className = 'log-text';
         if(theme==='cocoback' && looksLikeDiceLine(displayText)){
@@ -21914,7 +21938,13 @@ var TabLog = (function(){
         } else {
           textEl.textContent = displayText;
         }
-        row.appendChild(textEl);
+        lineEl.appendChild(textEl);
+        var editBtn = document.createElement('button');
+        editBtn.type = 'button'; editBtn.className = 'log-edit-btn no-print';
+        editBtn.textContent = '✎'; editBtn.title = '이 내용 수정'; editBtn.setAttribute('aria-label', '이 내용 수정');
+        editBtn.addEventListener('click', function(){ startEditLogLine(m, lineEl); });
+        lineEl.appendChild(editBtn);
+        row.appendChild(lineEl);
       });
       if(isChat){
         var tabChip = document.createElement('span');
@@ -21923,6 +21953,49 @@ var TabLog = (function(){
       }
       container.appendChild(row);
     });
+  }
+
+  // 내용 박스의 "✎" 버튼을 누르면 그 줄만 제자리에서 편집 칸으로 바뀐다(전체를 다시 그리지
+  // 않아 스크롤 위치가 유지됨). "저장"을 누르면 그 메시지 객체(state.messages 안의 실제
+  // 항목, 사본 아님)에 m.edited로 남기고 나서야 화면을 다시 그린다 — 그래야 수정한 내용이
+  // 다이스 알약 판별·검색 필터에도 곧바로 반영된다. "취소"는 아무것도 바꾸지 않고 다시
+  // 그려서 원래 보기로 되돌린다. 이미 한 번 고친 적이 있는 줄은 "원본으로" 버튼도 함께
+  // 보여줘, 처음 파싱됐던 그대로의 문구를 다시 불러와 비교/재수정할 수 있게 한다.
+  function startEditLogLine(m, lineEl){
+    lineEl.innerHTML = '';
+    lineEl.classList.add('log-editing');
+    var ta = document.createElement('textarea');
+    ta.className = 'log-edit-textarea';
+    var current = messageDisplayText(m);
+    ta.value = current;
+    ta.rows = Math.max(2, Math.min(10, current.split('\n').length + 1));
+    lineEl.appendChild(ta);
+    var actions = document.createElement('div');
+    actions.className = 'log-edit-actions no-print';
+    var saveBtn = document.createElement('button');
+    saveBtn.type = 'button'; saveBtn.className = 'btn'; saveBtn.textContent = '저장';
+    saveBtn.style.cssText = 'padding:4px 12px;font-size:11px;';
+    saveBtn.addEventListener('click', function(){ m.edited = ta.value; render(); });
+    actions.appendChild(saveBtn);
+    if(m.edited != null){
+      var revertBtn = document.createElement('button');
+      revertBtn.type = 'button'; revertBtn.className = 'btn ghost'; revertBtn.textContent = '원본으로';
+      revertBtn.style.cssText = 'padding:4px 12px;font-size:11px;';
+      revertBtn.title = '수정하기 전 원래 문구를 이 칸에 다시 채워 넣습니다(저장을 눌러야 실제로 반영됩니다)';
+      revertBtn.addEventListener('click', function(){
+        ta.value = originalDisplayText(m);
+        ta.focus();
+      });
+      actions.appendChild(revertBtn);
+    }
+    var cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button'; cancelBtn.className = 'btn ghost'; cancelBtn.textContent = '취소';
+    cancelBtn.style.cssText = 'padding:4px 12px;font-size:11px;';
+    cancelBtn.addEventListener('click', function(){ render(); });
+    actions.appendChild(cancelBtn);
+    lineEl.appendChild(actions);
+    ta.focus();
+    ta.select();
   }
 
   function buildSpeakerChips(){
@@ -22045,6 +22118,12 @@ var TabLog = (function(){
   $('#log-group-consecutive').addEventListener('change', render);
   $('#log-exclude-other').addEventListener('change', render);
   $('#log-print').addEventListener('click', function(){ window.print(); });
+  // 내용 수정 칸(textarea)은 no-print 대상이 아니어서(입력 중엔 수정 버튼처럼 화면 전용
+  // 요소로만 다루기 애매함), 편집 중에 브라우저 인쇄 단축키(Ctrl+P) 등으로 바로 인쇄하면
+  // 편집 칸이 그대로 찍힐 수 있다. 인쇄 직전에 편집 중인 줄이 있으면 취소하고 다시 그린다.
+  window.addEventListener('beforeprint', function(){
+    if($('#log-list').querySelector('.log-editing')) render();
+  });
   function buildLogCleanBlob(){
     // render()가 화면에 보여주는 목록은 "잡담 탭 제외" 체크뿐 아니라 검색어·화자 칩(끄기)
     // 필터까지 반영하는데, 이 함수는 그동안 "잡담 탭 제외"만 반영하고 검색어/화자 필터는
