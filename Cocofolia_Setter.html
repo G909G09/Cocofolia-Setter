@@ -638,6 +638,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-10</b> — html용 로그 백업(5번) "연속 발화 묶기"·잡담 표시 보완: (1) 같은 화자라도 탭(메인/잡담 등)이 다르면 서로 다른 대화이므로 묶지 않도록 수정(예전엔 메인에서 말하다 잡담으로 넘어가도 이름만 같으면 한 상자에 섞여 들어갔음). (2) GM이 잡담 탭에서 말한 내용은 서술이 아니라 그냥 한 명의 대화 참여자이므로, 잡담 탭에서는 GM이어도 이름·아바타가 있는 일반 캐릭터 발화로 표시하도록 수정(메인 탭의 GM 서술은 그대로 이름 없는 스타일 유지)</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-10</b> — html용 로그 백업(5번): 잡담(사담) 탭을 함께 볼 때 본편 대사와 구분되도록 "잡담 표시 스타일"(눈에 덜 띄는 스타일/말풍선 스타일)을 고를 수 있게 함(모서리에 작은 "잡담" 표시도 함께 붙음). "연속 발화 묶기" 옵션을 켜면 같은 화자가 연달아 말한 메시지를 이름·아바타 한 번만 보이는 한 상자로 묶어 보여주되, 상자 안에서도 메시지마다 줄이 나뉘어 여러 번에 나눠 보낸 티는 남김(화면 미리보기·인쇄·"정리된 로그 HTML로 저장" 모두 동일 반영). 옵션이 늘어난 만큼 조작 영역을 "검색·필터"/"표시 스타일" 두 구역으로 나눠 정리</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-08</b> — 코코포리아가 로그 출력 형식을 발화 시각·화자별 아바타 이미지가 함께 나오는 새 형식으로 바꾼 것을 지원: 5번(html용 로그 백업)·6번(로그북용 로그 백업) 모두 이 새 형식을 알아보도록 전용 파서를 추가함(예전엔 이름·시각이 본문에 섞여 들어가거나 아바타가 통째로 빠지고, 6번은 아예 "인식된 문단이 없습니다"로 실패했음). 5번 탭엔 "발화 시각 표시" 옵션이 새로 생겨(시각 정보가 있는 로그에서만 나타남) 화면 미리보기·"정리된 로그 HTML로 저장" 결과 모두에 시각이 함께 나오도록 할 수 있고, 판정(다이스) 메시지는 굴림 명령과 결과를 합쳐서 굴림 결과가 유실되지 않게 함</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-02</b> — 코코포리아 캐릭터 룸파일 생성기(13번): "캐릭터 생성"/"임시저장" 클릭 시 라벨 중복·"@" 누락·빈 라벨·해석 안 되는 스테이터스 JSON처럼 코코포리아에서 표정이 조용히 사라지거나 가져오기가 어긋날 수 있는 항목을 미리 점검해, 있으면 실제 생성을 막고 문제 목록 팝업을 띄움. 각 항목을 "이동"으로 직접 고치거나 "자동 고치기"(항목별/전체)로 사이트 안에서 바로 해결한 뒤 "계속 생성"으로 이어서 만들 수 있음</li>
@@ -21794,10 +21795,13 @@ var TabLog = (function(){
     msgs.forEach(function(m){
       var isSystem = m.tab==='info';
       var last = groups[groups.length-1];
-      if(groupConsecutive && !isSystem && last && !last.isSystem && last.name===m.name){
+      // 같은 화자라도 탭(메인/잡담 등)이 다르면 서로 다른 대화이므로 묶지 않는다 — 그렇지
+      // 않으면 메인에서 말하다 잡담으로 넘어간 메시지가 한 상자에 섞여, 그 상자 전체가
+      // (첫 메시지 탭 기준으로) 잡담 스타일이거나 아니거나로 잘못 표시된다.
+      if(groupConsecutive && !isSystem && last && !last.isSystem && last.name===m.name && last.tab===m.tab){
         last.items.push(m);
       } else {
-        groups.push({ name:m.name, isSystem:isSystem, items:[m] });
+        groups.push({ name:m.name, tab:m.tab, isSystem:isSystem, items:[m] });
       }
     });
     return groups;
@@ -21818,7 +21822,9 @@ var TabLog = (function(){
     groups.forEach(function(g){
       var first = g.items[0];
       var isSystem = g.isSystem;
-      var isGm = !isSystem && g.name===gmName;
+      // GM도 잡담 탭에서는 서술이 아니라 그냥 한 명의 대화 참여자이므로, 잡담 탭에서는
+      // GM 이름이어도 일반 캐릭터 발화(이름·아바타 있는 pl)로 취급한다.
+      var isGm = !isSystem && g.name===gmName && g.tab!=='other';
       // "잡담(사담) 탭 제외"를 꺼서 잡담도 함께 보여줄 때, 본편 대사(pl)와 시각적으로
       // 구분되도록 선택한 스타일(말풍선/눈에 덜 띄는) 클래스를 덧붙인다.
       var isChat = !isSystem && !isGm && first.tab==='other';
@@ -22018,7 +22024,8 @@ var TabLog = (function(){
     var rows = groups.map(function(g){
       var first = g.items[0];
       var isSystem = g.isSystem;
-      var isGm = !isSystem && g.name===gmName;
+      // GM도 잡담 탭에서는 서술이 아니라 일반 대화 참여자로 취급한다(화면 미리보기와 동일).
+      var isGm = !isSystem && g.name===gmName && g.tab!=='other';
       var isChat = !isSystem && !isGm && first.tab==='other';
       var cls = isSystem?'system':(isGm?'gm':'pl') + (isChat ? ' chat-'+chatStyle : '');
       var avatarHtml = (cocoback && !isSystem && !isGm && first.icon) ? '<div class="avatar" style="background-image:url(&quot;'+esc(first.icon)+'&quot;)"></div>' : '';
