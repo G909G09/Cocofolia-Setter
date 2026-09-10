@@ -387,8 +387,8 @@ img.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;backgr
   background:var(--log-bg);color:var(--log-ink);border:1px solid var(--line);border-radius:10px;
   font-family:"Noto Serif KR",Georgia,serif;
 }
-.log-list.mode-light{--log-bg:#ffffff;--log-ink:#1e2430;--log-sub:#6b7280;}
-.log-list.mode-dark{--log-bg:#20232b;--log-ink:#e7e9ee;--log-sub:#9a9fac;}
+.log-list.mode-light{--log-bg:#ffffff;--log-ink:#1e2430;--log-sub:#6b7280;--log-chat-bubble-bg:#eef1f6;}
+.log-list.mode-dark{--log-bg:#20232b;--log-ink:#e7e9ee;--log-sub:#9a9fac;--log-chat-bubble-bg:#2a2e38;}
 .log-row{position:relative;}
 .log-list .log-row.gm{margin:10px 0;padding:0;}
 .log-list .log-row.gm .log-text{font-size:14px;line-height:1.7;color:var(--log-ink);}
@@ -404,7 +404,23 @@ img.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;backgr
    GM 서술(gm)은 이름 표시가 없어 텍스트 위 한 줄로 따로 보여준다. */
 .log-list .log-time{font-size:10.5px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--log-sub);white-space:nowrap;}
 .log-list .log-row.gm .log-time{display:block;margin-bottom:4px;}
+/* "연속 발화 묶기": 한 상자 안에 여러 메시지가 각자 .log-text로 쌓일 때 줄 사이 간격 */
+.log-list .log-row .log-text + .log-text{margin-top:4px;}
 .log-icon,.log-bubble{display:contents;}
+/* 잡담(사담) 탭을 본편 대사와 함께 볼 때 고르는 표시 스타일 — 두 스타일 모두 우측 상단에
+   작은 "잡담" 표시 칩을 붙여, 어떤 스타일이든 본편과 구분된다는 걸 바로 알 수 있게 한다.
+   "눈에 덜 띄는": 본편 대사(pl)보다 작고 흐릿하게, 박스 없이. "말풍선": 채팅 앱처럼 둥근
+   말풍선 안에 텍스트를 담아 시각적으로 캐주얼한 대화라는 느낌을 준다. */
+.log-list .log-row.chat-subtle,.log-list .log-row.chat-bubble{padding-right:44px;}
+.log-list .log-row.chat-subtle{margin:6px 0 6px 56px;opacity:.72;}
+.log-list .log-row.chat-subtle .log-header-row{gap:6px;margin-bottom:0;}
+.log-list .log-row.chat-subtle .log-name{font-size:10.5px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--log-sub);margin-bottom:0;}
+.log-list .log-row.chat-subtle .log-text{font-size:11.5px;line-height:1.4;color:var(--log-sub);}
+.log-list .log-row.chat-subtle .log-time{font-size:9.5px;}
+.log-list .log-row.chat-bubble{margin:10px 0 10px 56px;}
+.log-list .log-row.chat-bubble .log-header-row{margin-bottom:4px;}
+.log-list .log-row.chat-bubble .log-name{font-size:11px;color:var(--log-sub);text-transform:none;letter-spacing:0;font-weight:600;}
+.log-list .log-row.chat-bubble .log-text{display:inline-block;max-width:88%;background:var(--log-chat-bubble-bg);color:var(--log-ink);padding:8px 14px;border-radius:16px 16px 16px 4px;font-size:13px;line-height:1.5;}
 /* "고딕" 테마: 코코포리아 인기 팬툴("코백")의 UI에서 모티브를 얻은 대체 스타일 — 세리프체·
    상자 없는 기본 테마와 달리 고딕 계열 폰트·말풍선 상자·화자 아바타·주사위 결과 강조를 쓴다.
    라이트/다크는 .mode-light/.mode-dark 색상 변수만 다시 잡아서 구현한다(구조는 공통). */
@@ -419,6 +435,14 @@ img.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;backgr
 .log-list.theme-cocoback .log-row.pl .log-header-row .log-name{margin-bottom:0;}
 .log-list.theme-cocoback .log-row.pl .log-name{font-weight:700;font-size:13px;letter-spacing:0;text-transform:none;color:var(--log-name);margin-bottom:4px;}
 .log-list.theme-cocoback .log-row.pl .log-text{font-size:14px;line-height:1.7;color:var(--log-ink);}
+/* 고딕 테마의 대사(pl)는 자체 말풍선 상자(배경·테두리)를 이미 갖고 있어, 잡담 스타일의
+   상자와 겹쳐 보이지 않도록 pl 쪽 상자를 지우고 잡담 전용 스타일로 다시 그린다. */
+.log-list.theme-cocoback .log-row.pl.chat-subtle,.log-list.theme-cocoback .log-row.pl.chat-bubble{background:transparent;border:none;padding:0;}
+.log-list.theme-cocoback .log-row.pl.chat-subtle{opacity:.72;}
+.log-list.theme-cocoback .log-row.pl.chat-subtle .log-name{font-size:10.5px;font-weight:600;color:var(--log-sub);}
+.log-list.theme-cocoback .log-row.pl.chat-subtle .log-text{font-size:12px;line-height:1.4;color:var(--log-sub);}
+.log-list.theme-cocoback .log-row.pl.chat-bubble .log-name{font-size:11px;color:var(--log-sub);}
+.log-list.theme-cocoback .log-row.pl.chat-bubble .log-text{display:inline-block;max-width:88%;background:var(--log-chat-bubble-bg);color:var(--log-ink);padding:8px 14px;border-radius:16px 16px 16px 4px;font-size:13px;line-height:1.5;}
 .log-list.theme-cocoback .log-row.system{color:var(--log-sub);}
 .log-list.theme-cocoback .log-row.system .log-name{display:inline-block;background:#999;color:#fff;border-radius:20px;padding:2px 12px;margin-bottom:6px;font-size:12px;}
 .log-list.theme-cocoback .log-row.system .log-text{color:var(--log-sub);}
@@ -614,6 +638,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-10</b> — html용 로그 백업(5번): 잡담(사담) 탭을 함께 볼 때 본편 대사와 구분되도록 "잡담 표시 스타일"(눈에 덜 띄는 스타일/말풍선 스타일)을 고를 수 있게 함(모서리에 작은 "잡담" 표시도 함께 붙음). "연속 발화 묶기" 옵션을 켜면 같은 화자가 연달아 말한 메시지를 이름·아바타 한 번만 보이는 한 상자로 묶어 보여주되, 상자 안에서도 메시지마다 줄이 나뉘어 여러 번에 나눠 보낸 티는 남김(화면 미리보기·인쇄·"정리된 로그 HTML로 저장" 모두 동일 반영). 옵션이 늘어난 만큼 조작 영역을 "검색·필터"/"표시 스타일" 두 구역으로 나눠 정리</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-08</b> — 코코포리아가 로그 출력 형식을 발화 시각·화자별 아바타 이미지가 함께 나오는 새 형식으로 바꾼 것을 지원: 5번(html용 로그 백업)·6번(로그북용 로그 백업) 모두 이 새 형식을 알아보도록 전용 파서를 추가함(예전엔 이름·시각이 본문에 섞여 들어가거나 아바타가 통째로 빠지고, 6번은 아예 "인식된 문단이 없습니다"로 실패했음). 5번 탭엔 "발화 시각 표시" 옵션이 새로 생겨(시각 정보가 있는 로그에서만 나타남) 화면 미리보기·"정리된 로그 HTML로 저장" 결과 모두에 시각이 함께 나오도록 할 수 있고, 판정(다이스) 메시지는 굴림 명령과 결과를 합쳐서 굴림 결과가 유실되지 않게 함</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-02</b> — 코코포리아 캐릭터 룸파일 생성기(13번): "캐릭터 생성"/"임시저장" 클릭 시 라벨 중복·"@" 누락·빈 라벨·해석 안 되는 스테이터스 JSON처럼 코코포리아에서 표정이 조용히 사라지거나 가져오기가 어긋날 수 있는 항목을 미리 점검해, 있으면 실제 생성을 막고 문제 목록 팝업을 띄움. 각 항목을 "이동"으로 직접 고치거나 "자동 고치기"(항목별/전체)로 사이트 안에서 바로 해결한 뒤 "계속 생성"으로 이어서 만들 수 있음</li>
       <li><span class="chlog-tag" data-cat="char">캐릭터·스탠딩</span><b>2026-09-02</b> — 파츠 조합 스탠딩 메이커(11번): 카테고리별 갤러리에 체크박스를 추가해 여러 파츠를 표시해둔 뒤 "선택 삭제"로 한 번에 지울 수 있게 함. ×로 하나씩 지우는 기존 방식과 결과는 같지만 되돌리기 스택에는 한 번만 쌓여, Ctrl+Z 한 번으로 지운 여러 파츠가 전부 되돌아오고 Ctrl+X 한 번으로 다시 전부 지워짐</li>
@@ -862,25 +887,43 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     <div class="drop no-print" id="log-drop">로그 파일(.html/.json)
       <input type="file" id="log-file" accept=".html,.htm,.json" class="hidden">
     </div>
-    <div class="row hidden no-print" id="log-controls">
-      <div class="field"><label class="wide" for="log-gm">GM(서술 담당)</label><select id="log-gm"></select></div>
-      <div class="field"><label class="wide" for="log-search">검색어</label><input type="text" id="log-search" class="wide" placeholder="대사 내용 검색"></div>
-      <div class="field"><label class="wide" for="log-theme">테마</label>
-        <select id="log-theme">
-          <option value="script">대본집 스타일 (기본)</option>
-          <option value="cocoback">고딕 스타일</option>
-        </select>
+    <div class="hidden no-print" id="log-controls">
+      <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">검색·필터</h3>
+      <div class="row">
+        <div class="field"><label class="wide" for="log-gm">GM(서술 담당)</label><select id="log-gm"></select></div>
+        <div class="field"><label class="wide" for="log-search">검색어</label><input type="text" id="log-search" class="wide" placeholder="대사 내용 검색"></div>
+        <div class="field"><label><input type="checkbox" id="log-exclude-other" checked> 잡담(사담) 탭 제외</label></div>
       </div>
-      <div class="field"><label><input type="checkbox" id="log-exclude-other" checked> 잡담(사담) 탭 제외</label></div>
-      <div class="field"><label><input type="checkbox" id="log-dark-mode"> 다크 모드</label></div>
-      <div class="field"><label><input type="checkbox" id="log-reflect-color"> 화자 지정 색상 반영</label>
-        <span class="footnote" style="width:200px;">원본 로그에 화자별로 지정된 색상이 있으면 이름에 그대로 반영합니다(없으면 테마 기본 색을 씁니다).</span>
+      <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">표시 스타일</h3>
+      <div class="row">
+        <div class="field"><label class="wide" for="log-theme">테마</label>
+          <select id="log-theme">
+            <option value="script">대본집 스타일 (기본)</option>
+            <option value="cocoback">고딕 스타일</option>
+          </select>
+        </div>
+        <div class="field"><label><input type="checkbox" id="log-dark-mode"> 다크 모드</label></div>
+        <div class="field"><label><input type="checkbox" id="log-reflect-color"> 화자 지정 색상 반영</label>
+          <span class="footnote" style="width:200px;">원본 로그에 화자별로 지정된 색상이 있으면 이름에 그대로 반영합니다(없으면 테마 기본 색을 씁니다).</span>
+        </div>
+        <div class="field hidden" id="log-showtime-field"><label><input type="checkbox" id="log-show-time"> 발화 시각 표시</label>
+          <span class="footnote" style="width:200px;">코코포리아 로그 출력이 발화 시각을 함께 담고 있을 때만 나타납니다.</span>
+        </div>
+        <div class="field"><label><input type="checkbox" id="log-group-consecutive"> 연속 발화 묶기</label>
+          <span class="footnote" style="width:200px;">같은 화자가 연달아 말하면 이름·아바타를 한 번만 보여주고 한 상자 안에 묶습니다(상자 안에서도 메시지마다 줄이 나뉘어, 여러 번에 나눠 보낸 티는 그대로 남습니다).</span>
+        </div>
+        <div class="field hidden" id="log-chatstyle-field"><label class="wide" for="log-chat-style">잡담 표시 스타일</label>
+          <select id="log-chat-style">
+            <option value="subtle">눈에 덜 띄는 스타일</option>
+            <option value="bubble">말풍선 스타일</option>
+          </select>
+          <span class="footnote" style="width:200px;">잡담 탭 제외를 꺼서 잡담도 함께 볼 때, 본편 대사와 구분되도록 다르게 표시합니다.</span>
+        </div>
       </div>
-      <div class="field hidden" id="log-showtime-field"><label><input type="checkbox" id="log-show-time"> 발화 시각 표시</label>
-        <span class="footnote" style="width:200px;">코코포리아 로그 출력이 발화 시각을 함께 담고 있을 때만 나타납니다.</span>
+      <div class="row">
+        <button class="btn ghost" id="log-print">인쇄 / PDF로 저장</button>
+        <button class="btn ghost" id="log-export">정리된 로그 HTML로 저장</button>
       </div>
-      <button class="btn ghost" id="log-print">인쇄 / PDF로 저장</button>
-      <button class="btn ghost" id="log-export">정리된 로그 HTML로 저장</button>
     </div>
     <div class="chips hidden no-print" id="log-speakers"></div>
     <details class="raw hidden no-print" id="log-rawwrap"><summary>원본 파싱 결과 미리보기 (문제가 있으면 확인용)</summary><pre id="log-rawpreview"></pre></details>
@@ -21723,6 +21766,43 @@ var TabLog = (function(){
     gm.onchange = render;
   }
 
+  // 화면에 보여줄 메시지만 걸러낸다(잡담 제외·화자 필터·검색어) — render()의 미리보기와
+  // buildLogCleanBlob()의 "정리된 로그 HTML로 저장"이 같은 조건을 공유해서 써야
+  // 화면에 안 보이는 내용이 저장 파일에만 몰래 섞여 들어가는 일이 없다.
+  function visibleMessages(){
+    var q = $('#log-search').value.trim().toLowerCase();
+    var excludeOther = $('#log-exclude-other').checked;
+    return state.messages.filter(function(m){
+      if(excludeOther && m.tab==='other') return false;
+      // buildSpeakerChips()는 이름이 있는 화자만 칩으로 만들므로(빈 이름은 .filter(Boolean)에서
+      // 제외됨), activeSpeakers 집합에는 빈 문자열이 들어가지 않는다. "정보" 탭 시스템 알림처럼
+      // 이름이 아예 없는 행까지 이 검사에 걸리면 has('')가 항상 false가 되어, 화자 칩이 하나라도
+      // 있는 로그(거의 항상)에서는 시스템 행이 화자 필터를 건드리지도 않았는데 통째로 사라졌다.
+      // 이름이 있는 메시지만 화자 필터를 적용하도록 한다.
+      if(state.activeSpeakers && m.name && !state.activeSpeakers.has(m.name)) return false;
+      if(q && messageDisplayText(m).toLowerCase().indexOf(q)===-1) return false;
+      return true;
+    });
+  }
+
+  // "연속 발화 묶기"가 꺼져 있으면 메시지 하나가 곧 그룹 하나(기존과 동일). 켜져 있으면
+  // 같은 화자(이름 같음, 시스템 아님)가 바로 이어질 때만 같은 그룹으로 묶는다 — 시스템
+  // 알림은 각각 독립된 항목이라 묶지 않는다. 그룹 안 메시지는 각자 줄이 나뉜 채로
+  // 표시되어(각각 별도 .log-text) 여러 번에 나눠 보낸 티가 그대로 남는다.
+  function groupMessages(msgs, groupConsecutive){
+    var groups = [];
+    msgs.forEach(function(m){
+      var isSystem = m.tab==='info';
+      var last = groups[groups.length-1];
+      if(groupConsecutive && !isSystem && last && !last.isSystem && last.name===m.name){
+        last.items.push(m);
+      } else {
+        groups.push({ name:m.name, isSystem:isSystem, items:[m] });
+      }
+    });
+    return groups;
+  }
+
   function render(){
     var container = $('#log-list');
     container.innerHTML = '';
@@ -21730,63 +21810,68 @@ var TabLog = (function(){
     var darkMode = $('#log-dark-mode').checked;
     var reflectColor = $('#log-reflect-color').checked;
     container.className = 'log-list' + (theme==='cocoback' ? ' theme-cocoback' : '') + (darkMode ? ' mode-dark' : ' mode-light');
-    var q = $('#log-search').value.trim().toLowerCase();
-    var excludeOther = $('#log-exclude-other').checked;
     var gmName = $('#log-gm').value;
     var showTime = $('#log-show-time').checked;
-    state.messages.forEach(function(m){
-      if(excludeOther && m.tab==='other') return;
-      // buildSpeakerChips()는 이름이 있는 화자만 칩으로 만들므로(빈 이름은 .filter(Boolean)에서
-      // 제외됨), activeSpeakers 집합에는 빈 문자열이 들어가지 않는다. "정보" 탭 시스템 알림처럼
-      // 이름이 아예 없는 행까지 이 검사에 걸리면 has('')가 항상 false가 되어, 화자 칩이 하나라도
-      // 있는 로그(거의 항상)에서는 시스템 행이 화자 필터를 건드리지도 않았는데 통째로 사라졌다.
-      // 이름이 있는 메시지만 화자 필터를 적용하도록 한다.
-      if(state.activeSpeakers && m.name && !state.activeSpeakers.has(m.name)) return;
-      var displayText = messageDisplayText(m);
-      if(q && displayText.toLowerCase().indexOf(q)===-1) return;
+    var chatStyle = $('#log-chat-style').value;
+    var groupConsecutive = $('#log-group-consecutive').checked;
+    var groups = groupMessages(visibleMessages(), groupConsecutive);
+    groups.forEach(function(g){
+      var first = g.items[0];
+      var isSystem = g.isSystem;
+      var isGm = !isSystem && g.name===gmName;
+      // "잡담(사담) 탭 제외"를 꺼서 잡담도 함께 보여줄 때, 본편 대사(pl)와 시각적으로
+      // 구분되도록 선택한 스타일(말풍선/눈에 덜 띄는) 클래스를 덧붙인다.
+      var isChat = !isSystem && !isGm && first.tab==='other';
       var row = document.createElement('div');
-      var isSystem = m.tab==='info';
-      var isGm = !isSystem && m.name===gmName;
-      row.className = 'log-row ' + (isSystem?'system':(isGm?'gm':'pl'));
+      row.className = 'log-row ' + (isSystem?'system':(isGm?'gm':'pl')) + (isChat ? ' chat-'+chatStyle : '');
       // 다크 고딕 테마에서만 화자 두상(아바타)을 보여준다 — 기본 대본집 테마는 원래부터
       // 이미지 없이 텍스트만으로 구성된 스타일이라 그대로 유지한다.
-      if(theme==='cocoback' && !isSystem && !isGm && m.icon){
+      if(theme==='cocoback' && !isSystem && !isGm && first.icon){
         var avatarEl = document.createElement('div');
         avatarEl.className = 'log-avatar';
-        avatarEl.style.backgroundImage = 'url("'+m.icon+'")';
+        avatarEl.style.backgroundImage = 'url("'+first.icon+'")';
         row.appendChild(avatarEl);
       }
       // GM 서술은 이름을 따로 표시하지 않으므로(위 아바타 조건과 동일하게 !isGm), 시각도
-      // 텍스트 위에 한 줄로 따로 붙인다. 대사(pl)는 이름과 한 줄에 나란히 보여준다.
-      if(isGm && !isSystem && showTime && m.timeText){
+      // 텍스트 위에 한 줄로 따로 붙인다. 대사(pl)는 이름과 한 줄에 나란히 보여준다. 묶인
+      // 그룹의 시각은 그 묶음이 시작된(첫 메시지) 시각을 대표로 보여준다.
+      if(isGm && !isSystem && showTime && first.timeText){
         var gmTimeEl = document.createElement('div');
-        gmTimeEl.className = 'log-time'; gmTimeEl.textContent = m.timeText;
+        gmTimeEl.className = 'log-time'; gmTimeEl.textContent = first.timeText;
         row.appendChild(gmTimeEl);
       }
       if(!isSystem && !isGm){
         var headerRow = document.createElement('div');
         headerRow.className = 'log-header-row';
         var nameEl = document.createElement('div');
-        nameEl.className = 'log-name'; nameEl.textContent = m.name;
-        if(reflectColor && isValidCssColor(m.color)) nameEl.style.color = m.color;
+        nameEl.className = 'log-name'; nameEl.textContent = g.name;
+        if(reflectColor && isValidCssColor(first.color)) nameEl.style.color = first.color;
         headerRow.appendChild(nameEl);
-        if(showTime && m.timeText){
+        if(showTime && first.timeText){
           var timeEl = document.createElement('span');
-          timeEl.className = 'log-time'; timeEl.textContent = m.timeText;
+          timeEl.className = 'log-time'; timeEl.textContent = first.timeText;
           headerRow.appendChild(timeEl);
         }
         row.appendChild(headerRow);
       }
-      var textEl = document.createElement('div');
-      textEl.className = 'log-text';
-      if(theme==='cocoback' && looksLikeDiceLine(displayText)){
-        var pill = document.createElement('span');
-        pill.className = 'dice-pill'; pill.textContent = displayText;
-        textEl.appendChild(pill);
-      } else {
-        textEl.textContent = displayText;
+      g.items.forEach(function(m){
+        var displayText = messageDisplayText(m);
+        var textEl = document.createElement('div');
+        textEl.className = 'log-text';
+        if(theme==='cocoback' && looksLikeDiceLine(displayText)){
+          var pill = document.createElement('span');
+          pill.className = 'dice-pill'; pill.textContent = displayText;
+          textEl.appendChild(pill);
+        } else {
+          textEl.textContent = displayText;
+        }
+        row.appendChild(textEl);
+      });
+      if(isChat){
+        var tabChip = document.createElement('span');
+        tabChip.className = 'log-tabchip'; tabChip.textContent = '잡담';
+        row.appendChild(tabChip);
       }
-      row.appendChild(textEl);
       container.appendChild(row);
     });
   }
@@ -21873,6 +21958,7 @@ var TabLog = (function(){
       populateGm();
       buildSpeakerChips();
       syncShowTimeField();
+      syncChatStyleField();
       render();
     }catch(e){
       alert('로그 파싱 실패: '+e.message);
@@ -21889,8 +21975,17 @@ var TabLog = (function(){
     if(!hasTime) $('#log-show-time').checked = false;
   }
 
+  // 잡담 표시 스타일 선택도 실제로 잡담(other) 탭 내용이 있는 로그에서만 보여준다
+  // (잡담이 아예 없으면 고를 이유가 없는 옵션이라 화면만 복잡해짐).
+  function syncChatStyleField(){
+    var hasChat = state.messages.some(function(m){ return m.tab==='other'; });
+    $('#log-chatstyle-field').classList.toggle('hidden', !hasChat);
+  }
+
   $('#log-search').addEventListener('input', render);
   $('#log-show-time').addEventListener('change', render);
+  $('#log-chat-style').addEventListener('change', render);
+  $('#log-group-consecutive').addEventListener('change', render);
   $('#log-exclude-other').addEventListener('change', render);
   $('#log-print').addEventListener('click', function(){ window.print(); });
   function buildLogCleanBlob(){
@@ -21899,16 +21994,9 @@ var TabLog = (function(){
     // 무시해왔다. 그래서 검색어로 좁혀보거나 특정 화자를 꺼둔 채로 "정리된 로그 HTML로
     // 저장"을 누르면, 화면에는 안 보이는 대사까지 전부 포함된 파일이 조용히 저장됐다
     // (바로 옆 "인쇄/PDF로 저장" 버튼은 화면을 그대로 인쇄하므로 필터가 반영됨 — 두 버튼의
-    // 동작이 서로 달랐다). render()와 동일한 조건으로 걸러서 화면에 보이는 내용과 일치시킨다.
-    var excludeOther = $('#log-exclude-other').checked;
-    var q = $('#log-search').value.trim().toLowerCase();
-    var msgs = state.messages.filter(function(m){
-      if(excludeOther && m.tab==='other') return false;
-      if(state.activeSpeakers && m.name && !state.activeSpeakers.has(m.name)) return false;
-      if(q && messageDisplayText(m).toLowerCase().indexOf(q)===-1) return false;
-      return true;
-    });
-    var html = buildStandaloneLogHtml(msgs, $('#log-gm').value, $('#log-theme').value, $('#log-reflect-color').checked, $('#log-dark-mode').checked, $('#log-show-time').checked);
+    // 동작이 서로 달랐다). render()와 같은 visibleMessages()를 써서 화면에 보이는 내용과
+    // 일치시킨다("연속 발화 묶기"도 마찬가지로 화면과 같게 맞춘다).
+    var html = buildStandaloneLogHtml(visibleMessages(), $('#log-gm').value, $('#log-theme').value, $('#log-reflect-color').checked, $('#log-dark-mode').checked, $('#log-show-time').checked, $('#log-chat-style').value, $('#log-group-consecutive').checked);
     return new Blob([html],{type:'text/html'});
   }
   function logCleanFilename(){ return (state.baseFilename || '로그') + '_clean.html'; }
@@ -21922,23 +22010,42 @@ var TabLog = (function(){
 
   var esc = escHtml;
 
-  function buildStandaloneLogHtml(messages, gmName, theme, reflectColor, darkMode, showTime){
+  function buildStandaloneLogHtml(messages, gmName, theme, reflectColor, darkMode, showTime, chatStyle, groupConsecutive){
     var cocoback = theme==='cocoback';
     var c = logThemeCssVars(theme, darkMode);
-    var rows = messages.map(function(m){
-      var isSystem = m.tab==='info';
-      var isGm = !isSystem && m.name===gmName;
-      var cls = isSystem?'system':(isGm?'gm':'pl');
-      var avatarHtml = (cocoback && !isSystem && !isGm && m.icon) ? '<div class="avatar" style="background-image:url(&quot;'+esc(m.icon)+'&quot;)"></div>' : '';
-      var colorAttr = (reflectColor && isValidCssColor(m.color)) ? ' style="color:'+esc(m.color)+'"' : '';
-      var timeHtml = (showTime && m.timeText) ? '<span class="time">'+esc(m.timeText)+'</span>' : '';
-      var gmTimeHtml = (isGm && !isSystem && showTime && m.timeText) ? '<div class="time">'+esc(m.timeText)+'</div>' : '';
-      var nameHtml = (!isSystem && !isGm) ? '<div class="header"><div class="name"'+colorAttr+'>'+esc(m.name)+'</div>'+timeHtml+'</div>' : '';
-      var displayText = messageDisplayText(m);
-      var textInner = esc(displayText).replace(/\n/g,'<br>');
-      if(cocoback && looksLikeDiceLine(displayText)) textInner = '<span class="dice-pill">'+textInner+'</span>';
-      return '<div class="row '+cls+'">'+avatarHtml+gmTimeHtml+nameHtml+'<div class="text">'+textInner+'</div></div>';
+    var chatBubbleBg = darkMode ? '#2a2e38' : '#eef1f6';
+    var groups = groupMessages(messages, groupConsecutive);
+    var rows = groups.map(function(g){
+      var first = g.items[0];
+      var isSystem = g.isSystem;
+      var isGm = !isSystem && g.name===gmName;
+      var isChat = !isSystem && !isGm && first.tab==='other';
+      var cls = isSystem?'system':(isGm?'gm':'pl') + (isChat ? ' chat-'+chatStyle : '');
+      var avatarHtml = (cocoback && !isSystem && !isGm && first.icon) ? '<div class="avatar" style="background-image:url(&quot;'+esc(first.icon)+'&quot;)"></div>' : '';
+      var colorAttr = (reflectColor && isValidCssColor(first.color)) ? ' style="color:'+esc(first.color)+'"' : '';
+      var timeHtml = (showTime && first.timeText) ? '<span class="time">'+esc(first.timeText)+'</span>' : '';
+      var gmTimeHtml = (isGm && !isSystem && showTime && first.timeText) ? '<div class="time">'+esc(first.timeText)+'</div>' : '';
+      var nameHtml = (!isSystem && !isGm) ? '<div class="header"><div class="name"'+colorAttr+'>'+esc(g.name)+'</div>'+timeHtml+'</div>' : '';
+      var textsHtml = g.items.map(function(m){
+        var displayText = messageDisplayText(m);
+        var textInner = esc(displayText).replace(/\n/g,'<br>');
+        if(cocoback && looksLikeDiceLine(displayText)) textInner = '<span class="dice-pill">'+textInner+'</span>';
+        return '<div class="text">'+textInner+'</div>';
+      }).join('');
+      var tabChipHtml = isChat ? '<span class="tabchip">잡담</span>' : '';
+      return '<div class="row '+cls+'">'+avatarHtml+gmTimeHtml+nameHtml+textsHtml+tabChipHtml+'</div>';
     }).join('\n');
+    // 잡담 표시 스타일(말풍선/눈에 덜 띄는)과 "연속 발화 묶기"로 한 상자에 여러 줄이 들어간
+    // 경우의 줄 간격은 테마 공통이라 두 테마 CSS 블록에서 똑같이 쓴다.
+    var chatStyleCss =
+      '.row .text + .text{margin-top:4px;}'+
+      '.row.chat-subtle{opacity:.72;}'+
+      '.row.chat-subtle .name{font-size:10.5px;font-weight:600;text-transform:none;letter-spacing:0;color:'+c.sub+';}'+
+      '.row.chat-subtle .text{font-size:11.5px;line-height:1.4;color:'+c.sub+';}'+
+      '.row.chat-subtle .time{font-size:9.5px;}'+
+      '.row.chat-bubble .name{font-size:11px;color:'+c.sub+';text-transform:none;letter-spacing:0;font-weight:600;}'+
+      '.row.chat-bubble .text{display:inline-block;max-width:88%;background:'+chatBubbleBg+';color:'+c.ink+';padding:8px 14px;border-radius:16px 16px 16px 4px;font-size:13px;line-height:1.5;white-space:pre-wrap;word-break:break-word;}'+
+      '.tabchip{position:absolute;top:0;right:0;font-size:9px;color:'+c.sub+';background:'+chatBubbleBg+';border-radius:4px;padding:1px 6px;}';
     if(cocoback){
       var boxBorder = c.boxBorder ? 'border:1px solid '+c.boxBorder+';' : '';
       return '<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>세션 로그</title><style>'+
@@ -21956,10 +22063,13 @@ var TabLog = (function(){
         '.dice-pill{background:'+c.diceBg+';border:1px solid '+c.diceBorder+';border-radius:5px;padding:4px 14px;display:inline-block;font-size:12.5px;color:'+c.ink+';margin:4px 0;}'+
         '.time{font-size:10.5px;font-weight:400;color:'+c.sub+';white-space:nowrap;}'+
         '.row.gm > .time{display:block;}'+
+        '.row.pl.chat-subtle,.row.pl.chat-bubble{background:transparent;border:none;padding:0;}'+
+        chatStyleCss+
         '</style></head><body>'+rows+'</body></html>';
     }
     return '<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>세션 로그</title><style>'+
       'body{font-family:"Noto Serif KR",Georgia,serif;max-width:720px;margin:24px auto;padding:24px 28px;background:'+c.bg+';color:'+c.ink+';}'+
+      '.row{position:relative;}'+
       '.row.gm{margin:10px 0;font-size:14px;line-height:1.7;}'+
       '.row.gm .text{color:'+c.ink+';}'+
       '.row.pl{margin:14px 0 14px 56px;}'+
@@ -21970,6 +22080,7 @@ var TabLog = (function(){
       '.row.pl .text{font-size:14px;line-height:1.6;color:'+c.ink+';white-space:pre-wrap;word-break:break-word;}'+
       '.row.system{margin:16px 0;text-align:center;}'+
       '.row.system .text{font-size:12px;letter-spacing:.05em;color:'+c.sub+';white-space:pre-wrap;}'+
+      chatStyleCss+
       '</style></head><body>'+rows+'</body></html>';
   }
 
@@ -21987,6 +22098,8 @@ var TabLog = (function(){
       darkMode: $('#log-dark-mode').checked,
       reflectColor: $('#log-reflect-color').checked,
       showTime: $('#log-show-time').checked,
+      chatStyle: $('#log-chat-style').value,
+      groupConsecutive: $('#log-group-consecutive').checked,
       activeSpeakers: state.activeSpeakers ? Array.from(state.activeSpeakers) : null
     };
   }, function restoreLogSnapshot(snap){
@@ -21999,6 +22112,7 @@ var TabLog = (function(){
     populateGm();
     buildSpeakerChips();
     syncShowTimeField();
+    syncChatStyleField();
     if(snap.gm != null) $('#log-gm').value = snap.gm;
     if(snap.search != null) $('#log-search').value = snap.search;
     $('#log-exclude-other').checked = !!snap.excludeOther;
@@ -22011,6 +22125,8 @@ var TabLog = (function(){
     // 시각 표시 체크박스는 syncShowTimeField()가 시각 없는 로그면 이미 꺼서 숨겨뒀으므로,
     // 실제로 켤 수 있는 상태(체크박스가 보이는 상태)일 때만 저장된 값을 되살린다.
     if(!$('#log-showtime-field').classList.contains('hidden')) $('#log-show-time').checked = !!snap.showTime;
+    if(snap.chatStyle==='bubble' || snap.chatStyle==='subtle') $('#log-chat-style').value = snap.chatStyle;
+    $('#log-group-consecutive').checked = !!snap.groupConsecutive;
     if(snap.activeSpeakers){
       state.activeSpeakers = new Set(snap.activeSpeakers);
       $all('.chip', $('#log-speakers')).forEach(function(chip){
