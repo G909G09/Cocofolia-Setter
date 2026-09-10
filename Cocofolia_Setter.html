@@ -668,6 +668,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-10</b> — html용 로그 백업(5번): 기본(초기) 설정을 고딕 스타일·다크 모드·화자 지정 색상 반영·연속 발화 묶기·스탠딩 표시가 모두 켜진 상태로 변경(테마·다크 모드는 마지막으로 고른 값을 기억해뒀다가 다음에도 그대로 쓰는 기존 방식이라, 이미 다른 값을 골라본 적이 있다면 그 선택이 유지됨). 설정 영역도 "검색·필터"/"테마"/"표시 옵션" 세 구역으로 종류별로 다시 나눠 정리(테마·다크 모드처럼 외형에 관한 설정과, 화자색상·시각·스탠딩·묶기처럼 표시 내용에 관한 설정을 구분)</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-10</b> — html용 로그 백업(5번) 토글 UI 재정비: 꺼짐 상태 스위치 색이 배경과 거의 구분 안 되던 문제를 수정해 켜짐/꺼짐이 뚜렷이 보이도록 하고, 각 토글(과 곁의 정보 아이콘)을 테두리로 둘러싼 하나의 칩으로 묶어 어떤 기능 제목에 딸린 토글인지 한눈에 알아보기 쉽게 함(칩은 토글이 켜지면 테두리·배경도 옅게 강조됨). "스탠딩 표시" 토글을 새로 추가해 화자 두상(아바타) 이미지를 테마와 상관없이 켜고 끌 수 있게 했고, 기존엔 고딕 스타일에서만 보이던 아바타를 대본집 스타일에서도(작은 원형 초상으로) 볼 수 있도록 함(기본값: 켜짐)</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-10</b> — 로그북용 로그 백업(6번)도 GM이 잡담 탭에서 말한 내용은 서술·판정이 아니라 그냥 한 명의 대화 참여자로 보고 일반 캐릭터 발화(대사/대사2/대사3)로 분류하도록 수정(5번 탭과 동일한 기준, 메인 탭의 GM 서술·판정은 그대로 Story/Storydice/GMdice 유지). html용 로그 백업(5번)의 체크박스형 옵션(잡담 제외·다크 모드·화자색상반영·발화시각표시·연속발화묶기)을 스위치 형태로 바꾸고, 길게 늘어져 있던 설명 문구는 작은 정보 아이콘으로 접어 마우스를 올리거나(호버) 포커스했을 때만 말풍선으로 페이드인해 보여주도록 개선(평소엔 UI를 가리지 않음)</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-10</b> — html용 로그 백업(5번) "연속 발화 묶기"·잡담 표시 보완: (1) 같은 화자라도 탭(메인/잡담 등)이 다르면 서로 다른 대화이므로 묶지 않도록 수정(예전엔 메인에서 말하다 잡담으로 넘어가도 이름만 같으면 한 상자에 섞여 들어갔음). (2) GM이 잡담 탭에서 말한 내용은 서술이 아니라 그냥 한 명의 대화 참여자이므로, 잡담 탭에서는 GM이어도 이름·아바타가 있는 일반 캐릭터 발화로 표시하도록 수정(메인 탭의 GM 서술은 그대로 이름 없는 스타일 유지)</li>
@@ -927,17 +928,20 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
         <div class="field"><label class="wide" for="log-search">검색어</label><input type="text" id="log-search" class="wide" placeholder="대사 내용 검색"></div>
         <span class="opt-chip"><label class="switch-row"><span class="switch"><input type="checkbox" id="log-exclude-other" checked><span class="switch-track"></span></span>잡담(사담) 탭 제외</label></span>
       </div>
-      <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">표시 스타일</h3>
+      <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">테마</h3>
       <div class="row" style="align-items:flex-end;">
         <div class="field"><label class="wide" for="log-theme">테마</label>
           <select id="log-theme">
-            <option value="script">대본집 스타일 (기본)</option>
-            <option value="cocoback">고딕 스타일</option>
+            <option value="script">대본집 스타일</option>
+            <option value="cocoback" selected>고딕 스타일 (기본)</option>
           </select>
         </div>
-        <span class="opt-chip"><label class="switch-row"><span class="switch"><input type="checkbox" id="log-dark-mode"><span class="switch-track"></span></span>다크 모드</label></span>
+        <span class="opt-chip"><label class="switch-row"><span class="switch"><input type="checkbox" id="log-dark-mode" checked><span class="switch-track"></span></span>다크 모드</label></span>
+      </div>
+      <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">표시 옵션</h3>
+      <div class="row" style="align-items:flex-end;">
         <span class="opt-chip">
-          <label class="switch-row"><span class="switch"><input type="checkbox" id="log-reflect-color"><span class="switch-track"></span></span>화자 지정 색상 반영</label>
+          <label class="switch-row"><span class="switch"><input type="checkbox" id="log-reflect-color" checked><span class="switch-track"></span></span>화자 지정 색상 반영</label>
           <span class="info-tip" tabindex="0">i<span class="info-tip-bubble">원본 로그에 화자별로 지정된 색상이 있으면 이름에 그대로 반영합니다(없으면 테마 기본 색을 씁니다).</span></span>
         </span>
         <span class="opt-chip hidden" id="log-showtime-field">
@@ -949,7 +953,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
           <span class="info-tip" tabindex="0">i<span class="info-tip-bubble">화자 두상(스탠딩) 이미지가 있는 로그에서, 테마와 상관없이 대사 옆에 함께 보여줄지 정합니다(대본집 스타일에서도 켤 수 있음).</span></span>
         </span>
         <span class="opt-chip">
-          <label class="switch-row"><span class="switch"><input type="checkbox" id="log-group-consecutive"><span class="switch-track"></span></span>연속 발화 묶기</label>
+          <label class="switch-row"><span class="switch"><input type="checkbox" id="log-group-consecutive" checked><span class="switch-track"></span></span>연속 발화 묶기</label>
           <span class="info-tip" tabindex="0">i<span class="info-tip-bubble">같은 화자가 연달아 말하면 이름·아바타를 한 번만 보여주고 한 상자 안에 묶습니다(상자 안에서도 메시지마다 줄이 나뉘어, 여러 번에 나눠 보낸 티는 그대로 남습니다. 탭이 바뀌면 묶지 않습니다).</span></span>
         </span>
         <div class="field hidden" id="log-chatstyle-field">
