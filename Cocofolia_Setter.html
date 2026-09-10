@@ -360,6 +360,24 @@ button.btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;}
 button.btn.ghost,a.btn.ghost{background:color-mix(in srgb, var(--panel) 65%, transparent);border:1px solid color-mix(in srgb, var(--line) 70%, transparent);color:var(--ink);box-shadow:none;backdrop-filter:var(--glass-blur-sm);-webkit-backdrop-filter:var(--glass-blur-sm);}
 button.btn.ghost:hover:not(:disabled),a.btn.ghost:hover{background:color-mix(in srgb, var(--bg) 75%, transparent);box-shadow:none;}
 .info-box{background:color-mix(in srgb, var(--chip) 78%, transparent);border:1px solid color-mix(in srgb, var(--line) 45%, transparent);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--sub);margin:8px 0;white-space:pre-line;backdrop-filter:var(--glass-blur-sm);-webkit-backdrop-filter:var(--glass-blur-sm);}
+/* 재사용 토글 스위치 — 켬/끔 옵션이 여러 개 모여 있는 곳(5번 탭 등)에서 기본 체크박스
+   대신 쓴다. 실제 <input type="checkbox">는 그대로 두고 시각적으로만 가려서(opacity:0)
+   클릭·키보드(Space/Enter)·스크린리더 동작은 네이티브 체크박스와 동일하게 유지한다. */
+.switch-row{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--ink);}
+.switch{position:relative;display:inline-block;width:34px;height:20px;flex-shrink:0;}
+.switch input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer;}
+.switch-track{position:absolute;inset:0;background:color-mix(in srgb, var(--line) 130%, transparent);border-radius:var(--radius-pill);transition:background-color .15s var(--ease-spring);}
+.switch-track::before{content:'';position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:var(--shadow-sm);transition:transform .15s var(--ease-spring);}
+.switch input:checked + .switch-track{background:var(--accent);}
+.switch input:checked + .switch-track::before{transform:translateX(14px);}
+.switch input:focus-visible + .switch-track{outline:2px solid var(--accent);outline-offset:2px;}
+.switch input:disabled + .switch-track{opacity:.4;cursor:not-allowed;}
+/* 재사용 정보 아이콘 — 길게 설명하면 UI를 어지럽히는 옵션 옆에 붙여서, 평소엔 작은
+   동그라미만 보이다가 마우스를 올리거나(hover) 키보드로 포커스하면(focus, 접근성)
+   설명 말풍선이 페이드인되도록 한다. */
+.info-tip{position:relative;display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1px solid var(--line);color:var(--sub);font-size:10px;font-style:normal;line-height:1;cursor:help;flex-shrink:0;}
+.info-tip-bubble{position:absolute;left:50%;bottom:calc(100% + 7px);transform:translateX(-50%) translateY(2px);width:230px;max-width:min(230px,70vw);background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:11.5px;line-height:1.55;font-weight:400;text-align:left;box-shadow:var(--shadow-md);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s ease,transform .18s ease,visibility .18s ease;z-index:30;}
+.info-tip:hover .info-tip-bubble,.info-tip:focus-visible .info-tip-bubble,.info-tip:focus .info-tip-bubble{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0);}
 .slider-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--sub);}
 .slider-row input[type=range]{width:140px;}
 .slider-row label.chk{display:flex;align-items:center;gap:6px;font-weight:600;color:var(--ink);width:130px;}
@@ -638,6 +656,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-10</b> — 로그북용 로그 백업(6번)도 GM이 잡담 탭에서 말한 내용은 서술·판정이 아니라 그냥 한 명의 대화 참여자로 보고 일반 캐릭터 발화(대사/대사2/대사3)로 분류하도록 수정(5번 탭과 동일한 기준, 메인 탭의 GM 서술·판정은 그대로 Story/Storydice/GMdice 유지). html용 로그 백업(5번)의 체크박스형 옵션(잡담 제외·다크 모드·화자색상반영·발화시각표시·연속발화묶기)을 스위치 형태로 바꾸고, 길게 늘어져 있던 설명 문구는 작은 정보 아이콘으로 접어 마우스를 올리거나(호버) 포커스했을 때만 말풍선으로 페이드인해 보여주도록 개선(평소엔 UI를 가리지 않음)</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-10</b> — html용 로그 백업(5번) "연속 발화 묶기"·잡담 표시 보완: (1) 같은 화자라도 탭(메인/잡담 등)이 다르면 서로 다른 대화이므로 묶지 않도록 수정(예전엔 메인에서 말하다 잡담으로 넘어가도 이름만 같으면 한 상자에 섞여 들어갔음). (2) GM이 잡담 탭에서 말한 내용은 서술이 아니라 그냥 한 명의 대화 참여자이므로, 잡담 탭에서는 GM이어도 이름·아바타가 있는 일반 캐릭터 발화로 표시하도록 수정(메인 탭의 GM 서술은 그대로 이름 없는 스타일 유지)</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-10</b> — html용 로그 백업(5번): 잡담(사담) 탭을 함께 볼 때 본편 대사와 구분되도록 "잡담 표시 스타일"(눈에 덜 띄는 스타일/말풍선 스타일)을 고를 수 있게 함(모서리에 작은 "잡담" 표시도 함께 붙음). "연속 발화 묶기" 옵션을 켜면 같은 화자가 연달아 말한 메시지를 이름·아바타 한 번만 보이는 한 상자로 묶어 보여주되, 상자 안에서도 메시지마다 줄이 나뉘어 여러 번에 나눠 보낸 티는 남김(화면 미리보기·인쇄·"정리된 로그 HTML로 저장" 모두 동일 반영). 옵션이 늘어난 만큼 조작 영역을 "검색·필터"/"표시 스타일" 두 구역으로 나눠 정리</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-08</b> — 코코포리아가 로그 출력 형식을 발화 시각·화자별 아바타 이미지가 함께 나오는 새 형식으로 바꾼 것을 지원: 5번(html용 로그 백업)·6번(로그북용 로그 백업) 모두 이 새 형식을 알아보도록 전용 파서를 추가함(예전엔 이름·시각이 본문에 섞여 들어가거나 아바타가 통째로 빠지고, 6번은 아예 "인식된 문단이 없습니다"로 실패했음). 5번 탭엔 "발화 시각 표시" 옵션이 새로 생겨(시각 정보가 있는 로그에서만 나타남) 화면 미리보기·"정리된 로그 HTML로 저장" 결과 모두에 시각이 함께 나오도록 할 수 있고, 판정(다이스) 메시지는 굴림 명령과 결과를 합쳐서 굴림 결과가 유실되지 않게 함</li>
@@ -890,35 +909,38 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     </div>
     <div class="hidden no-print" id="log-controls">
       <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">검색·필터</h3>
-      <div class="row">
+      <div class="row" style="align-items:flex-end;">
         <div class="field"><label class="wide" for="log-gm">GM(서술 담당)</label><select id="log-gm"></select></div>
         <div class="field"><label class="wide" for="log-search">검색어</label><input type="text" id="log-search" class="wide" placeholder="대사 내용 검색"></div>
-        <div class="field"><label><input type="checkbox" id="log-exclude-other" checked> 잡담(사담) 탭 제외</label></div>
+        <label class="switch-row"><span class="switch"><input type="checkbox" id="log-exclude-other" checked><span class="switch-track"></span></span>잡담(사담) 탭 제외</label>
       </div>
       <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">표시 스타일</h3>
-      <div class="row">
+      <div class="row" style="align-items:flex-end;">
         <div class="field"><label class="wide" for="log-theme">테마</label>
           <select id="log-theme">
             <option value="script">대본집 스타일 (기본)</option>
             <option value="cocoback">고딕 스타일</option>
           </select>
         </div>
-        <div class="field"><label><input type="checkbox" id="log-dark-mode"> 다크 모드</label></div>
-        <div class="field"><label><input type="checkbox" id="log-reflect-color"> 화자 지정 색상 반영</label>
-          <span class="footnote" style="width:200px;">원본 로그에 화자별로 지정된 색상이 있으면 이름에 그대로 반영합니다(없으면 테마 기본 색을 씁니다).</span>
-        </div>
-        <div class="field hidden" id="log-showtime-field"><label><input type="checkbox" id="log-show-time"> 발화 시각 표시</label>
-          <span class="footnote" style="width:200px;">코코포리아 로그 출력이 발화 시각을 함께 담고 있을 때만 나타납니다.</span>
-        </div>
-        <div class="field"><label><input type="checkbox" id="log-group-consecutive"> 연속 발화 묶기</label>
-          <span class="footnote" style="width:200px;">같은 화자가 연달아 말하면 이름·아바타를 한 번만 보여주고 한 상자 안에 묶습니다(상자 안에서도 메시지마다 줄이 나뉘어, 여러 번에 나눠 보낸 티는 그대로 남습니다).</span>
-        </div>
-        <div class="field hidden" id="log-chatstyle-field"><label class="wide" for="log-chat-style">잡담 표시 스타일</label>
+        <label class="switch-row"><span class="switch"><input type="checkbox" id="log-dark-mode"><span class="switch-track"></span></span>다크 모드</label>
+        <span style="display:inline-flex;align-items:center;gap:6px;">
+          <label class="switch-row"><span class="switch"><input type="checkbox" id="log-reflect-color"><span class="switch-track"></span></span>화자 지정 색상 반영</label>
+          <span class="info-tip" tabindex="0">i<span class="info-tip-bubble">원본 로그에 화자별로 지정된 색상이 있으면 이름에 그대로 반영합니다(없으면 테마 기본 색을 씁니다).</span></span>
+        </span>
+        <span class="hidden" id="log-showtime-field" style="display:inline-flex;align-items:center;gap:6px;">
+          <label class="switch-row"><span class="switch"><input type="checkbox" id="log-show-time"><span class="switch-track"></span></span>발화 시각 표시</label>
+          <span class="info-tip" tabindex="0">i<span class="info-tip-bubble">코코포리아 로그 출력이 발화 시각을 함께 담고 있을 때만 나타납니다.</span></span>
+        </span>
+        <span style="display:inline-flex;align-items:center;gap:6px;">
+          <label class="switch-row"><span class="switch"><input type="checkbox" id="log-group-consecutive"><span class="switch-track"></span></span>연속 발화 묶기</label>
+          <span class="info-tip" tabindex="0">i<span class="info-tip-bubble">같은 화자가 연달아 말하면 이름·아바타를 한 번만 보여주고 한 상자 안에 묶습니다(상자 안에서도 메시지마다 줄이 나뉘어, 여러 번에 나눠 보낸 티는 그대로 남습니다. 탭이 바뀌면 묶지 않습니다).</span></span>
+        </span>
+        <div class="field hidden" id="log-chatstyle-field">
+          <span class="wide" style="display:inline-flex;align-items:center;gap:5px;"><label for="log-chat-style" style="margin:0;">잡담 표시 스타일</label> <span class="info-tip" tabindex="0">i<span class="info-tip-bubble">잡담 탭 제외를 꺼서 잡담도 함께 볼 때, 본편 대사와 구분되도록 다르게 표시합니다.</span></span></span>
           <select id="log-chat-style">
             <option value="subtle">눈에 덜 띄는 스타일</option>
             <option value="bubble">말풍선 스타일</option>
           </select>
-          <span class="footnote" style="width:200px;">잡담 탭 제외를 꺼서 잡담도 함께 볼 때, 본편 대사와 구분되도록 다르게 표시합니다.</span>
         </div>
       </div>
       <div class="row">
@@ -22332,7 +22354,7 @@ var TabLog = (function(){
       if(!b){ nEmpty++; return; }
       if(b==='-'){ nDash++; seq.push({k:'break'}); return; }
       if(r.tag==='other') nOther++;
-      seq.push({k:'main', name:r.name, raw:r.raw, b:b});
+      seq.push({k:'main', name:r.name, raw:r.raw, b:b, tag:r.tag});
     });
 
     var out = [];
@@ -22352,10 +22374,13 @@ var TabLog = (function(){
         prevDialog=null; i=j; continue;
       }
       var b = it.b;
-      if(it.name===GM){
+      // GM이 잡담 탭에서 말한 내용은 서술·판정이 아니라 그 채팅의 한 참여자일 뿐이므로,
+      // 메인(그 외 일반) 탭에서 말했을 때만 서술(Story/Storydice/GMdice)로 다룬다. 5번 탭
+      // (html용 로그 백업)과 동일한 판단 기준.
+      if(it.name===GM && it.tag!=='other'){
         prevDialog=null;
         if(isJudge(b)){
-          if(i+1<N && seq[i+1].k==='main' && seq[i+1].name===GM && isSanity(seq[i+1].b)){
+          if(i+1<N && seq[i+1].k==='main' && seq[i+1].name===GM && seq[i+1].tag!=='other' && isSanity(seq[i+1].b)){
             b += ' '+seq[i+1].b; i++;
           }
           out.push(['Storydice', b]); i++; continue;
@@ -22364,7 +22389,7 @@ var TabLog = (function(){
           out.push(['GMdice', diceBreak(b)]); i++; continue;
         }
         var parts=[b], j2=i+1;
-        while(j2<N && seq[j2].k==='main' && seq[j2].name===GM){
+        while(j2<N && seq[j2].k==='main' && seq[j2].name===GM && seq[j2].tag!=='other'){
           var b2 = seq[j2].b;
           if(isJudge(b2) || isDice(b2)) break;
           parts.push(b2); j2++;
