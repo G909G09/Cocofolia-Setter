@@ -770,3 +770,37 @@ test('isJsonRowArray: 사전/표 JSON 불러오기가 서로의 내보내기 파
   // 빈 배열은 "지울 항목이 없는 불러오기"이므로 형식 검사는 통과시킨다
   assert.equal(sandbox.isJsonRowArray([], ['jp', 'kr']), true);
 });
+
+test('groupMessages: "연속 발화 묶기"는 이름뿐 아니라 탭(채널)도 같아야 묶는다', () => {
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, ['groupMessages']);
+  const m = (name, tab, text) => ({ name, tab, text });
+
+  // groupConsecutive가 꺼져 있으면 메시지 하나가 곧 그룹 하나(기존과 동일하게 안 묶임).
+  const off = sandbox.groupMessages([m('아사우치', 'main', 'a'), m('아사우치', 'main', 'b')], false);
+  assert.equal(off.length, 2);
+
+  // 같은 이름·같은 탭이 연달아 나오면 한 그룹으로 묶인다.
+  const sameTab = sandbox.groupMessages([m('아사우치', 'main', 'a'), m('아사우치', 'main', 'b')], true);
+  assert.equal(sameTab.length, 1);
+  assert.equal(sameTab[0].items.length, 2);
+
+  // 같은 화자라도 탭이 바뀌면(메인 → 잡담) 서로 다른 대화이므로 묶이지 않는다 — 안 그러면
+  // 잡담 메시지가 메인 대화 상자에 섞여 들어가거나, 그 반대로 섞여 들어간다.
+  const diffTab = sandbox.groupMessages([m('아사우치', 'main', 'a'), m('아사우치', 'other', 'b')], true);
+  assert.equal(diffTab.length, 2);
+  assert.equal(diffTab[0].items.length, 1);
+  assert.equal(diffTab[1].items.length, 1);
+
+  // 다시 원래 탭으로 돌아오면(메인 → 잡담 → 메인) 각각 독립된 그룹이어야 한다(잡담을
+  // 건너뛰고 이전 메인 그룹에 합쳐지면 안 됨).
+  const backAndForth = sandbox.groupMessages(
+    [m('아사우치', 'main', 'a'), m('아사우치', 'other', 'b'), m('아사우치', 'main', 'c')], true
+  );
+  assert.equal(backAndForth.length, 3);
+
+  // 이름이 같아도 시스템 알림(tab === 'info')은 항상 독립된 항목으로 남는다.
+  const withSystem = sandbox.groupMessages(
+    [m('', 'info', 'sys1'), m('', 'info', 'sys2')], true
+  );
+  assert.equal(withSystem.length, 2);
+});
