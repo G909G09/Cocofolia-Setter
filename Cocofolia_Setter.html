@@ -362,16 +362,25 @@ button.btn.ghost:hover:not(:disabled),a.btn.ghost:hover{background:color-mix(in 
 .info-box{background:color-mix(in srgb, var(--chip) 78%, transparent);border:1px solid color-mix(in srgb, var(--line) 45%, transparent);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--sub);margin:8px 0;white-space:pre-line;backdrop-filter:var(--glass-blur-sm);-webkit-backdrop-filter:var(--glass-blur-sm);}
 /* 재사용 토글 스위치 — 켬/끔 옵션이 여러 개 모여 있는 곳(5번 탭 등)에서 기본 체크박스
    대신 쓴다. 실제 <input type="checkbox">는 그대로 두고 시각적으로만 가려서(opacity:0)
-   클릭·키보드(Space/Enter)·스크린리더 동작은 네이티브 체크박스와 동일하게 유지한다. */
+   클릭·키보드(Space/Enter)·스크린리더 동작은 네이티브 체크박스와 동일하게 유지한다.
+   꺼짐 상태 트랙 색은 --line을 그대로 쓰면(테두리색과 거의 같아) 꺼져 있는지 눈에 잘
+   안 띄어서, ink 기준으로 직접 섞어 뚜렷한 회색 톤을 만들고 손잡이에도 테두리를 줘서
+   밝은 배경에서도 경계가 보이게 한다. */
 .switch-row{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--ink);}
 .switch{position:relative;display:inline-block;width:34px;height:20px;flex-shrink:0;}
 .switch input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer;}
-.switch-track{position:absolute;inset:0;background:color-mix(in srgb, var(--line) 130%, transparent);border-radius:var(--radius-pill);transition:background-color .15s var(--ease-spring);}
-.switch-track::before{content:'';position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:var(--shadow-sm);transition:transform .15s var(--ease-spring);}
-.switch input:checked + .switch-track{background:var(--accent);}
+.switch-track{position:absolute;inset:0;background:color-mix(in srgb, var(--ink) 55%, var(--panel));border:1px solid color-mix(in srgb, var(--ink) 30%, transparent);border-radius:var(--radius-pill);transition:background-color .15s var(--ease-spring),border-color .15s var(--ease-spring);}
+.switch-track::before{content:'';position:absolute;left:1px;top:1px;width:16px;height:16px;border-radius:50%;background:#fff;border:1px solid color-mix(in srgb, var(--ink) 12%, transparent);box-shadow:var(--shadow-sm);transition:transform .15s var(--ease-spring);}
+.switch input:checked + .switch-track{background:var(--accent);border-color:var(--accent);}
 .switch input:checked + .switch-track::before{transform:translateX(14px);}
 .switch input:focus-visible + .switch-track{outline:2px solid var(--accent);outline-offset:2px;}
 .switch input:disabled + .switch-track{opacity:.4;cursor:not-allowed;}
+/* 재사용 옵션 칩 — 토글(또는 그 옆 정보 아이콘)을 기능 제목과 한 덩어리로 묶어 테두리를
+   둘러서, 어떤 토글이 어느 기능 설명(라벨)에 속하는지 한눈에 알아보기 쉽게 한다. 토글이
+   켜지면(:has로 안쪽 체크박스 상태를 감지) 칩 테두리·배경도 옅게 강조되어 꺼짐 상태와의
+   대비가 스위치 자체보다도 먼저 눈에 들어온다. */
+.opt-chip{display:inline-flex;align-items:center;gap:7px;padding:6px 12px 6px 9px;border:1px solid var(--line);border-radius:var(--radius-pill);background:var(--panel);transition:border-color .15s var(--ease-spring),background-color .15s var(--ease-spring);}
+.opt-chip:has(.switch input:checked){border-color:color-mix(in srgb, var(--accent) 55%, var(--line));background:color-mix(in srgb, var(--accent) 10%, var(--panel));}
 /* 재사용 정보 아이콘 — 길게 설명하면 UI를 어지럽히는 옵션 옆에 붙여서, 평소엔 작은
    동그라미만 보이다가 마우스를 올리거나(hover) 키보드로 포커스하면(focus, 접근성)
    설명 말풍선이 페이드인되도록 한다. */
@@ -415,6 +424,9 @@ img.preview{max-width:100%;border:1px solid var(--line);border-radius:8px;backgr
 .log-list .log-row.pl .log-header-row .log-name{margin-bottom:0;}
 .log-list .log-row.pl .log-name{font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--log-ink);margin-bottom:2px;}
 .log-list .log-row.pl .log-text{font-size:14px;line-height:1.6;color:var(--log-ink);white-space:pre-wrap;word-break:break-word;}
+/* 대본집 스타일에서 "스탠딩 표시"를 켰을 때의 아바타 — 고딕 스타일의 상자형 아바타와
+   달리, 세리프체·상자 없는 이 테마 특유의 절제된 느낌에 맞춰 작은 원형 초상으로 둔다. */
+.log-list .log-row.pl .log-avatar{position:absolute;left:-48px;top:1px;width:34px;height:34px;border-radius:50%;background-size:cover;background-position:top center;border:1px solid var(--line);}
 .log-list .log-row.system{margin:16px 0;text-align:center;}
 .log-list .log-row.system .log-text{font-size:12px;letter-spacing:.05em;color:var(--log-sub);white-space:pre-wrap;}
 .log-list .log-row.system .log-name{display:none;}
@@ -656,6 +668,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-10</b> — html용 로그 백업(5번) 토글 UI 재정비: 꺼짐 상태 스위치 색이 배경과 거의 구분 안 되던 문제를 수정해 켜짐/꺼짐이 뚜렷이 보이도록 하고, 각 토글(과 곁의 정보 아이콘)을 테두리로 둘러싼 하나의 칩으로 묶어 어떤 기능 제목에 딸린 토글인지 한눈에 알아보기 쉽게 함(칩은 토글이 켜지면 테두리·배경도 옅게 강조됨). "스탠딩 표시" 토글을 새로 추가해 화자 두상(아바타) 이미지를 테마와 상관없이 켜고 끌 수 있게 했고, 기존엔 고딕 스타일에서만 보이던 아바타를 대본집 스타일에서도(작은 원형 초상으로) 볼 수 있도록 함(기본값: 켜짐)</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-10</b> — 로그북용 로그 백업(6번)도 GM이 잡담 탭에서 말한 내용은 서술·판정이 아니라 그냥 한 명의 대화 참여자로 보고 일반 캐릭터 발화(대사/대사2/대사3)로 분류하도록 수정(5번 탭과 동일한 기준, 메인 탭의 GM 서술·판정은 그대로 Story/Storydice/GMdice 유지). html용 로그 백업(5번)의 체크박스형 옵션(잡담 제외·다크 모드·화자색상반영·발화시각표시·연속발화묶기)을 스위치 형태로 바꾸고, 길게 늘어져 있던 설명 문구는 작은 정보 아이콘으로 접어 마우스를 올리거나(호버) 포커스했을 때만 말풍선으로 페이드인해 보여주도록 개선(평소엔 UI를 가리지 않음)</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-10</b> — html용 로그 백업(5번) "연속 발화 묶기"·잡담 표시 보완: (1) 같은 화자라도 탭(메인/잡담 등)이 다르면 서로 다른 대화이므로 묶지 않도록 수정(예전엔 메인에서 말하다 잡담으로 넘어가도 이름만 같으면 한 상자에 섞여 들어갔음). (2) GM이 잡담 탭에서 말한 내용은 서술이 아니라 그냥 한 명의 대화 참여자이므로, 잡담 탭에서는 GM이어도 이름·아바타가 있는 일반 캐릭터 발화로 표시하도록 수정(메인 탭의 GM 서술은 그대로 이름 없는 스타일 유지)</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-10</b> — html용 로그 백업(5번): 잡담(사담) 탭을 함께 볼 때 본편 대사와 구분되도록 "잡담 표시 스타일"(눈에 덜 띄는 스타일/말풍선 스타일)을 고를 수 있게 함(모서리에 작은 "잡담" 표시도 함께 붙음). "연속 발화 묶기" 옵션을 켜면 같은 화자가 연달아 말한 메시지를 이름·아바타 한 번만 보이는 한 상자로 묶어 보여주되, 상자 안에서도 메시지마다 줄이 나뉘어 여러 번에 나눠 보낸 티는 남김(화면 미리보기·인쇄·"정리된 로그 HTML로 저장" 모두 동일 반영). 옵션이 늘어난 만큼 조작 영역을 "검색·필터"/"표시 스타일" 두 구역으로 나눠 정리</li>
@@ -912,7 +925,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <div class="row" style="align-items:flex-end;">
         <div class="field"><label class="wide" for="log-gm">GM(서술 담당)</label><select id="log-gm"></select></div>
         <div class="field"><label class="wide" for="log-search">검색어</label><input type="text" id="log-search" class="wide" placeholder="대사 내용 검색"></div>
-        <label class="switch-row"><span class="switch"><input type="checkbox" id="log-exclude-other" checked><span class="switch-track"></span></span>잡담(사담) 탭 제외</label>
+        <span class="opt-chip"><label class="switch-row"><span class="switch"><input type="checkbox" id="log-exclude-other" checked><span class="switch-track"></span></span>잡담(사담) 탭 제외</label></span>
       </div>
       <h3 style="margin:14px 0 6px;font-size:13px;color:var(--sub);font-weight:700;">표시 스타일</h3>
       <div class="row" style="align-items:flex-end;">
@@ -922,16 +935,20 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
             <option value="cocoback">고딕 스타일</option>
           </select>
         </div>
-        <label class="switch-row"><span class="switch"><input type="checkbox" id="log-dark-mode"><span class="switch-track"></span></span>다크 모드</label>
-        <span style="display:inline-flex;align-items:center;gap:6px;">
+        <span class="opt-chip"><label class="switch-row"><span class="switch"><input type="checkbox" id="log-dark-mode"><span class="switch-track"></span></span>다크 모드</label></span>
+        <span class="opt-chip">
           <label class="switch-row"><span class="switch"><input type="checkbox" id="log-reflect-color"><span class="switch-track"></span></span>화자 지정 색상 반영</label>
           <span class="info-tip" tabindex="0">i<span class="info-tip-bubble">원본 로그에 화자별로 지정된 색상이 있으면 이름에 그대로 반영합니다(없으면 테마 기본 색을 씁니다).</span></span>
         </span>
-        <span class="hidden" id="log-showtime-field" style="display:inline-flex;align-items:center;gap:6px;">
+        <span class="opt-chip hidden" id="log-showtime-field">
           <label class="switch-row"><span class="switch"><input type="checkbox" id="log-show-time"><span class="switch-track"></span></span>발화 시각 표시</label>
           <span class="info-tip" tabindex="0">i<span class="info-tip-bubble">코코포리아 로그 출력이 발화 시각을 함께 담고 있을 때만 나타납니다.</span></span>
         </span>
-        <span style="display:inline-flex;align-items:center;gap:6px;">
+        <span class="opt-chip hidden" id="log-showavatar-field">
+          <label class="switch-row"><span class="switch"><input type="checkbox" id="log-show-avatar" checked><span class="switch-track"></span></span>스탠딩 표시</label>
+          <span class="info-tip" tabindex="0">i<span class="info-tip-bubble">화자 두상(스탠딩) 이미지가 있는 로그에서, 테마와 상관없이 대사 옆에 함께 보여줄지 정합니다(대본집 스타일에서도 켤 수 있음).</span></span>
+        </span>
+        <span class="opt-chip">
           <label class="switch-row"><span class="switch"><input type="checkbox" id="log-group-consecutive"><span class="switch-track"></span></span>연속 발화 묶기</label>
           <span class="info-tip" tabindex="0">i<span class="info-tip-bubble">같은 화자가 연달아 말하면 이름·아바타를 한 번만 보여주고 한 상자 안에 묶습니다(상자 안에서도 메시지마다 줄이 나뉘어, 여러 번에 나눠 보낸 티는 그대로 남습니다. 탭이 바뀌면 묶지 않습니다).</span></span>
         </span>
@@ -21838,6 +21855,7 @@ var TabLog = (function(){
     container.className = 'log-list' + (theme==='cocoback' ? ' theme-cocoback' : '') + (darkMode ? ' mode-dark' : ' mode-light');
     var gmName = $('#log-gm').value;
     var showTime = $('#log-show-time').checked;
+    var showAvatar = $('#log-show-avatar').checked;
     var chatStyle = $('#log-chat-style').value;
     var groupConsecutive = $('#log-group-consecutive').checked;
     var groups = groupMessages(visibleMessages(), groupConsecutive);
@@ -21852,9 +21870,8 @@ var TabLog = (function(){
       var isChat = !isSystem && !isGm && first.tab==='other';
       var row = document.createElement('div');
       row.className = 'log-row ' + (isSystem?'system':(isGm?'gm':'pl')) + (isChat ? ' chat-'+chatStyle : '');
-      // 다크 고딕 테마에서만 화자 두상(아바타)을 보여준다 — 기본 대본집 테마는 원래부터
-      // 이미지 없이 텍스트만으로 구성된 스타일이라 그대로 유지한다.
-      if(theme==='cocoback' && !isSystem && !isGm && first.icon){
+      // "스탠딩 표시"를 켜면 테마와 무관하게(대본집 스타일도) 화자 두상(아바타)을 보여준다.
+      if(showAvatar && !isSystem && !isGm && first.icon){
         var avatarEl = document.createElement('div');
         avatarEl.className = 'log-avatar';
         avatarEl.style.backgroundImage = 'url("'+first.icon+'")';
@@ -21987,6 +22004,7 @@ var TabLog = (function(){
       buildSpeakerChips();
       syncShowTimeField();
       syncChatStyleField();
+      syncShowAvatarField();
       render();
     }catch(e){
       alert('로그 파싱 실패: '+e.message);
@@ -22010,8 +22028,15 @@ var TabLog = (function(){
     $('#log-chatstyle-field').classList.toggle('hidden', !hasChat);
   }
 
+  // 스탠딩(아바타) 이미지가 있는 로그를 불러왔을 때만 표시 토글을 보여준다.
+  function syncShowAvatarField(){
+    var hasIcon = state.messages.some(function(m){ return !!m.icon; });
+    $('#log-showavatar-field').classList.toggle('hidden', !hasIcon);
+  }
+
   $('#log-search').addEventListener('input', render);
   $('#log-show-time').addEventListener('change', render);
+  $('#log-show-avatar').addEventListener('change', render);
   $('#log-chat-style').addEventListener('change', render);
   $('#log-group-consecutive').addEventListener('change', render);
   $('#log-exclude-other').addEventListener('change', render);
@@ -22024,7 +22049,7 @@ var TabLog = (function(){
     // (바로 옆 "인쇄/PDF로 저장" 버튼은 화면을 그대로 인쇄하므로 필터가 반영됨 — 두 버튼의
     // 동작이 서로 달랐다). render()와 같은 visibleMessages()를 써서 화면에 보이는 내용과
     // 일치시킨다("연속 발화 묶기"도 마찬가지로 화면과 같게 맞춘다).
-    var html = buildStandaloneLogHtml(visibleMessages(), $('#log-gm').value, $('#log-theme').value, $('#log-reflect-color').checked, $('#log-dark-mode').checked, $('#log-show-time').checked, $('#log-chat-style').value, $('#log-group-consecutive').checked);
+    var html = buildStandaloneLogHtml(visibleMessages(), $('#log-gm').value, $('#log-theme').value, $('#log-reflect-color').checked, $('#log-dark-mode').checked, $('#log-show-time').checked, $('#log-chat-style').value, $('#log-group-consecutive').checked, $('#log-show-avatar').checked);
     return new Blob([html],{type:'text/html'});
   }
   function logCleanFilename(){ return (state.baseFilename || '로그') + '_clean.html'; }
@@ -22038,7 +22063,7 @@ var TabLog = (function(){
 
   var esc = escHtml;
 
-  function buildStandaloneLogHtml(messages, gmName, theme, reflectColor, darkMode, showTime, chatStyle, groupConsecutive){
+  function buildStandaloneLogHtml(messages, gmName, theme, reflectColor, darkMode, showTime, chatStyle, groupConsecutive, showAvatar){
     var cocoback = theme==='cocoback';
     var c = logThemeCssVars(theme, darkMode);
     var chatBubbleBg = darkMode ? '#2a2e38' : '#eef1f6';
@@ -22050,7 +22075,7 @@ var TabLog = (function(){
       var isGm = !isSystem && g.name===gmName && g.tab!=='other';
       var isChat = !isSystem && !isGm && first.tab==='other';
       var cls = isSystem?'system':(isGm?'gm':'pl') + (isChat ? ' chat-'+chatStyle : '');
-      var avatarHtml = (cocoback && !isSystem && !isGm && first.icon) ? '<div class="avatar" style="background-image:url(&quot;'+esc(first.icon)+'&quot;)"></div>' : '';
+      var avatarHtml = (showAvatar && !isSystem && !isGm && first.icon) ? '<div class="avatar" style="background-image:url(&quot;'+esc(first.icon)+'&quot;)"></div>' : '';
       var colorAttr = (reflectColor && isValidCssColor(first.color)) ? ' style="color:'+esc(first.color)+'"' : '';
       var timeHtml = (showTime && first.timeText) ? '<span class="time">'+esc(first.timeText)+'</span>' : '';
       var gmTimeHtml = (isGm && !isSystem && showTime && first.timeText) ? '<div class="time">'+esc(first.timeText)+'</div>' : '';
@@ -22102,6 +22127,7 @@ var TabLog = (function(){
       '.row.gm{margin:10px 0;font-size:14px;line-height:1.7;}'+
       '.row.gm .text{color:'+c.ink+';}'+
       '.row.pl{margin:14px 0 14px 56px;}'+
+      '.row.pl .avatar{position:absolute;left:-48px;top:1px;width:34px;height:34px;border-radius:50%;background-size:cover;background-position:top center;border:1px solid '+c.sub+';}'+
       '.row .header{display:flex;align-items:baseline;gap:8px;margin-bottom:2px;}'+
       '.time{font-size:10.5px;font-weight:400;letter-spacing:0;text-transform:none;color:'+c.sub+';white-space:nowrap;}'+
       '.row.gm > .time{display:block;margin-bottom:4px;}'+
@@ -22127,6 +22153,7 @@ var TabLog = (function(){
       darkMode: $('#log-dark-mode').checked,
       reflectColor: $('#log-reflect-color').checked,
       showTime: $('#log-show-time').checked,
+      showAvatar: $('#log-show-avatar').checked,
       chatStyle: $('#log-chat-style').value,
       groupConsecutive: $('#log-group-consecutive').checked,
       activeSpeakers: state.activeSpeakers ? Array.from(state.activeSpeakers) : null
@@ -22142,6 +22169,7 @@ var TabLog = (function(){
     buildSpeakerChips();
     syncShowTimeField();
     syncChatStyleField();
+    syncShowAvatarField();
     if(snap.gm != null) $('#log-gm').value = snap.gm;
     if(snap.search != null) $('#log-search').value = snap.search;
     $('#log-exclude-other').checked = !!snap.excludeOther;
@@ -22154,6 +22182,9 @@ var TabLog = (function(){
     // 시각 표시 체크박스는 syncShowTimeField()가 시각 없는 로그면 이미 꺼서 숨겨뒀으므로,
     // 실제로 켤 수 있는 상태(체크박스가 보이는 상태)일 때만 저장된 값을 되살린다.
     if(!$('#log-showtime-field').classList.contains('hidden')) $('#log-show-time').checked = !!snap.showTime;
+    // 스탠딩 표시는 기본값이 켜짐이라, 이 옵션이 생기기 전 스냅샷(showAvatar 필드 없음)은
+    // 꺼진 채로 되돌아오지 않도록 그 경우 기본값(켜짐)을 대신 쓴다.
+    $('#log-show-avatar').checked = snap.showAvatar != null ? !!snap.showAvatar : true;
     if(snap.chatStyle==='bubble' || snap.chatStyle==='subtle') $('#log-chat-style').value = snap.chatStyle;
     $('#log-group-consecutive').checked = !!snap.groupConsecutive;
     if(snap.activeSpeakers){
