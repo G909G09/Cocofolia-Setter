@@ -804,3 +804,24 @@ test('groupMessages: "연속 발화 묶기"는 이름뿐 아니라 탭(채널)�
   );
   assert.equal(withSystem.length, 2);
 });
+
+test('messageDisplayText: 화면에서 고친 내용(m.edited)이 있으면 그걸 우선 보여주고, 없으면 원본(굴림 명령+결과 합침)을 보여준다', () => {
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, ['messageDisplayText', 'originalDisplayText']);
+  const plain = { text: '오오', rollText: null, edited: null };
+  assert.equal(sandbox.messageDisplayText(plain), '오오');
+
+  const withRoll = { text: 'cc<=60 자료조사', rollText: '(1D100<=60) ＞ 82 ＞ 실패', edited: null };
+  assert.equal(sandbox.messageDisplayText(withRoll), 'cc<=60 자료조사\n(1D100<=60) ＞ 82 ＞ 실패');
+  // originalDisplayText는 m.edited를 무시하고 항상 원문(text+rollText 합침)을 돌려준다 —
+  // "원본으로" 버튼이 고친 내용과 무관하게 원래 문구를 다시 불러오는 데 쓰인다.
+  assert.equal(sandbox.originalDisplayText(withRoll), sandbox.messageDisplayText(withRoll));
+
+  const edited = { text: 'cc<=60 자료조사', rollText: '(1D100<=60) ＞ 82 ＞ 실패', edited: '오타 고친 텍스트' };
+  assert.equal(sandbox.messageDisplayText(edited), '오타 고친 텍스트');
+  // edited가 있어도 originalDisplayText는 그대로 원문을 돌려준다(고친 내용에 영향받지 않음).
+  assert.equal(sandbox.originalDisplayText(edited), 'cc<=60 자료조사\n(1D100<=60) ＞ 82 ＞ 실패');
+
+  // 빈 문자열로 저장한 경우(전부 지운 뒤 저장)도 "고친 내용 없음(null)"과 구분해 그대로 보여준다.
+  const clearedOut = { text: '원본', rollText: null, edited: '' };
+  assert.equal(sandbox.messageDisplayText(clearedOut), '');
+});
