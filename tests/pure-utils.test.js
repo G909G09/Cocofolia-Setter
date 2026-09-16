@@ -28,6 +28,7 @@ const sandbox = loadFunctionsFromHtml(HTML_PATH, [
   { type: 'var', name: 'GM_NAME_ALIASES' },
   'guessGmName',
   'fourccToInt',
+  'deriveStatus',
 ]);
 
 test('clampInt: 범위 안/밖 값을 올바르게 자른다', () => {
@@ -882,4 +883,26 @@ test('trimSummaryText: 이미지가 2장 미만이면 요약을 만들지 않고
     sandbox.trimSummaryText([{ trimmed: true }, { trimmed: false }, { trimmed: false }]),
     '전체 3장 · 재단됨 1장 · 원본 유지 2장'
   );
+});
+
+test('deriveStatus: 이슈의 state/라벨로 건의함(18번) 상태 배지 종류(접수됨/수정중/반영됨/반영 안 됨)를 가른다', () => {
+  // 상태 필터 알약(#sg-status-filter)이 이 함수가 돌려주는 status 값으로 목록을 걸러내므로,
+  // "라벨이 있고 없고"에 따라 네 가지 상태가 정확히 갈리는지가 필터 정확성의 전제가 된다.
+  assert.deepEqual(toHostRealm(sandbox.deriveStatus({ state: 'open', labels: [] })), { text: '접수됨', status: 'open' });
+  assert.deepEqual(
+    toHostRealm(sandbox.deriveStatus({ state: 'open', labels: [{ name: '진행중' }] })),
+    { text: '수정중', status: 'progress' }
+  );
+  // 라벨은 문자열 배열로 올 수도, {name} 객체 배열로 올 수도 있다(GitHub API 응답 형태차) — 둘 다 인식해야 한다.
+  assert.deepEqual(
+    toHostRealm(sandbox.deriveStatus({ state: 'open', labels: ['진행중'] })),
+    { text: '수정중', status: 'progress' }
+  );
+  assert.deepEqual(toHostRealm(sandbox.deriveStatus({ state: 'closed', labels: [] })), { text: '반영됨', status: 'done' });
+  assert.deepEqual(
+    toHostRealm(sandbox.deriveStatus({ state: 'closed', labels: [{ name: '보류' }] })),
+    { text: '반영 안 됨', status: 'declined' }
+  );
+  // labels 필드 자체가 없는 이슈(이론상 드묾)도 예외 없이 기본 상태로 처리해야 한다.
+  assert.deepEqual(toHostRealm(sandbox.deriveStatus({ state: 'open' })), { text: '접수됨', status: 'open' });
 });
