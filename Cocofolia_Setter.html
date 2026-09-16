@@ -20942,6 +20942,9 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     var idx = 0;
     pctx.putImageData(frames[0], 0, 0);
     slotPreviewTimers[n-1] = setInterval(function(){
+      // 탭 패널은 화면에서 감춰져도 DOM에 그대로 남아있어, 다른 탭으로 옮겨간 뒤에도
+      // 이 탭에 머물러 있던 타이머는 계속 돌며 쓸모없이 캔버스를 다시 그린다.
+      if(!document.getElementById('tab-fx').classList.contains('active')){ stopSlotPreview(n); return; }
       idx = (idx+1) % frames.length;
       pctx.putImageData(frames[idx], 0, 0);
     }, 70);
@@ -24618,8 +24621,9 @@ var TabLog = (function(){
     box.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;width:60px;';
     box.tabIndex = 0;
     box.setAttribute('role', 'button');
-    box.setAttribute('aria-label', partThumbAriaLabels(item ? item.name : null, label).select);
+    box.setAttribute('aria-label', (item ? (item.name||label) : label) + (selected ? ' (선택됨)' : ''));
     box.setAttribute('aria-pressed', selected ? 'true' : 'false');
+    box.addEventListener('click', onClick);
     // e.target !== box: 이름 입력칸은 자체 keydown에서 stopPropagation하지만, 삭제(×)
     // 버튼은 네이티브 클릭도 같이 발생하므로 box 자신에 포커스가 있을 때만 반응한다.
     box.addEventListener('keydown', function(e){ if(e.target !== box) return; if(e.key==='Enter' || e.key===' '){ e.preventDefault(); onClick(); } });
@@ -24662,9 +24666,8 @@ var TabLog = (function(){
       nameInput.addEventListener('input', function(){
         if(!nameEditStarted){ pushUndo(); nameEditStarted = true; }
         item.name = nameInput.value;
-        var labels = partThumbAriaLabels(item.name, label);
-        box.setAttribute('aria-label', labels.select);
-        nameInput.setAttribute('aria-label', labels.rename);
+        box.setAttribute('aria-label', (item.name||label) + (selected ? ' (선택됨)' : ''));
+        nameInput.setAttribute('aria-label', partThumbAriaLabels(item.name, label).rename);
         updateAll();
       });
       box.appendChild(nameInput);
@@ -24674,21 +24677,6 @@ var TabLog = (function(){
       lab.style.cssText = 'font-size:10px;color:var(--sub);max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
       box.appendChild(lab);
     }
-    // 클릭만으로 선택하던 파츠/효과 썸네일은 마우스 없이는(Tab으로 포커스는 가능해도
-    // Enter/Space로 고를 수 없어) 사실상 접근 불가능했다. 화자 필터 칩·손잡이(gizmo)와
-    // 동일한 패턴으로 버튼 역할을 명시하고 키보드로도 선택할 수 있게 한다.
-    box.setAttribute('tabindex', '0');
-    box.setAttribute('role', 'button');
-    box.setAttribute('aria-label', (item ? (item.name||label) : label) + (selected ? ' (선택됨)' : ''));
-    box.addEventListener('click', onClick);
-    box.addEventListener('keydown', function(e){
-      // e.target !== box: 이름 입력칸이나 삭제(×) 버튼에 포커스가 있는 동안의
-      // Enter/Space까지 여기서 또 선택 처리하면 안 되므로(입력칸은 자체 keydown에서
-      // 이미 stopPropagation하지만, 삭제 버튼은 네이티브 클릭도 같이 발생하므로) box 자신에
-      // 포커스가 있을 때만 반응한다.
-      if(e.target !== box) return;
-      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); onClick(); }
-    });
     if(onRemove){
       var rm = document.createElement('button');
       rm.type='button'; rm.textContent='×'; rm.title='이 파츠 삭제';
@@ -26104,7 +26092,7 @@ var TabLog = (function(){
 
       var inp = document.createElement('input');
       inp.type = 'text'; inp.value = it.label; inp.style.cssText = 'width:110px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font-size:12px;';
-      inp.addEventListener('input', function(){ it.label = inp.value; thumbCanvas.setAttribute('aria-label', (it.label||'표정')+' 크롭 미리보기'); });
+      inp.addEventListener('input', function(){ it.label = inp.value; thumbCanvas.setAttribute('aria-label', (it.label||'표정')+' 크롭 미리보기'); delBtn.setAttribute('aria-label', (it.label||'표정')+' 삭제'); });
       f.appendChild(inp);
 
       var row = document.createElement('div');
@@ -26123,6 +26111,7 @@ var TabLog = (function(){
       rightBtn.addEventListener('click', function(){ moveItem(idx, idx+1); });
       var delBtn = document.createElement('button');
       delBtn.type = 'button'; delBtn.className = 'btn ghost'; delBtn.textContent = '삭제';
+      delBtn.setAttribute('aria-label', (it.label||'표정')+' 삭제');
       delBtn.style.cssText = 'padding:2px 7px;font-size:11px;color:var(--danger);';
       delBtn.addEventListener('click', function(){ removeItem(idx); });
       row.appendChild(leftBtn); row.appendChild(rightBtn); row.appendChild(delBtn);
@@ -26401,6 +26390,7 @@ var TabLog = (function(){
       var mainBtn = document.createElement('button');
       mainBtn.type = 'button'; mainBtn.className = 'btn ghost';
       mainBtn.textContent = it.isMain ? '★ 메인 아이콘' : '메인 아이콘으로';
+      mainBtn.setAttribute('aria-pressed', it.isMain ? 'true' : 'false');
       mainBtn.style.cssText = 'padding:3px 8px;font-size:10.5px;'+(it.isMain ? 'background:var(--accent);color:var(--accent-ink);border-color:var(--accent);' : '');
       mainBtn.addEventListener('click', function(){
         cfItems.forEach(function(x){ x.isMain = false; });
@@ -26411,6 +26401,7 @@ var TabLog = (function(){
 
       var delBtn = document.createElement('button');
       delBtn.type = 'button'; delBtn.className = 'btn ghost'; delBtn.textContent = '삭제';
+      delBtn.setAttribute('aria-label', (it.label||'표정')+' 삭제');
       delBtn.style.cssText = 'padding:3px 8px;font-size:10.5px;color:var(--danger);';
       delBtn.addEventListener('click', function(){
         cfItems.splice(idx,1);
