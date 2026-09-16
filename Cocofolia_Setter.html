@@ -1472,10 +1472,10 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
     </div>
     <div class="info-box hidden" id="cf-result-info" aria-live="polite"></div>
   </div>
-  <div id="cf-validate-modal" class="hidden" style="position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(20,20,20,.55);padding:20px;">
+  <div id="cf-validate-modal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="cf-validate-modal-title" style="position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(20,20,20,.55);padding:20px;">
     <div style="background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;max-width:min(92vw,560px);max-height:85vh;display:flex;flex-direction:column;gap:12px;overflow:auto;box-shadow:var(--shadow-md);">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-        <div style="font-weight:700;font-size:14px;">생성 전 확인 — 코코포리아에서 문제가 될 수 있는 항목</div>
+        <div id="cf-validate-modal-title" style="font-weight:700;font-size:14px;">생성 전 확인 — 코코포리아에서 문제가 될 수 있는 항목</div>
         <button type="button" id="cf-validate-modal-close" class="btn ghost" style="padding:4px 12px;flex-shrink:0;">닫기</button>
       </div>
       <p class="footnote" style="margin:0;">아래 항목은 그대로 생성하면 코코포리아에서 표정이 사라지거나 인식되지 않을 수 있습니다. "자동 고치기"로 바로 고치거나, "이동"으로 해당 칸에서 직접 수정하세요.</p>
@@ -1518,6 +1518,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <button class="btn ghost" id="trim-send-cf" disabled>→ 13번 캐릭터 룸파일로 바로 보내기</button>
     </div>
     <p class="footnote" style="margin-top:-6px;">잘라낸 이미지를 다운로드/재업로드하지 않고 그대로 다른 탭으로 넘겨서 이어서 작업할 수 있습니다.</p>
+    <div id="trim-summary" class="hidden" style="font-size:12px;color:var(--sub);margin-top:8px;"></div>
     <div id="trim-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:14px;"></div>
   </div>
 </section>
@@ -21669,9 +21670,11 @@ function guessGmName(namesSortedByFreqDesc){
     btnRow.style.cssText = 'display:flex;gap:4px;margin-top:6px;';
     var dl = document.createElement('button');
     dl.className = 'btn ghost'; dl.textContent = '다운로드'; dl.style.cssText='flex:1;padding:6px;font-size:12px;';
+    dl.setAttribute('aria-label', it.file.name+' 다운로드');
     dl.addEventListener('click', function(){ downloadBlob(it.blob, it.outName); });
     var rm = document.createElement('button');
     rm.className = 'btn ghost'; rm.textContent = '제거'; rm.style.cssText='padding:6px 10px;font-size:12px;color:var(--danger);';
+    rm.setAttribute('aria-label', it.file.name+' 제거');
     rm.addEventListener('click', function(){
       var i = items.indexOf(it);
       if(i>=0){
@@ -23606,7 +23609,14 @@ var TabLog = (function(){
     };
     row.nameInput.value = name||''; row.damageInput.value = damage||''; row.rangeInput.value = range||'';
     row.attacksInput.value = attacks||''; row.durabilityInput.value = durability||''; row.noteInput.value = note||'';
-    tr.querySelector('button').addEventListener('click', function(){
+    // 무기 행이 여러 개면 "삭제" 버튼이 전부 같은 글자라 스크린리더로 Tab만 짚어가며
+    // 훑을 때 어느 행인지 구분이 안 된다. 무기명을 aria-label에 넣어두고 이름을 고치면
+    // 같이 갱신한다(이름이 비어있으면 일반 텍스트로 대신 표시).
+    var deleteBtn = tr.querySelector('button');
+    function updateDeleteAriaLabel(){ deleteBtn.setAttribute('aria-label', (row.nameInput.value.trim()||'이름 없는 무기')+' 행 삭제'); }
+    updateDeleteAriaLabel();
+    row.nameInput.addEventListener('input', updateDeleteAriaLabel);
+    deleteBtn.addEventListener('click', function(){
       var i = weaponRows.indexOf(row);
       if(i>=0) weaponRows.splice(i,1);
       tr.remove();
@@ -23909,11 +23919,13 @@ var TabLog = (function(){
       btnRow.style.cssText = 'display:flex;gap:4px;margin-top:6px;';
       var dl = document.createElement('button');
       dl.className = 'btn ghost'; dl.textContent = '다운로드'; dl.style.cssText='flex:1;padding:6px;font-size:12px;';
+      dl.setAttribute('aria-label', it.file.name+' 다운로드');
       dl.addEventListener('click', function(){
         canvasToBlob(it.canvas, function(blob){ downloadBlob(blob, baseName(it.file.name)+'_cut.png'); });
       });
       var rm = document.createElement('button');
       rm.className = 'btn ghost'; rm.textContent = '제거'; rm.style.cssText='padding:6px 10px;font-size:12px;color:var(--danger);';
+      rm.setAttribute('aria-label', it.file.name+' 제거');
       rm.addEventListener('click', function(){
         var i = items.indexOf(it);
         if(i>=0){
@@ -25389,8 +25401,23 @@ var TabLog = (function(){
     it.outW = outW; it.outH = outH;
   }
 
+  // 4번 탭(이미지 용량 최적화)의 renderSummary()처럼, 이미지가 여러 장이면(2장 이상)
+  // 개별 카드만으로는 몇 장이나 실제로 재단됐는지 한눈에 안 들어와서 요약 한 줄을 더한다.
+  function trimSummaryText(items){
+    if(items.length < 2) return null;
+    var trimmedCount = items.filter(function(it){ return it.trimmed; }).length;
+    var keptCount = items.length - trimmedCount;
+    var text = '전체 '+items.length+'장 · 재단됨 '+trimmedCount+'장';
+    if(keptCount > 0) text += ' · 원본 유지 '+keptCount+'장';
+    return text;
+  }
+
   function renderAll(){
     items.forEach(renderItem);
+    var summary = $('#trim-summary');
+    var summaryText = trimSummaryText(items);
+    if(summaryText){ summary.textContent = summaryText; summary.classList.remove('hidden'); }
+    else { summary.classList.add('hidden'); }
     var grid = $('#trim-grid');
     grid.innerHTML = '';
     items.forEach(function(it){
@@ -25413,11 +25440,13 @@ var TabLog = (function(){
       btnRow.style.cssText = 'display:flex;gap:4px;margin-top:6px;';
       var dl = document.createElement('button');
       dl.className = 'btn ghost'; dl.textContent = '다운로드'; dl.style.cssText='flex:1;padding:6px;font-size:12px;';
+      dl.setAttribute('aria-label', it.file.name+' 다운로드');
       dl.addEventListener('click', function(){
         canvasToBlob(it.canvas, function(blob){ downloadBlob(blob, baseName(it.file.name)+'_trim.png'); });
       });
       var rm = document.createElement('button');
       rm.className = 'btn ghost'; rm.textContent = '제거'; rm.style.cssText='padding:6px 10px;font-size:12px;color:var(--danger);';
+      rm.setAttribute('aria-label', it.file.name+' 제거');
       rm.addEventListener('click', function(){
         var i = items.indexOf(it);
         if(i>=0){
@@ -26723,6 +26752,10 @@ var TabLog = (function(){
     cfValidatePendingProceed = proceedFn;
     renderCfValidateModal();
     $('#cf-validate-modal').classList.remove('hidden');
+    // 11번 탭 담아두기 미리보기 모달(parts-preview-modal)과 동일하게, 열릴 때 포커스를
+    // 모달 안(닫기 버튼)으로 옮겨야 키보드/스크린리더 사용자가 뒤 화면이 아니라 모달
+    // 내용부터 이어서 탐색할 수 있다.
+    $('#cf-validate-modal-close').focus();
   }
   $('#cf-validate-modal-close').addEventListener('click', closeCfValidateModal);
   $('#cf-validate-modal').addEventListener('click', function(e){
