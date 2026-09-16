@@ -867,3 +867,19 @@ test('matchesDictSearch: 검색어가 없으면 전부 통과시키고, 있으�
   sandbox.dictSearchQuery = '일치하지않음';
   assert.equal(sandbox.matchesDictSearch(row), false);
 });
+
+test('trimSummaryText: 이미지가 2장 미만이면 요약을 만들지 않고, 2장 이상이면 재단됨/원본 유지 장 수를 함께 보여준다', () => {
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, ['trimSummaryText']);
+  assert.equal(sandbox.trimSummaryText([]), null);
+  assert.equal(sandbox.trimSummaryText([{ trimmed: true }]), null); // 1장뿐이면(4번 탭의 renderSummary와 동일한 기준) 요약을 감춘다
+
+  assert.equal(
+    sandbox.trimSummaryText([{ trimmed: true }, { trimmed: true }]),
+    '전체 2장 · 재단됨 2장'
+  ); // 전부 재단됐으면 "원본 유지" 문구는 붙지 않는다
+
+  assert.equal(
+    sandbox.trimSummaryText([{ trimmed: true }, { trimmed: false }, { trimmed: false }]),
+    '전체 3장 · 재단됨 1장 · 원본 유지 2장'
+  );
+});
