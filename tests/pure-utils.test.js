@@ -22,6 +22,7 @@ const sandbox = loadFunctionsFromHtml(HTML_PATH, [
   'ensureExtension',
   'uniqueZipName',
   'findDuplicateValue',
+  'revertAllEditedMessages',
   'remainingItemsMessage',
   // guessGmName은 최상위 상수 GM_NAME_ALIASES를 참조하므로 그 선언도 함께 로드한다.
   { type: 'var', name: 'GM_NAME_ALIASES' },
@@ -93,6 +94,21 @@ test('findDuplicateValue: 배열에서 처음으로 두 번 이상 등장하는 
   assert.equal(sandbox.findDuplicateValue(['a', 'b', 'c']), undefined);
   assert.equal(sandbox.findDuplicateValue(['', '', 'a']), undefined); // 빈 문자열은 무시
   assert.equal(sandbox.findDuplicateValue([]), undefined);
+});
+
+test('revertAllEditedMessages: 수정된(m.edited가 null이 아닌) 메시지만 원본으로 되돌리고, 되돌린 개수를 돌려준다', () => {
+  const messages = [
+    { edited: '고친 문구1' },
+    { edited: null },
+    { edited: '고친 문구2' },
+    { edited: '' }, // 빈 문자열로 저장한 적이 있으면(원문을 지워버린 경우) 이것도 "수정됨"으로 취급
+  ];
+  const reverted = sandbox.revertAllEditedMessages(messages);
+  assert.equal(reverted, 3);
+  assert.deepEqual(messages.map((m) => m.edited), [null, null, null, null]);
+
+  assert.equal(sandbox.revertAllEditedMessages([]), 0);
+  assert.equal(sandbox.revertAllEditedMessages([{ edited: null }]), 0);
 });
 
 test('remainingItemsMessage: 남은 개수가 있으면 안내 문구를, 0이면 null을 돌려준다(호출부가 안내 상자를 감추는 신호)', () => {
@@ -824,4 +840,30 @@ test('messageDisplayText: 화면에서 고친 내용(m.edited)이 있으면 그�
   // 빈 문자열로 저장한 경우(전부 지운 뒤 저장)도 "고친 내용 없음(null)"과 구분해 그대로 보여준다.
   const clearedOut = { text: '원본', rollText: null, edited: '' };
   assert.equal(sandbox.messageDisplayText(clearedOut), '');
+});
+
+test('matchesDictSearch: 검색어가 없으면 전부 통과시키고, 있으면 원어(jp)·국내 용어(kr) 어느 쪽에 포함돼도 통과시킨다(대소문자 무시)', () => {
+  // dictSearchQuery는 gl-dict-search 입력 이벤트 핸들러가 채워주는 모듈 스코프 변수이므로,
+  // 함수와 함께 그 선언도 로드해 sandbox.dictSearchQuery로 직접 설정해가며 검증한다.
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, [
+    'matchesDictSearch',
+    { type: 'var', name: 'dictSearchQuery' },
+  ]);
+  const row = { jp: 'アイデア', kr: '아이디어' };
+
+  sandbox.dictSearchQuery = '';
+  assert.equal(sandbox.matchesDictSearch(row), true);
+
+  sandbox.dictSearchQuery = 'アイデア';
+  assert.equal(sandbox.matchesDictSearch(row), true);
+
+  sandbox.dictSearchQuery = '아이디어';
+  assert.equal(sandbox.matchesDictSearch(row), true);
+
+  // 입력 핸들러가 검색어를 소문자로 낮춰서 저장하므로, 여기서도 낮춘 값과 비교한다.
+  sandbox.dictSearchQuery = 'idea'.toLowerCase();
+  assert.equal(sandbox.matchesDictSearch({ jp: 'IDEA', kr: '아이디어' }), true);
+
+  sandbox.dictSearchQuery = '일치하지않음';
+  assert.equal(sandbox.matchesDictSearch(row), false);
 });
