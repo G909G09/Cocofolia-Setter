@@ -681,7 +681,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
-      <li><span class="chlog-tag" data-cat="more">다른 기능 둘러보기</span><b>2026-09-16</b> — "다른 기능 둘러보기"에 새 확장 프로그램 "트윗덱 클래식 UI" 추가(17번): X(트위터) 화면을 예전 트윗덱 느낌의 어둡고 촘촘한 컬럼형 디자인으로 바꿔주고, 색상 테마 5종·강조색 직접 지정·이모지 스티커 붙이기 같은 개인화 기능을 지원함. 실제 예전 트윗덱 웹앱을 그대로 복원해주는 OldTweetDeck(dimdenGD, MIT License)에서 영감을 받은 별개의 시각적 리스킨 확장으로, 소스 코드는 가져다 쓰지 않고 새로 작성했음(GitHub 저장소: TweetDeck-Classic-Custom). 이 탭이 새로 끼어들며 기존 건의함(17→18)·설정(18→19)·결과물 보관함(19→20) 탭 번호가 하나씩 밀림</li>
+      <li><span class="chlog-tag" data-cat="more">다른 기능 둘러보기</span><b>2026-09-16</b> — "다른 기능 둘러보기"에 새 확장 프로그램 "구 트윗덱 커스텀" 추가(17번): x.com/i/tweetdeck에서 실제 예전 트윗덱 웹앱을 그대로 복원해주는 OldTweetDeck(dimdenGD, MIT License)의 포크로, 컬럼 구성·검색·DM 등 원본 기능을 전부 그대로 쓸 수 있음. 여기에 색상 테마 5종·강조색 직접 지정·이모지 스티커 붙이기 같은 개인화 기능을 새로 추가함(핵심 복원 로직은 원본 코드 그대로, 커스터마이징만 별도 폴더로 추가, 원본 LICENSE·크레딧 유지, GitHub 저장소: TweetDeck-Classic-Custom). 이 탭이 새로 끼어들며 기존 건의함(17→18)·설정(18→19)·결과물 보관함(19→20) 탭 번호가 하나씩 밀림</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-10</b> — html용 로그 백업(5번) 미리보기에서 원본 로그의 오타를 직접 고칠 수 있게 함: 내용 박스마다 옅게 떠 있는 "✎" 버튼을 누르면 그 줄만 제자리에서 편집 칸으로 바뀌어(화면이 다시 스크롤되지 않음) 저장·취소·(한 번이라도 고친 적 있으면) 원본으로 되돌리기를 고를 수 있음. 고친 내용은 검색·"정리된 로그 HTML로 저장"·인쇄 모두에 그대로 반영되고, 수정 버튼 자체는 저장 파일·인쇄물엔 나오지 않고 화면에서만 보임</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-10</b> — html용 로그 백업(5번): 기본(초기) 설정을 고딕 스타일·다크 모드·화자 지정 색상 반영·연속 발화 묶기·스탠딩 표시가 모두 켜진 상태로 변경(테마·다크 모드는 마지막으로 고른 값을 기억해뒀다가 다음에도 그대로 쓰는 기존 방식이라, 이미 다른 값을 골라본 적이 있다면 그 선택이 유지됨). 설정 영역도 "검색·필터"/"테마"/"표시 옵션" 세 구역으로 종류별로 다시 나눠 정리(테마·다크 모드처럼 외형에 관한 설정과, 화자색상·시각·스탠딩·묶기처럼 표시 내용에 관한 설정을 구분)</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-10</b> — html용 로그 백업(5번) 토글 UI 재정비: 꺼짐 상태 스위치 색이 배경과 거의 구분 안 되던 문제를 수정해 켜짐/꺼짐이 뚜렷이 보이도록 하고, 각 토글(과 곁의 정보 아이콘)을 테두리로 둘러싼 하나의 칩으로 묶어 어떤 기능 제목에 딸린 토글인지 한눈에 알아보기 쉽게 함(칩은 토글이 켜지면 테두리·배경도 옅게 강조됨). "스탠딩 표시" 토글을 새로 추가해 화자 두상(아바타) 이미지를 테마와 상관없이 켜고 끌 수 있게 했고, 기존엔 고딕 스타일에서만 보이던 아바타를 대본집 스타일에서도(작은 원형 초상으로) 볼 수 있도록 함(기본값: 켜짐)</li>
@@ -1560,22 +1560,22 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 <!-- ===================== TAB 17 ===================== -->
 <section id="tab-tweetdeck-ext" class="tab-panel" role="tabpanel" aria-labelledby="tabbtn-tweetdeck-ext">
   <div class="card">
-    <h2>트윗덱 클래식 UI (X/트위터 화면 확장 프로그램)</h2>
-    <p class="desc">X(트위터) 화면을 예전 트윗덱(TweetDeck)의 어둡고 촘촘한 컬럼형 디자인으로 바꿔주는 크롬/엣지 확장 프로그램입니다. 타임라인을 좁은 컬럼처럼 보이게 하고 상단에 트윗덱 스타일 컬럼 헤더를 붙이며, 트윗 여백을 줄이고 사진을 각진 아바타로 바꾸는 등 전체적으로 트윗덱 감성으로 재구성합니다. 색상 테마 5종(클래식·미드나잇·포레스트·선셋·페이퍼)과 강조색 직접 지정, 화면에 이모지 스티커를 붙이고 드래그로 꾸미는 개인화 기능도 지원합니다. 실제로 여러 컬럼을 동시에 띄워 API로 갱신하는 기능이 아니라 <b>화면을 트윗덱 느낌으로 다시 꾸며주는 시각적 확장</b>이며, 툴바 아이콘 팝업에서 언제든 켬/끔을 전환할 수 있습니다.</p>
+    <h2>구 트윗덱 커스텀 (실제 예전 트윗덱 복원 + 커스터마이징)</h2>
+    <p class="desc"><code>x.com/i/tweetdeck</code>에서 <b>실제 예전 트윗덱(TweetDeck) 웹앱을 그대로 복원</b>해 컬럼 구성·검색·DM·예약 트윗 등 원래 있던 기능을 전부 쓸 수 있게 해주는 크롬/엣지 확장 프로그램입니다. 여기에 색상 테마 5종(클래식·미드나잇·포레스트·선셋·페이퍼)과 강조색 직접 지정, 화면에 이모지 스티커를 붙이고 드래그로 꾸미는 개인화 기능을 더했습니다(툴바 아이콘 팝업에서 설정). 이 확장은 실제 구 트윗덱 웹앱을 복원해주는 <a href="https://github.com/dimdenGD/OldTweetDeck" target="_blank" rel="noopener" style="color:var(--accent);">OldTweetDeck</a>(dimdenGD, MIT License)의 <b>포크</b>입니다 — 핵심 복원 로직은 원본 코드를 그대로 사용하고, 색상 테마·스티커만 이 포크에서 새로 추가했습니다.</p>
     <div class="info-box">
       <b>설치 방법</b>
       <ol style="margin:4px 0 0;padding-left:18px;">
         <li>다운로드 후 압축 해제</li>
         <li><code>chrome://extensions</code> → "개발자 모드" 켜기</li>
-        <li>"압축해제된 확장 프로그램 로드" → <code>tweetdeck-classic-custom</code> 폴더 선택</li>
+        <li>"압축해제된 확장 프로그램 로드" → 압축 해제된 폴더 선택</li>
+        <li><code>x.com/i/tweetdeck</code> 접속</li>
       </ol>
     </div>
     <div class="row">
       <a class="btn" id="tweetdeck-ext-download" href="https://github.com/G909G09/TweetDeck-Classic-Custom/archive/refs/heads/main.zip" target="_blank" rel="noopener">다운로드(.zip)</a>
       <a class="btn ghost" href="https://github.com/G909G09/TweetDeck-Classic-Custom" target="_blank" rel="noopener">GitHub 저장소</a>
     </div>
-    <p class="footnote">크롬 웹 스토어 미등록이라 "개발자 모드"로 설치합니다. x.com·twitter.com에서만 동작하며, 이 다운로드만 인터넷 연결이 필요합니다(그 순간의 최신 버전을 GitHub에서 바로 받음). X가 화면 구조를 크게 바꾸면 일부 스타일이 어긋날 수 있습니다.</p>
-    <p class="footnote">진짜 예전 트윗덱 웹앱을 그대로 복원해주는 <a href="https://github.com/dimdenGD/OldTweetDeck" target="_blank" rel="noopener" style="color:var(--accent);">OldTweetDeck</a>(dimdenGD, MIT License)에서 영감을 받아 만든, 별개의 시각적 리스킨 확장입니다.</p>
+    <p class="footnote">크롬 웹 스토어 미등록이라 "개발자 모드"로 설치합니다. <code>x.com/i/tweetdeck</code>에서만 동작하며, 이 다운로드만 인터넷 연결이 필요합니다(그 순간의 최신 버전을 GitHub에서 바로 받음). 원본 OldTweetDeck의 자세한 사용법·FAQ는 GitHub 저장소의 안내문을 참고하세요.</p>
   </div>
 </section>
 
@@ -19639,7 +19639,7 @@ $all('.cat-btn').forEach(function(btn){
     'tab-trim': '이미지 모서리 색을 기준으로 배경 여백을 자동으로 찾아 잘라냅니다.',
     'tab-md-ext': '코코포리아 채팅에 마크다운 서식(굵게·기울임·취소선)을 적용하는 확장 프로그램입니다.',
     'tab-textable-ext': '입력 중 기호·화살표를 자동 변환하고 커스텀 규칙도 지원하는 확장 프로그램입니다.',
-    'tab-tweetdeck-ext': 'X(트위터) 화면을 예전 트윗덱 느낌의 컬럼형 디자인으로 바꾸고, 색상 테마·스티커로 꾸밀 수 있는 확장 프로그램입니다.',
+    'tab-tweetdeck-ext': 'x.com/i/tweetdeck에서 실제 예전 트윗덱을 그대로 복원하고, 색상 테마·스티커로 꾸밀 수 있는 확장 프로그램입니다.',
     'tab-suggest': '기능 건의나 버그를 GitHub 이슈로 남깁니다.',
     'tab-settings': '화면 배색(라이트/다크)과 저장된 값을 관리합니다.',
     'tab-history': '각 탭에서 다운로드한 결과물을 모아 다시 받을 수 있습니다.'
