@@ -18981,11 +18981,13 @@ function downloadBlob(blob, filename, opts){
 // 사전(gl-import-file)·Damage Bonus/Build 표(ed-db-import-file) JSON 불러오기가 "배열이기만
 // 하면" 형식 검사를 통과시켰다. 두 기능 모두 배열 JSON을 내보내고 탭도 바로 옆이라, 서로의
 // 내보내기 파일을 잘못 불러와도 조용히 통과해 기존 값을 전부 빈 값으로 덮어써버렸다. 배열의
-// 각 항목이 keys 중 하나라도 가진 객체인지까지 확인해 엉뚱한 파일을 걸러낸다.
+// 각 항목이 keys를 전부 가진 객체인지까지 확인해 엉뚱한 파일을 걸러낸다(keys 중 하나만 있어도
+// 통과시키던 예전 방식은, 예를 들어 db/build 표 파일에 min/max만 있고 db/build가 빠져 있어도
+// 통과시켜서 불러온 뒤 db/build 값이 전부 조용히 빈 문자열로 채워지는 문제가 있었다).
 function isJsonRowArray(data, keys){
   return Array.isArray(data) && data.every(function(item){
     return item && typeof item === 'object' && !Array.isArray(item) &&
-      keys.some(function(k){ return Object.prototype.hasOwnProperty.call(item, k); });
+      keys.every(function(k){ return Object.prototype.hasOwnProperty.call(item, k); });
   });
 }
 
@@ -25084,14 +25086,30 @@ var TabLog = (function(){
   });
   var partsSaveBtn = insertQuickSaveButton($('#parts-download'), function(){
     if(!currentCanvasSize()){ alert('먼저 몸 이미지를 올리고 조합을 완성해주세요.'); return false; }
-    canvasToBlob($('#parts-preview-canvas'), function(blob){
-      saveResultToHistory(currentTabLabel(), ensureExtension($('#parts-filename').value.trim() || 'standing_combo.png', 'png'), blob);
+    // canvasToBlob()을 그대로 쓰면 blob이 null일 때 cb가 호출되지 않아 이 Promise가 영영
+    // resolve되지 않는데, onClick의 반환값을 확인하지 않으면 insertQuickSaveButton은 그냥
+    // 동기 처리로 보고 즉시 "저장됨!"을 띄운다 — 실제로는 저장이 실패했는데도 성공한 것처럼
+    // 보이는 문제(12번 탭 컨닝 페이퍼 메이커의 cs-download에 적용된 것과 같은 수정).
+    return new Promise(function(resolve){
+      canvasToBlobOrNull($('#parts-preview-canvas'), function(blob){
+        if(!blob){ alert('이미지 생성에 실패했습니다. 해상도나 배율을 낮추고 다시 시도해주세요.'); resolve(false); return; }
+        saveResultToHistory(currentTabLabel(), ensureExtension($('#parts-filename').value.trim() || 'standing_combo.png', 'png'), blob);
+        resolve(true);
+      });
     });
   });
 
   $('#parts-add-tray').addEventListener('click', function(){
     if(!currentCanvasSize()){ alert('먼저 몸 이미지를 올리고 조합을 완성해주세요.'); return; }
-    canvasToBlob($('#parts-preview-canvas'), function(blob){
+    // canvasToBlob()이 비동기라, 버튼을 잠그지 않으면 연타(더블클릭 등) 시 같은 조합이
+    // 여러 번 겹쳐 담긴다 — 다른 탭의 네트워크 요청형 버튼들과 같은 잠금 패턴을 적용.
+    // canvasToBlob()은 blob이 null이면 cb를 호출하지 않으므로(경고만 띄움), 실패 시에도
+    // 버튼이 계속 잠긴 채 남지 않도록 canvasToBlobOrNull()로 항상 콜백이 불리게 한다.
+    var btn = this;
+    btn.disabled = true;
+    canvasToBlobOrNull($('#parts-preview-canvas'), function(blob){
+      btn.disabled = false;
+      if(!blob){ alert('이미지 생성에 실패했습니다. 해상도나 배율을 낮추고 다시 시도해주세요.'); return; }
       addToTray(comboLabel(state.selected) || 'standing_combo', blob);
     });
   });
