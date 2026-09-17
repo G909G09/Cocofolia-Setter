@@ -187,7 +187,12 @@
 
   // ── 파일 입력 ──────────────────────────────────────────────
   var drop = $("drop"), fileIn = $("file");
+  drop.setAttribute("tabindex", "0");
+  drop.setAttribute("role", "button");
   drop.addEventListener("click", function(){ fileIn.click(); });
+  drop.addEventListener("keydown", function(e){
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileIn.click(); }
+  });
   drop.addEventListener("dragover", function(e){ e.preventDefault(); drop.classList.add("over"); });
   drop.addEventListener("dragleave", function(){ drop.classList.remove("over"); });
   drop.addEventListener("drop", function(e){
@@ -209,6 +214,7 @@
       inp.addEventListener("change", function(){ if(inp.files.length) loadFile(inp.files[0]); });
       drop.appendChild(inp); fileIn = inp;
     };
+    r.onerror = function(){ alert("파일을 읽지 못했습니다. 다시 시도해주세요."); };
     r.readAsText(f, "utf-8");
   }
 
@@ -508,7 +514,7 @@
     navigator.clipboard.writeText(buildTxt()).then(function(){
       $("cpBtn").textContent = "복사됨 ✓";
       setTimeout(function(){ $("cpBtn").textContent = "클립보드에 복사"; }, 1500);
-    });
+    }).catch(function(){ alert("클립보드 복사에 실패했습니다. 직접 선택해서 복사해주세요."); });
   });
 })();
 </script>
