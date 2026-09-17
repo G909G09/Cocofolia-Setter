@@ -19517,7 +19517,7 @@ $('#settings-import-file').addEventListener('change', function(){
       keys.forEach(function(k){ safeLocalStorageSet(k, data[k]); });
       location.reload();
     }catch(e){ alert('설정 파일을 읽을 수 없습니다: '+e.message); }
-  });
+  }).catch(function(e){ alert('설정 파일을 읽을 수 없습니다: '+e.message); });
   this.value = '';
 });
 
@@ -22403,13 +22403,16 @@ var TabLog = (function(){
     return arr;
   }
 
-  $('#bk-macro-download').addEventListener('click', function(){
-    if(!window.JSZip){ alert('JSZip 라이브러리를 불러오지 못했습니다.'); return; }
+  function buildMacroZip(){
+    if(!window.JSZip) return Promise.reject(new Error('JSZip 라이브러리를 불러오지 못했습니다.'));
     var zip = new JSZip();
     zip.file('Cocofolia_Log_V4.hwp', b64ToBytes($('#macro-hwp-b64').textContent));
     zip.file('Cocofolia_Log_V4.msr', b64ToBytes($('#macro-msr-b64').textContent));
     zip.file('사용법.txt', b64ToBytes($('#macro-usage-b64').textContent));
-    zip.generateAsync({type:'blob'}).then(function(blob){
+    return zip.generateAsync({type:'blob'});
+  }
+  $('#bk-macro-download').addEventListener('click', function(){
+    runZipAction(buildMacroZip, $('#bk-macro-download'), function(blob){
       downloadBlob(blob, 'Cocofolia_Log_V4_macro.zip', {skipHistory:true});
     });
   });
@@ -22885,7 +22888,7 @@ var TabLog = (function(){
           alert('사전 파일 형식이 올바르지 않습니다 (jp/kr 항목이 담긴 배열이어야 합니다).');
         }
       }catch(e){ alert('사전 파일을 읽을 수 없습니다: '+e.message); }
-    });
+    }).catch(function(e){ alert('사전 파일을 읽을 수 없습니다: '+e.message); });
     this.value = '';
   });
 
@@ -23099,7 +23102,7 @@ var TabLog = (function(){
           alert('표 파일 형식이 올바르지 않습니다 (min/max/db/build 항목이 담긴 배열이어야 합니다).');
         }
       }catch(e){ alert('표 파일을 읽을 수 없습니다: '+e.message); }
-    });
+    }).catch(function(e){ alert('표 파일을 읽을 수 없습니다: '+e.message); });
     this.value = '';
   });
   $('#ed-db-reset').addEventListener('click', function(){
