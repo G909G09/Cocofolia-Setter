@@ -683,6 +683,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-09-17</b> — 결과물 보관함(20번) 목록 항목의 "삭제" 버튼에 확인창 추가: 옆에 있는 "전체 삭제"·19번 탭의 "저장된 값 초기화"는 되돌릴 수 없는 동작이라 확인창을 거치는데, 개별 항목 삭제만 빠져 있어 실수로 스와이프하다 잘못 눌러도 바로 지워지던 문제를 해소(파일명을 확인창에 함께 표시)</li>
       <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-09-17</b> — 건의함(18번) "새로고침" 버튼 연타 방지: 목록을 불러오는 동안 버튼을 잠가, 여러 번 눌러도 요청이 겹쳐 나가지 않게 함(겹쳐 나간 요청 중 먼저 보낸 쪽이 나중에 도착하면 화면이 오히려 예전 목록으로 되돌아갈 수 있던 문제도 함께 해소)</li>
       <li><span class="chlog-tag" data-cat="more">다른 기능 둘러보기</span><b>2026-09-17</b> — Cocofolia Markdown·텍스트 자동 변환기·구 트윗덱 커스텀 3개 탭의 "다운로드(.zip)"·"GitHub 저장소" 버튼에 스크린리더용 구분 이름(aria-label) 추가: 기존엔 세 탭 모두 같은 문구라 링크 목록으로 탐색할 때 어느 확장 프로그램인지 구분이 안 됐음</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-16</b> — html용 로그 백업(5번)에 "모든 수정 되돌리기" 버튼 추가: 여러 줄을 고친 뒤 처음부터 다시 하고 싶을 때, 줄마다 있는 "원본으로" 버튼을 하나씩 누르지 않고 한 번에 전부 원본 문구로 되돌릴 수 있음(고친 줄이 하나도 없으면 버튼이 보이지 않고, 실행 전 몇 개 줄을 되돌리는지 확인창이 뜸)</li>
@@ -19600,6 +19601,7 @@ $('#settings-reset').addEventListener('click', function(){
           downloadBlob(item.blob, item.filename, {skipHistory:true});
         });
         row.querySelector('[data-act="del"]').addEventListener('click', function(){
+          if(!confirm('"'+item.filename+'" 항목을 삭제할까요? 되돌릴 수 없습니다.')) return;
           deleteHistoryItem(item.id).then(render);
         });
         listEl.appendChild(row);

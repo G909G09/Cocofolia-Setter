@@ -906,3 +906,30 @@ test('deriveStatus: 이슈의 state/라벨로 건의함(18번) 상태 배지 종
   // labels 필드 자체가 없는 이슈(이론상 드묾)도 예외 없이 기본 상태로 처리해야 한다.
   assert.deepEqual(toHostRealm(sandbox.deriveStatus({ state: 'open' })), { text: '접수됨', status: 'open' });
 });
+
+// 실제 브라우저의 CSS 색상 파싱(잘못된 값은 조용히 무시하고 style.color를 빈 문자열로
+// 되돌리는 동작)을 흉내내는 가짜 <option>을 만든다 — hex/rgb/hsl/이름 있는 색만 인식한다.
+function fakeDomForColorOption() {
+  const KNOWN = /^(#[0-9a-f]{3,8}|rgba?\(.*\)|hsla?\(.*\)|transparent|red|blue|currentcolor)$/i;
+  return {
+    createElement: () => {
+      const state = { color: '' };
+      return {
+        style: {
+          get color() { return state.color; },
+          set color(v) { state.color = v && KNOWN.test(v.trim()) ? v : ''; },
+        },
+      };
+    },
+  };
+}
+
+test('isValidCssColor: 빈 문자열/유효하지 않은 값은 거르고, 인식 가능한 형식만 통과시킨다', () => {
+  const document = fakeDomForColorOption();
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, ['isValidCssColor'], { document });
+  assert.equal(sandbox.isValidCssColor(''), false); // 빈 문자열은 style.color에 대입해보지도 않고 바로 거른다
+  assert.equal(sandbox.isValidCssColor(undefined), false);
+  assert.equal(sandbox.isValidCssColor('#ff0000'), true);
+  assert.equal(sandbox.isValidCssColor('rgb(0,0,0)'), true);
+  assert.equal(sandbox.isValidCssColor('이건색이아님'), false);
+});
