@@ -20008,6 +20008,17 @@ function getGifWorkerUrl(){
   return _gifWorkerUrl;
 }
 
+// gif.js.optimized는 render()가 spawnWorkers()로 만든 Worker들을 인코딩이 끝난 뒤에도
+// gif 인스턴스(freeWorkers/activeWorkers)에 그대로 붙잡아두기만 하고 스스로 terminate()하지
+// 않는다 — encodeGif를 부를 때마다(변환 탭에서 설정을 바꿔 다시 인코딩하거나 여러 번
+// 내보낼 때마다) 새 Worker 스레드가 2개씩 생겨 페이지를 닫을 때까지 계속 쌓인다. 여기서
+// 인코딩이 끝나는 시점(성공/중단 모두)에 gif 인스턴스가 갖고 있던 Worker를 대신 정리한다.
+function terminateGifWorkers(gif){
+  ['freeWorkers','activeWorkers'].forEach(function(k){
+    (gif[k]||[]).forEach(function(w){ try{ w.terminate(); }catch(e){} });
+  });
+}
+
 function encodeGif(frames, delays, width, height, preserveAlpha){
   return new Promise(function(resolve, reject){
     var CHROMA = '#00ff00';
@@ -20025,8 +20036,8 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
       ctx.drawImage(tmp, 0, 0);
       gif.addFrame(canvas, {delay: delays[i]||100, copy:true});
     });
-    gif.on('finished', function(blob){ resolve(blob); });
-    gif.on('abort', function(){ reject(new Error('GIF 인코딩이 중단되었습니다.')); });
+    gif.on('finished', function(blob){ terminateGifWorkers(gif); resolve(blob); });
+    gif.on('abort', function(){ terminateGifWorkers(gif); reject(new Error('GIF 인코딩이 중단되었습니다.')); });
     gif.render();
   });
 }
