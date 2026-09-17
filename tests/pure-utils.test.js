@@ -787,6 +787,9 @@ test('isJsonRowArray: 사전/표 JSON 불러오기가 서로의 내보내기 파
   assert.equal(sandbox.isJsonRowArray([null], ['jp', 'kr']), false);
   // 빈 배열은 "지울 항목이 없는 불러오기"이므로 형식 검사는 통과시킨다
   assert.equal(sandbox.isJsonRowArray([], ['jp', 'kr']), true);
+  // keys 중 일부만 있는 반쪽짜리 항목(예: db/build가 빠진 표 파일)은 거부해야 한다 —
+  // 하나만 있어도 통과시키면 나머지 필드가 불러온 뒤 조용히 빈 문자열로 채워진다
+  assert.equal(sandbox.isJsonRowArray([{ min: '0', max: '64' }], ['min', 'max', 'db', 'build']), false);
 });
 
 test('groupMessages: "연속 발화 묶기"는 이름뿐 아니라 탭(채널)도 같아야 묶는다', () => {
