@@ -683,6 +683,8 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
   <details class="home-changelog-details">
     <summary>업데이트 로그</summary>
     <ul id="home-changelog" style="margin:0;padding-left:18px;font-size:12.5px;color:var(--sub);line-height:1.9;max-height:260px;overflow:auto;">
+      <li><span class="chlog-tag" data-cat="etc">기타</span><b>2026-09-17</b> — 건의함(18번) "새로고침" 버튼 연타 방지: 목록을 불러오는 동안 버튼을 잠가, 여러 번 눌러도 요청이 겹쳐 나가지 않게 함(겹쳐 나간 요청 중 먼저 보낸 쪽이 나중에 도착하면 화면이 오히려 예전 목록으로 되돌아갈 수 있던 문제도 함께 해소)</li>
+      <li><span class="chlog-tag" data-cat="more">다른 기능 둘러보기</span><b>2026-09-17</b> — Cocofolia Markdown·텍스트 자동 변환기·구 트윗덱 커스텀 3개 탭의 "다운로드(.zip)"·"GitHub 저장소" 버튼에 스크린리더용 구분 이름(aria-label) 추가: 기존엔 세 탭 모두 같은 문구라 링크 목록으로 탐색할 때 어느 확장 프로그램인지 구분이 안 됐음</li>
       <li><span class="chlog-tag" data-cat="log">로그 백업</span><b>2026-09-16</b> — html용 로그 백업(5번)에 "모든 수정 되돌리기" 버튼 추가: 여러 줄을 고친 뒤 처음부터 다시 하고 싶을 때, 줄마다 있는 "원본으로" 버튼을 하나씩 누르지 않고 한 번에 전부 원본 문구로 되돌릴 수 있음(고친 줄이 하나도 없으면 버튼이 보이지 않고, 실행 전 몇 개 줄을 되돌리는지 확인창이 뜸)</li>
       <li><span class="chlog-tag" data-cat="coc">CoC 유틸리티</span><b>2026-09-16</b> — CoC 용어 변환기(7번) 용어 사전 편집에 검색 칸 추가: 원어·국내 용어 어느 쪽으로 입력해도 일치하는 항목만 걸러 보여줘, 사전이 커져도 원하는 용어를 스크롤 없이 바로 찾을 수 있음(검색 중 "행 추가"를 누르면 검색이 자동으로 풀려 새로 추가한 빈 행이 바로 보임)</li>
       <li><span class="chlog-tag" data-cat="more">다른 기능 둘러보기</span><b>2026-09-16</b> — "구 트윗덱 커스텀"(17번) 커스터마이징 대폭 확장: 배경·컬럼 배경·상단바·테두리·강조색·글자색 6종을 프리셋 테마와 별개로 하나씩 직접 지정 가능해졌고, 모서리 둥글기·컬럼 폭 슬라이더도 추가됨. Apple의 "리퀴드 글래스" 디자인 언어에서 영감을 받은 반투명 블러 모드(상단바·컬럼·드롭다운에 backdrop-filter 블러 + 유리 가장자리 하이라이트)를 켜고 끌 수 있음. 스티커는 이모지뿐 아니라 컴퓨터에 있는 이미지를 직접 업로드해 붙일 수 있게 확장(자동 축소 후 이 브라우저에만 저장, 드래그 이동 + 모서리 손잡이로 크기 조절)</li>
@@ -1539,8 +1541,8 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       </ol>
     </div>
     <div class="row">
-      <a class="btn" id="md-ext-download" href="https://github.com/G909G09/Cocofolia-Markdown/archive/refs/heads/main.zip" target="_blank" rel="noopener">다운로드(.zip)</a>
-      <a class="btn ghost" href="https://github.com/G909G09/Cocofolia-Markdown" target="_blank" rel="noopener">GitHub 저장소</a>
+      <a class="btn" id="md-ext-download" href="https://github.com/G909G09/Cocofolia-Markdown/archive/refs/heads/main.zip" target="_blank" rel="noopener" aria-label="Cocofolia Markdown 다운로드(.zip)">다운로드(.zip)</a>
+      <a class="btn ghost" href="https://github.com/G909G09/Cocofolia-Markdown" target="_blank" rel="noopener" aria-label="Cocofolia Markdown GitHub 저장소">GitHub 저장소</a>
     </div>
     <p class="footnote">크롬 웹 스토어 미등록이라 "개발자 모드"로 설치합니다. 코코포리아(ccfolia.com) 채팅에서만 동작하며, 이 다운로드만 인터넷 연결이 필요합니다(그 순간의 최신 버전을 GitHub에서 바로 받음).</p>
   </div>
@@ -1560,8 +1562,8 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       </ol>
     </div>
     <div class="row">
-      <a class="btn" id="textable-ext-download" href="https://github.com/G909G09/textable/archive/refs/heads/main.zip" target="_blank" rel="noopener">다운로드(.zip)</a>
-      <a class="btn ghost" href="https://github.com/G909G09/textable" target="_blank" rel="noopener">GitHub 저장소</a>
+      <a class="btn" id="textable-ext-download" href="https://github.com/G909G09/textable/archive/refs/heads/main.zip" target="_blank" rel="noopener" aria-label="텍스트 자동 변환기 다운로드(.zip)">다운로드(.zip)</a>
+      <a class="btn ghost" href="https://github.com/G909G09/textable" target="_blank" rel="noopener" aria-label="텍스트 자동 변환기 GitHub 저장소">GitHub 저장소</a>
     </div>
     <p class="footnote">크롬 웹 스토어 미등록이라 "개발자 모드"로 설치합니다. 이 다운로드만 인터넷 연결이 필요합니다(그 순간의 최신 버전을 GitHub에서 바로 받음).</p>
   </div>
@@ -1582,8 +1584,8 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       </ol>
     </div>
     <div class="row">
-      <a class="btn" id="tweetdeck-ext-download" href="https://github.com/G909G09/TweetDeck-Classic-Custom/archive/refs/heads/main.zip" target="_blank" rel="noopener">다운로드(.zip)</a>
-      <a class="btn ghost" href="https://github.com/G909G09/TweetDeck-Classic-Custom" target="_blank" rel="noopener">GitHub 저장소</a>
+      <a class="btn" id="tweetdeck-ext-download" href="https://github.com/G909G09/TweetDeck-Classic-Custom/archive/refs/heads/main.zip" target="_blank" rel="noopener" aria-label="구 트윗덱 커스텀 다운로드(.zip)">다운로드(.zip)</a>
+      <a class="btn ghost" href="https://github.com/G909G09/TweetDeck-Classic-Custom" target="_blank" rel="noopener" aria-label="구 트윗덱 커스텀 GitHub 저장소">GitHub 저장소</a>
     </div>
     <p class="footnote">크롬 웹 스토어 미등록이라 "개발자 모드"로 설치합니다. <code>x.com/i/tweetdeck</code>에서만 동작하며, 이 다운로드만 인터넷 연결이 필요합니다(그 순간의 최신 버전을 GitHub에서 바로 받음). 원본 OldTweetDeck의 자세한 사용법·FAQ는 GitHub 저장소의 안내문을 참고하세요.</p>
   </div>
@@ -26859,7 +26861,7 @@ var TabLog = (function(){
    인터넷 연결이 필요함 — 항상 그 순간의 최신 소스를 받아온다). */
 
 /* ================================================================
-   탭 17. 건의함 (GitHub 이슈 연동)
+   탭 18. 건의함 (GitHub 이슈 연동)
 ================================================================ */
 (function(){
   var OWNER = 'G909G09', REPO = 'Cocofolia-Setter', LABEL = '건의';
@@ -26928,7 +26930,12 @@ var TabLog = (function(){
   }
 
   var SG_PER_PAGE = 100;
+  // #sg-refresh를 연달아 누르면 fetch가 여러 번 겹쳐 나가 먼저 보낸 요청이 나중 것보다
+  // 늦게 도착할 경우 화면이 오히려 예전 목록으로 되돌아갈 수 있고, GitHub API 요청 한도도
+  // 그만큼 빨리 소진된다. 로딩 중에는 버튼을 잠가 한 번에 하나만 진행되게 한다.
   function load(){
+    var refreshBtn = $('#sg-refresh');
+    refreshBtn.disabled = true;
     $('#sg-status').textContent = '불러오는 중...';
     $('#sg-list').innerHTML = '';
     $('#sg-more-note').innerHTML = '';
@@ -26953,6 +26960,8 @@ var TabLog = (function(){
       applyFilter();
     }).catch(function(err){
       $('#sg-status').textContent = '불러오기 실패: '+err.message+' (인터넷 연결을 확인해주세요)';
+    }).then(function(){
+      refreshBtn.disabled = false;
     });
   }
 
