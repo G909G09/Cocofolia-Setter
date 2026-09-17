@@ -29,6 +29,7 @@ const sandbox = loadFunctionsFromHtml(HTML_PATH, [
   'guessGmName',
   'fourccToInt',
   'deriveStatus',
+  'isDice',
 ]);
 
 test('clampInt: 범위 안/밖 값을 올바르게 자른다', () => {
@@ -932,4 +933,13 @@ test('isValidCssColor: 빈 문자열/유효하지 않은 값은 거르고, 인�
   assert.equal(sandbox.isValidCssColor('#ff0000'), true);
   assert.equal(sandbox.isValidCssColor('rgb(0,0,0)'), true);
   assert.equal(sandbox.isValidCssColor('이건색이아님'), false);
+});
+
+test('isDice: 로그북용 로그 백업(6번)이 판정 굴림 문단을 "(XdY)＞결과" 형태로만 알아본다', () => {
+  assert.equal(sandbox.isDice('(1D100<=50)＞32'), true);
+  assert.equal(sandbox.isDice('(2D6)＞7'), true);
+  assert.equal(sandbox.isDice('(D6)＞3'), true); // 개수 생략(D6)도 허용
+  assert.equal(sandbox.isDice('그냥 대사입니다'), false);
+  assert.equal(sandbox.isDice('(1D100<=50)>32'), false); // 반각 '>'는 판정 결과로 보지 않는다(전각 ＞만 인정)
+  assert.equal(sandbox.isDice('1D100＞32'), false); // 괄호가 없으면 판정으로 보지 않는다
 });

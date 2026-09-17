@@ -21289,6 +21289,14 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     var d = state.delays[0] || 50;
     state.playIdx = 0;
     state.playTimer = setInterval(function(){
+      // 슬롯 미리보기(renderSlotPreview)와 같은 문제: 탭 패널은 화면에서 감춰져도 DOM에
+      // 그대로 남아있어, 렌더링 후 다른 탭으로 옮겨가도 이 타이머는 계속 돌며 쓸모없이
+      // previewCanvas를 다시 그린다.
+      if(!document.getElementById('tab-fx').classList.contains('active')){
+        stopPreview();
+        previewToggle.setAttribute('aria-pressed', 'false');
+        return;
+      }
       pctx.putImageData(state.frames[state.playIdx], 0, 0);
       state.playIdx = (state.playIdx+1) % state.frames.length;
     }, d);
@@ -22484,6 +22492,7 @@ var TabLog = (function(){
       nm.appendChild(ct);
       var sel = document.createElement('select');
       sel.setAttribute('data-name', n);
+      sel.setAttribute('aria-label', n+' 스타일 선택');
       GROUPS.forEach(function(g){
         var o = document.createElement('option'); o.value=g; o.textContent=g; sel.appendChild(o);
       });
