@@ -18945,19 +18945,23 @@ function listHistory(){
 }
 function deleteHistoryItem(id){
   return openHistoryDB().then(function(db){
-    return new Promise(function(resolve){
+    return new Promise(function(resolve, reject){
       var tx = db.transaction(HISTORY_STORE, 'readwrite');
       tx.objectStore(HISTORY_STORE).delete(id);
       tx.oncomplete = function(){ resolve(); };
+      tx.onerror = function(){ reject(tx.error); };
+      tx.onabort = function(){ reject(tx.error); };
     });
   });
 }
 function clearHistory(){
   return openHistoryDB().then(function(db){
-    return new Promise(function(resolve){
+    return new Promise(function(resolve, reject){
       var tx = db.transaction(HISTORY_STORE, 'readwrite');
       tx.objectStore(HISTORY_STORE).clear();
       tx.oncomplete = function(){ resolve(); };
+      tx.onerror = function(){ reject(tx.error); };
+      tx.onabort = function(){ reject(tx.error); };
     });
   });
 }
@@ -19189,6 +19193,9 @@ function sendItemsTo(items, loaderKey, targetTabId, btnId){
     if(window.__ccSend && window.__ccSend[loaderKey]) window.__ccSend[loaderKey](files);
     var tabBtn = document.querySelector('.tab-btn[data-target="'+targetTabId+'"]');
     if(tabBtn) tabBtn.click();
+  }).catch(function(e){
+    alert('다른 탭으로 전달하는 중 오류가 발생했습니다: '+(e && e.message ? e.message : e));
+  }).then(function(){
     btn.disabled = items.length===0;
   });
 }
@@ -19559,7 +19566,14 @@ $('#settings-reset').addEventListener('click', function(){
   // #history-refresh를 연달아 누르면 listHistory() 조회가 여러 번 겹쳐 나가 먼저 보낸
   // 요청이 나중 것보다 늦게 도착할 경우 화면이 예전 목록으로 되돌아갈 수 있다.
   // 조회 중에는 버튼을 잠가 한 번에 하나만 진행되게 한다(#sg-refresh와 동일한 패턴).
+  // searchEl의 input이나 tabFilterEl의 change 등 여러 이벤트가 refreshBtn을 거치지 않고도
+  // render()를 직접 부를 수 있어(예: 검색창에 빠르게 타이핑), #history-refresh만 잠그는 것으로는
+  // listHistory() 조회가 겹쳐 나가는 것을 막지 못한다(#sg-refresh와 달리 진입점이 여러 개이므로
+  // 함수 자체에 락을 건다). 조회 중 다시 호출되면 그 요청은 건너뛰지 않고 현재 조회가 끝난
+  // 뒤 한 번 더 실행되도록 예약해 마지막 입력이 항상 반영되게 한다.
   function render(){
+    if(render._busy){ render._pending = true; return; }
+    render._busy = true;
     var refreshBtn = $('#history-refresh');
     refreshBtn.disabled = true;
     listHistory().then(function(items){
@@ -19609,7 +19623,9 @@ $('#settings-reset').addEventListener('click', function(){
         });
         row.querySelector('[data-act="del"]').addEventListener('click', function(){
           if(!confirm('"'+item.filename+'" 항목을 삭제할까요? 되돌릴 수 없습니다.')) return;
-          deleteHistoryItem(item.id).then(render);
+          deleteHistoryItem(item.id).then(render).catch(function(){
+            alert('삭제에 실패했습니다. 다시 시도해주세요.');
+          });
         });
         listEl.appendChild(row);
         setupSwipeRow(row);
@@ -19618,12 +19634,16 @@ $('#settings-reset').addEventListener('click', function(){
       infoEl.textContent = '결과물 보관함을 불러오지 못했습니다(이 브라우저가 IndexedDB를 지원하지 않을 수 있습니다).';
     }).then(function(){
       refreshBtn.disabled = false;
+      render._busy = false;
+      if(render._pending){ render._pending = false; render(); }
     });
   }
   $('#history-refresh').addEventListener('click', render);
   $('#history-clear').addEventListener('click', function(){
     if(!confirm('저장된 결과물을 전체 삭제할까요? 되돌릴 수 없습니다.')) return;
-    clearHistory().then(render);
+    clearHistory().then(render).catch(function(){
+      alert('전체 삭제에 실패했습니다. 이 브라우저에서는 결과물 보관함을 사용할 수 없을 수 있습니다.');
+    });
   });
   searchEl.addEventListener('input', render);
   tabFilterEl.addEventListener('change', render);
