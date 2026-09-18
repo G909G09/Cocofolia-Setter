@@ -13,10 +13,15 @@ const fs = require('fs');
 
 function extractFunctionSource(src, name) {
   const marker = 'function ' + name + '(';
-  const start = src.indexOf(marker);
-  if (start === -1) {
+  const markerStart = src.indexOf(marker);
+  if (markerStart === -1) {
     throw new Error('function not found in source: ' + name);
   }
+  // marker는 'function NAME(' 앞의 'async '는 찾지 못한다 — 그대로 두면 async 함수 안의
+  // await가 일반 함수 본문에 남아 문법 오류가 난다. 바로 앞이 'async '면 그것까지 포함한다.
+  const asyncPrefix = 'async ';
+  const asyncStart = markerStart - asyncPrefix.length;
+  const start = (asyncStart >= 0 && src.slice(asyncStart, markerStart) === asyncPrefix) ? asyncStart : markerStart;
   const braceStart = src.indexOf('{', start);
   if (braceStart === -1) {
     throw new Error('no function body found for: ' + name);
