@@ -1315,7 +1315,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
           <button class="btn ghost" id="parts-zip-all" disabled>전체 조합 ZIP</button>
           <button class="btn ghost" id="parts-add-all-tray" disabled>전체 담아두기 →</button>
         </div>
-        <div id="parts-combo-count" style="font-size:12px;color:var(--sub);margin:-4px 0 8px;"></div>
+        <div id="parts-combo-count" aria-live="polite" style="font-size:12px;color:var(--sub);margin:-4px 0 8px;"></div>
         <div class="row" style="margin-top:-6px;">
           <button class="btn ghost" id="parts-clear" disabled style="color:var(--danger);">전체 지우기</button>
         </div>
@@ -1323,7 +1323,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
 
       <div style="flex:1 1 300px;min-width:260px;border-left:1px solid var(--line);padding-left:16px;">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-          <h3 style="margin:0;font-size:14px;">담아둔 조합<span id="parts-tray-count" style="color:var(--sub);font-weight:400;font-size:12px;"></span></h3>
+          <h3 style="margin:0;font-size:14px;">담아둔 조합<span id="parts-tray-count" aria-live="polite" style="color:var(--sub);font-weight:400;font-size:12px;"></span></h3>
         </div>
         <p class="desc" style="margin:6px 0 8px;">"담아두기"로 모은 조합들입니다. 썸네일을 클릭하면 크게 미리볼 수 있고, ⬇ 버튼으로 그 조합만 바로 다운로드하거나 ×로 뺄 수 있습니다. 이름 칸을 클릭하면 그 조합만의 파일명을 고칠 수 있습니다.</p>
         <div id="parts-tray-gallery" style="display:flex;flex-wrap:wrap;gap:10px;min-height:100px;max-height:520px;overflow-y:auto;padding-right:2px;"></div>
