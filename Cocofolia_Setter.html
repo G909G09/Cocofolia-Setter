@@ -931,7 +931,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <button class="btn ghost" id="imgopt-zip" disabled>ZIP으로 일괄 다운로드</button>
       <button class="btn ghost" id="imgopt-clear" disabled style="color:var(--danger);">전체 지우기</button>
     </div>
-    <div id="imgopt-summary" class="hidden" style="font-size:12px;color:var(--sub);margin-top:8px;"></div>
+    <div id="imgopt-summary" class="hidden" aria-live="polite" style="font-size:12px;color:var(--sub);margin-top:8px;"></div>
     <div id="imgopt-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:14px;"></div>
   </div>
 </section>
@@ -1523,7 +1523,7 @@ details.raw pre{max-height:220px;overflow:auto;background:var(--bg);padding:10px
       <button class="btn ghost" id="trim-send-cf" disabled>→ 13번 캐릭터 룸파일로 바로 보내기</button>
     </div>
     <p class="footnote" style="margin-top:-6px;">잘라낸 이미지를 다운로드/재업로드하지 않고 그대로 다른 탭으로 넘겨서 이어서 작업할 수 있습니다.</p>
-    <div id="trim-summary" class="hidden" style="font-size:12px;color:var(--sub);margin-top:8px;"></div>
+    <div id="trim-summary" class="hidden" aria-live="polite" style="font-size:12px;color:var(--sub);margin-top:8px;"></div>
     <div id="trim-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:14px;"></div>
   </div>
 </section>
@@ -20348,6 +20348,7 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     video.playbackRate = 2;
     var endTime = Math.min(start+dur, video.duration-0.01);
 
+    var playFailed = false;
     await new Promise(function(resolve){
       function onFrame(now, metadata){
         var mt = metadata.mediaTime;
@@ -20363,8 +20364,13 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
         video.requestVideoFrameCallback(onFrame);
       }
       video.requestVideoFrameCallback(onFrame);
-      video.play().catch(function(){ resolve(); });
+      video.play().catch(function(){ playFailed = true; resolve(); });
     });
+    // 재생 자체가 실패하면(자동재생 차단 등) 프레임이 한 장도 캡처되지 않은 채 정지 화면만
+    // 반복 캡처하는 "가짜 성공"이 되므로, 이 경우는 성공으로 취급하지 않고 에러로 알린다
+    if(playFailed && nextIdx === 0){
+      throw new Error('동영상 재생에 실패해 프레임을 추출하지 못했습니다.');
+    }
     // 재생이 끝까지 도달하지 못해 못 채운 마지막 프레임들은 마지막으로 캡처된 화면으로 채운다
     for(var i=0;i<frames.length;i++){ if(!frames[i]){ captureAt(i); } }
     return frames;
@@ -26774,9 +26780,12 @@ var TabLog = (function(){
     return issues;
   }
   var cfValidatePendingProceed = null;
+  var cfValidateOpener = null;
   function closeCfValidateModal(){
     $('#cf-validate-modal').classList.add('hidden');
     cfValidatePendingProceed = null;
+    if(cfValidateOpener && document.contains(cfValidateOpener)) cfValidateOpener.focus();
+    cfValidateOpener = null;
   }
   function renderCfValidateModal(){
     var issues = validateCfIssues();
@@ -26819,11 +26828,13 @@ var TabLog = (function(){
   }
   function openCfValidateModal(proceedFn){
     cfValidatePendingProceed = proceedFn;
+    cfValidateOpener = document.activeElement;
     renderCfValidateModal();
     $('#cf-validate-modal').classList.remove('hidden');
     // 11번 탭 담아두기 미리보기 모달(parts-preview-modal)과 동일하게, 열릴 때 포커스를
-    // 모달 안(닫기 버튼)으로 옮겨야 키보드/스크린리더 사용자가 뒤 화면이 아니라 모달
-    // 내용부터 이어서 탐색할 수 있다.
+    // 모달 안(닫기 버튼)으로 옮기고 닫힐 때는 이 모달을 연 버튼(생성/임시저장)으로 되돌려야
+    // 키보드/스크린리더 사용자가 뒤 화면이 아니라 모달 내용부터 이어서 탐색하고, 닫은 뒤에는
+    // 원래 누르던 버튼에서 이어갈 수 있다.
     $('#cf-validate-modal-close').focus();
   }
   $('#cf-validate-modal-close').addEventListener('click', closeCfValidateModal);
