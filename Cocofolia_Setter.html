@@ -24476,6 +24476,14 @@ var TabLog = (function(){
     return state.selected[cat] === idx;
   }
 
+  // 업로드된 파츠뿐 아니라 담아두기(tray)에 아직 저장하지 않은 조합이 남아있어도
+  // 떠나기 경고가 뜨도록 두 상태를 함께 반영한다.
+  function syncPartsPendingWork(){
+    var hasAnyUpload = PART_CATEGORIES.some(function(c){ return state.parts[c.key].length>0; });
+    markPendingWork('parts', hasAnyUpload || tray.length>0);
+    return hasAnyUpload;
+  }
+
   function updateAll(){
     var hasAnyUpload = PART_CATEGORIES.some(function(c){ return state.parts[c.key].length>0; });
     $('#parts-clear').disabled = !hasAnyUpload;
@@ -24491,7 +24499,7 @@ var TabLog = (function(){
       if(state.parts.body.length===0) showInfo('먼저 몸(베이스) 이미지를 올려주세요.');
       else hideInfo();
       renderGizmo();
-      markPendingWork('parts', hasAnyUpload);
+      syncPartsPendingWork();
       return;
     }
     canvas.classList.remove('hidden');
@@ -24524,7 +24532,7 @@ var TabLog = (function(){
     if(mismatches.length) showInfo('주의: 몸 이미지('+size.w+'x'+size.h+')와 크기가 다른 파츠가 있어 위치가 어긋날 수 있습니다 — '+mismatches.join(', '));
     else hideInfo();
     renderGizmo();
-    markPendingWork('parts', hasAnyUpload);
+    syncPartsPendingWork();
   }
 
   function transformReadoutText(t){
@@ -24921,6 +24929,7 @@ var TabLog = (function(){
     $('#parts-tray-save-all').disabled = tray.length===0;
     if(partsTraySaveBtn) partsTraySaveBtn.disabled = tray.length===0;
     $('#parts-tray-clear').disabled = tray.length===0;
+    syncPartsPendingWork();
   }
 
   function addToTray(label, blob){
