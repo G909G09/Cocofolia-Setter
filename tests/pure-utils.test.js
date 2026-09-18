@@ -946,3 +946,52 @@ test('isDice: 로그북용 로그 백업(6번)이 판정 굴림 문단을 "(XdY)
   assert.equal(sandbox.isDice('(1D100<=50)>32'), false); // 반각 '>'는 판정 결과로 보지 않는다(전각 ＞만 인정)
   assert.equal(sandbox.isDice('1D100＞32'), false); // 괄호가 없으면 판정으로 보지 않는다
 });
+
+// loadImageElement/loadImagesTolerant는 실제 Image 로딩(성공 시 onload, 실패 시 onerror)에
+// 의존하므로, URL.createObjectURL로 만든 가짜 objectURL을 원본 file과 매핑해뒀다가 img.src에
+// 대입되는 시점에 file별로 정해둔 성공/실패를 비동기로 흉내낸다.
+function fakeImageEnv(shouldFail) {
+  const urlToFile = new Map();
+  let seq = 0;
+  class FakeImage {
+    set src(url) {
+      const file = urlToFile.get(url);
+      queueMicrotask(() => {
+        if (shouldFail(file)) { if (this.onerror) this.onerror(new Event('error')); }
+        else if (this.onload) this.onload();
+      });
+    }
+  }
+  return {
+    Image: FakeImage,
+    URL: {
+      createObjectURL: (file) => { const url = 'blob:' + (seq++); urlToFile.set(url, file); return url; },
+      revokeObjectURL: () => {},
+    },
+  };
+}
+
+test('loadImagesTolerant: 일부 파일이 로드에 실패해도 Promise.all 전체가 죽지 않고, 성공/실패를 나눠 돌려준다', async () => {
+  const env = fakeImageEnv((file) => file.name.indexOf('bad') === 0);
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, ['loadImageElement', 'loadImagesTolerant'], env);
+  const files = [{ name: 'a.png' }, { name: 'bad1.png' }, { name: 'b.png' }, { name: 'bad2.png' }];
+
+  const res = await sandbox.loadImagesTolerant(files, function (f, img) { return { file: f, img: img }; });
+
+  // res.loaded/res.failed는 vm 컨텍스트(sandbox2 등과 같은 별도 realm) 안에서 만들어진
+  // 배열이라 Array.prototype이 달라 deepStrictEqual이 "구조는 같지만 참조가 다르다"며
+  // 실패한다 — 파일 상단 toHostRealm 설명과 동일한 이유로 JSON 왕복해 비교한다.
+  assert.deepEqual(toHostRealm(res.loaded.map((it) => it.file.name)), ['a.png', 'b.png']);
+  assert.deepEqual(toHostRealm(res.failed), ['bad1.png', 'bad2.png']);
+});
+
+test('loadImagesTolerant: 전부 성공하면 failed는 빈 배열이고, mapFn 없이 부르면 {file,img}를 그대로 담는다', async () => {
+  const env = fakeImageEnv(() => false);
+  const sandbox = loadFunctionsFromHtml(HTML_PATH, ['loadImageElement', 'loadImagesTolerant'], env);
+  const files = [{ name: 'a.png' }, { name: 'b.png' }];
+
+  const res = await sandbox.loadImagesTolerant(files);
+
+  assert.deepEqual(toHostRealm(res.failed), []);
+  assert.deepEqual(toHostRealm(res.loaded.map((it) => it.file.name)), ['a.png', 'b.png']);
+});

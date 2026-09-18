@@ -24134,7 +24134,14 @@ var TabLog = (function(){
     }).then(function(res){
       items = res.loaded;
       $('#st-apply').disabled = items.length===0;
-      $('#st-info').classList.add('hidden');
+      // 다른 탭 업로드와 동일하게, 되돌리기로 다시 불러오다 실패한 이미지가 있으면
+      // 개수만큼 줄어든 채 조용히 넘어가지 않고 안내한다.
+      if(res.failed.length){
+        $('#st-info').textContent = '이전 작업을 불러왔습니다. (실패 '+res.failed.length+'장: '+res.failed.join(', ')+')';
+        $('#st-info').classList.remove('hidden');
+      } else {
+        $('#st-info').classList.add('hidden');
+      }
       renderAll();
     });
   });
@@ -25342,6 +25349,7 @@ var TabLog = (function(){
   }, function restorePartsSnapshot(snap){
     resetPartsState();
     if(snap.filename != null) $('#parts-filename').value = snap.filename;
+    var restoreFailed = [];
     var loaders = PART_CATEGORIES.map(function(c){
       var files = (snap.catFiles && snap.catFiles[c.key]) || [];
       var uids = (snap.catUids && snap.catUids[c.key]) || [];
@@ -25356,6 +25364,7 @@ var TabLog = (function(){
         return buildPartItem(f, img, uid);
       }).then(function(res){
         state.parts[c.key] = res.loaded;
+        if(res.failed.length) restoreFailed = restoreFailed.concat(res.failed);
       });
     });
     Promise.all(loaders).then(function(){
@@ -25379,6 +25388,8 @@ var TabLog = (function(){
       state.activeLayer = null;
       buildCatUI();
       updateAll();
+      // 다른 다중 업로드 탭과 동일하게, 되돌리기 중 파츠 이미지 로드가 실패하면 안내한다.
+      if(restoreFailed.length) showInfo('이전 작업을 불러왔습니다. (실패 '+restoreFailed.length+'장: '+restoreFailed.join(', ')+')');
     });
   });
 })();
@@ -25626,7 +25637,13 @@ var TabLog = (function(){
     loadImagesTolerant(files, function(f, img){ return {file:f, img:img}; }).then(function(res){
       items = res.loaded;
       $('#trim-apply').disabled = items.length===0;
-      $('#trim-info').classList.add('hidden');
+      // 10번 탭과 동일하게, 되돌리기 중 일부 이미지 로드가 실패하면 안내한다.
+      if(res.failed.length){
+        $('#trim-info').textContent = '이전 작업을 불러왔습니다. (실패 '+res.failed.length+'장: '+res.failed.join(', ')+')';
+        $('#trim-info').classList.remove('hidden');
+      } else {
+        $('#trim-info').classList.add('hidden');
+      }
       renderAll();
     });
   });
@@ -26392,6 +26409,7 @@ var TabLog = (function(){
     buildLabelInputs();
 
     var tasks = [];
+    var heroFailed = false;
     if(snap.heroFile){
       tasks.push(loadImageElement(snap.heroFile).then(function(img){
         heroImg = img;
@@ -26399,8 +26417,9 @@ var TabLog = (function(){
         $('#cs-hero-label').textContent = '다시 선택하려면 클릭';
         setBlobUrl($('#cs-hero-preview'), snap.heroFile);
         $('#cs-hero-preview').classList.remove('hidden');
-      }).catch(function(){}));
+      }).catch(function(){ heroFailed = true; }));
     }
+    var itemsFailed = [];
     if(snap.items && snap.items.length){
       var files = snap.items.map(function(it){ return it.file; });
       var labels = snap.items.map(function(it){ return it.label; });
@@ -26409,6 +26428,7 @@ var TabLog = (function(){
         return {file:f, img:img, label: (idx!==-1 && labels[idx]) ? labels[idx] : baseName(f.name)};
       }).then(function(res){
         items = res.loaded;
+        itemsFailed = res.failed;
         buildLabelInputs();
         $('#cs-build').disabled = items.length===0;
         $('#cs-clear').disabled = items.length===0;
@@ -26418,6 +26438,12 @@ var TabLog = (function(){
     }
     Promise.all(tasks).then(function(){
       if(items.length) $('#cs-build').click();
+      // 대표 이미지(직접 업로드 시에는 실패를 안내하는 것과 동일하게)나 표정 이미지 중
+      // 되돌리기 로드에 실패한 게 있으면 조용히 넘어가지 않고 안내한다.
+      var msgs = [];
+      if(heroFailed) msgs.push('대표 이미지를 불러오지 못했습니다.');
+      if(itemsFailed.length) msgs.push('불러오기 실패: '+itemsFailed.join(', '));
+      if(msgs.length){ $('#cs-info').textContent = msgs.join(' '); }
     });
   });
 })();
@@ -26932,6 +26958,8 @@ var TabLog = (function(){
       if(cfItems.length && !cfItems.some(function(it){ return it.isMain; })) cfItems[0].isMain = true;
       buildCfLabelInputs();
       syncCfButtons();
+      // 다른 탭과 동일하게, 되돌리기 중 표정 이미지 로드가 실패하면 안내한다.
+      if(res.failed.length) $('#cf-info').textContent = '이전 작업을 불러왔습니다. (실패 '+res.failed.length+'장: '+res.failed.join(', ')+')';
     });
   });
 })();
