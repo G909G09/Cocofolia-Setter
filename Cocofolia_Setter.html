@@ -20065,9 +20065,26 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
       ctx.drawImage(tmp, 0, 0);
       gif.addFrame(canvas, {delay: delays[i]||100, copy:true});
     });
-    gif.on('finished', function(blob){ terminateGifWorkers(gif); resolve(blob); });
-    gif.on('abort', function(){ terminateGifWorkers(gif); reject(new Error('GIF 인코딩이 중단되었습니다.')); });
+    var settled = false;
+    function settleReject(err){
+      if(settled) return;
+      settled = true;
+      terminateGifWorkers(gif);
+      reject(err);
+    }
+    gif.on('finished', function(blob){ settled = true; terminateGifWorkers(gif); resolve(blob); });
+    gif.on('abort', function(){ settleReject(new Error('GIF 인코딩이 중단되었습니다.')); });
     gif.render();
+    // gif.js.optimized는 'error' 이벤트를 내보내지 않고, render()가 spawnWorkers()로 만든
+    // Worker에도 onerror를 걸어두지 않는다 — CSP가 blob: Worker 생성을 막거나 워커 내부(색상
+    // 양자화 등)에서 예외가 나면 finished/abort 어느 쪽도 발생하지 않아 이 Promise가 영영
+    // settle되지 않는다(변환 버튼이 "변환 중..."에서 멈춤). render() 직후 이미 만들어진
+    // Worker들에 직접 onerror를 걸어 그 경우에도 reject되게 한다.
+    ['freeWorkers','activeWorkers'].forEach(function(k){
+      (gif[k]||[]).forEach(function(w){
+        w.onerror = function(){ settleReject(new Error('GIF 인코딩 중 워커 오류가 발생했습니다. 다시 시도해주세요.')); };
+      });
+    });
   });
 }
 
@@ -20355,19 +20372,28 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
     var endTime = Math.min(start+dur, video.duration-0.01);
 
     var playFailed = false;
-    await new Promise(function(resolve){
+    await new Promise(function(resolve, reject){
+      // onFrame은 브라우저가 requestVideoFrameCallback으로 직접 호출하는 콜백이라, 이 async
+      // 함수의 호출 스택(과 그걸 감싸는 try/catch) 밖에서 실행된다. captureAt() 안의 캔버스
+      // 작업(getImageData 등)이 예외를 던지면 잡아줄 곳이 없어 이 Promise가 영영 settle되지
+      // 않고 "변환 중..."에서 멈춘다. try/catch로 감싸 실패 시 reject하도록 한다.
       function onFrame(now, metadata){
-        var mt = metadata.mediaTime;
-        while(nextIdx < targetTimes.length && mt >= targetTimes[nextIdx]){
-          captureAt(nextIdx);
-          nextIdx++;
-        }
-        if(nextIdx >= targetTimes.length || mt >= endTime || video.ended){
+        try{
+          var mt = metadata.mediaTime;
+          while(nextIdx < targetTimes.length && mt >= targetTimes[nextIdx]){
+            captureAt(nextIdx);
+            nextIdx++;
+          }
+          if(nextIdx >= targetTimes.length || mt >= endTime || video.ended){
+            video.pause();
+            resolve();
+            return;
+          }
+          video.requestVideoFrameCallback(onFrame);
+        }catch(e){
           video.pause();
-          resolve();
-          return;
+          reject(e);
         }
-        video.requestVideoFrameCallback(onFrame);
       }
       video.requestVideoFrameCallback(onFrame);
       video.play().catch(function(){ playFailed = true; resolve(); });
