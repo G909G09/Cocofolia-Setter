@@ -20313,9 +20313,15 @@ function encodeGif(frames, delays, width, height, preserveAlpha){
   }
 
   function seekVideo(video, t){
-    return new Promise(function(res){
-      function onSeeked(){ video.removeEventListener('seeked', onSeeked); res(); }
+    return new Promise(function(res, rej){
+      function cleanup(){
+        video.removeEventListener('seeked', onSeeked);
+        video.removeEventListener('error', onError);
+      }
+      function onSeeked(){ cleanup(); res(); }
+      function onError(){ cleanup(); rej(new Error('영상 탐색 중 오류가 발생했습니다. mp4(H.264) 파일인지 확인해주세요.')); }
       video.addEventListener('seeked', onSeeked);
+      video.addEventListener('error', onError);
       video.currentTime = t;
     });
   }
